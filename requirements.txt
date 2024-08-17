@@ -1,0 +1,21 @@
+Flask
+pandas
+fpdf
+Pillow
+Flask-Mail
+reportlab
+requests
+gunicorn
+pymongo 
+dnspython
+python-dotenv
+OTPLessAuthSDK
+apscheduler
+PyPDF2
+ 
+gspread
+google-auth
+
+
+# gcloud app deploy app.yaml --project=coworkingspaceschatbot-tmva
+# $ gcloud app logs tail -s default

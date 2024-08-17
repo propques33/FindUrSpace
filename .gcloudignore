@@ -1,0 +1,12 @@
+.git
+.gitignore
+.gcloudignore
+.env
+__pycache__
+*.pyc
+env/
+myenv/
+propques/
+test/
+node_modules/
+*.log

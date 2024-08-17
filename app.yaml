@@ -1,0 +1,22 @@
+runtime: python312
+
+entrypoint: gunicorn -b :$PORT main:app
+
+handlers:
+- url: /.*
+  script: auto
+
+# automatic_scaling:
+#   min_instances: 1
+#   max_instances: 5  # Adjust as needed but ensure it's within your quota
+#   target_cpu_utilization: 0.6  # Adjust as needed
+#   target_throughput_utilization: 0.75  # Adjust as needed
+
+env_variables:
+  FLASK_ENV: 'production'
+  OTPLESS_API_TOKEN: '33JNARK4ZB0OH4A4D88R'
+  CLIENT_ID: 'K3CFAIIXV5XMOATA5EY10N8F9JZS22Z0'
+  CLIENT_SECRET: 'h88eb6s09bu9amiv65zvh48uq60zvbnv'
+  MAIL_PASSWORD: 'srcrthwcvdkaslap'
+  MONGO_URI: 'mongodb+srv://buzz:FcYVgTJ4cEf8kQnM@clusterm0.mqwsbsy.mongodb.net/FindYourSpace?retryWrites=true&w=majority&appName=ClusterM0'
+  GOOGLE_SHEETS_CREDENTIALS: config/coworkingspaceschatbot-tmva-7e30b1d8e05b.json
