@@ -18,10 +18,13 @@ from PyPDF2 import PdfReader, PdfWriter
 import OTPLessAuthSDK
 from PIL import Image as PILImage
 from google.oauth2.service_account import Credentials
+
 import base64
 import json
+import urllib.parse
 from whatsapp_integration import send_whatsapp_verification
 from gsheet_updater import handle_new_property_entry
+from godial import send_data_to_godial
 
 load_dotenv()
 
@@ -276,6 +279,18 @@ def index():
 
                 # Update Google Sheet
                 handle_new_property_entry(db, property_data)
+
+                # Send data to GoDial
+                send_data_to_godial({
+                    'name': name,
+                    'email': email,
+                    'mobile_number': mobile,
+                    'cname': cname,
+                    'seats': seats,
+                    'city': selected_city,
+                    'micromarket': selected_micromarket,
+                    'property_names': property_names
+                })
 
                 if "@gmail.com" in email:
                     email_log = {
