@@ -337,7 +337,7 @@ def submit_fillurdetails():
             if file and (file.filename.endswith('.pdf') or file.filename.endswith('.dwg')):
                 files.append({
                     'filename': file.filename,
-                    'data': file.read()
+                    'data': file.read(),
                     'content_type': file.content_type
                 })
 
