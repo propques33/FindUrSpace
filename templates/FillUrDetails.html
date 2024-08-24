@@ -374,10 +374,10 @@
                             <span>Drag and drop file here</span>
                             <span>or <span class="select-text">select a file</span> from your computer</span>
                         </div>
-                        <input type="file" id="pdf_upload" name="pdf_upload[]" accept=".pdf" multiple class="upload-input" onchange="previewPDFs()" />
+                        <input type="file" id="file_upload" name="file_upload[]" accept=".pdf,.dwg" multiple class="upload-input" onchange="previewFiles()" />
                     </label>
                 </div>
-                <div id="pdf-preview" class="preview-container">
+                <div id="file-preview" class="preview-container">
                     <!-- This will display the PDF thumbnails -->
                 </div>
             </fieldset>
@@ -458,25 +458,34 @@
         //     });
         // }
 
-        function previewPDFs() {
-    const pdfInput = document.getElementById('pdf_upload');
-    const pdfPreview = document.getElementById('pdf-preview');
-    pdfPreview.innerHTML = '';
+        function previewFiles() {
+            const fileInput = document.getElementById('file_upload');
+            const filePreview = document.getElementById('file-preview');
+            filePreview.innerHTML = '';
 
-    Array.from(pdfInput.files).forEach(file => {
-        const fileURL = URL.createObjectURL(file);
-        const pdfThumbnail = document.createElement('div');
-        pdfThumbnail.classList.add('pdf-thumbnail');
-        
-        pdfThumbnail.innerHTML = `
-            <a href="${fileURL}" target="_blank">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF Thumbnail" class="icon" />
-            </a>
-        `;
+            Array.from(fileInput.files).forEach(file => {
+                const fileURL = URL.createObjectURL(file);
+                const fileThumbnail = document.createElement('div');
+                fileThumbnail.classList.add('pdf-thumbnail');
+                
+                if (file.type === 'application/pdf') {
+                    fileThumbnail.innerHTML = `
+                        <a href="${fileURL}" target="_blank">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF Thumbnail" class="icon" />
+                        </a>
+                    `;
+                } else if (file.name.endsWith('.dwg')) {
+                    fileThumbnail.innerHTML = `
+                        <a href="${fileURL}" target="_blank">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/DWG_icon.svg" alt="DWG Thumbnail" class="icon" />
+                        </a>
+                    `;
+                }
 
-        pdfPreview.appendChild(pdfThumbnail);
-    });
-}
+                filePreview.appendChild(fileThumbnail);
+            });
+        }
+
     </script>
 </body>
 </html>

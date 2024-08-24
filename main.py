@@ -331,13 +331,14 @@ def submit_fillurdetails():
         price_per_seat = request.form.getlist('price_per_seat[]')
 
         # Handle file uploads
-        uploaded_files = request.files.getlist('pdf_upload[]')
-        pdf_files = []
+        uploaded_files = request.files.getlist('file_upload[]')
+        files = []
         for file in uploaded_files:
-            if file:
-                pdf_files.append({
+            if file and (file.filename.endswith('.pdf') or file.filename.endswith('.dwg')):
+                files.append({
                     'filename': file.filename,
                     'data': file.read()
+                    'content_type': file.content_type
                 })
 
         # Organize inventory data
@@ -360,7 +361,7 @@ def submit_fillurdetails():
             'total_seats': total_seats,
             'current_vacancy': current_vacancy,
             'inventory': inventory,
-            'pdf_files':pdf_files,
+            'files': files,
             'date': datetime.datetime.now()
         }
 
