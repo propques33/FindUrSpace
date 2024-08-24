@@ -309,6 +309,72 @@ def index():
     return render_template('index.html', name=session.get('name'), mobile=session.get('mobile'), 
                            email=session.get('email'), cname=session.get('cname'))
 
+
+@app.route('/list-your-space')
+def list_your_space():
+    return render_template('FillUrDetails.html')
+
+@app.route('/submit_property_details', methods=['POST'])
+def submit_fillurdetails():
+    try:
+        # Extract form data
+        coworking_name = request.form.get('coworking_name')
+        city = request.form.get('city')
+        micromarket = request.form.get('micromarket')
+        name = request.form.get('name')
+        owner_phone = request.form.get('owner_phone')
+        owner_email = request.form.get('owner_email')
+        total_seats = request.form.get('total_seats')
+        current_vacancy = request.form.get('current_vacancy')
+        inventory_type = request.form.getlist('inventory_type[]')
+        inventory_count = request.form.getlist('inventory_count[]')
+        price_per_seat = request.form.getlist('price_per_seat[]')
+
+        # Handle file uploads
+        uploaded_files = request.files.getlist('pdf_upload[]')
+        pdf_files = []
+        for file in uploaded_files:
+            if file:
+                pdf_files.append({
+                    'filename': file.filename,
+                    'data': file.read()
+                })
+
+        # Organize inventory data
+        inventory = []
+        for i in range(len(inventory_type)):
+            inventory.append({
+                'type': inventory_type[i],
+                'count': inventory_count[i],
+                'price_per_seat': price_per_seat[i]
+            })
+
+        # Create a document to insert into MongoDB
+        property_details = {
+            'coworking_name': coworking_name,
+            'city': city,
+            'micromarket': micromarket,
+            'name': name,
+            'owner_phone': owner_phone,
+            'owner_email': owner_email,
+            'total_seats': total_seats,
+            'current_vacancy': current_vacancy,
+            'inventory': inventory,
+            'pdf_files':pdf_files,
+            'date': datetime.datetime.now()
+        }
+
+        # Insert into MongoDB
+        db.fillurdetails.insert_one(property_details)
+
+        flash("Property details submitted successfully.", "success")
+    except Exception as e:
+        flash(f"Failed to submit property details: {str(e)}", "error")
+    
+    return redirect(url_for('list_your_space'))
+
+
+
 @app.route('/verify_mobile', methods=['GET'])
 def verify_mobile():
     token = request.args.get('code')
