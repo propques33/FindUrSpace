@@ -19,6 +19,10 @@ import OTPLessAuthSDK
 from PIL import Image as PILImage
 from google.oauth2.service_account import Credentials
 
+# Importing the Google Drive integration module
+from google_drive_integration import authenticate_google_drive, upload_pdf_to_google_drive, send_pdf_via_noapp
+
+
 import base64
 import json
 import urllib.parse
@@ -169,6 +173,17 @@ def send_email(to_email, name, properties):
     except Exception as e:
         flash(f"Failed to send email: {e}", "error")
         return False, None
+    
+# Function to handle PDF upload and WhatsApp message sending
+def handle_pdf_upload_and_send(pdf_buffer, mobile_number):
+    # Authenticate with Google Drive
+    creds = authenticate_google_drive()
+
+    # Upload the PDF to Google Drive and get the shareable link
+    shareable_link = upload_pdf_to_google_drive(pdf_buffer, creds, "property_data.pdf")
+
+    # Send the PDF via WhatsApp using the shareable link
+    send_pdf_via_noapp(shareable_link, mobile_number)
 
 def delete_old_email_logs():
     limit_date = datetime.datetime.now() - datetime.timedelta(days=30)
@@ -298,6 +313,9 @@ def index():
                         'date': datetime.datetime.now()
                     }
                     db.email_logs.insert_one(email_log)
+
+                # Upload and send the PDF via WhatsApp to the user's mobile number
+                handle_pdf_upload_and_send(pdf_buffer, mobile)
                 
                 # Flash the success message only once
                 flash("Email sent successfully.", "success")
