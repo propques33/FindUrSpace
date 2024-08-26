@@ -16,8 +16,3 @@ PyPDF2
 gspread
 google-auth
 
-cloudinary
-
-
-# gcloud app deploy app.yaml --project=coworkingspaceschatbot-tmva
-# $ gcloud app logs tail -s default
