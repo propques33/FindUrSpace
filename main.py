@@ -318,7 +318,7 @@ def index():
                 handle_pdf_upload_and_send(pdf_buffer, mobile)
                 
                 # Flash the success message only once
-                flash("Email sent successfully.", "success")
+                flash("Details sent successfully.", "success")
             else:
                 flash("Email limit reached for this Gmail address. Please try again later.", "error")
 
