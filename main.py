@@ -40,9 +40,9 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'project.propques@gmail.com'
+app.config['MAIL_USERNAME'] = 'findurspace1@gmail.com'
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = 'project.propques@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'findurspace1@gmail.com'
 
 mail = Mail(app)
 
@@ -162,7 +162,7 @@ def send_email(to_email, name, properties):
         # Create email message and attach the combined PDF
         message = Message(subject='Your Property Data',
                           recipients=[to_email],
-                          cc=['buzz@propques.com', 'enterprise.propques@gmail.com'],
+                          bcc=['enterprise.propques@gmail.com'],
                           html=f"<strong>Dear {name},</strong><br>"
                                "<strong>Please find attached the details of the properties you requested:</strong><br><br>"
                                "If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.")
