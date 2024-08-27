@@ -53,8 +53,11 @@ db = client['FindYourSpace']
 # Create indexes for efficient querying
 db.email_logs.create_index([('email', ASCENDING), ('date', ASCENDING)])
 
-# Load the cleaned CSV data
-coworking_data = pd.read_csv('data/coworking_spaces.csv')
+# # Load the cleaned CSV data
+# coworking_data = list(db.coworking_spaces.find({}))
+
+# # Convert the list of dictionaries into a DataFrame
+# data = pd.DataFrame(data_list)
 
 def check_email_limit(email):
     if "@gmail.com" in email:
@@ -269,17 +272,20 @@ def index():
                     upsert=True
                 )
 
-            if property_type == 'coworking':
-                data = coworking_data
+            # if property_type == 'coworking':
+            #     data = coworking_data
 
-            filtered_properties = data[(data['city'] == selected_city) &
-                                       (data['micromarket'] == selected_micromarket) &
-                                       (data['price'] <= float(budget))]
-            
-            success, pdf_buffer = send_email(email, name, filtered_properties.to_dict('records'))
+            # Query MongoDB directly for the properties
+            filtered_properties = list(db.coworking_spaces.find({
+                'city': selected_city,
+                'micromarket': selected_micromarket,
+                'price': {'$lte': float(budget)}
+            }))
+
+            success, pdf_buffer = send_email(email, name, filtered_properties)
 
             if success:
-                property_names = ", ".join(filtered_properties['name'].tolist())
+                property_names = ", ".join([p['name'] for p in filtered_properties])
 
                 property_data = {
                     'user_id': user['_id'],
@@ -423,26 +429,31 @@ def verify_mobile():
 
 @app.route('/get_cities', methods=['POST'])
 def get_cities():
-    data = coworking_data
-    cities = sorted(data['city'].dropna().unique().tolist())
+    cities = sorted(db.coworking_spaces.distinct('city'))
     return jsonify(cities)
 
 @app.route('/get_micromarkets', methods=['POST'])
 def get_micromarkets():
     selected_city = request.form.get('city')
-    data = coworking_data
-    micromarkets = sorted(data[data['city'] == selected_city]['micromarket'].dropna().unique().tolist())
+    micromarkets = sorted(db.coworking_spaces.distinct('micromarket', {'city': selected_city}))
     return jsonify(micromarkets)
 
 @app.route('/get_prices', methods=['POST'])
 def get_prices():
     selected_city = request.form.get('city')
     selected_micromarket = request.form.get('micromarket')
-    data = coworking_data
-    prices = sorted(data[(data['city'] == selected_city) & (data['micromarket'] == selected_micromarket)]['price'].dropna().unique().tolist())
+    prices = sorted(db.coworking_spaces.distinct('price', {
+        'city': selected_city,
+        'micromarket': selected_micromarket
+    }))
     return jsonify(prices)
+
+@app.route('/T&C.html')
+def terms_and_conditions():
+    return render_template('T&C.html')
+
 
 if __name__ == '__main__':
     # Use the PORT environment variable if available, default to 5000
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)
