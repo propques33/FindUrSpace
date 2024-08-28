@@ -165,7 +165,7 @@ def send_email(to_email, name, properties):
         # Create email message and attach the combined PDF
         message = Message(subject='Your Property Data',
                           recipients=[to_email],
-                          bcc=['enterprise.propques@gmail.com'],
+                          bcc=['enterprise.propques@gmail.com','buzz@propques.com','thomas@propques.com'],
                           html=f"<strong>Dear {name},</strong><br>"
                                "<strong>Please find attached the details of the properties you requested:</strong><br><br>"
                                "If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.")
