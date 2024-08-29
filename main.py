@@ -282,6 +282,70 @@ def index():
                 'price': {'$lte': float(budget)}
             }))
 
+            if not filtered_properties:
+
+                # If no properties are found, create a PDF with the static pages 1, 2, and 5, and a custom message
+                static_pdf_path = os.path.join('static', 'pdffin.pdf')
+                static_pdf = PdfReader(static_pdf_path)
+                static_page_size = (static_pdf.pages[0].mediabox.width, static_pdf.pages[0].mediabox.height)
+                
+                # Create a new PDF for the custom message
+                dynamic_pdf_buffer = BytesIO()
+                doc = SimpleDocTemplate(dynamic_pdf_buffer, pagesize=static_page_size, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+                styles = getSampleStyleSheet()
+                
+                # Define custom styles with larger font sizes
+                styles.add(ParagraphStyle(name='LargeTitle', fontName='Helvetica-Bold', fontSize=20, spaceAfter=12))
+                styles.add(ParagraphStyle(name='LargeNormal', fontName='Helvetica', fontSize=16, spaceAfter=8))
+
+                # Create the elements with the updated styles
+                elements = [
+                    Paragraph("Sorry, we don't have any properties available for the following details:", styles['LargeTitle']),
+                    Spacer(1, 24),
+                    Paragraph(f"City: {selected_city}", styles['LargeNormal']),
+                    Paragraph(f"Micromarket: {selected_micromarket}", styles['LargeNormal']),
+                    Paragraph(f"Budget: {budget}", styles['LargeNormal']),
+                    Spacer(1, 24),
+                    Paragraph("Please try again with different inputs.", styles['LargeNormal'])
+                ]
+                
+                doc.build(elements)
+                dynamic_pdf_buffer.seek(0)
+                dynamic_pdf = PdfReader(dynamic_pdf_buffer)
+                    
+                # Merge static and dynamic PDFs
+                output_pdf = PdfWriter()
+
+                # Add static pages (pages 1, 2, and 5 from the original PDF)
+                output_pdf.add_page(static_pdf.pages[0])
+                output_pdf.add_page(static_pdf.pages[1])
+
+                # Add the custom message page
+                output_pdf.add_page(dynamic_pdf.pages[0])
+
+                # Add the final static page from the original PDF
+                output_pdf.add_page(static_pdf.pages[4])
+
+                # Save the combined PDF to a buffer
+                combined_pdf_buffer = BytesIO()
+                output_pdf.write(combined_pdf_buffer)
+                combined_pdf_buffer.seek(0)
+                
+                message = Message(subject='Property Search Results',
+                                recipients=[email],
+                                bcc=['enterprise.propques@gmail.com','buzz@propques.com','thomas@propques.com'],
+                                html=f"<strong>Dear {name},</strong><br>"
+                                    "<strong>Unfortunately, we couldn't find any properties matching your criteria. Please try again with different inputs</strong><br>"
+                                    # f"<strong>City:</strong> {selected_city}<br>"
+                                    # f"<strong>Micromarket:</strong> {selected_micromarket}<br>"
+                                    # f"<strong>Budget:</strong> {budget}<br>"
+                                    "Thank you for using our service.")
+                message.attach("no_properties_found.pdf", "application/pdf", combined_pdf_buffer.read())
+                mail.send(message)
+
+                flash("No properties found for the given details. A notification email has been sent.", "error")
+                return redirect(url_for('index'))
+
             success, pdf_buffer = send_email(email, name, filtered_properties)
 
             if success:
