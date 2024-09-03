@@ -403,7 +403,7 @@
             <fieldset>
                 <legend>Upload Files</legend>
                 <div class="upload-container">
-                    <label for="pdf_upload" class="upload-label">
+                    <label for="file_upload" class="upload-label">
                         <div class="upload-icon">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="Upload Icon" class="icon" />
                         </div>
@@ -411,13 +411,14 @@
                             <span>Drag and drop file here</span>
                             <span>or <span class="select-text">select a file</span> from your computer</span>
                         </div>
-                        <input type="file" id="file_upload" name="file_upload[]" accept=".pdf,.dwg" multiple class="upload-input" onchange="previewFiles()" />
                     </label>
+                    <input type="file" id="file_upload" name="file_upload[]" accept="application/pdf,application/x-dwg" multiple class="upload-input" onchange="previewFiles()" />
                 </div>
                 <div id="file-preview" class="preview-container">
                     <!-- This will display the PDF thumbnails -->
                 </div>
             </fieldset>
+            
             
             
             <button type="submit">Submit</button>
@@ -509,12 +510,14 @@
                     fileThumbnail.innerHTML = `
                         <a href="${fileURL}" target="_blank">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF Thumbnail" class="icon" />
+                        <p>${file.name}</p>
                         </a>
                     `;
                 } else if (file.name.endsWith('.dwg')) {
                     fileThumbnail.innerHTML = `
                         <a href="${fileURL}" target="_blank">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/DWG_icon.svg" alt="DWG Thumbnail" class="icon" />
+                        <p>${file.name}</p>
                         </a>
                     `;
                 }
