@@ -90,7 +90,8 @@
             flex-basis: 48%;
         }
 
-        .inventory-header {
+        .inventory-header,
+        .floor-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -98,13 +99,15 @@
             padding: 5px 0;
         }
 
-        .inventory-header .label {
+        .inventory-header .label,
+        .floor-header .label {
             font-size: 16px;
             font-weight: 600;
             color: #151d31;
         }
 
-        .inventory-group {
+        .inventory-group,
+        .floor-group {
             margin-bottom: 15px;
             border: 1px solid #ccc;
             padding: 10px;
@@ -138,22 +141,33 @@
 
         .delete-button {
             background-color: #ff4d4d;
-            color: #ff4d4d;
+            color: #fff;
             border: none;
             cursor: pointer;
             font-size: 18px;
             padding: 0 5px;
-            margin-left: auto;
+            margin-left: 10px;
+            border-radius: 5px;
+            transition: background-color 100ms ease;
         }
 
-        /* PDF thumbnail styling */
-        .pdf-thumbnail {
+        .delete-button:hover {
+            background-color: rgb(172, 2, 2);
+        }
+
+        .delete-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Image thumbnail styling */
+        .image-thumbnail {
             display: inline-block;
             margin-right: 10px;
             cursor: pointer;
+            position: relative;
         }
 
-        .pdf-thumbnail img {
+        .image-thumbnail img {
             width: 50px;
             height: 50px;
             object-fit: cover;
@@ -161,7 +175,6 @@
             border: 1px solid #e9e9e9;
         }
 
-        /* Flash message styling */
         .flash {
             display: inline-block;
             padding:10px;
@@ -187,7 +200,7 @@
 
         .flash-container {
             display: flex;
-            justify-content: center; /* Centers the flash message */
+            justify-content: center;
             width: 100%;
             margin-bottom: 20px;
         }
@@ -206,117 +219,87 @@
                 flex-basis: 100%;
             }
         }
-        button#col{
+
+        button#col {
             background-color: red;
-            width:40px;
-            height:40px;
+            width: 40px;
+            height: 40px;
             border-radius: 100%;
         }
-        button#col:hover{
+
+        button#col:hover {
             background-color: rgb(172, 2, 2);
         }
+
         .upload-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 150px;
-    border: 2px dashed #151d31;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-}
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #151d31;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
 
-.upload-container:hover {
-    border-color: #607d8b;
-}
+        .upload-container:hover {
+            border-color: #607d8b;
+        }
 
-/* Upload Label */
-.upload-label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    text-align: center;
-}
+        /* Upload Label */
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            text-align: center;
+        }
 
-.upload-icon .icon {
-    width: 64px;
-    height: 64px;
-    color: #084f49;
-}
+        .upload-icon .icon {
+            width: 64px;
+            height: 64px;
+            color: #084f49;
+        }
 
-.upload-text span {
-    color: #607d8b;
-    font-size: 14px;
-}
+        .upload-text span {
+            color: #607d8b;
+            font-size: 14px;
+        }
 
-.select-text {
-    color: #084f49;
-    font-weight: bold;
-}
+        .select-text {
+            color: #084f49;
+            font-weight: bold;
+        }
 
-/* Upload Input */
-.upload-input {
-    display: none;
-}
+        .upload-input {
+            display: none;
+        }
 
-/* Preview Container */
-.preview-container {
-    margin-top: 20px;
-}
+        .preview-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-.preview-container img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    border: 2px solid #e0e0e0;
-}
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
     </style>
-<!-- Meta Pixel Code -->
-    <script defer>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '3647529905577467');
-    fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
-
-        <!-- microsoft clarity code here!!-->
-    <script defer type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "nu6n4eyi0m");
-    </script>
-
-    <!-- Google tag (gtag.js) -->
-<script defer src="https://www.googletagmanager.com/gtag/js?id=G-924X930TLZ"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-924X930TLZ');
-</script>
-
 </head>
 <body>
     <div class="container">
+
+        <a href="{{url_for('admin.admin_dashboard')}}" class="back-button">Back to Dashboard</a>
+
         <h2>List Your Space</h2>
 
         <!-- Display flash messages here -->
@@ -328,7 +311,7 @@
             {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('submit_fillurdetails') }}" method="post" enctype="multipart/form-data">
+        <form action="{{ url_for('admin.list_your_space') }}" method="post" enctype="multipart/form-data">
             <!-- Coworking Details -->
             <fieldset>
                 <legend>Coworking Details</legend>
@@ -392,42 +375,40 @@
                 <button type="button" onclick="addInventory()">+ Add More Inventory</button>
             </fieldset>
             
-            <!-- File Upload Section -->
-            <!-- <fieldset>
-                <legend>Upload Files</legend>
-                
-                <input type="file" id="pdf_upload" name="pdf_upload[]" accept=".pdf" multiple class="full-width" onchange="previewPDFs()">
-                <div id="pdf-preview"></div>
-            </fieldset> -->
-
+            <!-- Floor Plan Upload Section -->
             <fieldset>
-                <legend>Upload Files</legend>
-                <div class="upload-container">
-                    <label for="file_upload" class="upload-label">
-                        <div class="upload-icon">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="Upload Icon" class="icon" />
+                <legend>Upload Floor Plans</legend>
+                
+                <div id="floor-container">
+                    <div class="floor-group">
+                        <div class="floor-header">
+                            <span class="label">Floor 1</span>
+                            <button type="button" class="delete-button" id="col" onclick="removeFloor(this)">x</button>
                         </div>
-                        <div class="upload-text">
-                            <span>Drag and drop file here</span>
-                            <span>or <span class="select-text">select a file</span> from your computer</span>
+                        <div class="form-group">
+                            <input type="text" id="floor_name" name="floor_name[]" placeholder="Floor Name (e.g., Ground Floor)" required class="full-width">
                         </div>
-                    </label>
-                    <input type="file" id="file_upload" name="file_upload[]" accept="application/pdf,application/x-dwg" multiple class="upload-input" onchange="previewFiles()" />
+                        <div class="form-group">
+                            <input type="file" id="floor_image" name="floor_image[]" accept="image/png, image/jpeg, image/jpg" required class="full-width" onchange="previewFloorFiles(this)">
+                        </div>
+                        <div id="floor-preview" class="preview-container">
+                            <!-- This will display the image thumbnail for each floor -->
+                        </div>
+                    </div>
                 </div>
-                <div id="file-preview" class="preview-container">
-                    <!-- This will display the PDF thumbnails -->
-                </div>
+                
+                <button type="button" onclick="addFloor()">+ Add More Floors</button>
             </fieldset>
-            
-            
-            
+
             <button type="submit">Submit</button>
         </form>
     </div>
 
     <script>
         let inventoryCount = 1;
+        let floorCount = 1;
 
+        // Function to dynamically add new inventory sections
         function addInventory() {
             inventoryCount++;
             const container = document.getElementById('inventory-container');
@@ -462,12 +443,14 @@
             container.appendChild(inventoryGroup);
         }
 
+        // Function to remove an inventory section
         function removeInventory(button) {
             const inventoryGroup = button.parentElement.parentElement;
             inventoryGroup.remove();
             updateInventoryLabels();
         }
 
+        // Function to update the inventory labels
         function updateInventoryLabels() {
             const inventoryGroups = document.querySelectorAll('.inventory-group .inventory-header .label');
             inventoryGroups.forEach((label, index) => {
@@ -476,56 +459,74 @@
             inventoryCount = inventoryGroups.length;
         }
 
-        // function previewPDFs() {
-        //     const pdfInput = document.getElementById('pdf_upload');
-        //     const pdfPreview = document.getElementById('pdf-preview');
-        //     pdfPreview.innerHTML = '';
+        // Function to dynamically add new floor plan sections
+        function addFloor() {
+            floorCount++;
+            const container = document.getElementById('floor-container');
 
-        //     Array.from(pdfInput.files).forEach(file => {
-        //         const fileURL = URL.createObjectURL(file);
-        //         const pdfThumbnail = document.createElement('div');
-        //         pdfThumbnail.classList.add('pdf-thumbnail');
-                
-        //         pdfThumbnail.innerHTML = `
-        //             <a href="${fileURL}" target="_blank">
-        //                 <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF Thumbnail">
-        //             </a>
-        //         `;
+            const floorGroup = document.createElement('div');
+            floorGroup.classList.add('floor-group');
 
-        //         pdfPreview.appendChild(pdfThumbnail);
-        //     });
-        // }
+            floorGroup.innerHTML = `
+                <div class="floor-header">
+                    <span class="label">Floor ${floorCount}</span>
+                    <button type="button" class="delete-button" id="col" onclick="removeFloor(this)">x</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="floor_name" name="floor_name[]" placeholder="Floor Name (e.g., First Floor)" required class="full-width">
+                </div>
+                <div class="form-group">
+                    <input type="file" id="floor_image" name="floor_image[]" accept="image/png, image/jpeg, image/jpg" required class="full-width" onchange="previewFloorFiles(this)">
+                </div>
+                <div id="floor-preview-${floorCount}" class="preview-container">
+                    <!-- This will display the image thumbnail for the floor -->
+                </div>
+            `;
 
-        function previewFiles() {
-            const fileInput = document.getElementById('file_upload');
-            const filePreview = document.getElementById('file-preview');
-            filePreview.innerHTML = '';
-
-            Array.from(fileInput.files).forEach(file => {
-                const fileURL = URL.createObjectURL(file);
-                const fileThumbnail = document.createElement('div');
-                fileThumbnail.classList.add('pdf-thumbnail');
-                
-                if (file.type === 'application/pdf') {
-                    fileThumbnail.innerHTML = `
-                        <a href="${fileURL}" target="_blank">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF Thumbnail" class="icon" />
-                        <p>${file.name}</p>
-                        </a>
-                    `;
-                } else if (file.name.endsWith('.dwg')) {
-                    fileThumbnail.innerHTML = `
-                        <a href="${fileURL}" target="_blank">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/DWG_icon.svg" alt="DWG Thumbnail" class="icon" />
-                        <p>${file.name}</p>
-                        </a>
-                    `;
-                }
-
-                filePreview.appendChild(fileThumbnail);
-            });
+            container.appendChild(floorGroup);
         }
 
+        // Function to remove a floor section
+        function removeFloor(button) {
+            const floorGroup = button.parentElement.parentElement;
+            floorGroup.remove();
+            updateFloorLabels();
+        }
+
+        // Function to update the floor labels
+        function updateFloorLabels() {
+            const floorGroups = document.querySelectorAll('.floor-group .floor-header .label');
+            floorGroups.forEach((label, index) => {
+                label.textContent = `Floor ${index + 1}`;
+            });
+            floorCount = floorGroups.length;
+        }
+
+        // Function to preview uploaded floor plan images
+        function previewFloorFiles(input) {
+            const file = input.files[0];
+            const previewContainer = input.parentElement.nextElementSibling;
+
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                const fileThumbnail = document.createElement('div');
+                fileThumbnail.classList.add('image-thumbnail');
+
+                fileThumbnail.innerHTML = `
+                    <img src="${fileURL}" alt="Floor Image Thumbnail" />
+                    <button type="button" class="delete-button" onclick="removeFile(this)">x</button>
+                `;
+
+                previewContainer.innerHTML = '';
+                previewContainer.appendChild(fileThumbnail);
+            }
+        }
+
+        // Function to remove image thumbnails
+        function removeFile(button) {
+            const fileThumbnail = button.parentElement;
+            fileThumbnail.remove();
+        }
     </script>
 </body>
 </html>

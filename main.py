@@ -6,7 +6,6 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Page
 from reportlab.lib.units import inch
 import requests
 from io import BytesIO
-import pandas as pd
 from pymongo import MongoClient, ASCENDING
 import datetime
 import secrets
@@ -19,17 +18,14 @@ import OTPLessAuthSDK
 from PIL import Image as PILImage
 from google.oauth2.service_account import Credentials
 
-# Importing the Google Drive integration module
+# Importing Blueprints and Other Modules
+from admin.admin import admin_bp  # Admin Blueprint
 from google_drive_integration import authenticate_google_drive, upload_pdf_to_google_drive, send_pdf_via_noapp
-
-
-import base64
-import json
-import urllib.parse
 from whatsapp_integration import send_whatsapp_verification
 from gsheet_updater import handle_new_property_entry
 from godial import send_data_to_godial
 
+# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
@@ -47,18 +43,16 @@ app.config['MAIL_DEFAULT_SENDER'] = 'findurspace1@gmail.com'
 mail = Mail(app)
 
 # MongoDB configuration
-client = MongoClient(os.environ.get('MONGO_URI'))
+client = MongoClient(os.environ.get('MONGO_URI'))  # Ensure MONGO_URI is loaded correctly
 db = client['FindYourSpace']
+
+# Store db instance in app config
+app.config['db'] = db
 
 # Create indexes for efficient querying
 db.email_logs.create_index([('email', ASCENDING), ('date', ASCENDING)])
 
-# # Load the cleaned CSV data
-# coworking_data = list(db.coworking_spaces.find({}))
-
-# # Convert the list of dictionaries into a DataFrame
-# data = pd.DataFrame(data_list)
-
+# Email limit checker
 def check_email_limit(email):
     if "@gmail.com" in email:
         limit_date = datetime.datetime.now() - datetime.timedelta(days=30)
@@ -69,6 +63,7 @@ def check_email_limit(email):
         return email_count < 10
     return True
 
+# Fetch image from URL
 def fetch_image(url):
     try:
         response = requests.get(url)
@@ -78,6 +73,7 @@ def fetch_image(url):
         print(f"Failed to fetch image from {url}: {e}")
     return None
 
+# Generate PDF with property details
 def generate_property_pdf(properties, doc, styles):
     elements = []
 
@@ -120,6 +116,7 @@ def generate_property_pdf(properties, doc, styles):
 
     doc.build(elements)
 
+# Send email with PDF attachment
 def send_email(to_email, name, properties):
     if not check_email_limit(to_email):
         flash(f"Email limit reached for {to_email}", "error")
@@ -131,8 +128,7 @@ def send_email(to_email, name, properties):
         static_pdf = PdfReader(static_pdf_path)
 
         # Keep the page size consistent with the static pages
-        static_page = static_pdf.pages[0]
-        static_page_size = (static_page.mediabox.width, static_page.mediabox.height)
+        static_page_size = (static_pdf.pages[0].mediabox.width, static_pdf.pages[0].mediabox.height)
 
         # Create a new PDF for the dynamic content
         dynamic_pdf_buffer = BytesIO()
@@ -165,7 +161,7 @@ def send_email(to_email, name, properties):
         # Create email message and attach the combined PDF
         message = Message(subject='Your Property Data',
                           recipients=[to_email],
-                          bcc=['enterprise.propques@gmail.com','buzz@propques.com','thomas@propques.com'],
+                          bcc=['enterprise.propques@gmail.com', 'buzz@propques.com', 'thomas@propques.com'],
                           html=f"<strong>Dear {name},</strong><br>"
                                "<strong>Please find attached the details of the properties you requested:</strong><br><br>"
                                "If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.")
@@ -176,7 +172,7 @@ def send_email(to_email, name, properties):
     except Exception as e:
         flash(f"Failed to send email: {e}", "error")
         return False, None
-    
+
 # Function to handle PDF upload and WhatsApp message sending
 def handle_pdf_upload_and_send(pdf_buffer, mobile_number):
     # Authenticate with Google Drive
@@ -188,11 +184,13 @@ def handle_pdf_upload_and_send(pdf_buffer, mobile_number):
     # Send the PDF via WhatsApp using the shareable link
     send_pdf_via_noapp(shareable_link, mobile_number)
 
+# Delete old email logs
 def delete_old_email_logs():
     limit_date = datetime.datetime.now() - datetime.timedelta(days=30)
     result = db.email_logs.delete_many({'date': {'$lt': limit_date}})
     print(f"Deleted {result.deleted_count} old email logs.")
 
+# Schedule job to delete old logs every week
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=delete_old_email_logs, trigger="interval", weeks=1)
 scheduler.start()
@@ -272,10 +270,6 @@ def index():
                     upsert=True
                 )
 
-            # if property_type == 'coworking':
-            #     data = coworking_data
-
-            # Query MongoDB directly for the properties
             filtered_properties = list(db.coworking_spaces.find({
                 'city': selected_city,
                 'micromarket': selected_micromarket,
@@ -283,13 +277,11 @@ def index():
             }))
 
             if not filtered_properties:
-
-                # If no properties are found, create a PDF with the static pages 1, 2, and 5, and a custom message
+                # If no properties are found, create a PDF with a custom message
                 static_pdf_path = os.path.join('static', 'pdffin.pdf')
                 static_pdf = PdfReader(static_pdf_path)
                 static_page_size = (static_pdf.pages[0].mediabox.width, static_pdf.pages[0].mediabox.height)
                 
-                # Create a new PDF for the custom message
                 dynamic_pdf_buffer = BytesIO()
                 doc = SimpleDocTemplate(dynamic_pdf_buffer, pagesize=static_page_size, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
                 styles = getSampleStyleSheet()
@@ -316,34 +308,27 @@ def index():
                 # Merge static and dynamic PDFs
                 output_pdf = PdfWriter()
 
-                # Add static pages (pages 1, 2, and 5 from the original PDF)
                 output_pdf.add_page(static_pdf.pages[0])
                 output_pdf.add_page(static_pdf.pages[1])
 
-                # Add the custom message page
                 output_pdf.add_page(dynamic_pdf.pages[0])
 
-                # Add the final static page from the original PDF
                 output_pdf.add_page(static_pdf.pages[4])
 
-                # Save the combined PDF to a buffer
                 combined_pdf_buffer = BytesIO()
                 output_pdf.write(combined_pdf_buffer)
                 combined_pdf_buffer.seek(0)
                 
                 message = Message(subject='Property Search Results',
-                                recipients=[email],
-                                bcc=['enterprise.propques@gmail.com','buzz@propques.com','thomas@propques.com'],
-                                html=f"<strong>Dear {name},</strong><br>"
-                                    "<strong>Unfortunately, we couldn't find any properties matching your criteria. Please try again with different inputs</strong><br>"
-                                    # f"<strong>City:</strong> {selected_city}<br>"
-                                    # f"<strong>Micromarket:</strong> {selected_micromarket}<br>"
-                                    # f"<strong>Budget:</strong> {budget}<br>"
-                                    "Thank you for using our service.")
+                                  recipients=[email],
+                                  bcc=['enterprise.propques@gmail.com', 'buzz@propques.com', 'thomas@propques.com'],
+                                  html=f"<strong>Dear {name},</strong><br>"
+                                        "Unfortunately, we couldn't find any properties matching your criteria.<br>"
+                                        "Thank you for using our service.")
                 message.attach("no_properties_found.pdf", "application/pdf", combined_pdf_buffer.read())
                 mail.send(message)
 
-                flash("No properties found for the given details. A notification email has been sent.", "error")
+                flash("No properties found. A notification email has been sent.", "error")
                 return redirect(url_for('index'))
 
             success, pdf_buffer = send_email(email, name, filtered_properties)
@@ -377,17 +362,14 @@ def index():
                     'property_names': property_names
                 })
 
+                # Log email for Gmail addresses
                 if "@gmail.com" in email:
-                    email_log = {
-                        'email': email,
-                        'date': datetime.datetime.now()
-                    }
+                    email_log = {'email': email, 'date': datetime.datetime.now()}
                     db.email_logs.insert_one(email_log)
 
                 # Upload and send the PDF via WhatsApp to the user's mobile number
                 handle_pdf_upload_and_send(pdf_buffer, mobile)
                 
-                # Flash the success message only once
                 flash("Details sent successfully.", "success")
             else:
                 flash("Email limit reached for this Gmail address. Please try again later.", "error")
@@ -396,73 +378,6 @@ def index():
 
     return render_template('index.html', name=session.get('name'), mobile=session.get('mobile'), 
                            email=session.get('email'), cname=session.get('cname'))
-
-
-@app.route('/list-your-space')
-def list_your_space():
-    return render_template('FillUrDetails.html')
-
-@app.route('/submit_property_details', methods=['POST'])
-def submit_fillurdetails():
-    try:
-        # Extract form data
-        coworking_name = request.form.get('coworking_name')
-        city = request.form.get('city')
-        micromarket = request.form.get('micromarket')
-        name = request.form.get('name')
-        owner_phone = request.form.get('owner_phone')
-        owner_email = request.form.get('owner_email')
-        total_seats = request.form.get('total_seats')
-        current_vacancy = request.form.get('current_vacancy')
-        inventory_type = request.form.getlist('inventory_type[]')
-        inventory_count = request.form.getlist('inventory_count[]')
-        price_per_seat = request.form.getlist('price_per_seat[]')
-
-        # Handle file uploads
-        uploaded_files = request.files.getlist('file_upload[]')
-        files = []
-        for file in uploaded_files:
-            if file and (file.filename.endswith('.pdf') or file.filename.endswith('.dwg')):
-                files.append({
-                    'filename': file.filename,
-                    'data': file.read(),
-                    'content_type': file.content_type
-                })
-
-        # Organize inventory data
-        inventory = []
-        for i in range(len(inventory_type)):
-            inventory.append({
-                'type': inventory_type[i],
-                'count': inventory_count[i],
-                'price_per_seat': price_per_seat[i]
-            })
-
-        # Create a document to insert into MongoDB
-        property_details = {
-            'coworking_name': coworking_name,
-            'city': city,
-            'micromarket': micromarket,
-            'name': name,
-            'owner_phone': owner_phone,
-            'owner_email': owner_email,
-            'total_seats': total_seats,
-            'current_vacancy': current_vacancy,
-            'inventory': inventory,
-            'files': files,
-            'date': datetime.datetime.now()
-        }
-
-        # Insert into MongoDB
-        db.fillurdetails.insert_one(property_details)
-
-        flash("Property details submitted successfully.", "success")
-    except Exception as e:
-        flash(f"Failed to submit property details: {str(e)}", "error")
-    
-    return redirect(url_for('list_your_space'))
-
-
 
 @app.route('/verify_mobile', methods=['GET'])
 def verify_mobile():
@@ -516,6 +431,8 @@ def get_prices():
 def terms_and_conditions():
     return render_template('T&C.html')
 
+# Register the admin blueprint
+app.register_blueprint(admin_bp)
 
 if __name__ == '__main__':
     # Use the PORT environment variable if available, default to 5000

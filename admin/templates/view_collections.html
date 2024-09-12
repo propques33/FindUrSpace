@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Collections</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 90%;
+            margin: 20px auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: white;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <a href="{{url_for('admin.admin_dashboard')}}" class="back-button">Back to Dashboard</a>
+
+        <h2>Available Collections</h2>
+        <ul>
+            {% for collection in collections %}
+                <li>
+                    <a href="{{ url_for('admin.view_collection', collection_name=collection) }}">
+                        {{ collection | capitalize }}
+                    </a>
+                </li>
+            {% else %}
+                <p>No collections found.</p>
+            {% endfor %}
+        </ul>
+    </div>
+
+</body>
+</html>

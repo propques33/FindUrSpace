@@ -1,0 +1,778 @@
+body {
+    font-family: 'Mulish', sans-serif;
+}
+
+/* Navbar section */
+/* Navbar Styling */
+.navbar {
+    background-color: #0C1427; /* Matches the dark navy background color from the screenshot */
+    color: white;
+    /* padding: 15px 30px; */
+    position: fixed; /* Makes the navbar fixed at the top */
+    top: 0;
+    width: 100%;
+    z-index: 1000; /* Ensures the navbar stays on top of other elements */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+}
+
+/* Navbar Brand */
+.navbar-brand {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+}
+
+/* Navbar Links */
+.nav-link {
+    color: white !important;
+    font-weight: 500;
+    margin-left: 20px;
+    transition: color 0.3s ease;
+}
+
+/* Hover Effect for Links */
+.nav-link:hover {
+    color: #ff6600 !important; /* Change link color on hover to match the theme */
+}
+
+/* Navbar Collapse Button (For Mobile) */
+.navbar-toggler {
+    border: none;
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Adjustments for Larger Screen Padding */
+.container-fluid {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+/* Ensures Content Starts Below Fixed Navbar */
+body {
+    padding-top: 80px; /* Adjust this to match the height of your navbar */
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 20px;
+    }
+
+    .nav-link {
+        margin-left: 10px;
+    }
+
+    .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+
+/* Hero Section */
+.hero-section {
+    background-image: url('../images/Home BuildingsAsset 32.svg');
+    background-size: contain;
+    background-position: center;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #2b2b2b;
+    padding-left: 60px;
+    padding-right: 40px;
+}
+
+/* Hero Title */
+.hero-title {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 10px;
+}
+
+/* Hero Subtitle */
+.hero-subtitle {
+    font-size: 24px;
+    margin: 20px 0;
+    color: #333;
+}
+
+/* Hero Text Container */
+.hero-text {
+    max-width: 600px;
+    line-height: 1.6;
+    padding-right: 40px;
+}
+
+/* Form Section */
+.info-form-section .form-container {
+    border: 2px solid #ccc;
+    padding: 30px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: 120px;
+    width: 100%;
+    height: auto;
+    min-height: 400px; /* Ensure all forms are at least 400px high for uniformity */
+}
+
+/* Form Inputs */
+.form-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Input Group for Contact Field */
+.input-group {
+    display: flex; /* Use flex to ensure the flag and input are on the same line */
+    align-items: center;
+    width: 100%;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+}
+
+/* Adjust the flag to match height */
+.input-group .input-group-text {
+    background-color: transparent;
+    border: none;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-group input.form-control {
+    width: 100%; /* Ensure the input takes up the full width */
+    border: none; /* Remove any extra border */
+    padding-left: 40px; /* Adjust padding if needed */
+    height: 100%; /* Ensure the height matches other inputs */
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+.input-group img {
+    width: 24px; /* Adjust flag size */
+    height: auto;
+}
+
+/* Ensure button styling is consistent */
+.btn-block {
+    width: 100%;
+    background-color: #0033cc;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-block:hover {
+    background-color: #002699;
+}
+
+/* Step Navigation Styling */
+.step-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.step-nav div {
+    flex: 1;
+    text-align: center;
+    font-weight: normal;
+    color: #0033cc;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ccc;
+    transition: font-weight 0.3s;
+    cursor: pointer;
+}
+
+.step-nav div.active {
+    color: #ff6600;
+    font-weight: bold;
+}
+
+/* Uniform Focus State for All Inputs - No Glow */
+.form-container input:focus, 
+.form-container .input-group input:focus {
+    border-color: #0033cc; /* Set a simple border color on focus */
+    outline: none; /* Remove the default browser outline */
+    box-shadow: none; /* Remove any shadow or glow */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 80px 20px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 36px;
+    }
+
+    .hero-subtitle {
+        font-size: 20px;
+    }
+
+    .info-form-section .form-container {
+        margin-top: 40px;
+        max-width: 100%;
+        width: auto;
+        min-height: auto; /* Remove the minimum height on small screens */
+    }
+}
+
+/* Further responsive adjustments for very small screens */
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 30px;
+    }
+
+    .hero-subtitle {
+        font-size: 18px;
+    }
+
+    .info-form-section .form-container {
+        padding: 20px;
+    }
+}
+
+
+
+
+/* Benefits section */
+.benefits-section {
+    background-color: #151D31;
+    padding: 20px 0;
+    color: white;
+    border-radius: 20px;
+    margin: 20px auto; /* This centers the section horizontally */
+    width: 80%; /* You can adjust this value if needed */
+    max-width: 1200px; /* Ensure it doesn't exceed a max-width */
+    text-align: center; /* Center text content inside */
+    display: block; /* Ensure it is treated as a block element */
+}
+
+
+.benefit {
+    font-size: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    column-gap: 10px;
+}
+
+.benefit p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.benefit img {
+    margin-left: 8px;
+    width: 20px;
+    height: 20px;
+}
+
+.separator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.vertical-line {
+    height: 80px;
+    width: 2px;
+    background-color: white;
+}
+
+@media (max-width: 768px) {
+    .benefit {
+        text-align: center;
+    }
+
+    .separator {
+        display: none;
+    }
+}
+
+
+/* How it works section */
+.how-it-works-section {
+    padding: 50px 0;
+}
+
+.steps h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.steps .step {
+    margin-bottom: 20px;
+}
+
+.steps .step h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.steps .step p {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* Styling for the YouTube Placeholder */
+.youtube-video-box {
+    width: 100%;
+    height: 315px;
+    border: 2px dashed #151D31;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #151D31;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .how-it-works-section {
+        text-align: center;
+    }
+
+    .youtube-video-box {
+        margin-top: 20px;
+    }
+}
+
+
+/* company logos section */
+.company-logos-section {
+    background-color: #151D31;
+    padding: 10px 0;
+}
+
+.company-logos-section img {
+    max-width: 100%;
+    height: auto;
+    padding: 10px;
+    transition: transform 0.3s ease;
+}
+
+.company-logos-section img:hover {
+    transform: scale(1.2);
+}
+
+@media (max-width: 768px) {
+    .company-logos-section img {
+        margin-bottom: 20px;
+    }
+}
+
+/* Discover section */
+.discover-coworking-section {
+    padding: 50px 0;
+}
+
+.discover-coworking-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.scroll-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.cities-wrapper {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 20px 0;
+    scrollbar-width: none; /* For Firefox */
+}
+
+.cities-wrapper::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
+
+.city-card {
+    margin: 0 15px;
+    text-align: center;
+}
+
+.image-box {
+    width: 150px;  /* Fixed width */
+    height: 100px; /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #151D31;  /* Border around image */
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.image-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ensures the image scales inside the box */
+    border-radius: 5px;
+}
+
+.city-card h3 {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.city-card p {
+    margin-top: 5px;
+    font-size: 1rem;
+    color: #666;
+}
+
+.city-card:hover .image-box {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.scroll-btn {
+    background-color: #151D31;
+    color: white;
+    border: none;
+    font-size: 2rem;
+    padding: 10px;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+
+.scroll-btn.left {
+    left: 0;
+}
+
+.scroll-btn.right {
+    right: 0;
+}
+
+@media (max-width: 768px) {
+    .city-card {
+        width: 150px;
+    }
+}
+
+
+/* Presence Section */
+.presence-section {
+    padding: 50px 0;
+}
+
+.presence-section h2 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2C2E43;
+    margin-bottom: 20px;
+}
+
+.presence-section p {
+    font-size: 1.2rem;
+    color: #6C757D;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.presence-section h3 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color:#2C2E43
+}
+
+#india-map {
+    height: 400px; /* Fixed height */
+    /* border-radius: 10px; */
+    /* border: 2px solid #151D31; */
+    overflow: hidden;
+    margin-right: 60px;
+}
+
+/* Testimonials Section */
+/* Testimonials Section */
+.testimonials-section {
+    padding: 40px 0;
+}
+
+.testimonials-section h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.testimonial-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+}
+
+.testimonial-row-container {
+    overflow: hidden;
+    width: 80%; /* Adjust width as per your layout */
+}
+
+.testimonial-row {
+    display: flex;
+    transition: transform 0.5s ease; /* Smooth scrolling */
+}
+
+.testimonial-card {
+    width: 400px; /* Increased width of the cards */
+    padding: 10px;
+    margin:  15px; /* Adds space between cards */
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    height: 220px; /* Fix card height */
+}
+
+.text-card {
+    background-color: #192045; /* Dark background for the text box */
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    height: 150px; /* Fix the height for text card */
+    width: 300px;
+}
+
+.testimonial-card:hover {
+    transform: scale(1.1); /* Magnify the card more on hover */
+}
+
+.client-name {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: #1A1F36;
+    text-align: center;
+}
+
+/* Scroll Buttons */
+.scroll-btn {
+    background-color: #192045;
+    color: white;
+    font-size: 2rem;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.scroll-btn.left {
+    left: 0;
+}
+
+.scroll-btn.right {
+    right: 0;
+}
+
+.scroll-btn:hover {
+    background-color: #1A1F36;
+}
+
+
+
+/* Human bot section */
+.human-bot-section {
+    position: relative;
+    padding: 50px 0;
+    /* background-color: #f9f9f9; */
+    margin: 30px;
+}
+
+.human-bot-section .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.text-content {
+    width: 50%;
+    z-index: 2; /* Ensures text stays above the image */
+}
+
+.text-content h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.text-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.text-content p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #555;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.cta-buttons .btn-primary {
+    background-color: #000;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cta-buttons .btn-success {
+    background-color: #25d366;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.image-container {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    width: 50%;
+    height: auto;
+    max-width: 600px;
+}
+
+.image-container img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Contact section */
+
+.contact-section {
+    background-color: #0B132B;
+    color: white;
+    padding: 40px 0;
+}
+
+.contact-section .container {
+    max-width: 1200px; /* Set a max width for the container */
+    margin: 0 auto; /* Center the container horizontally */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 0;
+}
+
+.company-info {
+    flex: 1;
+    padding-left: 20px;
+}
+
+.company-info .logo {
+    max-width: 120px;
+    margin-bottom: 20px;
+}
+
+.company-info p {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    text-align: left; /* Ensures text is aligned to the left */
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    text-align: left; /* Align the links to the right */
+}
+
+.footer-links li {
+    margin-bottom: 10px;
+}
+
+.footer-links a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+.social-icons {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons a img {
+    width: 32px;
+    height: 32px;
+}
+
+.text-end {
+    text-align: right;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.align-items-end {
+    align-items: flex-end;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
