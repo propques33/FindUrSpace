@@ -87,7 +87,7 @@
                         <a class="nav-link" href="#contact">Contact Us</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">Admin Login</a>
+                        <a class="nav-link" href="{{url_for('admin.admin_login')}}">Admin Login</a>
                     </li>
                 </ul>
             </div>
@@ -225,63 +225,27 @@
     </section>
     
     <!-- Discover Section -->
-    <section class="discover-coworking-section">
-        <div class="container text-center">
-            <h2>Trending Coworkings Spaces</h2>
-            <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.
-            </p>
-    
-            <div class="scroll-container">
-                <button class="scroll-btn left" onclick="scrollLeft()">&#8249;</button>
-                <div class="cities-wrapper" id="cities-wrapper">
+<section class="discover-coworking-section">
+    <div class="container text-center">
+        <h2>Trending Coworkings Spaces</h2>
+        <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.</p>
+
+        <div class="scroll-container">
+            <button class="scroll-btn left" onclick="scrollLeft()">&#8249;</button>
+            <div class="cities-wrapper" id="cities-wrapper">
+                {% for city in city_data %}
                     <div class="city-card">
                         <div class="image-box">
-                            <img src="../static/images/BangaloreAsset 13.svg" alt="Bangalore Palace">
+                            <img src="../static/images/{{ city.image }}" alt="{{ city.name }}">
                         </div>
-                        <h3>Bangalore</h3>
-                        <p>89 Workspaces</p>
+                        <h3>{{ city.name }}</h3>
+                        <p>{{ city.workspaces }} Workspaces</p>
                     </div>
-                    <div class="city-card">
-                        <div class="image-box">
-                            <img src="../static/images/MumbaiAsset 14.svg" alt="Gateway of India">
-                        </div>
-                        <h3>Mumbai</h3>
-                        <p>122 Workspaces</p>
-                    </div>
-                    <div class="city-card">
-                        <div class="image-box">
-                            <img src="../static/images/DelhiAsset 15.svg" alt="Red Fort">
-                        </div>
-                        <h3>Delhi</h3>
-                        <p>134 Workspaces</p>
-                    </div>
-                    <div class="city-card">
-                        <div class="image-box">
-                            <img src="../static/images/AhemdabadAsset 16.svg" alt="Sabarmati Ashram">
-                        </div>
-                        <h3>Ahmedabad</h3>
-                        <p>74 Workspaces</p>
-                    </div>
-                    <div class="city-card">
-                        <div class="image-box">
-                            <img src="../static/images/PuneAsset 17.svg" alt="Shaniwar Wada">
-                        </div>
-                        <h3>Pune</h3>
-                        <p>94 Workspaces</p>
-                    </div>
-                    <div class="city-card">
-                        <div class="image-box">
-                            <img src="../static/images/HyderabadAsset 18.svg" alt="Charminar">
-                        </div>
-                        <h3>Hyderabad</h3>
-                        <p>82 Workspaces</p>
-                    </div>
-                    <!-- Add more cities similarly -->
-                </div>
-                <button class="scroll-btn right" onclick="scrollRight()">&#8250;</button>
+                {% endfor %}
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
     <!-- Overall Presence section -->
     <section class="presence-section">

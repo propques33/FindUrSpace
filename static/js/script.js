@@ -300,27 +300,40 @@ function scrollRight() {
 // Overall presence
 // Initialize the map
 document.addEventListener('DOMContentLoaded', function () {
-    var map = L.map('india-map').setView([22.5937, 78.9629], 5); // Set to India's latitude, longitude
+    var map = L.map('india-map').setView([22.5937, 78.9629], 5); // Center map on India
 
-    // Add tile layer (map style)
+    // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Add markers for cities
+    // Hardcoded cities, their coordinates, and colors
     var cities = [
-        { name: "Delhi", coords: [28.6139, 77.2090], color: "green" },
+        { name: "Gurgaon", coords: [28.4595, 77.0266], color: "green" },
         { name: "Bangalore", coords: [12.9716, 77.5946], color: "orange" },
-        { name: "Mumbai", coords: [19.0760, 72.8777], color: "yellow" },
-        { name: "Ahmedabad", coords: [23.0225, 72.5714], color: "blue" },
-        { name: "Pune", coords: [18.5204, 73.8567], color: "red" },
-        { name: "Hyderabad", coords: [17.3850, 78.4867], color: "pink" }
+        { name: "Kolkata", coords: [22.5726, 88.3639], color: "yellow" },
+        { name: "Mumbai", coords: [19.0760, 72.8777], color: "red" },
+        { name: "Lucknow", coords: [26.8467, 80.9462], color: "purple" },
+        { name: "Pune", coords: [18.5204, 73.8567], color: "blue" },
+        { name: "Hyderabad", coords: [17.3850, 78.4867], color: "pink" },
+        { name: "Noida", coords: [28.5355, 77.3910], color: "cyan" },
+        { name: "Delhi", coords: [28.6139, 77.2090], color: "brown" },
+        { name: "Ghaziabad", coords: [28.6692, 77.4538], color: "lime" },
+        { name: "Indore", coords: [22.7196, 75.8577], color: "violet" },
+        { name: "Chennai", coords: [13.0827, 80.2707], color: "teal" },
+        { name: "Ahmedabad", coords: [23.0225, 72.5714], color: "gold" },
+        { name: "Jaipur", coords: [26.9124, 75.7873], color: "salmon" },
+        { name: "Kochi", coords: [9.9312, 76.2673], color: "magenta" },
+        { name: "Chandigarh", coords: [30.7333, 76.7794], color: "indigo" },
+        { name: "Coimbatore", coords: [11.0168, 76.9558], color: "navy" },
+        { name: "Goa", coords: [15.2993, 74.1240], color: "olive" },
+        { name: "Greater Noida", coords: [28.4744, 77.5030], color: "maroon" }
     ];
 
-    // Loop through cities and add markers
+    // Loop through the cities and add markers with different colors
     cities.forEach(function(city) {
         L.circleMarker(city.coords, {
-            color: city.color,
+            color: city.color,  // Use the city's specific color
             radius: 8,
             fillColor: city.color,
             fillOpacity: 0.7

@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, request, jsonify, flash, session, current_app
+from collections import defaultdict
 import datetime
 from core.email_handler import send_email_with_pdf
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
@@ -18,7 +19,29 @@ core_bp = Blueprint('core_bp', __name__)
 # Route to render index.html
 @core_bp.route('/')
 def index():
-    return render_template('index.html')
+    db = current_app.config['db']  # Get the db instance from the app config
+
+    # Fetch city data and count number of workspaces per city
+    city_workspace_counts = defaultdict(int)
+    coworking_spaces = db.coworking_spaces.find()  # Query all coworking spaces
+
+    # Counting workspaces for each city
+    for space in coworking_spaces:
+        city_workspace_counts[space['city']] += 1
+
+    # Preparing the data in a format suitable for the template
+    city_data = []
+    images = ['BangaloreAsset 13.svg', 'MumbaiAsset 14.svg', 'DelhiAsset 15.svg', 'AhemdabadAsset 16.svg', 'PuneAsset 17.svg']
+    
+    for idx, (city, count) in enumerate(city_workspace_counts.items()):
+        city_data.append({
+            'name': city,
+            'workspaces': count,
+            'image': images[idx % len(images)]  # Cyclic order for images
+        })
+
+    # Render the template with the dynamic city data
+    return render_template('index.html', city_data=city_data)
 
 # Route to handle form submission (Your Info form)
 @core_bp.route('/submit_info', methods=['POST'])

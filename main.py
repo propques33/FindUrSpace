@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from flask_mail import Mail
 from core.database import get_db
 from core.routes import core_bp  # Importing routes from core/routes.py
+from admin.admin import admin_bp 
 
 # Load environment variables
 load_dotenv()
@@ -30,6 +31,7 @@ app.config['db'] = db  # Store the db instance in app config for global use
 
 # Register routes (from core/routes.py)
 app.register_blueprint(core_bp)
+app.register_blueprint(admin_bp)
 
 if __name__ == '__main__':
     # Debug mode based on environment variables
