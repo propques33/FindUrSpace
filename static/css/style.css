@@ -1,28 +1,70 @@
+/* Defining custom fonts using @font-face */
+@font-face {
+    font-family: 'Report School Bold';
+    src: url('../fonts/Report School Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Report School Italic';
+    src: url('../fonts/Report School Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Report School Regular';
+    src: url('../fonts/Report School Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Report School Heavy';
+    src: url('../fonts/Report School Heavy.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Report School Heavy Italic';
+    src: url('../fonts/Report School Heavy Italic.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Report School Bold Italic';
+    src: url('../fonts/Report School Bold Italic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+/* Apply fallback fonts */
 body {
-    font-family: 'Mulish', sans-serif;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 /* Navbar section */
 /* Navbar Styling */
 .navbar {
-    background-color: #0C1427; /* Matches the dark navy background color from the screenshot */
+    background-color: #0C1427;
     color: white;
-    /* padding: 15px 30px; */
-    position: fixed; /* Makes the navbar fixed at the top */
+    position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000; /* Ensures the navbar stays on top of other elements */
+    z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
 }
 
-/* Navbar Brand */
 .navbar-brand {
     font-size: 24px;
     font-weight: 700;
     color: white;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
-/* Navbar Links */
 .nav-link {
     color: white !important;
     font-weight: 500;
@@ -30,12 +72,10 @@ body {
     transition: color 0.3s ease;
 }
 
-/* Hover Effect for Links */
 .nav-link:hover {
-    color: #ff6600 !important; /* Change link color on hover to match the theme */
+    color: #ff6600 !important;
 }
 
-/* Navbar Collapse Button (For Mobile) */
 .navbar-toggler {
     border: none;
 }
@@ -44,19 +84,14 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
-/* Adjustments for Larger Screen Padding */
 .container-fluid {
     padding-left: 50px;
     padding-right: 50px;
 }
 
-/* Ensures Content Starts Below Fixed Navbar */
 body {
-    padding-top: 80px; /* Adjust this to match the height of your navbar */
+    padding-top: 80px;
 }
-
-
-
 
 /* Hero Section */
 .hero-section {
@@ -70,29 +105,29 @@ body {
     color: #2b2b2b;
     padding-left: 60px;
     padding-right: 40px;
-    min-height: 80vh; /* Set a minimum height for the hero section */
+    min-height: 80vh;
 }
 
-/* Hero Title */
 .hero-title {
     font-size: 48px;
     font-weight: 700;
     line-height: 1.2;
     margin-bottom: 10px;
+    font-family: 'Report School Heavy', Arial, sans-serif;
 }
 
-/* Hero Subtitle */
 .hero-subtitle {
     font-size: 24px;
     margin: 20px 0;
     color: #333;
+    font-family: 'Report School Italic', Arial, sans-serif;
 }
 
-/* Hero Text Container */
 .hero-text {
     max-width: 600px;
     line-height: 1.6;
     padding-right: 40px;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 /* Form Section */
@@ -107,10 +142,9 @@ body {
     margin-right: 120px;
     width: 100%;
     height: auto;
-    min-height: 400px; /* Ensure all forms are at least 400px high for uniformity */
+    min-height: 400px;
 }
 
-/* Form Inputs */
 .form-container input {
     width: 100%;
     padding: 10px;
@@ -119,18 +153,17 @@ body {
     border: 1px solid #ced4da;
     border-radius: 5px;
     font-size: 16px;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
-/* Input Group for Contact Field */
 .input-group {
-    display: flex; /* Use flex to ensure the flag and input are on the same line */
+    display: flex;
     align-items: center;
     width: 100%;
     border: 1px solid #ced4da;
     border-radius: 5px;
 }
 
-/* Adjust the flag to match height */
 .input-group .input-group-text {
     background-color: transparent;
     border: none;
@@ -141,20 +174,20 @@ body {
 }
 
 .input-group input.form-control {
-    width: 100%; /* Ensure the input takes up the full width */
-    border: none; /* Remove any extra border */
-    padding-left: 40px; /* Adjust padding if needed */
-    height: 100%; /* Ensure the height matches other inputs */
+    width: 100%;
+    border: none;
+    padding-left: 40px;
+    height: 100%;
     box-sizing: border-box;
     font-size: 16px;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 .input-group img {
-    width: 24px; /* Adjust flag size */
+    width: 24px;
     height: auto;
 }
 
-/* Ensure button styling is consistent */
 .btn-block {
     width: 100%;
     background-color: #0033cc;
@@ -165,13 +198,13 @@ body {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .btn-block:hover {
     background-color: #002699;
 }
 
-/* Step Navigation Styling */
 .step-nav {
     display: flex;
     justify-content: space-between;
@@ -195,15 +228,13 @@ body {
     font-weight: bold;
 }
 
-/* Uniform Focus State for All Inputs - No Glow */
 .form-container input:focus, 
 .form-container .input-group input:focus {
-    border-color: #0033cc; /* Set a simple border color on focus */
-    outline: none; /* Remove the default browser outline */
-    box-shadow: none; /* Remove any shadow or glow */
+    border-color: #0033cc;
+    outline: none;
+    box-shadow: none;
 }
 
-/* Customizing the select2 dropdown appearance */
 .select2-container .select2-selection--single {
     height: 40px;
     display: flex;
@@ -220,42 +251,33 @@ body {
     right: 10px;
 }
 
-/* Dropdown Styling */
 .form-select {
-    position: relative; /* Change absolute to relative */
+    position: relative;
     max-height: 150px;
     overflow-y: auto;
 }
 
-/* Form-group Styling */
 .form-group {
-    margin-bottom: 20px; /* Increase space between form elements */
+    margin-bottom: 20px;
 }
 
-/* Limiting the dropdown height and enabling scrollbar */
 .custom-select-dropdown .select2-results__options {
     max-height: 150px;
     overflow-y: auto;
 }
 
-
-
-
-
 /* Benefits section */
-
 .benefits-section {
     background-color: #151D31;
     padding: 20px 0;
     color: white;
     border-radius: 20px;
-    margin: 20px auto; /* This centers the section horizontally */
-    width: 80%; /* You can adjust this value if needed */
-    max-width: 1200px; /* Ensure it doesn't exceed a max-width */
-    text-align: center; /* Center text content inside */
-    display: block; /* Ensure it is treated as a block element */
+    margin: 20px auto;
+    width: 80%;
+    max-width: 1200px;
+    text-align: center;
+    display: block;
 }
-
 
 .benefit {
     font-size: 1.1rem;
@@ -264,6 +286,7 @@ body {
     align-items: center;
     justify-content: center;
     column-gap: 10px;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 .benefit p {
@@ -271,6 +294,7 @@ body {
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
+    font-family: 'Report School Italic', Arial, sans-serif;
 }
 
 .benefit img {
@@ -291,9 +315,7 @@ body {
     background-color: white;
 }
 
-
 /* How it works section */
-
 .how-it-works-section {
     padding: 50px 0;
 }
@@ -302,21 +324,20 @@ body {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 30px;
-}
-
-.steps .step {
-    margin-bottom: 20px;
+    font-family: 'Report School Heavy', Arial, sans-serif;
 }
 
 .steps .step h3 {
     font-size: 1.5rem;
     font-weight: 600;
     margin-bottom: 10px;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .steps .step p {
     font-size: 1.1rem;
     color: #333;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 /* Styling for the YouTube Placeholder */
@@ -333,11 +354,7 @@ body {
     font-weight: 600;
 }
 
-
-
-
-/* company logos section */
-
+/* Company logos section */
 .company-logos-section {
     background-color: #151D31;
     padding: 10px 0;
@@ -354,10 +371,7 @@ body {
     transform: scale(1.2);
 }
 
-
-
 /* Discover section */
-
 .discover-coworking-section {
     padding: 50px 0;
 }
@@ -366,6 +380,7 @@ body {
     font-size: 2.5rem;
     font-weight: 700;
     margin-bottom: 20px;
+    font-family: 'Report School Heavy', Arial, sans-serif;
 }
 
 .scroll-container {
@@ -379,11 +394,11 @@ body {
     overflow-x: auto;
     scroll-behavior: smooth;
     padding: 20px 0;
-    scrollbar-width: none; /* For Firefox */
+    scrollbar-width: none;
 }
 
 .cities-wrapper::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
+    display: none;
 }
 
 .city-card {
@@ -392,13 +407,13 @@ body {
 }
 
 .image-box {
-    width: 150px;  /* Fixed width */
-    height: 100px; /* Fixed height */
+    width: 150px;
+    height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    border: 1px solid #151D31;  /* Border around image */
+    border: 1px solid #151D31;
     border-radius: 10px;
     padding: 10px;
 }
@@ -406,7 +421,7 @@ body {
 .image-box img {
     max-width: 100%;
     max-height: 100%;
-    object-fit: contain; /* Ensures the image scales inside the box */
+    object-fit: contain;
     border-radius: 5px;
 }
 
@@ -414,6 +429,7 @@ body {
     margin-top: 10px;
     font-size: 1.2rem;
     font-weight: 600;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .city-card p {
@@ -427,11 +443,7 @@ body {
     transition: transform 0.3s ease;
 }
 
-
-
-
 /* Presence Section */
-
 .presence-section {
     padding: 50px 0;
 }
@@ -441,6 +453,7 @@ body {
     font-weight: bold;
     color: #2C2E43;
     margin-bottom: 20px;
+    font-family: 'Report School Heavy', Arial, sans-serif;
 }
 
 .presence-section p {
@@ -453,19 +466,16 @@ body {
 .presence-section h3 {
     font-size: 1.8rem;
     font-weight: bold;
-    color:#2C2E43
+    color: #2C2E43;
 }
 
 #india-map {
-    height: 400px; /* Fixed height */
-    /* border-radius: 10px; */
-    /* border: 2px solid #151D31; */
+    height: 400px;
     overflow: hidden;
     margin-right: 60px;
 }
 
 /* Testimonials Section */
-
 .testimonials-section {
     padding: 40px 0;
 }
@@ -473,6 +483,7 @@ body {
 .testimonials-section h2 {
     font-size: 2rem;
     margin-bottom: 20px;
+    font-family: 'Report School Heavy', Arial, sans-serif;
 }
 
 .testimonial-wrapper {
@@ -485,35 +496,37 @@ body {
 
 .testimonial-row-container {
     overflow: hidden;
-    width: 80%; /* Adjust width as per your layout */
+    width: 80%;
 }
 
 .testimonial-row {
     display: flex;
-    transition: transform 0.5s ease; /* Smooth scrolling */
+    transition: transform 0.5s ease;
 }
 
 .testimonial-card {
-    width: 400px; /* Increased width of the cards */
+    width: 400px;
     padding: 10px;
-    margin:  15px; /* Adds space between cards */
+    margin: 15px;
     transition: transform 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    height: 220px; /* Fix card height */
+    height: 220px;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 .text-card {
-    background-color: #192045; /* Dark background for the text box */
+    background-color: #192045;
     color: #ffffff;
     padding: 20px;
     border-radius: 10px;
-    height: 150px; /* Fix the height for text card */
+    height: 150px;
     width: 300px;
+    font-family: 'Report School Italic', Arial, sans-serif;
 }
 
 .testimonial-card:hover {
-    transform: scale(1.1); /* Magnify the card more on hover */
+    transform: scale(1.1);
 }
 
 .client-name {
@@ -521,6 +534,7 @@ body {
     font-size: 1.2rem;
     color: #1A1F36;
     text-align: center;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 /* Scroll Buttons */
@@ -549,13 +563,10 @@ body {
     background-color: #1A1F36;
 }
 
-
-
 /* Human bot section */
 .human-bot-section {
     position: relative;
     padding: 50px 0;
-    /* background-color: #f9f9f9; */
     margin: 30px;
 }
 
@@ -568,18 +579,21 @@ body {
 
 .text-content {
     width: 50%;
-    z-index: 2; /* Ensures text stays above the image */
+    z-index: 2;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 .text-content h1 {
     font-size: 3rem;
     font-weight: bold;
     color: #333;
+    font-family: 'Report School Heavy', Arial, sans-serif;
 }
 
 .text-content h2 {
     font-size: 2rem;
     margin-bottom: 20px;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .text-content p {
@@ -587,6 +601,7 @@ body {
     line-height: 1.6;
     margin-bottom: 30px;
     color: #555;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 .cta-buttons {
@@ -602,6 +617,7 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .cta-buttons .btn-success {
@@ -612,6 +628,7 @@ body {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .image-container {
@@ -631,7 +648,6 @@ body {
 }
 
 /* Contact section */
-
 .contact-section {
     background-color: #0B132B;
     color: white;
@@ -639,8 +655,8 @@ body {
 }
 
 .contact-section .container {
-    max-width: 1200px; /* Set a max width for the container */
-    margin: 0 auto; /* Center the container horizontally */
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -660,7 +676,8 @@ body {
 .company-info p {
     font-size: 1.1rem;
     line-height: 1.5;
-    text-align: left; /* Ensures text is aligned to the left */
+    text-align: left;
+    font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 .footer-links {
@@ -668,7 +685,7 @@ body {
     padding: 0;
     margin: 0;
     font-size: 1rem;
-    text-align: left; /* Align the links to the right */
+    text-align: left;
 }
 
 .footer-links li {
@@ -679,6 +696,7 @@ body {
     color: white;
     text-decoration: none;
     display: block;
+    font-family: 'Report School Bold', Arial, sans-serif;
 }
 
 .footer-links a:hover {
@@ -719,92 +737,88 @@ body {
     justify-content: center;
 }
 
-
-
 /* Responsiveness */
-/* Responsive Styling */
 @media (max-width: 768px) {
     .navbar {
-        padding: 10px 20px; /* Reduce padding on smaller screens */
-    }
-    .navbar-brand {
-        font-size: 20px; /* Adjust brand size for mobile */
-    }
-    .nav-link {
-        margin-left: 5px; /* Less margin on mobile */
-        font-size: 14px; /* Reduce font size */
+        padding: 10px 20px;
     }
 
-    /* Hero Section */
-    .hero-section {
-        flex-direction: column; /* Stack items vertically */
-        padding: 40px 20px; /* Adjust padding for smaller screens */
-        text-align: center; /* Center align the text */
+    .navbar-brand {
+        font-size: 20px;
     }
+
+    .nav-link {
+        margin-left: 5px;
+        font-size: 14px;
+    }
+
+    .hero-section {
+        flex-direction: column;
+        padding: 40px 20px;
+        text-align: center;
+    }
+
     .hero-title {
-        font-size: 36px; /* Adjust font size */
+        font-size: 36px;
         line-height: 1.1;
     }
+
     .hero-subtitle {
         font-size: 20px;
     }
+
     .hero-text {
         padding-right: 0;
         max-width: 100%;
     }
+
     .info-form-section .form-container {
         margin: 20px 0;
         width: 100%;
         max-width: none;
     }
 
-
-    
-
-    /* How It Works Section */
     .how-it-works-section {
         text-align: center;
         padding: 30px 10px;
     }
+
     .youtube-video-box {
         margin-top: 20px;
-        height: 200px; /* Adjust video box height for mobile */
+        height: 200px;
     }
 
-    /* Company Logos Section */
     .company-logos-section img {
         margin-bottom: 10px;
-        width: 80px; /* Reduce logo size */
+        width: 80px;
     }
 
-    /* Discover Section */
     .discover-coworking-section {
         padding: 20px 0;
     }
+
     .city-card {
-        width: 120px; /* Reduce city card width for mobile */
+        width: 120px;
     }
 
-    /* Testimonials Section */
     .testimonial-card {
-        width: 90%; /* Make testimonials take up full width */
-        height: auto; /* Adjust height for mobile */
-    }
-    .text-card {
-        width: 100%; /* Make text card full width for mobile */
-        height: auto; /* Adjust height */
+        width: 90%;
+        height: auto;
     }
 
-    /* Human Bot Section */
+    .text-card {
+        width: 100%;
+        height: auto;
+    }
+
     .human-bot-section .container {
         flex-direction: column;
         text-align: center;
     }
-    .text-content, .image-container {
-        width: 100%; /* Full width for both text and image */
-    }
 
-    /* Contact Section */
+    .text-content, .image-container {
+        width: 100%;
+    }
 
     .contact-section {
         text-align: left;
@@ -813,19 +827,23 @@ body {
 
     .contact-section .container {
         display: flex;
-        flex-direction: column; /* Stack the content vertically */
+        flex-direction: column;
         align-items: flex-start;
     }
+
     .company-info {
-        text-align: left
+        text-align: left;
     }
+
     .footer-links {
         text-align: left;
     }
+
     .social-icons {
         justify-content: flex-start;
         margin-top: 10px;
     }
+
     .footer-links li {
         margin-bottom: 5px;
     }
