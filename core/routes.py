@@ -4,6 +4,15 @@ import datetime
 from core.email_handler import send_email_with_pdf
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 import threading
+from integrations.gsheet_updater import handle_new_property_entry
+
+# Function to handle Google Sheet updates in the background
+def update_gsheet_background(app, db, property_data):
+    with app.app_context():  # Ensure app context is available in the background thread
+        try:
+            handle_new_property_entry(db, property_data)  # Update the Google Sheet
+        except Exception as e:
+            print(f"Failed to update Google Sheet: {e}")
 
 # Helper function to send the email in the background
 def send_email_background(app, email, name, filtered_properties):
@@ -112,31 +121,38 @@ def submit_preferences():
     name = user.get('name')
     email = user.get('email')
 
-    # Store preferences in the `properties` collection
-    new_property = {
-        'user_id': user_id,
-        'seats': seats,
-        'location': location,
-        'area': area,
-        'budget': budget,
-        'date': datetime.datetime.now()
-    }
-
-    db.properties.insert_one(new_property)
-
-    # Fetch matching properties
+    # Fetch properties that match the user's preferences
     filtered_properties = list(db.coworking_spaces.find({
         'city': location,
         'micromarket': area,
         'price': {'$lte': float(budget)}
     }))
 
-    # Send the email in the background using threading
+    # Prepare property names for logging (or mark as N/A)
+    property_names = ", ".join([p['name'] for p in filtered_properties]) if filtered_properties else 'N/A'
+
+    # Store preferences in the `properties` collection
+    new_property = {
+        'user_id': user_object_id,  # Ensure user_id is an ObjectId
+        'seats': seats,
+        'city': location,  # Ensure city is passed
+        'micromarket': area,  # Ensure micromarket is passed
+        'budget': budget,
+        'property_names': property_names,  # Capture the names of properties for sharing
+        'date': datetime.datetime.now()
+    }
+
+    # Insert property data into the collection
+    db.properties.insert_one(new_property)
+
+    # Background threads for email and Google Sheets updates
     app = current_app._get_current_object()
     email_thread = threading.Thread(target=send_email_background, args=(app, email, name, filtered_properties))
     email_thread.start()
 
-    # Immediately redirect the user to the "Report" page (3rd step in the form)
+    gsheet_thread = threading.Thread(target=update_gsheet_background, args=(app, db, new_property))
+    gsheet_thread.start()
+
     return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.'})
 
 # Route to fetch unique locations (cities)
