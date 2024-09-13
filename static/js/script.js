@@ -1,103 +1,284 @@
-// Placeholder for any custom interactivity
-document.addEventListener('DOMContentLoaded', function () {
-    // Custom scripts here
-});
+// Declare currentStep globally so it can be accessed in all functions
+let currentStep = 1;
 
-// Hero section
-document.addEventListener('DOMContentLoaded', function () {
-    let currentStep = 1;
+// Function to load the form based on the current step
+function loadFormStep() {
+    const form = document.getElementById('dynamic-form');
+    const steps = document.querySelectorAll('.step');
 
-    // Initially load the first form
-    loadFormStep();
-
-    // Function to load the form dynamically based on the step
-    function loadFormStep() {
-        const form = document.getElementById('dynamic-form');
-        const steps = document.querySelectorAll('.step');
-
-        // Remove the "active" class from all steps first
-        steps.forEach(step => step.classList.remove('active'));
-
-        // Add the "active" class to the current step
-        steps[currentStep - 1].classList.add('active');
-
-        if (currentStep === 1) {
-            // First form: Your Info
-            form.innerHTML = `
-                <input type="text" id="name" name="name" class="form-control" placeholder="Your Name">
-                <div class="input-group mb-3">
-                    <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact">
-                </div>
-                <input type="text" id="company" name="company" class="form-control" placeholder="Company Name">
-                <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail">
-                <button type="button" class="btn btn-primary btn-block mt-3" onclick="showNextForm()">Continue</button>
-            `;
-
-            // Initialize intlTelInput for the contact field
-            initializeIntlTelInput();
-
-        } else if (currentStep === 2) {
-            // Second form: Your Preference
-            form.innerHTML = `
-                <input type="number" id="seats" name="seats" class="form-control" placeholder="Seats">
-                <input type="text" id="location" name="location" class="form-control" placeholder="Location">
-                <input type="text" id="area" name="area" class="form-control" placeholder="Area">
-                <input type="text" id="budget" name="budget" class="form-control" placeholder="Budget">
-                <button type="button" class="btn btn-primary btn-block mt-3" onclick="showNextForm()">Continue</button>
-            `;
-
-        } else if (currentStep === 3) {
-            // Final step: Report generation
-            form.innerHTML = `
-                <p>Thank you for your submission! Your report will be sent to your email and WhatsApp shortly.</p>
-            `;
-        }
+    if (!form) {
+        console.error("Form element with id 'dynamic-form' not found.");
+        return;
     }
 
-    // Function to initialize intlTelInput for the "Your Contact" field
-    function initializeIntlTelInput() {
-        var telInput = document.querySelector("#contact");
+    console.log("Loading form for step: " + currentStep);
 
-        // Initialize intlTelInput
-        var iti = window.intlTelInput(telInput, {
-            initialCountry: "in", // Set India's flag by default
-            separateDialCode: false, // If you want the dial code separate
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js" // utils script for validation
-        });
+    // Remove 'active' class from all steps, then add to the current step
+    steps.forEach(step => step.classList.remove('active'));
+    steps[currentStep - 1].classList.add('active');
 
-        // Validate the phone number on blur event
-        telInput.addEventListener('blur', function () {
-            if (iti.isValidNumber()) {
-                // If valid, remove error
-                telInput.classList.remove("error");
-            } else {
-                // If invalid, add error class
-                telInput.classList.add("error");
-            }
-        });
+    // Step 1: User Info
+    if (currentStep === 1) {
+        form.innerHTML = `
+            <input type="text" id="name" name="name" class="form-control" placeholder="Your Name">
+            <div class="input-group mb-3">
+                <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact">
+            </div>
+            <input type="text" id="company" name="company" class="form-control" placeholder="Company Name">
+            <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail">
+            <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
+        `;
+        initializeIntlTelInput();
+    } 
+    // Step 2: User Preferences
+    else if (currentStep === 2) {
+        form.innerHTML = `
+            <div class="form-group mb-3">
+                <input type="number" id="seats" name="seats" class="form-control" placeholder="Number of Seats">
+            </div>
+            <div class="form-group mb-3">
+                <select id="location" class="form-select" onchange="fetchMicromarkets()">
+                    <option selected disabled>Select Location</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <select id="area" class="form-select">
+                    <option selected disabled>Select Micromarket</option>
+                </select>
+            </div>
+            <div class="form-group mb-3">
+                <select id="budget" class="form-select">
+                    <option selected disabled>Select Budget</option>
+                </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
+        `;
+        fetchLocations(); // Fetch locations when this step loads
+    } 
+    // Step 3: Thank You Page
+    else if (currentStep === 3) {
+        form.innerHTML = `
+            <p>Thank you for your submission! Your report will be sent to your email and WhatsApp shortly.</p>
+            <button type="button" class="btn btn-secondary btn-block mt-3" onclick="startAgain()">Start Again</button>
+        `;
+    }
+}
 
-        // Reset errors on keyup
-        telInput.addEventListener('keyup', function () {
+// Function to initialize intlTelInput for the "Your Contact" field
+function initializeIntlTelInput() {
+    var telInput = document.querySelector("#contact");
+    var iti = window.intlTelInput(telInput, {
+        initialCountry: "in",
+        separateDialCode: false,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+    });
+
+    telInput.addEventListener('blur', function () {
+        if (iti.isValidNumber()) {
             telInput.classList.remove("error");
-        });
+        } else {
+            telInput.classList.add("error");
+        }
+    });
+
+    telInput.addEventListener('keyup', function () {
+        telInput.classList.remove("error");
+    });
+}
+
+// Function to reset the form and start again
+function startAgain() {
+    currentStep = 1; 
+    loadFormStep(); 
+}
+
+// Function to handle form submission for "Your Info"
+function submitUserInfo() {
+    let name = document.getElementById('name').value;
+    let contact = document.getElementById('contact').value;
+    let company = document.getElementById('company').value;
+    let email = document.getElementById('email').value;
+
+    if (!name || !contact || !company || !email) {
+        alert('All fields are required.');
+        return;
     }
 
-    // Function to move to the next form
-    window.showNextForm = function() {
-        if (currentStep < 3) {
+    fetch('/submit_info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ name, contact, company, email })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success' || data.status === 'exists') {
             currentStep++;
-            loadFormStep(); // Load the next form
+            loadFormStep(); 
+        } else {
+            alert(data.message);
         }
-    };
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
-    // Function to handle step navigation on click
-    document.querySelectorAll('.step').forEach((stepElement, index) => {
-        stepElement.addEventListener('click', function () {
-            currentStep = index + 1; // Set currentStep to the clicked step
-            loadFormStep(); // Reload the form
+// Function to handle form submission for "Your Preference"
+function submitUserPreferences() {
+    let seats = document.getElementById('seats').value;
+    let location = document.getElementById('location').value;
+    let area = document.getElementById('area').value;
+    let budget = document.getElementById('budget').value;
+
+    if (!seats || !location || !area || !budget) {
+        alert('All fields are required.');
+        return;
+    }
+
+    fetch('/submit_preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ seats, location, area, budget })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            currentStep++;
+            loadFormStep(); 
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// Fetch unique locations (cities) from the database and make dropdown scrollable
+function fetchLocations() {
+    console.log('Fetching locations...');
+    fetch('/get_locations', {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Locations data:', data); // Debugging info
+        const locationDropdown = document.getElementById('location');
+        locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
+        
+        data.locations.forEach(function(location) {
+            let option = document.createElement("option");
+            option.value = location;
+            option.text = location;
+            locationDropdown.appendChild(option);
         });
+
+        // Adjust size of the dropdown on focus
+        locationDropdown.addEventListener('focus', function () {
+            locationDropdown.size = 5;
+        });
+
+        locationDropdown.addEventListener('change', function () {
+            closeDropdown('location');
+            fetchMicromarkets(); // Fetch micromarkets when location changes
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching locations:', error);
+    });
+}
+
+// Fetch unique micromarkets for the selected city
+function fetchMicromarkets() {
+    const city = document.getElementById('location').value;
+    console.log('Fetching micromarkets for city:', city);
+
+    fetch(`/get_micromarkets?city=${city}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Micromarkets data:', data); // Debugging info
+        const areaDropdown = document.getElementById('area');
+        areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+        
+        data.micromarkets.forEach(function(micromarket) {
+            let option = document.createElement("option");
+            option.value = micromarket;
+            option.text = micromarket;
+            areaDropdown.appendChild(option);
+        });
+
+        areaDropdown.addEventListener('focus', function () {
+            areaDropdown.size = 5;
+        });
+
+        areaDropdown.addEventListener('change', function () {
+            closeDropdown('area');
+            fetchPrices(); // Fetch prices when micromarket changes
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching micromarkets:', error);
+    });
+}
+
+// Fetch unique prices for the selected city and micromarket
+function fetchPrices() {
+    const city = document.getElementById('location').value;
+    const micromarket = document.getElementById('area').value;
+    console.log('Fetching prices for city:', city, 'and micromarket:', micromarket);
+
+    fetch(`/get_prices?city=${city}&micromarket=${micromarket}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Prices data:', data); // Debugging info
+        const budgetDropdown = document.getElementById('budget');
+        budgetDropdown.innerHTML = '<option selected disabled>Select Budget</option>';
+        
+        data.prices.forEach(function(price) {
+            let option = document.createElement("option");
+            option.value = price;
+            option.text = price;
+            budgetDropdown.appendChild(option);
+        });
+
+        budgetDropdown.addEventListener('focus', function () {
+            budgetDropdown.size = 5;
+        });
+
+        budgetDropdown.addEventListener('change', function () {
+            closeDropdown('budget');
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching prices:', error);
+    });
+}
+
+// Close dropdown after selection
+function closeDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.size = 1; // Close dropdown when an option is selected
+}
+
+// Handle dropdown close when clicked outside
+document.addEventListener('click', function (event) {
+    var dropdowns = document.querySelectorAll('.form-select');
+    dropdowns.forEach(function (dropdown) {
+        if (!dropdown.contains(event.target)) {
+            dropdown.size = 1; // Close dropdown when clicked outside
+        }
     });
 });
+
+// Trigger the initial form loading when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+    loadFormStep(); 
+});
+
 
 
 // Discover section

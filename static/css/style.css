@@ -77,13 +77,14 @@ body {
     background-image: url('../images/Home BuildingsAsset 32.svg');
     background-size: contain;
     background-position: center;
-    padding: 10px 0;
+    padding: 60px 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: #2b2b2b;
     padding-left: 60px;
     padding-right: 40px;
+    min-height: 80vh; /* Set a minimum height for the hero section */
 }
 
 /* Hero Title */
@@ -214,6 +215,41 @@ body {
     border-color: #0033cc; /* Set a simple border color on focus */
     outline: none; /* Remove the default browser outline */
     box-shadow: none; /* Remove any shadow or glow */
+}
+
+/* Customizing the select2 dropdown appearance */
+.select2-container .select2-selection--single {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.select2-container .select2-selection__rendered {
+    padding-left: 10px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+    right: 10px;
+}
+
+/* Dropdown Styling */
+.form-select {
+    position: relative; /* Change absolute to relative */
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+/* Form-group Styling */
+.form-group {
+    margin-bottom: 20px; /* Increase space between form elements */
+}
+
+/* Limiting the dropdown height and enabling scrollbar */
+.custom-select-dropdown .select2-results__options {
+    max-height: 150px;
+    overflow-y: auto;
 }
 
 /* Responsive Adjustments */
