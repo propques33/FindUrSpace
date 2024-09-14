@@ -84,7 +84,7 @@
                 <ul class="navbar-nav ms-auto">
                     <!-- Only ListUrSpace on the right -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#list-your-space">ListUrSpace</a>
+                        <a class="nav-link" href="{{ url_for('core_bp.list_your_space') }}">ListUrSpace</a>
                     </li>
                 </ul>
             </div>
@@ -197,31 +197,27 @@
 
     
     <!-- Company logos section -->
-
-    <section class="company-logos-section">
-        <div class="container text-center">
-            <div class="row justify-content-center align-items-center">
-                <div class="col-md-2">
-                    <img src="../static/images/HitachiAsset 6.svg" alt="Hitachi">
-                </div>
-                <div class="col-md-2">
-                    <img src="../static/images/BridgestoneAsset 7.svg" alt="Bridgestone">
-                </div>
-                <div class="col-md-2">
-                    <img src="../static/images/Tata SkyAsset 9.svg" alt="Tata Sky">
-                </div>
-                <div class="col-md-2">
-                    <img src="../static/images/Tata SteelAsset 10.svg" alt="Tata Steel">
-                </div>
-                <div class="col-md-2">
-                    <img src="../static/images/Motilal OswalAsset 11.svg" alt="Motilal Oswal">
-                </div>
-                <div class="col-md-2">
-                    <img src="../static/images/FinolexAsset 12.svg" alt="Finolex">
-                </div>
-            </div>
+<!-- Company logos section -->
+<section class="company-logos-section">
+    <div class="container text-center">
+        <div class="scrolling-logos">
+            <img src="../static/images/HitachiAsset 6.svg" alt="Hitachi">
+            <img src="../static/images/BridgestoneAsset 7.svg" alt="Bridgestone">
+            <img src="../static/images/Tata SkyAsset 9.svg" alt="Tata Sky">
+            <img src="../static/images/Tata SteelAsset 10.svg" alt="Tata Steel">
+            <img src="../static/images/Motilal OswalAsset 11.svg" alt="Motilal Oswal">
+            <img src="../static/images/FinolexAsset 12.svg" alt="Finolex">
+            <!-- Repeat the logos for a seamless continuous effect -->
+            <img src="../static/images/HitachiAsset 6.svg" alt="Hitachi">
+            <img src="../static/images/BridgestoneAsset 7.svg" alt="Bridgestone">
+            <img src="../static/images/Tata SkyAsset 9.svg" alt="Tata Sky">
+            <img src="../static/images/Tata SteelAsset 10.svg" alt="Tata Steel">
+            <img src="../static/images/Motilal OswalAsset 11.svg" alt="Motilal Oswal">
+            <img src="../static/images/FinolexAsset 12.svg" alt="Finolex">
         </div>
-    </section>
+    </div>
+</section>
+
     
     <!-- Discover Section -->
 <section class="discover-coworking-section">
@@ -338,12 +334,10 @@
 <section class="human-bot-section">
     <div class="container">
         <div class="text-content">
-            <h2>Can't Find What You're Looking For?</h2>
+            <h2>Ready to Find Your Space?</h2>
             <h1><strong>Talk to Our Human-Bot!</strong></h1>
             <p>
-                Need more help? Let our human-like bot assist you with 
-                <strong>real-time support</strong> to answer any of your questions and 
-                ensure a seamless experience.
+                Start your search with <strong>FindUrSpace</strong> today—the smarter, faster way to secure your ideal coworking space!
             </p>
             <div class="cta-buttons">
                 <button class="btn btn-primary">Let's Talk</button>

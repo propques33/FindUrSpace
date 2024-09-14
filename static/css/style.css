@@ -365,20 +365,38 @@ body {
 }
 
 /* Company logos section */
+/* Company logos section */
 .company-logos-section {
     background-color: #151D31;
-    padding: 10px 0;
+    padding: 20px 0;
+    overflow: hidden; /* Hides the overflowing content */
+    position: relative;
+}
+
+/* Container to hold the logos for scrolling */
+.scrolling-logos {
+    display: flex; /* Align logos in a row */
+    white-space: nowrap; /* Prevent logos from wrapping onto the next line */
+    animation: scroll-logos 20s linear infinite; /* Infinite linear scrolling */
+}
+
+/* Keyframes for the scrolling animation starting from the left */
+@keyframes scroll-logos {
+    from { transform: translateX(0%); }
+    to { transform: translateX(-100%); }
 }
 
 .company-logos-section img {
-    max-width: 100%;
-    height: auto;
-    padding: 10px;
-    transition: transform 0.3s ease;
+    display: inline-block; /* Align images in a row without breaks */
+    height: 50px; /* Adjusted height for smaller logos */
+    padding: 5px 20px; /* Reduced vertical padding and consistent horizontal spacing */
+    transition: transform 0.3s ease; /* Smooth transformation */
 }
 
 .company-logos-section img:hover {
-    transform: scale(1.2);
+    transform: scale(1.1); /* Slight increase on hover */
+    cursor: pointer; /* Changes cursor to indicate interactivity */
+    animation-play-state: paused; /* Pause animation on hover */
 }
 
 /* Discover section */

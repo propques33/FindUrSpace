@@ -178,3 +178,71 @@ def get_prices():
     micromarket = request.args.get('micromarket')
     prices = db.coworking_spaces.distinct('price', {'city': city, 'micromarket': micromarket})
     return jsonify({'prices': prices})
+
+@core_bp.route('/list-your-space',methods=['GET', 'POST'])
+def list_your_space():
+    db = current_app.config['db']  # Access the database here
+
+    if request.method == 'POST':
+        try:
+            # Extract form data
+            coworking_name = request.form.get('coworking_name')
+            city = request.form.get('city')
+            micromarket = request.form.get('micromarket')
+            name = request.form.get('name')
+            owner_phone = request.form.get('owner_phone')
+            owner_email = request.form.get('owner_email')
+            total_seats = request.form.get('total_seats')
+            current_vacancy = request.form.get('current_vacancy')
+            inventory_type = request.form.getlist('inventory_type[]')
+            inventory_count = request.form.getlist('inventory_count[]')
+            price_per_seat = request.form.getlist('price_per_seat[]')
+
+            # Handle file uploads (Images for Floors)
+            floor_names = request.form.getlist('floor_name[]')
+            floor_images = request.files.getlist('floor_image[]')
+            floors = []
+
+            for i in range(len(floor_names)):
+                image_file = floor_images[i]
+                if image_file and (image_file.filename.endswith('.png') or image_file.filename.endswith('.jpg') or image_file.filename.endswith('.jpeg')):
+                    floors.append({
+                        'floor_name': floor_names[i],
+                        'image_filename': image_file.filename,
+                        'image_data': image_file.read(),  # Store binary data of image
+                        'content_type': image_file.content_type,
+                    })
+
+            # Organize inventory data
+            inventory = []
+            for i in range(len(inventory_type)):
+                inventory.append({
+                    'type': inventory_type[i],
+                    'count': inventory_count[i],
+                    'price_per_seat': price_per_seat[i]
+                })
+
+            # Create a document to insert into MongoDB
+            property_details = {
+                'coworking_name': coworking_name,
+                'city': city,
+                'micromarket': micromarket,
+                'name': name,
+                'owner_phone': owner_phone,
+                'owner_email': owner_email,
+                'total_seats': total_seats,
+                'current_vacancy': current_vacancy,
+                'inventory': inventory,
+                'floors': floors,  # Store floor details (images and floor names)
+                'interactive_layout': False,  # Set interactive_layout as False initially
+                'date': datetime.datetime.now()
+            }
+
+            # Insert into MongoDB
+            db.fillurdetails.insert_one(property_details)
+
+            flash("Property details submitted successfully.",'success')
+
+        except Exception as e:
+            flash(f"Failed to submit property details: {str(e)}", 'error')
+    return render_template('FillUrDetails.html')
