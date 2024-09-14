@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Property Details Form</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        /* Base styles similar to index.html */
+        @import url('https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,200..1000;1,200..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
         * {
             margin: 0;
@@ -14,132 +15,519 @@
         }
 
         html, body {
-            font-family: 'Poppins', sans-serif;
+            font-family: Poppins;
             background-color: #f5f5f5;
-            color: #333;
+            color: #040613;
             height: 100%;
+            overflow-x: hidden;
         }
 
         .container {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             width: 100vw;
             height: 100vh;
             overflow-y: auto;
+            padding: 20px;
+            display:flex;
+            flex-direction:column;
+            justify-items: center;
+            align-items: center;
         }
 
         h2 {
+            font-size: 26px;
+            color: #070707;
             margin-bottom: 20px;
-            color: #333;
+            text-align: center;
         }
 
         form {
-            width: 90%;
-            max-width: 500px;
             background: #fff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            width:80%;
         }
 
         fieldset {
-            border: 1px solid #ddd;
-            padding: 10px;
             margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            position: relative;
         }
 
         legend {
-            padding: 0 5px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
+            color: #151d31;
         }
 
         .form-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
             margin-bottom: 15px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
+        .form-group input,
+        .form-group select {
             width: 100%;
             padding: 10px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
-            margin-top: 10px;
+            border: 1px solid #e9e9e9;
+            border-radius: 5px;
+            font-size: 14px;
         }
 
-        button:hover {
-            background-color: #0056b3;
+        input::placeholder {
+            font-size: 14px;
+            font-weight: 500;
+            color: #807e7e;
+        }
+
+        .full-width {
+            flex-basis: 48%;
+        }
+
+        .inventory-header,
+        .floor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 5px 0;
+        }
+
+        .inventory-header .label,
+        .floor-header .label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #151d31;
+        }
+
+        .inventory-group,
+        .floor-group {
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        button[type="submit"],
+        button[type="button"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #151d31;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: all 100ms ease;
+        }
+
+        button[type="submit"]:hover,
+        button[type="button"]:hover {
+            background-color: #212e4b;
+        }
+
+        button[type="submit"]:active,
+        button[type="button"]:active {
+            transform: scale(0.98);
         }
 
         .delete-button {
             background-color: #ff4d4d;
+            color: #fff;
             border: none;
-            color: white;
-            padding: 5px 10px;
             cursor: pointer;
-            border-radius: 4px;
-            float: right;
+            font-size: 18px;
+            padding: 0 5px;
+            margin-left: 10px;
+            border-radius: 5px;
+            transition: background-color 100ms ease;
         }
 
         .delete-button:hover {
-            background-color: #cc0000;
+            background-color: rgb(172, 2, 2);
+        }
+
+        .delete-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Image thumbnail styling */
+        .image-thumbnail {
+            display: inline-block;
+            margin-right: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .image-thumbnail img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #e9e9e9;
+        }
+
+        .flash {
+            display: inline-block;
+            padding:10px;
+            margin:0 auto;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .flash.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .flash-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+
+            form {
+                width: 90%;
+            }
+
+            .full-width {
+                flex-basis: 100%;
+            }
+        }
+
+        button#col {
+            background-color: red;
+            width: 40px;
+            height: 40px;
+            border-radius: 100%;
+        }
+
+        button#col:hover {
+            background-color: rgb(172, 2, 2);
+        }
+
+        .upload-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 150px;
+            border: 2px dashed #151d31;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-container:hover {
+            border-color: #607d8b;
+        }
+
+        /* Upload Label */
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .upload-icon .icon {
+            width: 64px;
+            height: 64px;
+            color: #084f49;
+        }
+
+        .upload-text span {
+            color: #607d8b;
+            font-size: 14px;
+        }
+
+        .select-text {
+            color: #084f49;
+            font-weight: bold;
+        }
+
+        .upload-input {
+            display: none;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
         }
     </style>
 </head>
 <body>
     <div class="container">
+
+        <!-- <a href="{{url_for('admin.admin_dashboard')}}" class="back-button">Back to Dashboard</a> -->
+
         <h2>List Your Space</h2>
-        <form action="#" method="post">
+
+        <!-- Display flash messages here -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('core_bp.list_your_space') }}" method="post" enctype="multipart/form-data">
+
+            <!-- Coworking Details -->
             <fieldset>
-                <legend>Property Details</legend>
+                <legend>Coworking Details</legend>
+                
                 <div class="form-group">
-                    <label for="property_name">Property Name:</label>
-                    <input type="text" id="property_name" name="property_name">
+                    <input type="text" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required class="full-width">
+                    <input type="text" id="city" name="city" placeholder="City" required class="full-width">
                 </div>
+                
+                <div class="form-group">    
+                    <input type="text" id="micromarket" name="micromarket" placeholder="Micromarket" required class="full-width">
+                    <input type="text" id="name" name="name" placeholder="Your Name" required class="full-width">
+                </div>
+                
                 <div class="form-group">
-                    <label for="location">Location:</label>
-                    <input type="text" id="location" name="location">
+                    <input type="tel" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required class="full-width">
+                    <input type="email" id="owner_email" name="owner_email" placeholder="Owner Email Address" required class="full-width">
                 </div>
             </fieldset>
-
+            
+            <!-- About Space -->
             <fieldset>
-                <legend>Inventory</legend>
+                <legend>About Space</legend>
+                
                 <div class="form-group">
-                    <label>Type</label>
-                    <select name="inventory_type">
-                        <option value="desk">Desk</option>
-                        <option value="office">Office</option>
-                    </select>
+                    <input type="number" id="total_seats" name="total_seats" placeholder="Total Seats" required class="full-width" min="0" step="1">
+                    <input type="number" id="current_vacancy" name="current_vacancy" placeholder="Current Vacancy" required class="full-width" min="0" step="1">
                 </div>
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" name="quantity">
+            </fieldset>
+            
+            <!-- Inventory Breakup -->
+            <fieldset>
+                <legend>Inventory Breakup</legend>
+                
+                <div id="inventory-container">
+                    <div class="inventory-group">
+                        <div class="inventory-header">
+                            <span class="label">Inventory 1</span>
+                            <button type="button" class="delete-button" id="col" onclick="removeInventory(this)">x</button>
+                        </div>
+                        <div class="form-group">
+                            <select id="inventory_type" name="inventory_type[]" required class="full-width">
+                                <option value="" disabled selected>Select Inventory Type</option>
+                                <option value="Hot desk">Hot desk</option>
+                                <option value="Fixed desk">Fixed desk</option>
+                                <option value="Manager Cabin">Manager Cabin</option>
+                                <option value="Team Suits">Team Suits</option>
+                                <option value="Meeting rooms">Meeting rooms</option>
+                                <option value="Conference rooms">Conference rooms</option>
+                                <option value="Gaming zones">Gaming zones</option>
+                                <option value="Discussion rooms">Discussion rooms</option>
+                            </select>
+                            <input type="number" id="inventory_count" name="inventory_count[]" placeholder="Number of Inventory" required class="full-width" min="0" step="1">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="price_per_seat" name="price_per_seat[]" placeholder="Price per Seat" required class="full-width" min="0" step="1">
+                        </div>
+                    </div>
                 </div>
-                <button type="button" class="delete-button">Delete</button>
+                
+                <button type="button" onclick="addInventory()">+ Add More Inventory</button>
+            </fieldset>
+            
+            <!-- Floor Plan Upload Section -->
+            <fieldset>
+                <legend>Upload Floor Plans</legend>
+                
+                <div id="floor-container">
+                    <div class="floor-group">
+                        <div class="floor-header">
+                            <span class="label">Floor 1</span>
+                            <button type="button" class="delete-button" id="col" onclick="removeFloor(this)">x</button>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="floor_name" name="floor_name[]" placeholder="Floor Name (e.g., Ground Floor)" required class="full-width">
+                        </div>
+                        <div class="form-group">
+                            <input type="file" id="floor_image" name="floor_image[]" accept="image/png, image/jpeg, image/jpg" required class="full-width" onchange="previewFloorFiles(this)">
+                        </div>
+                        <div id="floor-preview" class="preview-container">
+                            <!-- This will display the image thumbnail for each floor -->
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" onclick="addFloor()">+ Add More Floors</button>
             </fieldset>
 
-            <button type="submit">Submit Property</button>
+            <button type="submit">Submit</button>
         </form>
     </div>
+
+    <script>
+        let inventoryCount = 1;
+        let floorCount = 1;
+
+        // Function to dynamically add new inventory sections
+        function addInventory() {
+            inventoryCount++;
+            const container = document.getElementById('inventory-container');
+
+            const inventoryGroup = document.createElement('div');
+            inventoryGroup.classList.add('inventory-group');
+
+            inventoryGroup.innerHTML = `
+                <div class="inventory-header">
+                    <span class="label">Inventory ${inventoryCount}</span>
+                    <button type="button" class="delete-button" id="col" onclick="removeInventory(this)">x</button>
+                </div>
+                <div class="form-group">
+                    <select id="inventory_type" name="inventory_type[]" required class="full-width">
+                        <option value="" disabled selected>Select Inventory Type</option>
+                        <option value="Hot desk">Hot desk</option>
+                        <option value="Fixed desk">Fixed desk</option>
+                        <option value="Manager Cabin">Manager Cabin</option>
+                        <option value="Team Suits">Team Suits</option>
+                        <option value="Meeting rooms">Meeting rooms</option>
+                        <option value="Conference rooms">Conference rooms</option>
+                        <option value="Gaming zones">Gaming zones</option>
+                        <option value="Discussion rooms">Discussion rooms</option>
+                    </select>
+                    <input type="number" id="inventory_count" name="inventory_count[]" placeholder="Number of Inventory" required class="full-width" min="0" step="1">
+                </div>
+                <div class="form-group">
+                    <input type="number" id="price_per_seat" name="price_per_seat[]" placeholder="Price per Seat" required class="full-width" min="0" step="1">
+                </div>
+            `;
+
+            container.appendChild(inventoryGroup);
+        }
+
+        // Function to remove an inventory section
+        function removeInventory(button) {
+            const inventoryGroup = button.parentElement.parentElement;
+            inventoryGroup.remove();
+            updateInventoryLabels();
+        }
+
+        // Function to update the inventory labels
+        function updateInventoryLabels() {
+            const inventoryGroups = document.querySelectorAll('.inventory-group .inventory-header .label');
+            inventoryGroups.forEach((label, index) => {
+                label.textContent = `Inventory ${index + 1}`;
+            });
+            inventoryCount = inventoryGroups.length;
+        }
+
+        // Function to dynamically add new floor plan sections
+        function addFloor() {
+            floorCount++;
+            const container = document.getElementById('floor-container');
+
+            const floorGroup = document.createElement('div');
+            floorGroup.classList.add('floor-group');
+
+            floorGroup.innerHTML = `
+                <div class="floor-header">
+                    <span class="label">Floor ${floorCount}</span>
+                    <button type="button" class="delete-button" id="col" onclick="removeFloor(this)">x</button>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="floor_name" name="floor_name[]" placeholder="Floor Name (e.g., First Floor)" required class="full-width">
+                </div>
+                <div class="form-group">
+                    <input type="file" id="floor_image" name="floor_image[]" accept="image/png, image/jpeg, image/jpg" required class="full-width" onchange="previewFloorFiles(this)">
+                </div>
+                <div id="floor-preview-${floorCount}" class="preview-container">
+                    <!-- This will display the image thumbnail for the floor -->
+                </div>
+            `;
+
+            container.appendChild(floorGroup);
+        }
+
+        // Function to remove a floor section
+        function removeFloor(button) {
+            const floorGroup = button.parentElement.parentElement;
+            floorGroup.remove();
+            updateFloorLabels();
+        }
+
+        // Function to update the floor labels
+        function updateFloorLabels() {
+            const floorGroups = document.querySelectorAll('.floor-group .floor-header .label');
+            floorGroups.forEach((label, index) => {
+                label.textContent = `Floor ${index + 1}`;
+            });
+            floorCount = floorGroups.length;
+        }
+
+        // Function to preview uploaded floor plan images
+        function previewFloorFiles(input) {
+            const file = input.files[0];
+            const previewContainer = input.parentElement.nextElementSibling;
+
+            if (file) {
+                const fileURL = URL.createObjectURL(file);
+                const fileThumbnail = document.createElement('div');
+                fileThumbnail.classList.add('image-thumbnail');
+
+                fileThumbnail.innerHTML = `
+                    <img src="${fileURL}" alt="Floor Image Thumbnail" />
+                    <button type="button" class="delete-button" onclick="removeFile(this)">x</button>
+                `;
+
+                previewContainer.innerHTML = '';
+                previewContainer.appendChild(fileThumbnail);
+            }
+        }
+
+        // Function to remove image thumbnails
+        function removeFile(button) {
+            const fileThumbnail = button.parentElement;
+            fileThumbnail.remove();
+        }
+    </script>
 </body>
 </html>
