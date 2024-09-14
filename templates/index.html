@@ -68,26 +68,23 @@
         gtag('config', 'AW-11274167410');
     </script>
 <body>
+
     <!-- Navbar Section -->
-    <nav class="navbar navbar-expand-lg navbar-light ">
+    <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">FindUrSpace</a>
+            <!-- Add an icon before FindUrSpace -->
+            <a class="navbar-brand" href="#">
+                <img src="../static/images/logo.png" alt="Icon" width="70" height="60" class="d-inline-block align-text-top">
+                <span style="font-size: 1.5rem; font-weight: bold;">FindUrSpace</span>
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <!-- Only ListUrSpace on the right -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#how-it-works">How It Works</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#testimonials">Testimonials</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{url_for('admin.admin_login')}}">Admin Login</a>
+                        <a class="nav-link" href="#list-your-space">ListUrSpace</a>
                     </li>
                 </ul>
             </div>
@@ -98,9 +95,9 @@
 
     <section class="hero-section">
         <div class="hero-text">
-            <h1 class="hero-title">Find Your Perfect Workspace in <strong>Under 5 Minutes with AI.</strong></h1>
-            <p class="hero-subtitle">Instant access to vetted, live inventory coworking spaces, ensuring minimal human interaction and maximum efficiency.</p>
-            <p class="hero-subtitle">Fast, Smart, and Hassle-Free Workspace Search</p>
+            <h1 class="hero-title">Find Your Ideal Coworking Space | Office Rentals Simplified</strong></h1>
+            <p class="hero-subtitle"><strong>FindUrSpace</strong> is your go-to platform for finding the perfect coworking space in multiple cities across India. Whether you're a freelancer, startup, or an established business, we simplify the search for your ideal office space.</p>
+            <!-- <p class="hero-subtitle">Fast, Smart, and Hassle-Free Workspace Search</p> -->
         </div>
     
         <div class="info-form-section">
@@ -125,31 +122,33 @@
     
 
 
-    <!--  Benefits section -->
-    <section class="benefits-section">
-        <div class="container text-center">
-            <div class="row align-items-center justify-content-center">
-                <div class="col-md-5">
-                    <div class="benefit">
-                        <p>Zero brokerage <img src="../static/images/Zero brokrageAsset 2.svg" alt="Brokerage"></p>
-                        <p>Premium amenities <img src="../static/images/Premium amenitiesAsset 3.svg" alt="Amenities"></p>
-                    </div>
+   <!--  Benefits section -->
+<section class="benefits-section">
+    <div class="container text-center">
+        <div class="row align-items-center justify-content-center">
+            <div class="col-md-5">
+                <div class="benefit">
+                    <!-- Images before text -->
+                    <p><img src="../static/images/Zero brokrageAsset 2.svg" alt="Brokerage"> Tailored Solutions</p>
+                    <p><img src="../static/images/Premium amenitiesAsset 3.svg" alt="Amenities"> Budget-Friendly</p>
                 </div>
-    
-                <div class="col-md-1 separator d-none d-md-block">
-                    <span class="vertical-line"></span>
-                </div>
-    
-                <div class="col-md-5">
-                    <div class="benefit">
-                        <p>For all team sizes 1 to 500 <img src="../static/images/For all team sizes 1 to 500Asset 4.svg" alt="Teams"></p>
-                        <p>Respond in 5 min <img src="../static/images/Respond in 5 minAsset 5.svg" alt="Respond"></p>
-                    </div>
+            </div>
+
+            <div class="col-md-1 separator d-none d-md-block">
+                <span class="vertical-line"></span>
+            </div>
+
+            <div class="col-md-5">
+                <div class="benefit">
+                    <!-- Images before text -->
+                    <p><img src="../static/images/For all team sizes 1 to 500Asset 4.svg" alt="Teams"> Prime Locations</p>
+                    <p><img src="../static/images/Respond in 5 minAsset 5.svg" alt="Respond"> Zero Brokerage</p>
                 </div>
             </div>
         </div>
-    </section>
-    
+    </div>
+</section>
+ 
 
     <!-- How it Works Section -->
     <section class="how-it-works-section">
@@ -164,20 +163,20 @@
                     </div>
                     <div class="step">
                         <h3>02 AI Matches You</h3>
-                        <p>AI instantly finds three options from live inventory.</p>
+                        <p>Our AI instantly finds three best options for you.</p>
                     </div>
                     <div class="step">
                         <h3>03 AI Bot Call</h3>
-                        <p>Get a call from our AI to gather feedback on options and schedule viewings.</p>
+                        <p>Get a call to provide feedback and schedule viewings.</p>
                     </div>
 
                     <div class="step">
                         <h3>04 Confirm with Managers</h3>
-                        <p>Centre managers will call to confirm appointments.</p>
+                        <p>Centre managers call to finalize your appointments.</p>
                     </div>
                     <div class="step">
                         <h3>05 Close the Deal</h3>
-                        <p>Visit the spaces and finalise your choice.</p>
+                        <p> Visit the spaces and pick the one that works for you.</p>
                     </div>
                     <h2>Try It Now</h2>
                     <div class="step">
@@ -255,13 +254,14 @@
                     <div id="india-map"></div> <!-- Div for the interactive map -->
                 </div>
                 <div class="col-md-6">
-                    <h2>Overall Presence</h2>
+                    <h2>Your Office Search Made Easy</h2>
                     <p>
-                        With a network of <strong>1000+ coworking spaces</strong> across <strong>50 cities</strong>,
-                        FindUrSpace.tech ensures you'll find the right workspace anytime, anywhere.
-                        Whether you're travelling or working locally, we have the space for you.
+                        We act as a bridge between you and top coworking spaces, offering a seamless, stress-free way to find the workspace that fits your needs.
                     </p>
-                    <h3>50+ Cities / 1000+ Spaces</h3>
+                    <h2>Flexible Workspaces for Every Need</h2>
+                    <p>
+                        From hot desks to fully furnished offices, find spaces that adapt to your requirements—without the hassle. Enjoy the benefits of coworking, including community, amenities, and networking opportunities, with a network of 1000+ coworking spaces across 50 cities.
+                    </p>
                 </div>
             </div>
         </div>

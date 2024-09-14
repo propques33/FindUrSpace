@@ -47,24 +47,33 @@ body {
 }
 
 /* Navbar section */
-/* Navbar Styling */
+/* Updated Navbar Styling */
 .navbar {
     background-color: #0C1427;
     color: white;
-    position: fixed;
-    top: 0;
     width: 100%;
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
 }
 
+/* Updated Navbar brand styling */
 .navbar-brand {
-    font-size: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand img {
+    margin-right: 10px; /* Spacing between icon and text */
+}
+
+.navbar-brand span {
+    font-size: 1.5rem; /* Increased size for FindUrSpace */
     font-weight: 700;
     color: white;
     font-family: 'Report School Bold', Arial, sans-serif;
 }
 
+/* Nav link styling */
 .nav-link {
     color: white !important;
     font-weight: 500;
@@ -72,10 +81,12 @@ body {
     transition: color 0.3s ease;
 }
 
+/* Hover effect */
 .nav-link:hover {
     color: #ff6600 !important;
 }
 
+/* Toggler button styling */
 .navbar-toggler {
     border: none;
 }
@@ -84,14 +95,12 @@ body {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
 }
 
+/* Container padding */
 .container-fluid {
     padding-left: 50px;
     padding-right: 50px;
 }
 
-body {
-    padding-top: 80px;
-}
 
 /* Hero Section */
 .hero-section {
@@ -292,13 +301,13 @@ body {
 .benefit p {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     margin-bottom: 10px;
     font-family: 'Report School Italic', Arial, sans-serif;
 }
 
 .benefit img {
-    margin-left: 8px;
+    margin-right: 8px;
     width: 20px;
     height: 20px;
 }
@@ -314,6 +323,7 @@ body {
     width: 2px;
     background-color: white;
 }
+
 
 /* How it works section */
 .how-it-works-section {
