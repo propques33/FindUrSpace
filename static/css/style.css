@@ -328,6 +328,7 @@ body {
 /* How it works section */
 .how-it-works-section {
     padding: 50px 0;
+    padding-left: 50px; /* Adjust this value as needed to match other sections */
 }
 
 .steps h2 {
@@ -1055,7 +1056,6 @@ body {
 }
 
 
-
 /* Large Mobile Devices (768px to 991px) */
 @media (min-width: 768px) and (max-width: 991px) {
     /* Navbar Adjustments */
@@ -1073,13 +1073,15 @@ body {
 
     /* Hero Section Adjustments */
     .hero-section {
-        flex-direction: row;
+        display: flex;
+        flex-direction: row; /* Reverting to row for larger display */
+        align-items: center; /* Center items vertically */
         padding: 40px;
         text-align: left;
     }
     .hero-text {
-        padding-right: 30px;
-        margin-bottom: 0;
+        flex: 1; /* Take available space */
+        padding-right: 30px; /* Maintain spacing between text and any adjacent content */
     }
     .hero-title {
         font-size: 42px;
@@ -1091,13 +1093,43 @@ body {
     /* Form Section */
     .info-form-section .form-container {
         margin: 0 auto;
-        width: 80%;
-        max-width: 600px;
+        width: 80%; /* Slightly reduced width for focus */
+        max-width: 600px; /* Maximum width */
         padding: 25px;
     }
 
-    /* Adjust other sections similarly */
+    /* Human-Bot Section */
+    .human-bot-section .container {
+        display: flex;
+        flex-direction: row; /* Using row direction for side-by-side layout */
+        align-items: center; /* Vertical alignment */
+    }
+    .text-content {
+        width: 50%;
+        text-align: left;
+        padding-right: 20px; /* Space between text and image */
+    }
+    .image-container {
+        width: 50%;
+        margin-top: 0; /* No additional top margin */
+    }
+
+    /* Contact Section Adjustments */
+    .contact-section {
+        padding: 30px; /* Increased padding */
+    }
+    .contact-section .container {
+        flex-direction: row; /* Side by side for contact info and links */
+        justify-content: space-between;
+        align-items: center;
+    }
+    .company-info, .footer-links, .social-icons {
+        text-align: left;
+    }
+
+    /* Adjust additional sections as needed based on specific content */
 }
+
 
 /* Reduce Whitespace and Uniformity */
 body {
