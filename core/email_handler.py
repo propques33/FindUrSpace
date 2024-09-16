@@ -9,6 +9,7 @@ import os
 from flask import current_app, flash
 from PIL import Image as PILImage
 import requests
+from integrations.google_drive_integration import upload_pdf_to_google_drive, send_pdf_via_cunnekt, authenticate_google_drive, get_temp_pdfs_folder_id  # Import functions
 
 # Initialize Flask-Mail
 mail = Mail()
@@ -29,7 +30,7 @@ def generate_property_pdf(properties, doc, styles):
 
     # Define updated styles with larger font size and appropriate spacing
     styles.add(ParagraphStyle(name='EnhancedHeading', fontName='Helvetica-Bold', fontSize=32, spaceAfter=24))
-    styles.add(ParagraphStyle(name='EnhancedNormal', fontName='Helvetica', fontSize=24, spaceAfter=16, leading=28))  # Increased leading to avoid overlapping
+    styles.add(ParagraphStyle(name='EnhancedNormal', fontName='Helvetica', fontSize=24, spaceAfter=16, leading=28))
 
     for i, p in enumerate(properties, start=1):
         elements.append(Paragraph(f"Option {i}", styles['EnhancedHeading']))
@@ -47,7 +48,7 @@ def generate_property_pdf(properties, doc, styles):
 
         if image1 and image2:
             # Adjust image size, position, and add white space between them
-            table_data = [[Image(BytesIO(requests.get(p['img1']).content), width=6.0 * inch, height=5.0 * inch),  
+            table_data = [[Image(BytesIO(requests.get(p['img1']).content), width=6.0 * inch, height=5.0 * inch),
                            Spacer(0.5 * inch, 0),
                            Image(BytesIO(requests.get(p['img2']).content), width=6.0 * inch, height=5.0 * inch)]]
 
@@ -66,11 +67,15 @@ def generate_property_pdf(properties, doc, styles):
 
     doc.build(elements)
 
-# Send email with PDF attachment
-def send_email_with_pdf(to_email, name, properties):
+# Send email and WhatsApp with the same PDF
+def send_email_and_whatsapp_with_pdf(to_email, name, contact, properties):
     try:
+        # Ensure the contact number starts with '91' (for Cunnekt API)
+        if not contact.startswith('91'):
+            contact = '91' + contact
+
         # Load the predesigned PDF and extract static pages
-        static_pdf_path = os.path.join(current_app.root_path, 'static', 'pdffin.pdf')  # Adjusted to use root_path
+        static_pdf_path = os.path.join(current_app.root_path, 'static', 'pdffin.pdf')
         static_pdf = PdfReader(static_pdf_path)
 
         # Keep the page size consistent with the static pages
@@ -114,8 +119,23 @@ def send_email_with_pdf(to_email, name, properties):
                                "If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.")
         message.attach("property_data.pdf", "application/pdf", combined_pdf_buffer.read())
 
+        # Send the email
         mail.send(message)
-        return True, None  # Returning None since the buffer isn't being used outside
+
+        # Upload the same PDF to Google Drive
+        creds = authenticate_google_drive()
+        combined_pdf_buffer.seek(0)  # Reset buffer before uploading to Google Drive
+        shareable_link = upload_pdf_to_google_drive(combined_pdf_buffer, creds, "property_data.pdf")
+
+        # Send the PDF via WhatsApp using the Cunnekt API
+        if shareable_link:
+            send_pdf_via_cunnekt(shareable_link, contact)
+        else:
+            print("Failed to generate Google Drive shareable link for the PDF.")
+        
+        return True, None  # Successfully sent email and WhatsApp
+
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print(f"Failed to send email and WhatsApp: {e}")
         return False, str(e)
+

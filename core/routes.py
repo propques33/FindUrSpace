@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, session, current_app
 from collections import defaultdict
 import datetime
-from core.email_handler import send_email_with_pdf
+from core.email_handler import send_email_and_whatsapp_with_pdf
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 import threading
 from integrations.gsheet_updater import handle_new_property_entry
@@ -14,13 +14,14 @@ def update_gsheet_background(app, db, property_data):
         except Exception as e:
             print(f"Failed to update Google Sheet: {e}")
 
-# Helper function to send the email in the background
-def send_email_background(app, email, name, filtered_properties):
+# Helper function to send the email and WhatsApp in the background
+def send_email_and_whatsapp_background(app, email, name, contact, filtered_properties):
     with app.app_context():  # Push the application context
         try:
-            success, pdf_buffer = send_email_with_pdf(email, name, filtered_properties)
+            success, _ = send_email_and_whatsapp_with_pdf(email, name, contact, filtered_properties)
         except Exception as e:
             pass
+
 
 # Define the Blueprint for core routes
 core_bp = Blueprint('core_bp', __name__)
@@ -120,6 +121,7 @@ def submit_preferences():
 
     name = user.get('name')
     email = user.get('email')
+    contact = user.get('contact')
 
     # Fetch properties that match the user's preferences
     filtered_properties = list(db.coworking_spaces.find({
@@ -147,7 +149,8 @@ def submit_preferences():
 
     # Background threads for email and Google Sheets updates
     app = current_app._get_current_object()
-    email_thread = threading.Thread(target=send_email_background, args=(app, email, name, filtered_properties))
+    # Modify the existing thread to send both email and WhatsApp
+    email_thread = threading.Thread(target=send_email_and_whatsapp_background, args=(app, email, name, contact, filtered_properties))
     email_thread.start()
 
     gsheet_thread = threading.Thread(target=update_gsheet_background, args=(app, db, new_property))
@@ -178,6 +181,11 @@ def get_prices():
     micromarket = request.args.get('micromarket')
     prices = db.coworking_spaces.distinct('price', {'city': city, 'micromarket': micromarket})
     return jsonify({'prices': prices})
+
+@core_bp.route('/tc')
+def terms_and_conditions():
+    return render_template('T&C.html')
+
 
 @core_bp.route('/list-your-space',methods=['GET', 'POST'])
 def list_your_space():

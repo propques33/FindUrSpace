@@ -4,8 +4,6 @@ import requests
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from dotenv import load_dotenv
 import base64
 import os
@@ -27,12 +25,37 @@ def authenticate_google_drive():
     
     return creds
 
+def get_temp_pdfs_folder_id(service):
+    # Check if the 'temp_pdfs' folder exists
+    folder_name = 'temp_pdfs'
+    query = f"name = '{folder_name}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+    results = service.files().list(q=query, spaces='drive', fields='files(id, name)').execute()
+    files = results.get('files', [])
+
+    # If the folder exists, return the folder ID
+    if files:
+        return files[0]['id']
+    
+    # If the folder does not exist, create it and return the new folder ID
+    file_metadata = {
+        'name': folder_name,
+        'mimeType': 'application/vnd.google-apps.folder'
+    }
+    folder = service.files().create(body=file_metadata, fields='id').execute()
+    return folder.get('id')
+
 def upload_pdf_to_google_drive(pdf_buffer, creds, filename):
     # Build the Google Drive service
     service = build('drive', 'v3', credentials=creds)
     
+    # Get or create the 'temp_pdfs' folder
+    folder_id = get_temp_pdfs_folder_id(service)
+    
     # Define file metadata
-    file_metadata = {'name': filename}
+    file_metadata = {
+        'name': filename,
+        'parents': [folder_id]  # Upload the file into 'temp_pdfs' folder
+    }
     
     # Upload the file
     media = MediaIoBaseUpload(pdf_buffer, mimetype='application/pdf')
@@ -54,49 +77,45 @@ def upload_pdf_to_google_drive(pdf_buffer, creds, filename):
     return shareable_link
 
 
-def send_pdf_via_noapp(shareable_link, recipient_number):
-    # noApp API setup
-    api_key = os.getenv('NOAPP_API_KEY')
-    channel_key = os.getenv('NOAPP_CHANNEL_KEY')
-    url = "https://crm.noapp.io/v1/api/message/send-messages"
+def send_pdf_via_cunnekt(shareable_link, recipient_number):
+    # Cunnekt API setup
+    api_key = os.getenv('CUNNEKT_API_KEY')
+    url = "https://app2.cunnekt.com/v1/sendnotification"
 
     headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "apiKey": api_key,
-        "channelKey": channel_key
+        "API-KEY": api_key
     }
 
     # Prepare the payload
     data = {
-        "receivers": [
-            {
-                "name": "User",
-                "bodyParams": [],
-                "headerParams": {
+        "mobile": recipient_number,
+        "templateid": "392037747062796",  
+        "overridebot": "yes",  # Set to yes or no based on your requirement
+        "template": {
+            "components": [
+                {
                     "type": "header",
                     "parameters": [
                         {
                             "type": "document",
                             "document": {
                                 "link": shareable_link,
-                                "filename": "sample.pdf"
+                                "filename": "sample.pdf"  # Filename of the uploaded PDF
                             }
                         }
                     ]
-                },
-                "whatsappNumber": recipient_number
-            }
-        ],
-        "template_name": "whatsapp_pdf",
-        "broadcast_name": "pdf_broadcast"
+                }
+            ]
+        }
     }
 
     # Convert the payload to JSON string
     payload = json.dumps(data)
 
-    # Send the request to noApp API
-    print("Sending PDF via WhatsApp using noApp API...")
+    # Send the request to Cunnekt API
+    print("Sending PDF via WhatsApp using Cunnekt API...")
     try:
         response = requests.post(url, headers=headers, data=payload, timeout=120)
         print("Status Code:", response.status_code)
