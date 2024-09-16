@@ -1130,6 +1130,181 @@ body {
     /* Adjust additional sections as needed based on specific content */
 }
 
+@media (min-width: 1024px) and (max-width: 1440px) {
+    /* General Layout Adjustments */
+    body, .container, .container-fluid {
+        padding-left: 60px;  /* Maintaining the general layout padding */
+        padding-right: 60px; /* Maintaining the general layout padding */
+    }
+    section {
+        padding-top: 60px;   /* Maintaining vertical padding for sections */
+        padding-bottom: 60px; /* Maintaining vertical padding for sections */
+        width: 100%; /* Ensures section uses full width */
+    }
+
+    /* Navbar Adjustments for Large Screens */
+    .navbar {
+        justify-content: space-between; /* Aligns items to the edges of the navbar */
+        width: 100%; /* Ensures navbar spans the full width of the viewport */
+    }
+    .navbar .container, .navbar .container-fluid {
+        max-width: 100%; /* Removes any max-width constraints */
+        width: 100%; /* Forces the container to fill the navbar */
+        padding-left: 0; /* Removes padding to align items to the edge */
+        padding-right: 0; /* Removes padding to align items to the edge */
+        display: flex; /* Ensures flexbox layout for direct children */
+        justify-content: space-between; /* Spreads navbar contents to the edges */
+    }
+    .navbar-brand {
+        margin-left: 0; /* No margin to ensure alignment at the edge */
+        flex-grow: 0; /* Prevents the logo from taking unnecessary space */
+    }
+    .navbar-nav {
+        margin-right: 0; /* Ensures nav items align to the far right */
+        flex-grow: 0; /* Prevents nav from taking unnecessary space */
+    }
+    /* Hero Section Adjustments */
+    .hero-section {
+        padding-left: 80px;
+        padding-right: 80px;
+        min-height: 50vh; /* Reduced from 90vh to 50vh to reduce excessive space */
+    }
+    .hero-title {
+        font-size: 56px;
+    }
+    .hero-subtitle {
+        font-size: 28px;
+    }
+    .hero-text {
+        max-width: 700px;
+        padding-right: 60px;
+    }
+
+    /* Form Section Adjustments */
+    .info-form-section .form-container {
+        max-width: 600px;
+        margin-right: 160px;
+        padding: 40px;
+    }
+    .form-container input {
+        font-size: 18px;
+    }
+
+    /* Benefits Section Adjustments */
+    .benefits-section {
+        width: 70%;
+        margin: 40px auto;
+    }
+    .benefit {
+        font-size: 1.2rem;
+    }
+
+    /* How It Works Section Adjustments */
+    .how-it-works-section {
+        padding-left: 80px;
+        padding-right: 80px;
+    }
+    .steps h2 {
+        font-size: 3rem;
+    }
+    .steps .step h3 {
+        font-size: 1.8rem;
+    }
+    .steps .step p {
+        font-size: 1.2rem;
+    }
+
+    /* Company Logos Section Adjustments */
+    .company-logos-section img {
+        height: 60px;
+        padding: 10px 30px;
+    }
+
+    /* Discover Section Adjustments */
+    .city-card {
+        margin: 0 20px;
+    }
+    .city-card h3 {
+        font-size: 1.4rem;
+    }
+    .city-card p {
+        font-size: 1.1rem;
+    }
+    .image-box {
+        width: 200px;
+        height: 130px;
+    }
+
+    /* Testimonials Section Adjustments */
+    .testimonial-card {
+        width: 450px;
+        padding: 20px;
+        margin: 20px;
+    }
+    .text-card {
+        height: 180px;
+        width: 350px;
+    }
+
+    /* Human-Bot Section Adjustments */
+    .human-bot-section .container {
+        padding: 0 80px;
+    }
+    .text-content h1 {
+        font-size: 3.5rem;
+    }
+    .text-content h2 {
+        font-size: 2.2rem;
+    }
+    .text-content p {
+        font-size: 1.3rem;
+    }
+
+    /* Contact Section Adjustments */
+    .contact-section .container {
+        padding-left: 60px;
+        padding-right: 60px;
+    }
+    .company-info p {
+        font-size: 1.2rem;
+    }
+    .footer-links a {
+        font-size: 1.1rem;
+    }
+
+    /* Adjust Button Sizes */
+    .btn-block {
+        padding: 15px;
+        font-size: 18px;
+    }
+
+    /* Adjust Input Fields */
+    .form-container input {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    /* Adjust Navbar Toggler Icon */
+    .navbar-toggler-icon {
+        width: 1.5em;
+        height: 1.5em;
+    }
+
+    /* Adjust Map Size */
+    #india-map {
+        height: 500px;
+        margin-right: 80px;
+    }
+
+    /* Adjust Footer */
+    .footer-links a {
+        font-size: 1.1rem;
+    }
+    .social-icons a img {
+        width: 36px;
+        height: 36px;
+    }
+}
 
 
 
