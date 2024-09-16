@@ -852,6 +852,10 @@ body {
     .text-card {
         width: 100%;
     }
+    
+    .testimonial-image{
+        top: -30px;
+    } 
 
     /* Human-Bot Section Adjustments */
     .human-bot-section .container {
@@ -1215,7 +1219,7 @@ body {
 
     /* Testimonials Section Adjustments */
     .testimonial-card {
-        width: 450px;
+        width: 350px;
         padding: 20px;
         margin: 20px;
     }
