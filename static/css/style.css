@@ -505,92 +505,70 @@ body {
 }
 
 /* Testimonials Section */
+/* Testimonials Section */
 .testimonials-section {
-    padding: 40px 0;
+    padding: 60px 0;
+    background-color: transparent; /* Removing background color */
 }
 
-.testimonials-section h2 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    font-family: 'Report School Heavy', Arial, sans-serif;
+.testimonials-section h2,
+.testimonials-section p {
+    color: black; /* Adjust text color as needed */
 }
 
-.testimonial-wrapper {
+.testimonials-scroll {
     display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow-x: auto;
+    padding: 20px 0;
+    scroll-behavior: smooth;
+}
+
+.testimonials-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.testimonial-card-wrapper {
+    margin-right: 20px;
+    text-align: center;
     position: relative;
-    width: 100%;
-}
-
-.testimonial-row-container {
-    overflow: hidden;
-    width: 80%;
-}
-
-.testimonial-row {
-    display: flex;
-    transition: transform 0.5s ease;
+    width: 300px;
+    flex-shrink: 0;
 }
 
 .testimonial-card {
-    width: 400px;
-    padding: 10px;
-    margin: 15px;
-    transition: transform 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #151d31;
+    color: #fff;
     border-radius: 10px;
-    height: 220px;
-    font-family: 'Report School Regular', Arial, sans-serif;
-}
-
-.text-card {
-    background-color: #192045;
-    color: #ffffff;
     padding: 20px;
-    border-radius: 10px;
-    height: 150px;
-    width: 300px;
-    font-family: 'Report School Italic', Arial, sans-serif;
+    margin-top: 50px; /* Adjust based on new image size */
 }
 
-.testimonial-card:hover {
-    transform: scale(1.1);
-}
-
-.client-name {
-    margin-top: 10px;
-    font-size: 1.2rem;
-    color: #1A1F36;
-    text-align: center;
-    font-family: 'Report School Bold', Arial, sans-serif;
-}
-
-/* Scroll Buttons */
-.scroll-btn {
-    background-color: #192045;
-    color: white;
-    font-size: 2rem;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
+.testimonial-image {
+    width: 100px; 
+    height: 100px; 
+    border-radius: 50%;
     position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
+    top: 0px; /* Adjust this value to half of the new image height to center it outside the card */
+    left: 50%;
+    transform: translateX(-50%);
+    /* border: 3px solid white;  */
+    padding: 0; /* Removing padding */
+    object-fit: cover;
 }
 
-.scroll-btn.left {
-    left: 0;
+.testimonial-name {
+    color: #000; /* Adjusting color to match potential new background */
+    font-size: 1.2em;
+    margin-top: 10px;
 }
 
-.scroll-btn.right {
-    right: 0;
+.testimonial-review {
+    font-size: 1em;
+    line-height: 1.5;
+    color: white;  
 }
 
-.scroll-btn:hover {
-    background-color: #1A1F36;
-}
+
 
 /* Human bot section */
 .human-bot-section {

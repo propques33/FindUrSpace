@@ -186,6 +186,9 @@ def get_prices():
 def terms_and_conditions():
     return render_template('T&C.html')
 
+@core_bp.route('/faqs')
+def freq_asked_ques():
+    return render_template('FAQs.html')
 
 @core_bp.route('/list-your-space',methods=['GET', 'POST'])
 def list_your_space():

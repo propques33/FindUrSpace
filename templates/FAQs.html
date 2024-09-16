@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FindUrSpace FAQs</title>
+<style>
+  /* Inline CSS */
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0 20px;
+    background-color: #f9f9f9;
+  }
+  .faq-container {
+    max-width: 800px;
+    margin: 40px auto;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  .faq-search input {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 30px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .faq-item {
+    background-color: #fff;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  .question {
+    padding: 20px;
+    cursor: pointer;
+    position: relative;
+  }
+  .question h2 {
+    font-size: 18px;
+    margin: 0;
+    color: black;
+  }
+  .question::after {
+    content: '+';
+    position: absolute;
+    right: 20px;
+    top: 22px;
+    font-size: 24px;
+    color: black;
+  }
+  .question.active::after {
+    content: '-';
+  }
+  .answer {
+    display: none;
+    padding: 0 20px 20px 20px;
+    color: #555;
+    line-height: 1.6;
+  }
+  .faq-item.active .answer {
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<div class="faq-container">
+  <h1>FindUrSpace FAQs</h1>
+  <div class="faq-search">
+    <input type="text" id="searchInput" placeholder="Search FAQs...">
+  </div>
+
+  <!-- FAQ Item 1 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>1. What is FindUrSpace?</h2>
+    </div>
+    <div class="answer">
+      <p>FindUrSpace helps you find the perfect coworking space across India, making the search easy for freelancers, startups, and businesses in lesser time without any cost.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 2 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>2. How does FindUrSpace work?</h2>
+    </div>
+    <div class="answer">
+      <ol>
+        <li><strong>Submit your workspace preferences.</strong></li>
+        <li><strong>Get AI-based space recommendations.</strong></li>
+        <li><strong>Schedule visits via AI bot over a call.</strong></li>
+        <li><strong>Post-visit, confirm with managers and finalize your booking.</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- FAQ Item 3 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>3. What types of workspaces can I find?</h2>
+    </div>
+    <div class="answer">
+      <p>You can find day passes, meeting rooms, hot desks, private offices, manager cabins, and fully furnished managed spaces tailored to your needs.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 4 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>4. Which cities does FindUrSpace cover?</h2>
+    </div>
+    <div class="answer">
+      <p>FindUrSpace lists coworking spaces in cities like Bangalore, Mumbai, Delhi, Gurgaon, Pune, Hyderabad, Lucknow, Indore, and more.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 5 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>5. What makes FindUrSpace different?</h2>
+    </div>
+    <div class="answer">
+      <p>We offer AI recommendations, zero brokerage fees, and a quick appointment scheduling at the space, ensuring a hassle-free booking process.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 6 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>6. Is FindUrSpace free to use?</h2>
+    </div>
+    <div class="answer">
+      <p>Yes, FindUrSpace has zero brokerage fees for finding and booking coworking spaces.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 7 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>7. Can I book a coworking space right away?</h2>
+    </div>
+    <div class="answer">
+      <p>Yes, after receiving AI recommendations, you can quickly schedule and book an appointment at the space.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 8 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>8. What benefits do coworking spaces offer?</h2>
+    </div>
+    <div class="answer">
+      <p>Coworking spaces offer flexible options, amenities like high-speed internet, and networking opportunities.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Item 9 -->
+  <div class="faq-item">
+    <div class="question">
+      <h2>9. How can I contact FindUrSpace?</h2>
+    </div>
+    <div class="answer">
+      <p>You can use the AI-human bot on the website.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- Inline JavaScript -->
+<script>
+  // Accordion functionality
+  var faqItems = document.getElementsByClassName('faq-item');
+
+  for (var i = 0; i < faqItems.length; i++) {
+    faqItems[i].addEventListener('click', function() {
+      this.classList.toggle('active');
+    });
+  }
+
+  // Search functionality
+  var searchInput = document.getElementById('searchInput');
+
+  searchInput.addEventListener('keyup', function() {
+    var filter = searchInput.value.toLowerCase();
+    var questions = document.getElementsByClassName('faq-item');
+
+    for (var i = 0; i < questions.length; i++) {
+      var questionText = questions[i].getElementsByClassName('question')[0].innerText;
+      if (questionText.toLowerCase().indexOf(filter) > -1) {
+        questions[i].style.display = "";
+      } else {
+        questions[i].style.display = "none";
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

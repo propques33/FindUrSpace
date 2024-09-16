@@ -265,68 +265,65 @@
     </section>
         
 
-
 <!-- Testimonials Section -->
 <section class="testimonials-section" id="testimonials">
-    <div class="container text-center">
-        <h2>Testimonials</h2>
-        <p>Our customers have something to say about us</p>
-        <div class="testimonial-wrapper">
-            <button class="scroll-btn left" onclick="scrollLeft()">&#8249;</button>
-            <div class="testimonial-row-container">
-                <div class="testimonial-row" id="testimonial-row">
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"FindUrSpace made it super easy for me to find a coworking space. I loved the AI recommendations!"</p>
-                        </div>
-                        <p class="client-name"><strong>Ravi Sharma</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"Their service is top-notch. We managed to finalize a coworking space in just a few hours."</p>
-                        </div>
-                        <p class="client-name"><strong>Priya Kapoor</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"As a remote team, we often switch coworking spaces. FindUrSpace makes that seamless!"</p>
-                        </div>
-                        <p class="client-name"><strong>Rajesh Mehta</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"The booking process was seamless and saved us so much time!"</p>
-                        </div>
-                        <p class="client-name"><strong>Aditi Desai</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"The AI suggestions were spot on, and I found a space that matched my needs perfectly!"</p>
-                        </div>
-                        <p class="client-name"><strong>Vikram Patel</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"Fast, reliable, and exactly what I needed. Highly recommend!"</p>
-                        </div>
-                        <p class="client-name"><strong>Anjali Menon</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"FindUrSpace made the coworking search process effortless and efficient."</p>
-                        </div>
-                        <p class="client-name"><strong>Sunil Gupta</strong></p>
-                    </div>
-                    <div class="testimonial-card">
-                        <div class="text-card">
-                            <p>"Amazing platform, found my coworking space in minutes!"</p>
-                        </div>
-                        <p class="client-name"><strong>Neha Singh</strong></p>
-                    </div>
+    <div class="container">
+        <h2 class="text-center"><strong>Testimonials</strong></h2>
+        <p class="text-center">Our customers have something to say about us</p>
+        <div class="testimonials-scroll">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card-wrapper">
+                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Ravi Sharma" class="testimonial-image">
+                <div class="testimonial-card">
+                    <p class="testimonial-review" style="color: white;">"FindUrSpace made it super easy for me to find a coworking space. I loved the AI recommendations!"</p>
                 </div>
+                <p class="testimonial-name">Ravi Sharma</p>
             </div>
-            <button class="scroll-btn left" onclick="scrollLeft()">❮</button>
-            <button class="scroll-btn right" onclick="scrollRight()">&#8250;</button>
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card-wrapper">
+                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Anita Desai" class="testimonial-image">
+                <div class="testimonial-card">
+                    <p class="testimonial-review" style="color: white;">"The variety of spaces offered by FindUrSpace is unparalleled. Found the perfect spot in no time!"</p>
+                </div>
+                <p class="testimonial-name">Anita Desai</p>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card-wrapper">
+                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Mohit Verma" class="testimonial-image">
+                <div class="testimonial-card">
+                    <p class="testimonial-review" style="color: white;">"Customer service was top-notch, and the booking process was a breeze. Highly recommend!"</p>
+                </div>
+                <p class="testimonial-name">Mohit Verma</p>
+            </div>
+
+            <!-- Testimonial 4 -->
+            <div class="testimonial-card-wrapper">
+                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Sara Ali" class="testimonial-image">
+                <div class="testimonial-card">
+                    <p class="testimonial-review" style="color: white;">"Loved the AI recommendations! It suggested spaces I wouldn't have considered but turned out perfect."</p>
+                </div>
+                <p class="testimonial-name">Sara Ali</p>
+            </div>
+
+            <!-- Testimonial 5 -->
+            <div class="testimonial-card-wrapper">
+                <img src="../static/images/Coustmer demoAsset 24.svg" alt="James Lee" class="testimonial-image">
+                <div class="testimonial-card">
+                    <p class="testimonial-review" style="color: white;">"FindUrSpace is a game-changer for freelancers like me. Flexible and affordable options everywhere."</p>
+                </div>
+                <p class="testimonial-name">James Lee</p>
+            </div>
+
+            <!-- Testimonial 6 -->
+            <div class="testimonial-card-wrapper">
+                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Priyanka Chopra" class="testimonial-image">
+                <div class="testimonial-card">
+                    <p class="testimonial-review" style="color: white;">"The platform is very user-friendly, and I found exactly what I needed in less than a day!"</p>
+                </div>
+                <p class="testimonial-name">Priyanka Chopra</p>
+            </div>
+
         </div>
     </div>
 </section>
@@ -367,7 +364,7 @@
             <!-- Right Side: Social Links and Policies -->
             <div class="col-md-6 text-end d-flex flex-column align-items-end justify-content-center">
                 <ul class="footer-links">
-                    <li><a href="#">Findurspace FAQ's</a></li>
+                    <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">Findurspace FAQ's</a></li>
                     <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
                 </ul>
                 <div class="social-icons">

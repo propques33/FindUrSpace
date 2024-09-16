@@ -300,8 +300,18 @@ function scrollRight() {
 // Overall presence
 // Initialize the map
 document.addEventListener('DOMContentLoaded', function () {
-    var map = L.map('india-map').setView([22.5937, 78.9629], 5); // Center map on India
-
+    var map = L.map('india-map', {
+        center: [22.5937, 78.9629], // Latitude and Longitude of India
+        zoom: 5,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        touchZoom: false,
+        keyboard: false,
+        zoomControl: false,
+        attributionControl: false,
+      });
     // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
