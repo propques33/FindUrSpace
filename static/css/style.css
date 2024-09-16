@@ -1379,3 +1379,22 @@ img {
 h1, h2, h3, p, span, a {
     word-wrap: break-word;
 }
+
+
+/* mailus styling */
+.mailus {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.mailus i {
+    margin-right: 8px; /* Space between icon and text */
+    font-size: 18px; /* Size of the icon */
+}
+
+.mailus:hover {
+    color: #ffcc00; /* Optional hover color */
+}
