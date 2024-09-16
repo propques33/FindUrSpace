@@ -1305,6 +1305,72 @@ body {
         height: 36px;
     }
 }
+/* Large screens (greater than 1440px) */
+@media (min-width: 1441px) {
+    /* General Layout Adjustments */
+    body, .container, .container-fluid {
+        padding-left: 1.5vw;  /* Dynamic padding based on viewport width */
+        padding-right: 1.5vw; /* Dynamic padding based on viewport width */
+    }
+    section {
+        padding-top: 1vh;   /* Dynamic vertical padding based on viewport height */
+        padding-bottom: 1vh; /* Dynamic vertical padding based on viewport height */
+    }
+
+    /* Adjusting text sizes */
+    h1, h2, h3, p, a, button{
+        font-size: calc(1vw + 1vh); /* Combination of viewport width and height */
+    }
+
+        /* Specific Hero Section Text Adjustments */
+        .hero-section h1, .hero-section h2 {
+            font-size: calc(2vw + 2vh); /* Larger size for main headings in the hero section */
+        }
+        .hero-section p {
+            font-size: calc(1.5vw + 1vh); /* Slightly larger size for paragraphs in the hero section */
+        }
+
+     /* Navbar Adjustments for Large Screens */
+     .navbar {
+        justify-content: space-between; /* Aligns items to the edges of the navbar */
+        width: 100%; /* Ensures navbar spans the full width of the viewport */
+    }
+    .navbar .container, .navbar .container-fluid {
+        max-width: 100%; /* Removes any max-width constraints */
+        width: 100%; /* Forces the container to fill the navbar */
+        padding-left: 10px; /* Removes padding to align items to the edge */
+        padding-right: 15px; /* Removes padding to align items to the edge */
+        display: flex; /* Ensures flexbox layout for direct children */
+        justify-content: space-between; /* Spreads navbar contents to the edges */
+    }
+    .navbar-brand {
+        margin-left: 0; /* No margin to ensure alignment at the edge */
+        flex-grow: 0; /* Prevents the logo from taking unnecessary space */
+    }
+    .navbar-nav {
+        margin-right: 0; /* Ensures nav items align to the far right */
+        flex-grow: 0; /* Prevents nav from taking unnecessary space */
+    }
+
+    /* Form Adjustments */
+    input, select, textarea, .btn {
+        font-size: 0.8vw; /* Adjust font size dynamically */
+        padding: 0.5vh 1vw; /* Responsive padding */
+    }
+
+    /* Adjustments for form elements and buttons */
+    .form-control, .btn {
+        height: 3vh; /* Responsive height */
+        padding: 0.5vh 1vw; /* Responsive padding */
+    }
+
+    /* Reducing excessive white space */
+    .navbar, .hero-section, .info-form-section, .testimonials-section, .contact-section {
+        margin-top: 0.5vh; /* Reduced margin */
+        margin-bottom: 0.5vh; /* Reduced margin */
+    }
+}
+
 
 
 
