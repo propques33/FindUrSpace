@@ -982,9 +982,79 @@ body {
         padding: 20px;
     }
 
-    /* Adjust other sections similarly */
-    /* You can increase font sizes and spacing slightly compared to small devices */
+    /* Map Adjustments */
+    #india-map {
+        width: 100%; /* Ensures the map fills the container */
+        height: 350px; /* Adjust height for better visibility */
+    }
+
+    /* Human-Bot Section Adjustments */
+    .human-bot-section .container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .text-content, .image-container {
+        width: 100%;
+        text-align: center;
+    }
+    .image-container {
+        position: static;
+        margin-top: 20px;
+    }
+
+    /* Contact Section Adjustments */
+    .contact-section {
+        padding: 20px; /* Adjust padding for better spacing */
+        background-color: #0C1427; /* Consistent background color */
+        color: white; /* Text color */
+    }
+
+    .contact-section .container {
+        flex-direction: column;
+        align-items: flex-start; /* Start alignment for better layout */
+    }
+
+    .company-info, .footer-links, .social-icons {
+        text-align: left;
+        width: 100%;
+    }
+
+    .social-icons {
+        justify-content: flex-start; /* Align social icons to the start */
+        margin-top: 10px; /* Space above icons */
+        padding-left: 20px; /* Align with the other text */
+    }
+
+    .social-icons a {
+        margin-right: 10px; /* Space between icons */
+    }
+
+    .footer-links {
+        padding-left: 20px; /* Align with other text */
+        margin-bottom: 10px; /* Space below */
+    }
+
+    .footer-links li {
+        padding: 5px 0; /* Padding for each link */
+    }
+
+    .footer-links a {
+        font-size: 16px; /* Readability size */
+    }
+
+    /* General Layout Adjustments */
+    body, .container, .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    section {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
 }
+
+
 
 /* Large Mobile Devices (768px to 991px) */
 @media (min-width: 768px) and (max-width: 991px) {
