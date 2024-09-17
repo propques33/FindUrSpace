@@ -823,6 +823,11 @@ body {
         height: 300px;
     }
 
+    .presence-section h2 {
+        text-align: center;
+    }
+    
+
     /* Discover Section Adjustments */
     .discover-coworking-section {
         padding: 30px 0;
@@ -870,6 +875,13 @@ body {
         position: static;
         margin-top: 20px;
     }
+
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center; /* Optional, depending on your layout needs */
+    }
+    
 
     /* Contact Section Adjustments */
     .contact-section {
