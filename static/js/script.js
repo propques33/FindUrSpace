@@ -279,9 +279,23 @@ document.addEventListener('DOMContentLoaded', function () {
     loadFormStep(); 
 });
 
+// discover section
+window.onload = function() {
+    setInitialScroll();
+};
 
+function setInitialScroll() {
+    const wrapper = document.getElementById('cities-wrapper');
+    if (wrapper.children.length > 1) {
+        const cardWidth = wrapper.children[1].offsetWidth; // Gets the width of the second card
+        const scrollAmount = cardWidth; // Scrolls to the second card
+        wrapper.scrollTo({
+            left: scrollAmount,
+            behavior: "smooth"
+        });
+    }
+}
 
-// Discover section
 function scrollLeft() {
     document.getElementById("cities-wrapper").scrollBy({
         left: -300,
@@ -295,6 +309,7 @@ function scrollRight() {
         behavior: "smooth"
     });
 }
+
 
 
 // Overall presence

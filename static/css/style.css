@@ -574,7 +574,7 @@ body {
 .human-bot-section {
     position: relative;
     padding: 50px 0;
-    margin: 30px;
+    margin: 20px;
 }
 
 .human-bot-section .container {
@@ -820,6 +820,12 @@ body {
 
 
     /* How It Works Section */
+
+    .how-it-works-section h2,h3,p {
+        text-align: center;
+    }
+    
+
     .how-it-works-section {
         padding: 30px 15px;
     }
@@ -845,7 +851,7 @@ body {
         height: 300px;
     }
 
-    .presence-section h2 {
+    .presence-section h2, p {
         text-align: center;
     }
     
