@@ -789,13 +789,35 @@ body {
     }
 
     /* Benefits Section Adjustments */
-    .benefits-section {
+    /* .benefits-section {
         width: 100%;
         margin: 20px 0;
     }
     .benefit {
         font-size: 1rem;
+    } */
+
+    .benefits-section {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
     }
+    
+    .benefit {
+        flex-direction: row;
+        width: 100%; /* Adjusts the width of each .benefit to take full width in smaller screens */
+        justify-content: space-evenly;
+    }
+    
+    .benefit p {
+        justify-content: center; /* Centers the content within each paragraph */
+        width: 50%; /* Each p takes up half the width of its container, aligning two per row */
+    }
+    
+    .separator {
+        display: none; /* Hides the separator in smaller screens */
+    }
+
 
     /* How It Works Section */
     .how-it-works-section {
