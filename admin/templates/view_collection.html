@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ collection_name | capitalize }} Documents</title>
     <style>
+        /* CSS Styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -48,6 +48,20 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+
+        .file-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .file-button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -57,25 +71,26 @@
         <h2>{{ collection_name | capitalize }} Documents</h2>
 
         {% for document in documents %}
-        <div class="document">
-            {% for key, value in document.items() %}
-                <p><strong>{{ key }}:</strong> 
-                    {% if key == 'floors' and value is iterable %}
-                        {% for floor in value %}
-                            <a href="{{ url_for('admin.view_image', collection_name=collection_name, document_id=document._id, filename=floor['image_filename']) }}" class="file-button">
-                                {{ floor['image_filename'] }} (View Image)
-                            </a>
-                        {% endfor %}
-                    {% else %}
-                        {{ value }}
-                    {% endif %}
-                </p>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p>No documents found.</p>
-    {% endfor %}
-    
+            <div class="document">
+                {% for key, value in document.items() %}
+                    <p><strong>{{ key }}:</strong>
+                        {% if key == 'floors' and value is iterable %}
+                            {% for floor in value %}
+                                <br>
+                                <a href="{{ url_for('admin.download_image', document_id=document['_id'], image_filename=floor['image_filename']) }}" class="file-button">
+                                    Download {{ floor['image_filename'] }}
+                                </a>
+                            {% endfor %}
+                        {% else %}
+                            {{ value }}
+                        {% endif %}
+                    </p>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>No documents found.</p>
+        {% endfor %}
+
     </div>
 
 </body>

@@ -81,6 +81,13 @@ def view_collection(collection_name):
                 # Remove the binary data before sending to the template
                 del file['data']
 
+        # Convert floor IDs to strings and remove binary data
+        if 'floors' in document:
+            for floor in document['floors']:
+                floor['_id'] = str(floor.get('_id', ''))
+                # Optionally remove binary data before sending to the template
+                # del floor['image_data']
+
     return render_template('view_collection.html', collection_name=collection_name, documents=documents)
 
 # Route to download binary files from MongoDB
@@ -100,6 +107,25 @@ def download_file(collection_name, document_id, filename):
                                  mimetype=content_type)
 
     return redirect(url_for('admin.view_collection', collection_name=collection_name))
+
+# Route to download images from MongoDB
+@admin_bp.route('/download_image/<document_id>/<image_filename>')
+def download_image(document_id, image_filename):
+    db = current_app.config['db']
+    document = db.fillurdetails.find_one({'_id': ObjectId(document_id)})
+
+    if document and 'floors' in document:
+        for floor in document['floors']:
+            if floor['image_filename'] == image_filename:
+                # Use a default content_type if it's missing
+                content_type = floor.get('content_type', 'application/octet-stream')
+                return send_file(BytesIO(floor['image_data']),
+                                 download_name=image_filename,
+                                 as_attachment=True,
+                                 mimetype=content_type)
+
+    flash('Image not found.', 'error')
+    return redirect(url_for('admin.view_collection', collection_name='fillurdetails'))
 
 # Delete Document Route
 @admin_bp.route('/delete_document/<collection_name>/<document_id>', methods=['POST'])
@@ -145,7 +171,7 @@ def get_property_images(property_id):
     property_data = db.fillurdetails.find_one({'_id': ObjectId(property_id)}, {'floors': 1})
     if not property_data or 'floors' not in property_data:
         return jsonify({'status': 'error', 'message': 'No images found'}), 404
-    
+
     images = [{'image_filename': floor['image_filename'], '_id': str(floor['_id'])} for floor in property_data['floors']]
     return jsonify({'images': images})
 
@@ -179,72 +205,3 @@ def save_interactive_layout():
     )
 
     return jsonify({'status': 'success'})
-
-# Route for FillUrDetails (property form)
-@admin_bp.route('/list-your-space', methods=['GET', 'POST'])
-def list_your_space():
-    db = current_app.config['db']  # Access the database here
-
-    if request.method == 'POST':
-        try:
-            # Extract form data
-            coworking_name = request.form.get('coworking_name')
-            city = request.form.get('city')
-            micromarket = request.form.get('micromarket')
-            name = request.form.get('name')
-            owner_phone = request.form.get('owner_phone')
-            owner_email = request.form.get('owner_email')
-            total_seats = request.form.get('total_seats')
-            current_vacancy = request.form.get('current_vacancy')
-            inventory_type = request.form.getlist('inventory_type[]')
-            inventory_count = request.form.getlist('inventory_count[]')
-            price_per_seat = request.form.getlist('price_per_seat[]')
-
-            # Handle file uploads (Images for Floors)
-            floor_names = request.form.getlist('floor_name[]')
-            floor_images = request.files.getlist('floor_image[]')
-            floors = []
-
-            for i in range(len(floor_names)):
-                image_file = floor_images[i]
-                if image_file and (image_file.filename.endswith('.png') or image_file.filename.endswith('.jpg') or image_file.filename.endswith('.jpeg')):
-                    floors.append({
-                        'floor_name': floor_names[i],
-                        'image_filename': image_file.filename,
-                        'image_data': image_file.read(),  # Store binary data of image
-                        'content_type': image_file.content_type,
-                    })
-
-            # Organize inventory data
-            inventory = []
-            for i in range(len(inventory_type)):
-                inventory.append({
-                    'type': inventory_type[i],
-                    'count': inventory_count[i],
-                    'price_per_seat': price_per_seat[i]
-                })
-
-            # Create a document to insert into MongoDB
-            property_details = {
-                'coworking_name': coworking_name,
-                'city': city,
-                'micromarket': micromarket,
-                'name': name,
-                'owner_phone': owner_phone,
-                'owner_email': owner_email,
-                'total_seats': total_seats,
-                'current_vacancy': current_vacancy,
-                'inventory': inventory,
-                'floors': floors,  # Store floor details (images and floor names)
-                'interactive_layout': False,  # Set interactive_layout as False initially
-                'date': datetime.datetime.now()
-            }
-
-            # Insert into MongoDB
-            db.fillurdetails.insert_one(property_details)
-
-            flash("Property details submitted successfully.",'success')
-
-        except Exception as e:
-            flash(f"Failed to submit property details: {str(e)}", 'error')
-    return render_template('FillUrDetails.html')
