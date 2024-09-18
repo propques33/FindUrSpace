@@ -1152,7 +1152,7 @@ body {
     /* Adjust additional sections as needed based on specific content */
 }
 
-@media (min-width: 1024px) and (max-width: 1440px) {
+@media (min-width: 1024px) and (max-width: 1430px) {
     /* General Layout Adjustments */
     body, .container, .container-fluid {
         padding-left: 60px;  /* Maintaining the general layout padding */
@@ -1328,40 +1328,37 @@ body {
     }
 }
 /* Large screens (greater than 1440px) */
-@media (min-width: 1441px) {
+/* Large screens (greater than 1430px) */
+@media (min-width: 1431px) {
     /* General Layout Adjustments */
     body, .container, .container-fluid {
-        padding-left: 1.5vw;  /* Dynamic padding based on viewport width */
-        padding-right: 1.5vw; /* Dynamic padding based on viewport width */
-    }
-    section {
-        padding-top: 1vh;   /* Dynamic vertical padding based on viewport height */
-        padding-bottom: 1vh; /* Dynamic vertical padding based on viewport height */
+        padding-left: 60px;  /* Adequate padding for wide screens */
+        padding-right: 60px; /* Adequate padding for wide screens */
     }
 
-    /* Adjusting text sizes */
-    h1, h2, h3, p, a, button{
-        font-size: calc(1vw + 1vh); /* Combination of viewport width and height */
+    /* Adjusting text sizes for readability on large displays */
+    h1, h2, h3, p, a, button {
+        font-size: calc(1vw + 1vh); /* Dynamic sizing based on viewport */
     }
 
-        /* Specific Hero Section Text Adjustments */
-        .hero-section h1, .hero-section h2 {
-            font-size: calc(2vw + 2vh); /* Larger size for main headings in the hero section */
-        }
-        .hero-section p {
-            font-size: calc(1.5vw + 1vh); /* Slightly larger size for paragraphs in the hero section */
-        }
+    /* Specific Hero Section Text Adjustments */
+    .hero-section h1, .hero-section h2 {
+        font-size: calc(2vw + 2vh); /* Larger size for main headings in the hero section */
+    }
+    .hero-section p {
+        font-size: calc(1.5vw + 1vh); /* Appropriate for descriptive text */
+    }
 
-     /* Navbar Adjustments for Large Screens */
-     .navbar {
+    /* Navbar Adjustments for Large Screens */
+    .navbar {
         justify-content: space-between; /* Aligns items to the edges of the navbar */
         width: 100%; /* Ensures navbar spans the full width of the viewport */
     }
     .navbar .container, .navbar .container-fluid {
         max-width: 100%; /* Removes any max-width constraints */
         width: 100%; /* Forces the container to fill the navbar */
-        padding-left: 10px; /* Removes padding to align items to the edge */
-        padding-right: 15px; /* Removes padding to align items to the edge */
+        padding-left: 0; /* Removes padding to align items to the edge */
+        padding-right: 0; /* Removes padding to align items to the edge */
         display: flex; /* Ensures flexbox layout for direct children */
         justify-content: space-between; /* Spreads navbar contents to the edges */
     }
@@ -1380,18 +1377,41 @@ body {
         padding: 0.5vh 1vw; /* Responsive padding */
     }
 
-    /* Adjustments for form elements and buttons */
-    .form-control, .btn {
-        height: 3vh; /* Responsive height */
-        padding: 0.5vh 1vw; /* Responsive padding */
+    /* Map Adjustments */
+    #india-map {
+        height: 500px; /* Appropriate height for visibility */
+        margin-right: 60px; /* Consistent spacing */
     }
 
-    /* Reducing excessive white space */
-    .navbar, .hero-section, .info-form-section, .testimonials-section, .contact-section {
-        margin-top: 0.5vh; /* Reduced margin */
-        margin-bottom: 0.5vh; /* Reduced margin */
+    /* Footer Adjustments */
+    .contact-section {
+        padding-left: 60px; /* Consistent with overall padding */
+        padding-right: 60px; /* Consistent with overall padding */
+    }
+    .social-icons a img {
+        width: 36px; /* Slightly larger icons for better interaction */
+        height: 36px; /* Slightly larger icons for better interaction */
+    }
+
+    /* Adjust Button Sizes */
+    .btn-block {
+        padding: 15px;
+        font-size: 18px;
+    }
+
+    /* Adjust Input Fields */
+    .form-container input {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    /* Adjust Navbar Toggler Icon */
+    .navbar-toggler-icon {
+        width: 1.5em;
+        height: 1.5em;
     }
 }
+
 
 
 

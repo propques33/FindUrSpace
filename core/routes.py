@@ -4,7 +4,10 @@ import datetime
 from core.email_handler import send_email_and_whatsapp_with_pdf
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 import threading
+import io
 from integrations.gsheet_updater import handle_new_property_entry
+from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
+
 
 # Function to handle Google Sheet updates in the background
 def update_gsheet_background(app, db, property_data):
@@ -190,7 +193,7 @@ def terms_and_conditions():
 def freq_asked_ques():
     return render_template('FAQs.html')
 
-@core_bp.route('/list-your-space',methods=['GET', 'POST'])
+@core_bp.route('/list-your-space', methods=['GET', 'POST'])
 def list_your_space():
     db = current_app.config['db']  # Access the database here
 
@@ -209,20 +212,20 @@ def list_your_space():
             inventory_count = request.form.getlist('inventory_count[]')
             price_per_seat = request.form.getlist('price_per_seat[]')
 
-            # Handle file uploads (Images for Floors)
-            floor_names = request.form.getlist('floor_name[]')
-            floor_images = request.files.getlist('floor_image[]')
-            floors = []
+            # Authenticate with Google Drive
+            creds = authenticate_google_drive()
 
-            for i in range(len(floor_names)):
-                image_file = floor_images[i]
+            # Handle file uploads (Images for Layouts)
+            layout_images = request.files.getlist('layout_images[]')
+            layout_image_links = []
+
+            for image_file in layout_images:
                 if image_file and (image_file.filename.endswith('.png') or image_file.filename.endswith('.jpg') or image_file.filename.endswith('.jpeg')):
-                    floors.append({
-                        'floor_name': floor_names[i],
-                        'image_filename': image_file.filename,
-                        'image_data': image_file.read(),  # Store binary data of image
-                        'content_type': image_file.content_type,
-                    })
+                    # Convert the uploaded image to a buffer
+                    image_buffer = io.BytesIO(image_file.read())
+                    # Upload image to Google Drive and get shareable link
+                    shareable_link = upload_image_to_google_drive(image_buffer, creds, image_file.filename)
+                    layout_image_links.append(shareable_link)
 
             # Organize inventory data
             inventory = []
@@ -244,7 +247,7 @@ def list_your_space():
                 'total_seats': total_seats,
                 'current_vacancy': current_vacancy,
                 'inventory': inventory,
-                'floors': floors,  # Store floor details (images and floor names)
+                'layout_images': layout_image_links,  # Store Google Drive image links
                 'interactive_layout': False,  # Set interactive_layout as False initially
                 'date': datetime.datetime.now()
             }
@@ -252,8 +255,9 @@ def list_your_space():
             # Insert into MongoDB
             db.fillurdetails.insert_one(property_details)
 
-            flash("Property details submitted successfully.",'success')
+            flash("Property details submitted successfully.", 'success')
 
         except Exception as e:
             flash(f"Failed to submit property details: {str(e)}", 'error')
+
     return render_template('FillUrDetails.html')

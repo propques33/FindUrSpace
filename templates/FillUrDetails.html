@@ -22,6 +22,12 @@
             overflow-x: hidden;
         }
 
+        body {
+            background-image: url('../../static/images/Home\ BuildingsAsset\ 32.svg'); /* Replace with your actual image URL */
+            background-size: cover;
+            background-position: center
+        }
+
         .container {
             width: 100vw;
             height: 100vh;
@@ -376,29 +382,26 @@
                 <button type="button" onclick="addInventory()">+ Add More Inventory</button>
             </fieldset>
             
-            <!-- Floor Plan Upload Section -->
+            <!-- Layout/Images Upload Section -->
             <fieldset>
-                <legend>Upload Floor Plans</legend>
+                <legend>Upload Layouts or Images</legend>
                 
-                <div id="floor-container">
-                    <div class="floor-group">
-                        <div class="floor-header">
-                            <span class="label">Floor 1</span>
-                            <button type="button" class="delete-button" id="col" onclick="removeFloor(this)">x</button>
+                <div class="upload-container">
+                    <label class="upload-label" for="layout_images">
+                        <div class="upload-icon">
+                            <span class="icon">&#128247;</span>
                         </div>
-                        <div class="form-group">
-                            <input type="text" id="floor_name" name="floor_name[]" placeholder="Floor Name (e.g., Ground Floor)" required class="full-width">
+                        <div class="upload-text">
+                            <span class="select-text">Select Layouts or Images</span>
+                            <span>Accepted formats: .jpg, .jpeg, .png</span>
                         </div>
-                        <div class="form-group">
-                            <input type="file" id="floor_image" name="floor_image[]" accept="image/png, image/jpeg, image/jpg" required class="full-width" onchange="previewFloorFiles(this)">
-                        </div>
-                        <div id="floor-preview" class="preview-container">
-                            <!-- This will display the image thumbnail for each floor -->
-                        </div>
-                    </div>
+                    </label>
+                    <input type="file" id="layout_images" name="layout_images[]" accept="image/png, image/jpeg, image/jpg" multiple class="upload-input" onchange="previewMultipleFiles(this)">
                 </div>
                 
-                <button type="button" onclick="addFloor()">+ Add More Floors</button>
+                <div id="layout-preview-container" class="preview-container">
+                    <!-- This will display the image thumbnails -->
+                </div>
             </fieldset>
 
             <button type="submit">Submit</button>
@@ -407,16 +410,15 @@
 
     <script>
         let inventoryCount = 1;
-        let floorCount = 1;
-
+    
         // Function to dynamically add new inventory sections
         function addInventory() {
             inventoryCount++;
             const container = document.getElementById('inventory-container');
-
+    
             const inventoryGroup = document.createElement('div');
             inventoryGroup.classList.add('inventory-group');
-
+    
             inventoryGroup.innerHTML = `
                 <div class="inventory-header">
                     <span class="label">Inventory ${inventoryCount}</span>
@@ -440,17 +442,17 @@
                     <input type="number" id="price_per_seat" name="price_per_seat[]" placeholder="Price per Seat" required class="full-width" min="0" step="1">
                 </div>
             `;
-
+    
             container.appendChild(inventoryGroup);
         }
-
+    
         // Function to remove an inventory section
         function removeInventory(button) {
             const inventoryGroup = button.parentElement.parentElement;
             inventoryGroup.remove();
             updateInventoryLabels();
         }
-
+    
         // Function to update the inventory labels
         function updateInventoryLabels() {
             const inventoryGroups = document.querySelectorAll('.inventory-group .inventory-header .label');
@@ -459,75 +461,36 @@
             });
             inventoryCount = inventoryGroups.length;
         }
-
-        // Function to dynamically add new floor plan sections
-        function addFloor() {
-            floorCount++;
-            const container = document.getElementById('floor-container');
-
-            const floorGroup = document.createElement('div');
-            floorGroup.classList.add('floor-group');
-
-            floorGroup.innerHTML = `
-                <div class="floor-header">
-                    <span class="label">Floor ${floorCount}</span>
-                    <button type="button" class="delete-button" id="col" onclick="removeFloor(this)">x</button>
-                </div>
-                <div class="form-group">
-                    <input type="text" id="floor_name" name="floor_name[]" placeholder="Floor Name (e.g., First Floor)" required class="full-width">
-                </div>
-                <div class="form-group">
-                    <input type="file" id="floor_image" name="floor_image[]" accept="image/png, image/jpeg, image/jpg" required class="full-width" onchange="previewFloorFiles(this)">
-                </div>
-                <div id="floor-preview-${floorCount}" class="preview-container">
-                    <!-- This will display the image thumbnail for the floor -->
-                </div>
-            `;
-
-            container.appendChild(floorGroup);
-        }
-
-        // Function to remove a floor section
-        function removeFloor(button) {
-            const floorGroup = button.parentElement.parentElement;
-            floorGroup.remove();
-            updateFloorLabels();
-        }
-
-        // Function to update the floor labels
-        function updateFloorLabels() {
-            const floorGroups = document.querySelectorAll('.floor-group .floor-header .label');
-            floorGroups.forEach((label, index) => {
-                label.textContent = `Floor ${index + 1}`;
-            });
-            floorCount = floorGroups.length;
-        }
-
-        // Function to preview uploaded floor plan images
-        function previewFloorFiles(input) {
-            const file = input.files[0];
-            const previewContainer = input.parentElement.nextElementSibling;
-
-            if (file) {
-                const fileURL = URL.createObjectURL(file);
-                const fileThumbnail = document.createElement('div');
-                fileThumbnail.classList.add('image-thumbnail');
-
-                fileThumbnail.innerHTML = `
-                    <img src="${fileURL}" alt="Floor Image Thumbnail" />
-                    <button type="button" class="delete-button" onclick="removeFile(this)">x</button>
-                `;
-
-                previewContainer.innerHTML = '';
-                previewContainer.appendChild(fileThumbnail);
+    
+        // Function to preview multiple uploaded layout or image files
+        function previewMultipleFiles(input) {
+            const previewContainer = document.getElementById('layout-preview-container');
+            previewContainer.innerHTML = ''; // Clear any previous previews
+    
+            const files = input.files;
+    
+            if (files.length > 0) {
+                for (const file of files) {
+                    const fileURL = URL.createObjectURL(file);
+                    const fileThumbnail = document.createElement('div');
+                    fileThumbnail.classList.add('image-thumbnail');
+    
+                    fileThumbnail.innerHTML = `
+                        <img src="${fileURL}" alt="Layout Image Thumbnail" />
+                        <button type="button" class="delete-button" onclick="removeFile(this)">x</button>
+                    `;
+    
+                    previewContainer.appendChild(fileThumbnail);
+                }
             }
         }
-
+    
         // Function to remove image thumbnails
         function removeFile(button) {
             const fileThumbnail = button.parentElement;
             fileThumbnail.remove();
         }
     </script>
+    
 </body>
 </html>
