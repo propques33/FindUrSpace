@@ -120,17 +120,6 @@
 <div class="container">
     <h2 class="text-center mb-4">List Your Space</h2>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-
     <!-- Stage 1: Owner Information -->
     <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') }}" method="post" enctype="multipart/form-data">
         <div class="card">
@@ -183,20 +172,17 @@
                 <button type="button" class="delete-button" onclick="removeSpaceDetails(this)">&times;</button>
             </div>
             <div class="card-body">
-                <!-- Hidden input to keep track of space indices -->
-                <input type="hidden" name="space_indices[]" value="${spaceCount}">
-
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
-                    <input type="text" class="form-control" name="city[]" placeholder="City" required>
-                    <input type="text" class="form-control" name="micromarket[]" placeholder="Micromarket" required>
+                    <input type="text" class="form-control" name="city_${spaceCount}" placeholder="City" required>
+                    <input type="text" class="form-control" name="micromarket_${spaceCount}" placeholder="Micromarket" required>
                 </div>
 
                 <!-- About Space -->
                 <h5>About Space</h5>
                 <div class="form-group mb-3">
-                    <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required>
-                    <input type="number" class="form-control" name="current_vacancy[]" placeholder="Current Vacancy" min="0" required>
+                    <input type="number" class="form-control" name="total_seats_${spaceCount}" placeholder="Total Seats" min="0" required>
+                    <input type="number" class="form-control" name="current_vacancy_${spaceCount}" placeholder="Current Vacancy" min="0" required>
                 </div>
 
                 <!-- Inventory Breakup -->
@@ -228,10 +214,13 @@
         spaceCard.remove();
     }
 
-    function addInventory(spaceId) {
-        const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
+    let inventoryCount=0;
 
-        const inventoryCount = inventoryContainer.childElementCount + 1;
+    function addInventory(spaceId) {
+
+        inventoryCount++;
+
+        const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
 
         const inventoryRow = document.createElement('div');
         inventoryRow.classList.add('border', 'p-3', 'mb-3', 'position-relative', 'inventory-item');
@@ -270,62 +259,62 @@
     }
 
     function previewImages(event, spaceId) {
-        const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
-        imagePreviewContainer.innerHTML = '';
-        const files = event.target.files;
+    const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
+    imagePreviewContainer.innerHTML = '';
+    const files = event.target.files;
 
-        Array.from(files).forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imgContainer = document.createElement('div');
-                imgContainer.classList.add('preview-img-container');
-                imgContainer.innerHTML = `
-                    <img src="${e.target.result}" class="preview-img" data-bs-toggle="modal" data-bs-target="#imageModal_${spaceId}_${index}">
-                    <button type="button" class="delete-button" onclick="removeImage(${index}, ${spaceId})">&times;</button>
-                `;
+    Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('preview-img-container');
+            imgContainer.innerHTML = `
+                <img src="${e.target.result}" class="preview-img" data-bs-toggle="modal" data-bs-target="#imageModal_${spaceId}_${index}">
+                <button type="button" class="delete-button" onclick="removeImage(${index}, ${spaceId})">&times;</button>
+            `;
 
-                // Append the image container to the preview
-                imagePreviewContainer.appendChild(imgContainer);
+            // Append the image container to the preview
+            imagePreviewContainer.appendChild(imgContainer);
 
-                // Create the modal for magnification
-                const modal = document.createElement('div');
-                modal.classList.add('modal', 'fade');
-                modal.id = `imageModal_${spaceId}_${index}`;
-                modal.setAttribute('tabindex', '-1');
-                modal.setAttribute('aria-labelledby', `imageModalLabel_${spaceId}_${index}`);
-                modal.setAttribute('aria-hidden', 'true');
-                modal.innerHTML = `
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="imageModalLabel_${spaceId}_${index}">Image Preview</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <img src="${e.target.result}" class="img-fluid">
-                            </div>
+            // Create the modal for magnification
+            const modal = document.createElement('div');
+            modal.classList.add('modal', 'fade');
+            modal.id = `imageModal_${spaceId}_${index}`;
+            modal.setAttribute('tabindex', '-1');
+            modal.setAttribute('aria-labelledby', `imageModalLabel_${spaceId}_${index}`);
+            modal.setAttribute('aria-hidden', 'true');
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="imageModalLabel_${spaceId}_${index}">Image Preview</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <img src="${e.target.result}" class="img-fluid">
                         </div>
                     </div>
-                `;
+                </div>
+            `;
 
-                // Append the modal to the body
-                document.body.appendChild(modal);
-            };
-            reader.readAsDataURL(file);
-        });
+            // Append the modal to the body
+            document.body.appendChild(modal);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeImage(index, spaceId) {
+    const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
+    const imgToRemove = imagePreviewContainer.querySelectorAll('.preview-img-container')[index];
+    imgToRemove.remove();
+
+    // Remove the corresponding modal
+    const modalToRemove = document.getElementById(`imageModal_${spaceId}_${index}`);
+    if (modalToRemove) {
+        modalToRemove.remove();
     }
-
-    function removeImage(index, spaceId) {
-        const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
-        const imgToRemove = imagePreviewContainer.querySelectorAll('.preview-img-container')[index];
-        imgToRemove.remove();
-
-        // Remove the corresponding modal
-        const modalToRemove = document.getElementById(`imageModal_${spaceId}_${index}`);
-        if (modalToRemove) {
-            modalToRemove.remove();
-        }
-    }
+}
 
 </script>
 

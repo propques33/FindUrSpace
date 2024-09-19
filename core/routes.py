@@ -199,61 +199,74 @@ def list_your_space():
 
     if request.method == 'POST':
         try:
-            # Extract form data
-            coworking_name = request.form.get('coworking_name')
-            city = request.form.get('city')
-            micromarket = request.form.get('micromarket')
+            # Extract owner information
             name = request.form.get('name')
             owner_phone = request.form.get('owner_phone')
             owner_email = request.form.get('owner_email')
-            total_seats = request.form.get('total_seats')
-            current_vacancy = request.form.get('current_vacancy')
-            inventory_type = request.form.getlist('inventory_type[]')
-            inventory_count = request.form.getlist('inventory_count[]')
-            price_per_seat = request.form.getlist('price_per_seat[]')
+            coworking_name = request.form.get('coworking_name')
+
+            # Get list of space indices
+            space_indices = request.form.getlist('space_indices[]')
+
+            # Get lists of space data
+            cities = request.form.getlist('city[]')
+            micromarkets = request.form.getlist('micromarket[]')
+            total_seats_list = request.form.getlist('total_seats[]')
+            current_vacancies = request.form.getlist('current_vacancy[]')
 
             # Authenticate with Google Drive
             creds = authenticate_google_drive()
 
-            # Handle file uploads (Images for Layouts)
-            layout_images = request.files.getlist('layout_images[]')
-            layout_image_links = []
+            # Process each space
+            for idx, city, micromarket, total_seats, current_vacancy in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies):
+                # Convert idx to string in case it's not
+                idx_str = str(idx)
 
-            for image_file in layout_images:
-                if image_file and (image_file.filename.endswith('.png') or image_file.filename.endswith('.jpg') or image_file.filename.endswith('.jpeg')):
-                    # Convert the uploaded image to a buffer
-                    image_buffer = io.BytesIO(image_file.read())
-                    # Upload image to Google Drive and get shareable link
-                    shareable_link = upload_image_to_google_drive(image_buffer, creds, image_file.filename)
-                    layout_image_links.append(shareable_link)
+                # Get inventories for this space
+                inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
+                inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
+                price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
 
-            # Organize inventory data
-            inventory = []
-            for i in range(len(inventory_type)):
-                inventory.append({
-                    'type': inventory_type[i],
-                    'count': inventory_count[i],
-                    'price_per_seat': price_per_seat[i]
-                })
+                inventory = []
+                for i in range(len(inventory_types)):
+                    inventory.append({
+                        'type': inventory_types[i],
+                        'count': inventory_counts[i],
+                        'price_per_seat': price_per_seats[i]
+                    })
 
-            # Create a document to insert into MongoDB
-            property_details = {
-                'coworking_name': coworking_name,
-                'city': city,
-                'micromarket': micromarket,
-                'name': name,
-                'owner_phone': owner_phone,
-                'owner_email': owner_email,
-                'total_seats': total_seats,
-                'current_vacancy': current_vacancy,
-                'inventory': inventory,
-                'layout_images': layout_image_links,  # Store Google Drive image links
-                'interactive_layout': False,  # Set interactive_layout as False initially
-                'date': datetime.datetime.now()
-            }
+                # Handle file uploads (Images for Layouts)
+                layout_images = request.files.getlist(f'layout_images_{idx}[]')
+                layout_image_links = []
 
-            # Insert into MongoDB
-            db.fillurdetails.insert_one(property_details)
+                for image_file in layout_images:
+                    if image_file and (image_file.filename.endswith('.png') or image_file.filename.endswith('.jpg') or image_file.filename.endswith('.jpeg')):
+                        # Convert the uploaded image to a buffer
+                        image_buffer = io.BytesIO(image_file.read())
+                        # Upload image to Google Drive and get shareable link
+                        shareable_link = upload_image_to_google_drive(image_buffer, creds, image_file.filename)
+                        layout_image_links.append(shareable_link)
+
+                # Create a document for each coworking space with owner info
+                property_details = {
+                    'owner': {
+                        'name': name,
+                        'phone': owner_phone,
+                        'email': owner_email
+                    },
+                    'coworking_name': coworking_name,
+                    'city': city,
+                    'micromarket': micromarket,
+                    'total_seats': total_seats,
+                    'current_vacancy': current_vacancy,
+                    'inventory': inventory,
+                    'layout_images': layout_image_links,  # Store Google Drive image links
+                    'interactive_layout': False,  # Set interactive_layout as False initially
+                    'date': datetime.datetime.now()
+                }
+
+                # Insert into MongoDB
+                db.fillurdetails.insert_one(property_details)
 
             flash("Property details submitted successfully.", 'success')
 
