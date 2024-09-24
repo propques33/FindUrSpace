@@ -26,6 +26,10 @@ function loadFormStep() {
             </div>
             <input type="text" id="company" name="company" class="form-control" placeholder="Company Name">
             <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail">
+            <div class="form-group mb-3 ">
+                <input type="checkbox" id="accept-terms" name="accept-terms" required>
+                <label for="accept-terms">I accept the <a href="../../templates/T&C.html" target="_blank">terms and conditions</a></label>
+            </div>
             <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
         `;
         initializeIntlTelInput();
@@ -50,6 +54,10 @@ function loadFormStep() {
                 <select id="budget" class="form-select">
                     <option selected disabled>Select Budget</option>
                 </select>
+            </div>
+            <div class="form-group mb-3">
+                <input type="checkbox" id="accept-terms" name="accept-terms" required>
+                <label for="accept-terms">I accept the <a href="../../templates/T&C.html" target="_blank">terms and conditions</a></label>
             </div>
             <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
