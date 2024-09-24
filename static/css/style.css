@@ -41,13 +41,311 @@
     font-style: italic;
 }
 
+body {
+    font-family: 'Report School Regular', Arial, sans-serif;
+}
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.scroll-btn.left {
+    left: 10px;
+}
+
+.scroll-btn.right {
+    right: 10px;
+}
+
+.cities-wrapper {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 20px 0;
+    scrollbar-width: none;
+}
+
+.cities-wrapper::-webkit-scrollbar {
+    display: none;
+}
+/* From Uiverse.io by tomaskriegelstein */ 
+button {
+    font-size: 18px;
+    color: rgb(224, 224, 224);
+    font-family: Poppins;
+    font-weight: 400;
+    cursor: pointer;
+    position: relative;
+    border: none;
+    background: none;
+  
+    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition-duration: 400ms;
+    transition-property: color;
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  button:focus,
+  button:hover {
+    color: white;
+  }
+  
+  button:focus:after,
+  button:hover:after {
+    width: 100%;
+    right: ;
+    left: auto; /* Ensure left is auto to override the initial value */
+  }
+  
+  button:after {
+    content: "";
+    pointer-events: none;
+    bottom: -7px;
+    right: auto; /* Start from the right */
+    left: 0; /* Ensure left is auto to override the initial value */
+    position: absolute;
+    width: 0%;
+    height: 1px;
+    background-color: #fff;
+    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition-duration: 500ms;
+    transition-property: width, right;
+  }
+  
+  .svg-icon {
+    width: 0.9em;
+    height: 0.8em;
+    margin-left: 10px;
+    fill: grey;
+    transform: rotate(-45deg);
+    transition: transform 0.5s ease-out;
+  }
+  
+  button:hover .svg-icon {
+    transform: rotate(0deg);
+    fill: white;
+  }
+  
+
+/* From Uiverse.io by LightAndy1 */ 
+.loader {
+  user-select: none;
+  position:relative;
+  top:15px;
+}
+
+.star {
+  opacity: 0;
+  fill: #f8de7e;
+  animation: loader 2s infinite alternate;
+}
+
+.star2 {
+  height: 20px;
+  margin-left: -10px;
+  animation-delay: 0.25s;
+}
+
+.star3 {
+  height: 16px;
+  margin-left: -15px;
+  animation-delay: 0.5s;
+}
+
+@keyframes loader {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(50px) rotate (0deg);
+  }
+  10% {
+    opacity: 0;
+    transform: translateY(0) translateX(50px) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-20px) translateX(0) rotate(360deg);
+  }
+}
+
+.card {
+    min-width: 300px;
+    margin:0 15px;
+    border-radius: 20px;
+    background: #1b233d;
+    padding: 5px;
+    overflow: hidden;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 20px 0px;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .slider-container {
+    padding: 0 10px;
+}
+
+.featured-slider{
+    display: flex;
+}
+  
+  .card:hover {
+    transform: scale(1.05);
+  }
+  
+  .card .top-section {
+    height: 150px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    background-image: url('../images/cubispace.webp');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    position: relative;
+  }
+  .card #card2{
+    background-image: url('../images/Workdesq.webp');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+  .card #card3{
+    background-image: url('../images/worqspot.png');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+  .card #card4{
+    background-image: url('../images/wellwork.png');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  }
+  
+  .card .top-section .border {
+    border-bottom-right-radius: 10px;
+    height: 30px;
+    width: 130px;
+    background: white;
+    background: #151d31;
+    position: relative;
+    transform: skew(-40deg);
+    box-shadow: -10px -10px 0 0 #1b233d;
+  }
+  
+  .card .top-section .border::before {
+    content: "";
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: 0;
+    right: -15px;
+    background: rgba(255, 255, 255, 0);
+    border-top-left-radius: 10px;
+    box-shadow: -5px -5px 0 2px #1b233d;
+  }
+  
+  .card .top-section::before {
+    content: "";
+    position: absolute;
+    top: 30px;
+    left: 0;
+    background: rgba(255, 255, 255, 0);
+    height: 15px;
+    width: 15px;
+    border-top-left-radius: 15px;
+    box-shadow: -5px -5px 0 2px #1b233d;
+  }
+  
+  .card .top-section .icons {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 30px;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .card .top-section .icons .logo {
+    height: 100%;
+    aspect-ratio: 1;
+    padding: 7px 0 7px 15px;
+  }
+  
+  .card .top-section .icons .logo .top-section {
+    height: 100%;
+  }
+  
+  .card .top-section .icons .social-media {
+    height: 100%;
+    padding: 8px 15px;
+    display: flex;
+    gap: 7px;
+  }
+  
+  .card .top-section .icons .social-media .svg {
+    height: 100%;
+    fill: #1b233d;
+  }
+  
+  .card .top-section .icons .social-media .svg:hover {
+    fill: white;
+  }
+  
+  .card .bottom-section {
+    margin-top: 15px;
+    padding: 10px 5px;
+  }
+  
+  .card .bottom-section .title {
+    display: block;
+    font-size: 17px;
+    font-weight: bolder;
+    color: white;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  
+  .card .bottom-section .row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .card .bottom-section .row .item {
+    flex: 30%;
+    text-align: center;
+    padding: 5px;
+    color: white;
+  }
+  
+  .card .bottom-section .row .item .big-text {
+    font-size: 16px;
+    display: block;
+  }
+
+ #fon{
+    font-family:'Report School Bold' ;
+ }
+  
+  .card .bottom-section .row .item .regular-text {
+    font-size: 14px;
+  }
+  
+  .card .bottom-section .row .item:nth-child(2) {
+    border-left: 1px solid rgba(255, 255, 255, 0.126);
+    border-right: 1px solid rgba(255, 255, 255, 0.126);
+  }
+
 /* Apply fallback fonts */
 body {
     font-family: 'Report School Regular', Arial, sans-serif;
 }
 
 /* Navbar section */
-/* Updated Navbar Styling */
 .navbar {
     background-color: #0C1427;
     color: white;
@@ -61,6 +359,23 @@ body {
     display: flex;
     align-items: center;
 }
+
+#headn{
+    font-weight:700;
+}
+
+h1.listur{
+    color:white;
+    font-size:20px;
+    margin-top:13px;
+}
+/* .nav-item{
+    border:2px solid white;
+    display:flex;
+    justify-items: center;
+    align-items: center;
+    list-style-type: none;
+} */
 
 .navbar-brand img {
     margin-right: 10px; /* Spacing between icon and text */
@@ -99,6 +414,10 @@ body {
 .container-fluid {
     padding-left: 50px;
     padding-right: 50px;
+    width:100%;
+    display: flex;
+    align-items:center;
+    flex-direction: row;
 }
 
 
@@ -355,7 +674,6 @@ body {
 .youtube-video-box {
     width: 100%;
     height: 315px;
-    border: 2px dashed #151D31;
     border-radius: 8px;
     display: flex;
     justify-content: center;
@@ -519,8 +837,12 @@ body {
 .testimonials-scroll {
     display: flex;
     overflow-x: auto;
-    padding: 20px 0;
+    /* padding: 20px 0; */
     scroll-behavior: smooth;
+}
+
+.container h2{
+    font-size:40px;
 }
 
 .testimonials-scroll::-webkit-scrollbar {
@@ -540,7 +862,7 @@ body {
     color: #fff;
     border-radius: 10px;
     padding: 20px;
-    margin-top: 50px; /* Adjust based on new image size */
+    margin-top: 20px; /* Adjust based on new image size */
 }
 
 .testimonial-image {
@@ -967,6 +1289,10 @@ body {
 /* Medium Mobile Devices (481px to 767px) */
 @media (min-width: 481px) and (max-width: 767px) {
     /* Navbar Adjustments */
+    .featured-slider .card {
+        width: 90%;
+        margin: 0 auto;
+    }
     .navbar .container-fluid {
         padding-left: 20px;
         padding-right: 20px;
@@ -1164,10 +1490,16 @@ body {
         width: 100%; /* Ensures section uses full width */
     }
 
+    h1.listur{
+        border:2px solid white;
+        padding:6px 10px;
+        border-radius: 6px;
+    }
     /* Navbar Adjustments for Large Screens */
     .navbar {
         justify-content: space-between; /* Aligns items to the edges of the navbar */
         width: 100%; /* Ensures navbar spans the full width of the viewport */
+        padding:0px 60px;
     }
     .navbar .container, .navbar .container-fluid {
         max-width: 100%; /* Removes any max-width constraints */
@@ -1258,7 +1590,7 @@ body {
     }
 
     /* Testimonials Section Adjustments */
-    .testimonial-card {
+    /* .testimonial-card {
         width: 350px;
         padding: 20px;
         margin: 20px;
@@ -1266,7 +1598,7 @@ body {
     .text-card {
         height: 180px;
         width: 350px;
-    }
+    } */
 
     /* Human-Bot Section Adjustments */
     .human-bot-section .container {
@@ -1341,6 +1673,12 @@ body {
         font-size: calc(1vw + 1vh); /* Dynamic sizing based on viewport */
     }
 
+    .hero-section {
+        padding-left: 80px;
+        padding-right: 80px;
+        min-height: 50vh; /* Reduced from 90vh to 50vh to reduce excessive space */
+    }
+
     /* Specific Hero Section Text Adjustments */
     .hero-section h1, .hero-section h2 {
         font-size: calc(2vw + 2vh); /* Larger size for main headings in the hero section */
@@ -1348,11 +1686,17 @@ body {
     .hero-section p {
         font-size: calc(1.5vw + 1vh); /* Appropriate for descriptive text */
     }
+    h1.listur{
+        border:2px solid white;
+        padding:6px 10px;
+        border-radius: 6px;
+    }
 
     /* Navbar Adjustments for Large Screens */
     .navbar {
         justify-content: space-between; /* Aligns items to the edges of the navbar */
         width: 100%; /* Ensures navbar spans the full width of the viewport */
+        padding:10px 60px;
     }
     .navbar .container, .navbar .container-fluid {
         max-width: 100%; /* Removes any max-width constraints */

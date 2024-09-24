@@ -24,6 +24,13 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../static/css/style.css"></head>
+
+    <!-- Slick Carousel CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+
+<!-- Slick Carousel JS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+
     
 
      <!-- Schema Markup -->
@@ -118,7 +125,7 @@
                 <ul class="navbar-nav ms-auto">
                     <!-- Only ListUrSpace on the right -->
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('core_bp.list_your_space') }}">ListUrSpace</a>
+                        <a class="nav-link" href="{{ url_for('core_bp.list_your_space') }}"><h1 class="listur">ListUrSpace</h1></a>
                     </li>
                 </ul>
             </div>
@@ -222,9 +229,12 @@
                     <div class="step">
                         <h3>Experience a smarter way to find coworking spaces.</h3>
                     </div>
-                    <!-- Placeholder for the YouTube video -->
                     <div class="youtube-video-box">
-                        <p>Embedded YouTube Video</p>
+                        <iframe width="560" height="315" 
+                            src="https://www.youtube.com/embed/qZYc-mQvFgU?controls=0&modestbranding=1&rel=0&iv_load_policy=3&mute=1&autoplay=1" 
+                            title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen loading="lazy">
+                        </iframe>
                     </div>
                 </div>
             </div>
@@ -264,7 +274,7 @@
         <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.</p>
 
         <div class="scroll-container">
-            <button class="scroll-btn left" onclick="scrollLeft()">&#8249;</button>
+            <!-- <button class="scroll-btn left" onclick="scrollLeft()">&#8249;</button> -->
             <div class="cities-wrapper" id="cities-wrapper">
                 {% for city in city_data %}
                     <div class="city-card">
@@ -279,6 +289,321 @@
         </div>
     </div>
 </section>
+
+<section class="discover-coworking-section"></section>
+    <div class="container text-center">
+        <h2 id="headn">Featured Coworkings Spaces</h2>
+        <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.</p>
+
+        <div class="scroll-container">
+          <button class="scroll-btn left" onclick="scrollLeftFeatured()">&#8249;</button>
+            <div class="cities-wrapper" id="featured-cities-wrapper">
+                <div class="card">
+                    <div class="top-section" id="card1">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://www.cubispace.com/" target="_blank">
+  <button>
+    <span id="fon">Cubispace</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">Rs.6500</span>
+                          <span class="regular-text">Starting from</span>
+                        </div>
+                        <div class="item">
+                          <span class="big-text">Jankipuram,</span>
+                          <span class="regular-text">Lucknow</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="top-section" id="card2">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://www.workdesq.com/our-package/" target="_blank">
+  <button>
+    <span id="fon">Workdesq</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">Rs.5500</span>
+                          <span class="regular-text">Starting from</span>
+                        </div>
+                        <div class="item">
+                          <span class="big-text">MahaLaxmi,</span>
+                          <span class="regular-text">Indore</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="top-section" id="card3">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://worqspot.com/" target="_blank">
+  <button>
+    <span id="fon">Worqspot</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">Rs.5500</span>
+                          <span class="regular-text">Starting from</span>
+                        </div>
+                        <div class="item">
+                          <span class="big-text">Vashi,</span>
+                          <span class="regular-text">Mumbai</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <div class="top-section" id="card4">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://wellwork.space/" target="_blank">
+  <button>
+    <span id="fon">Wellwork</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">Rs.12000</span>
+                          <span class="regular-text">Starting from</span>
+                        </div>
+                        <div class="item">
+                          <span class="big-text">Gachibowli,</span>
+                          <span class="regular-text">Hyderabad</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  
+                  
+            </div>
+            <!-- <button class="scroll-btn right" onclick="scrollRightFeatured()">&#8250;</button> -->
+        </div>
+        </div>
+    </div>
+</section>
+
+
 
     <!-- Overall Presence section -->
     <section class="presence-section">
@@ -311,7 +636,6 @@
         <div class="testimonials-scroll">
             <!-- Testimonial 1 -->
             <div class="testimonial-card-wrapper">
-                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Ravi Sharma" class="testimonial-image">
                 <div class="testimonial-card">
                     <p class="testimonial-review" style="color: white;">"FindUrSpace made it super easy for me to find a coworking space. I loved the AI recommendations!"</p>
                 </div>
@@ -319,7 +643,6 @@
             </div>
             <!-- Testimonial 2 -->
             <div class="testimonial-card-wrapper">
-                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Anita Desai" class="testimonial-image">
                 <div class="testimonial-card">
                     <p class="testimonial-review" style="color: white;">"The variety of spaces offered by FindUrSpace is unparalleled. Found the perfect spot in no time!"</p>
                 </div>
@@ -328,7 +651,6 @@
 
             <!-- Testimonial 3 -->
             <div class="testimonial-card-wrapper">
-                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Mohit Verma" class="testimonial-image">
                 <div class="testimonial-card">
                     <p class="testimonial-review" style="color: white;">"Customer service was top-notch, and the booking process was a breeze. Highly recommend!"</p>
                 </div>
@@ -337,7 +659,6 @@
 
             <!-- Testimonial 4 -->
             <div class="testimonial-card-wrapper">
-                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Sara Ali" class="testimonial-image">
                 <div class="testimonial-card">
                     <p class="testimonial-review" style="color: white;">"Loved the AI recommendations! It suggested spaces I wouldn't have considered but turned out perfect."</p>
                 </div>
@@ -346,7 +667,6 @@
 
             <!-- Testimonial 5 -->
             <div class="testimonial-card-wrapper">
-                <img src="../static/images/Coustmer demoAsset 24.svg" alt="James Lee" class="testimonial-image">
                 <div class="testimonial-card">
                     <p class="testimonial-review" style="color: white;">"FindUrSpace is a game-changer for freelancers like me. Flexible and affordable options everywhere."</p>
                 </div>
@@ -355,7 +675,6 @@
 
             <!-- Testimonial 6 -->
             <div class="testimonial-card-wrapper">
-                <img src="../static/images/Coustmer demoAsset 24.svg" alt="Priyanka Chopra" class="testimonial-image">
                 <div class="testimonial-card">
                     <p class="testimonial-review" style="color: white;">"The platform is very user-friendly, and I found exactly what I needed in less than a day!"</p>
                 </div>
@@ -423,6 +742,37 @@
     <footer class="text-center">
         <p>&copy; 2024 FindUrSpace. All rights reserved.</p>
     </footer> -->
+    <script>
+      $(document).ready(function(){
+          $('.featured-slider').slick({
+              dots: true,
+              infinite: true,
+              speed: 300,
+              slidesToShow: 3,
+              slidesToScroll: 1,
+              responsive: [
+                  {
+                      breakpoint: 1024,
+                      settings: {
+                          slidesToShow: 2,
+                          slidesToScroll: 1,
+                          infinite: true,
+                          dots: true
+                      }
+                  },
+                  {
+                      breakpoint: 600,
+                      settings: {
+                          slidesToShow: 1,
+                          slidesToScroll: 1
+                      }
+                  }
+              ]
+          });
+      });
+  </script>
+  
+    
     <!-- Scripts at the bottom for performance -->
     <!-- jQuery first -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -450,3 +800,4 @@
 </body>
     
 </html>
+
