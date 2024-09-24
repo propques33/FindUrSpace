@@ -4,8 +4,10 @@ let currentStep = 1;
 // Function to load the form based on the current step
 function loadFormStep() {
     const form = document.getElementById('dynamic-form');
-    const steps = document.querySelectorAll('.step');
+    const steps = document.querySelectorAll('.step');    
+    const termsAndConditionsUrl = document.body.getAttribute('data-terms-url');
 
+    console.log(termsAndConditionsUrl); // Check what URL is fetched
     if (!form) {
         console.error("Form element with id 'dynamic-form' not found.");
         return;
@@ -26,9 +28,9 @@ function loadFormStep() {
             </div>
             <input type="text" id="company" name="company" class="form-control" placeholder="Company Name">
             <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail">
-            <div class="form-group mb-3 ">
+            <div class="form-group mb-3">
                 <input type="checkbox" id="accept-terms" name="accept-terms" required>
-                <label for="accept-terms">I accept the <a href="../../templates/T&C.html" target="_blank">terms and conditions</a></label>;
+                <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions</a></label>
             </div>
             <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
         `;
@@ -55,10 +57,6 @@ function loadFormStep() {
                     <option selected disabled>Select Budget</option>
                 </select>
             </div>
-            <div class="form-group mb-3">
-                <input type="checkbox" id="accept-terms" name="accept-terms" required>
-                <label for="accept-terms">I accept the <a href="../../templates/T&C.html" target="_blank">terms and conditions</a></label>
-            </div>
             <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
         fetchLocations(); // Fetch locations when this step loads
@@ -71,6 +69,7 @@ function loadFormStep() {
         `;
     }
 }
+
 
 // Function to initialize intlTelInput for the "Your Contact" field
 function initializeIntlTelInput() {

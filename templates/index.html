@@ -31,10 +31,6 @@
 
     <!-- Slick Carousel JS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
-
-    <script type="text/javascript">
-      var termsAndConditionsUrl = "{{ url_for('core_bp.terms_and_conditions') }}";
-    </script>
   
 
      <!-- Schema Markup -->
@@ -112,7 +108,7 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-MX8P4NN6');</script>
     <!-- End Google Tag Manager -->
-<body>
+<body data-terms-url="{{ url_for('core_bp.terms_and_conditions') }}">
 
     <!-- Navbar Section -->
     <nav class="navbar navbar-expand-lg navbar-light">
