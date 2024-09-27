@@ -91,7 +91,7 @@ def send_pdf_via_cunnekt(shareable_link, recipient_number):
     # Prepare the payload
     data = {
         "mobile": recipient_number,
-        "templateid": "392037747062796",  
+        "templateid": "1045960890870754",  
         "overridebot": "yes",  # Set to yes or no based on your requirement
         "template": {
             "components": [
