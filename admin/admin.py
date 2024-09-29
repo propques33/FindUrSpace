@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, render_template, request, redirect, url_fo
 import datetime
 from bson import ObjectId
 from io import BytesIO
+import plotly.graph_objects as go
 
 # Blueprint definition
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates')
@@ -205,3 +206,213 @@ def save_interactive_layout():
     )
 
     return jsonify({'status': 'success'})
+
+
+@admin_bp.route('/leads', methods=['GET', 'POST'])
+def view_leads():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']
+
+    properties = db.properties.find()
+    leads = []
+
+    for property_data in properties:
+        user = db.users.find_one({'_id': property_data['user_id']})
+        if user:
+            lead_status = db.leads_status.find_one({'user_id': property_data['user_id'], 'property_id': property_data['_id']})
+            
+            if not lead_status:
+                lead_status = {
+                    'user_id': property_data['user_id'],
+                    'property_id': property_data['_id'],
+                    'opportunity_status': 'open',
+                    'opportunity_stage': 'visit done',
+                    'notes': ''
+                }
+                db.leads_status.insert_one(lead_status)
+
+            leads.append({
+                'lead_id': str(lead_status['user_id']),
+                'property_id': str(lead_status['property_id']),
+                'user_name': user.get('name', 'Unknown'),
+                'user_company': user.get('company', 'Unknown'),
+                'user_email': user.get('email', 'N/A'),
+                'user_contact': user.get('contact', 'N/A'),
+                'property_location': property_data.get('location', 'N/A'),
+                'property_seats': property_data.get('seats', 'N/A'),
+                'property_budget': property_data.get('budget', 'N/A'),
+                'opportunity_status': lead_status.get('opportunity_status', 'open'),
+                'opportunity_stage': lead_status.get('opportunity_stage', 'visit done'),
+                'notes': lead_status.get('notes', '')
+            })
+
+    return render_template('view_leads.html', leads=leads)
+
+@admin_bp.route('/update_lead', methods=['POST'])
+def update_lead():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    data = request.get_json()
+    lead_id = data.get('lead_id')
+    property_id = data.get('property_id')
+    field = data.get('field')
+    value = data.get('value')
+
+    db = current_app.config['db']
+    
+    # Update the leads_status collection with the new values
+    db.leads_status.update_one(
+        {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
+        {'$set': {field: value}}
+    )
+
+    return jsonify({'status': 'success'})
+
+
+@admin_bp.route('/delete_lead', methods=['POST'])
+def delete_lead():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    data = request.get_json()
+    lead_id = data.get('lead_id')
+    property_id = data.get('property_id')
+
+    db = current_app.config['db']
+
+    # Delete from leads_status
+    db.leads_status.delete_one({'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)})
+    
+    # Delete the corresponding property
+    db.properties.delete_one({'_id': ObjectId(property_id)})
+
+    return jsonify({'status': 'success'})
+
+# Route for Leads Dashboard
+@admin_bp.route('/leads_dashboard')
+def leads_dashboard():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']
+    
+    # Fetch leads data from the 'leads_status' collection
+    leads_status = db.leads_status.find()
+
+    # Count total number of leads
+    total_leads = db.leads_status.count_documents({})
+
+    # Aggregating opportunity status
+    status_counts = {
+        'open': 0,
+        'closed': 0,
+        'won': 0
+    }
+
+    stage_counts = {
+        'qualified': 0,
+        'follow-up': 0,
+        'visit done': 0,
+        'negotiation': 0,
+        'won': 0,
+        'lost': 0,
+        'unqualified': 0
+    }
+
+    # Count based on the opportunity_status and opportunity_stage
+    for lead in leads_status:
+        status_counts[lead['opportunity_status']] += 1
+        stage_counts[lead['opportunity_stage']] += 1
+
+    # Preparing Plotly visualizations
+
+    # KPI (Total Leads)
+    kpi_total = go.Indicator(
+        mode="number",
+        value=total_leads,
+        title={"text": "Total Leads"},
+        domain={'x': [0, 0.5], 'y': [0.7, 1]},
+        number={'font': {'size': 40, 'color': '#17becf'}},
+    )
+
+    # KPI (Open Leads)
+    kpi_open = go.Indicator(
+        mode="number",
+        value=status_counts['open'],
+        title={"text": "Open Leads"},
+        domain={'x': [0.5, 1], 'y': [0.7, 1]},
+        number={'font': {'size': 40, 'color': '#1f77b4'}}
+    )
+
+    # KPI (Closed Leads)
+    kpi_closed = go.Indicator(
+        mode="number",
+        value=status_counts['closed'],
+        title={"text": "Closed Leads"},
+        domain={'x': [0, 0.5], 'y': [0.4, 0.7]},
+        number={'font': {'size': 40, 'color': '#ff7f0e'}}
+    )
+
+    # KPI (Won Leads)
+    kpi_won = go.Indicator(
+        mode="number",
+        value=status_counts['won'],
+        title={"text": "Won Leads"},
+        domain={'x': [0.5, 1], 'y': [0.4, 0.7]},
+        number={'font': {'size': 40, 'color': '#2ca02c'}}
+    )
+
+    # Combine all KPI indicators into a single figure
+    kpi_fig = go.Figure(data=[kpi_total, kpi_open, kpi_closed, kpi_won])
+    kpi_fig.update_layout(
+        grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
+        margin=dict(l=20, r=20, t=40, b=20),
+        height=400
+    )
+
+    # Pie Chart (Opportunity Status)
+    pie_fig = go.Figure(go.Pie(
+        labels=list(status_counts.keys()),
+        values=list(status_counts.values()),
+        title="Opportunity Status",
+        marker={'colors': ['#1f77b4', '#ff7f0e', '#2ca02c']}
+    ))
+
+    pie_fig.update_layout(
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20),
+        showlegend=True,
+    )
+
+    # Stacked Bar Chart (Opportunity Stages)
+    bar_fig = go.Figure()
+    bar_fig.add_trace(go.Bar(
+        x=list(stage_counts.keys()),
+        y=list(stage_counts.values()),
+        name='Opportunity Stage',
+        marker_color='rgb(55, 83, 109)'
+    ))
+
+    bar_fig.update_layout(
+        title="Opportunity Stage Breakdown",
+        xaxis_tickfont_size=12,
+        yaxis=dict(
+            title='Number of Leads',
+            titlefont_size=14,
+            tickfont_size=12,
+        ),
+        barmode='stack',
+        bargap=0.15,  # gap between bars
+        bargroupgap=0.1,  # gap between grouped bars
+        height=300,
+        margin=dict(l=20, r=20, t=40, b=20)
+    )
+
+    # Render the dashboard template
+    return render_template('leads_dashboard.html', 
+                           kpi_fig=kpi_fig.to_html(full_html=False),
+                           pie_fig=pie_fig.to_html(full_html=False),
+                           bar_fig=bar_fig.to_html(full_html=False))
