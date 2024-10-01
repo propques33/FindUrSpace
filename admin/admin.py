@@ -17,7 +17,7 @@ admin_credentials = {
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def admin_login():
     if 'admin' in session:
-        return redirect(url_for('admin.admin_dashboard'))  # Don't ask to log in again if already logged in
+        return redirect(url_for('admin.leads_dashboard'))  # Redirect to Leads Dashboard if already logged in
 
     if request.method == 'POST':
         email = request.form['email']
@@ -25,19 +25,21 @@ def admin_login():
 
         if email in admin_credentials and admin_credentials[email] == password:
             session['admin'] = email
-            return redirect(url_for('admin.admin_dashboard'))
+            return redirect(url_for('admin.leads_dashboard'))  # Redirect to Leads Dashboard after successful login
         else:
             return render_template('admin_login.html', error='Invalid login credentials. Please try again.')
 
     return render_template('admin_login.html')
 
-# Admin Dashboard Route with Two Cards
+
+# Admin Dashboard Route with Two Cards (Changed to Leads Dashboard)
 @admin_bp.route('/dashboard')
 def admin_dashboard():
     if 'admin' not in session:
         return redirect(url_for('admin.admin_login'))
 
-    return render_template('admin_dashboard.html')
+    return redirect(url_for('admin.leads_dashboard'))  # Redirect to leads_dashboard
+
 
 # Admin Logout Route
 @admin_bp.route('/logout')
@@ -154,7 +156,7 @@ def update_interactive_layout(property_id):
         flash(f"Error updating interactive layout: {e}", 'error')
         print(f"Error updating interactive layout: {e}")  # Debugging step
 
-    return redirect(url_for('admin.admin_dashboard'))
+    return redirect(url_for('admin.leads_dashboard'))  # Redirect to leads_dashboard
 
 # Route to show "Manage Interactive Layout" page
 @admin_bp.route('/manage-interactive-layout', methods=['GET'])

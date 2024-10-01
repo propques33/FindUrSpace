@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leads Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+        .content {
+            margin-left: 250px; /* Adjust for the navbar width */
             padding: 20px;
         }
         .container {
@@ -40,6 +40,12 @@
     </style>
 </head>
 <body>
+
+<!-- Include the left navigation bar -->
+{% include 'navigation.html' %}
+
+<div class="content">
+    <!-- Single Leads Dashboard Heading -->
     <h1>Leads Dashboard</h1>
 
     <div class="container">
@@ -59,11 +65,7 @@
         </div>
     </div>
 
-    <!-- Switch Button to View Leads -->
-    <div class="button-container">
-        <a href="{{ url_for('admin.view_leads') }}">
-            <button class="switch-button">Switch to Leads View</button>
-        </a>
-    </div>
+</div>
+
 </body>
 </html>

@@ -4,53 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leads</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 15px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        select, textarea {
-            padding: 5px;
-            font-size: 14px;
-        }
-        .delete-btn {
-            padding: 5px 10px;
-            color: white;
-            background-color: red;
-            border: none;
-            cursor: pointer;
-        }
-        .button-container {
-            margin: 20px 0;
-        }
-        .switch-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .switch-btn:hover {
-            background-color: #0056b3;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <script>
         // Function to update lead data via AJAX
         function updateLead(lead_id, property_id, field, value) {
@@ -86,63 +40,74 @@
     </script>
 </head>
 <body>
-    <h1>Leads</h1>
 
-    <div class="button-container">
-        <button class="switch-btn" onclick="window.location.href='{{ url_for('admin.leads_dashboard') }}'">
-            View Leads Dashboard
-        </button>
+    <!-- Include the left navigation bar -->
+    {% include 'navigation.html' %}
+    
+    <div class="content">
+        <h1>Leads</h1>
+
+        <div class="button-container">
+            <button class="switch-btn" onclick="window.location.href='{{ url_for('admin.leads_dashboard') }}'">
+                View Leads Dashboard
+            </button>
+        </div>
+
+        <table class="leads-table">
+            <thead>
+                <tr>
+                    <th>User Name</th>
+                    <th>Company</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Location</th>
+                    <th>Seats</th>
+                    <th>Budget</th>
+                    <th>Opportunity Status</th>
+                    <th>Opportunity Stage</th>
+                    <th>Notes by Bot</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for lead in leads %}
+            <tr>
+                <td>{{ lead.user_name }}</td>
+                <td>{{ lead.user_company }}</td>
+                <td>{{ lead.user_email }}</td>
+                <td>{{ lead.user_contact }}</td>
+                <td>{{ lead.property_location }}</td>
+                <td>{{ lead.property_seats }}</td>
+                <td>{{ lead.property_budget }}</td>
+                <td>
+                    <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_status', this.value)">
+                        <option value="open" {% if lead.opportunity_status == 'open' %}selected{% endif %}>Open</option>
+                        <option value="closed" {% if lead.opportunity_status == 'closed' %}selected{% endif %}>Closed</option>
+                        <option value="won" {% if lead.opportunity_status == 'won' %}selected{% endif %}>Won</option>
+                    </select>
+                </td>
+                <td>
+                    <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_stage', this.value)">
+                        <option value="visit done" {% if lead.opportunity_stage == 'visit done' %}selected{% endif %}>Visit Done</option>
+                        <option value="qualified" {% if lead.opportunity_stage == 'qualified' %}selected{% endif %}>Qualified</option>
+                        <option value="follow-up" {% if lead.opportunity_stage == 'follow-up' %}selected{% endif %}>Follow-Up</option>
+                        <option value="negotiation" {% if lead.opportunity_stage == 'negotiation' %}selected{% endif %}>Negotiation</option>
+                        <option value="won" {% if lead.opportunity_stage == 'won' %}selected{% endif %}>Won</option>
+                        <option value="lost" {% if lead.opportunity_stage == 'lost' %}selected{% endif %}>Lost</option>
+                        <option value="unqualified" {% if lead.opportunity_stage == 'unqualified' %}selected{% endif %}>Unqualified</option>
+                    </select>
+                </td>
+                <td>
+                    <textarea onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'notes', this.value)">{{ lead.notes }}</textarea>
+                </td>
+                <td>
+                    <button class="action-button delete-btn" onclick="deleteLead('{{ lead.lead_id }}', '{{ lead.property_id }}')">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
-    <table>
-        <tr>
-            <th>User Name</th>
-            <th>Company</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Location</th>
-            <th>Seats</th>
-            <th>Budget</th>
-            <th>Opportunity Status</th>
-            <th>Opportunity Stage</th>
-            <th>Notes by Bot</th>
-            <th>Actions</th>
-        </tr>
-        {% for lead in leads %}
-        <tr>
-            <td>{{ lead.user_name }}</td>
-            <td>{{ lead.user_company }}</td>
-            <td>{{ lead.user_email }}</td>
-            <td>{{ lead.user_contact }}</td>
-            <td>{{ lead.property_location }}</td>
-            <td>{{ lead.property_seats }}</td>
-            <td>{{ lead.property_budget }}</td>
-            <td>
-                <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_status', this.value)">
-                    <option value="open" {% if lead.opportunity_status == 'open' %}selected{% endif %}>Open</option>
-                    <option value="closed" {% if lead.opportunity_status == 'closed' %}selected{% endif %}>Closed</option>
-                    <option value="won" {% if lead.opportunity_status == 'won' %}selected{% endif %}>Won</option>
-                </select>
-            </td>
-            <td>
-                <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_stage', this.value)">
-                    <option value="visit done" {% if lead.opportunity_stage == 'visit done' %}selected{% endif %}>Visit Done</option>
-                    <option value="qualified" {% if lead.opportunity_stage == 'qualified' %}selected{% endif %}>Qualified</option>
-                    <option value="follow-up" {% if lead.opportunity_stage == 'follow-up' %}selected{% endif %}>Follow-Up</option>
-                    <option value="negotiation" {% if lead.opportunity_stage == 'negotiation' %}selected{% endif %}>Negotiation</option>
-                    <option value="won" {% if lead.opportunity_stage == 'won' %}selected{% endif %}>Won</option>
-                    <option value="lost" {% if lead.opportunity_stage == 'lost' %}selected{% endif %}>Lost</option>
-                    <option value="unqualified" {% if lead.opportunity_stage == 'unqualified' %}selected{% endif %}>Unqualified</option>
-                </select>
-            </td>
-            <td>
-                <textarea onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'notes', this.value)">{{ lead.notes }}</textarea>
-            </td>
-            <td>
-                <button class="delete-btn" onclick="deleteLead('{{ lead.lead_id }}', '{{ lead.property_id }}')">Delete</button>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
 </body>
 </html>

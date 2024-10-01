@@ -1,0 +1,165 @@
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f5f5f5;
+    display: flex;
+    height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Sidebar (Navbar) */
+.navbar {
+    width: 250px;
+    background-color: #fff;
+    border-right: 1px solid #e0e0e0;
+    height: 100%;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transition: width 0.3s ease;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar.minimized {
+    width: 60px;
+}
+
+.navbar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.navbar ul li {
+    margin-bottom: 20px;
+}
+
+.navbar ul li a {
+    color: #333;
+    text-decoration: none;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s;
+}
+
+.navbar ul li a:hover {
+    color: #007bff;
+}
+
+/* Main Content Area */
+.content {
+    margin-left: 250px; /* Adjust for the navbar width */
+    padding: 20px;
+    width: calc(100% - 250px); /* Ensure content takes up the remaining space */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.navbar.minimized ~ .content {
+    margin-left: 60px; /* Adjust when navbar is minimized */
+    width: calc(100% - 60px);
+}
+
+h1 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+/* Chart container styling */
+.container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+    grid-gap: 20px;
+    flex-grow: 1; /* Ensures the container grows to fill the available space */
+    padding-right: 20px; /* Adds some margin on the right for a better layout */
+}
+
+.chart-container {
+    width: 100%;
+    height: 350px; /* Reduced size for uniform look */
+}
+
+/* Uniform Chart iframe size */
+.chart-container iframe {
+    width: 100%;
+    height: 100%; /* Uniform height for all charts */
+}
+
+/* Style for the switch button */
+.button-container {
+    margin: 20px;
+    text-align: center;
+}
+
+.switch-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.switch-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Table styling for view_leads.html */
+table.leads-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table.leads-table thead {
+    background-color: #007bff;
+    color: white;
+}
+
+table.leads-table th, table.leads-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 16px;
+}
+
+table.leads-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table.leads-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Button styling for view_leads.html */
+.button-container {
+    margin: 20px;
+    text-align: center;
+}
+
+.switch-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.switch-btn:hover {
+    background-color: #0056b3;
+}
