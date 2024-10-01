@@ -87,9 +87,9 @@ body {
 
 /* Main Content Area */
 .content {
-    margin-left: 250px; /* Adjust for the navbar width */
+    margin-left: 250px;
     padding: 20px;
-    width: calc(100% - 250px); /* Ensure content takes up the remaining space */
+    width: calc(100% - 250px);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -98,7 +98,7 @@ body {
 }
 
 .navbar.minimized ~ .content {
-    margin-left: 60px; /* Adjust when navbar is minimized */
+    margin-left: 60px;
     width: calc(100% - 60px);
 }
 
@@ -112,21 +112,20 @@ h1 {
 /* Chart container styling */
 .container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+    grid-template-columns: repeat(2, 1fr);
     grid-gap: 20px;
-    flex-grow: 1; /* Ensures the container grows to fill the available space */
-    padding-right: 20px; /* Adds some margin on the right for a better layout */
+    flex-grow: 1;
+    padding-right: 20px;
 }
 
 .chart-container {
     width: 100%;
-    height: 350px; /* Reduced size for uniform look */
+    height: 350px;
 }
 
-/* Uniform Chart iframe size */
 .chart-container iframe {
     width: 100%;
-    height: 100%; /* Uniform height for all charts */
+    height: 100%;
 }
 
 /* Style for the switch button */
@@ -246,4 +245,86 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+/* Listings Form Styling */
+.filter-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filter-form input,
+.filter-form select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.filter-form button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.filter-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Table styling for listings.html */
+.table-container {
+    height: 400px;
+    overflow-y: auto;
+}
+
+table.listings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table.listings-table thead {
+    background-color: #007bff;
+    color: white;
+}
+
+table.listings-table th, table.listings-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 16px;
+}
+
+table.listings-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table.listings-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Pagination styles */
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination a {
+    color: #007bff;
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    margin: 0 2px;
+    border-radius: 4px;
+}
+
+.pagination a:hover {
+    background-color: #007bff;
+    color: white;
 }

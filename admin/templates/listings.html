@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        .table-container {
+            height: 400px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navigation.html' %}
+    
+    <div class="content">
+        <h1>Listings</h1>
+
+        <!-- Filter Form -->
+        <form id="filter-form" method="GET">
+            <select id="city" name="city">
+                <option value="">Select City</option>
+                {% for city in cities %}
+                    <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
+                {% endfor %}
+            </select>
+            
+            <select id="micromarket" name="micromarket">
+                <option value="">Select Micromarket</option>
+                {% if micromarkets %}
+                    {% for market in micromarkets %}
+                        <option value="{{ market }}" {% if market == selected_micromarket %}selected{% endif %}>{{ market }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <select id="price" name="price">
+                <option value="">Select Price</option>
+                {% if prices %}
+                    {% for p in prices %}
+                        <option value="{{ p }}" {% if p == selected_price %}selected{% endif %}>{{ p }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+        </form>
+
+        <!-- Listings Table -->
+        <div id="table-container" class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>City</th>
+                        <th>Micromarket</th>
+                        <th>Price</th>
+                        <th>Seats Available</th>
+                    </tr>
+                </thead>
+                <tbody id="listings-body">
+                    {% for space in coworking_list %}
+                    <tr>
+                        <td>{{ space.city }}</td>
+                        <td>{{ space.micromarket }}</td>
+                        <td>{{ space.price }}</td>
+                        <td>{{ space.seats }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4">No data available</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination-container">
+            {% if page > 1 %}
+                <a href="#" id="prev-page">&laquo; Previous</a>
+            {% endif %}
+            {% if (page * per_page) < total_records %}
+                <a href="#" id="next-page">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cityDropdown = document.getElementById('city');
+            const micromarketDropdown = document.getElementById('micromarket');
+            const priceDropdown = document.getElementById('price');
+            const tableContainer = document.getElementById('table-container');
+
+            function fetchListings() {
+                const selectedCity = cityDropdown.value;
+                const selectedMicromarket = micromarketDropdown.value;
+                const selectedPrice = priceDropdown.value;
+
+                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&price=${encodeURIComponent(selectedPrice)}`;
+
+                fetch(`/admin/fetch_listings?${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const listingsBody = document.getElementById('listings-body');
+                        listingsBody.innerHTML = '';
+
+                        if (data.coworking_list.length > 0) {
+                            data.coworking_list.forEach(function (space) {
+                                const row = `<tr>
+                                    <td>${space.city}</td>
+                                    <td>${space.micromarket}</td>
+                                    <td>${space.price}</td>
+                                    <td>${space.seats}</td>
+                                </tr>`;
+                                listingsBody.insertAdjacentHTML('beforeend', row);
+                            });
+                        } else {
+                            listingsBody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
+                        }
+
+                        // Update Pagination if required
+                        const paginationContainer = document.getElementById('pagination-container');
+                        paginationContainer.innerHTML = ''; // Reset pagination
+                        if (data.page > 1) {
+                            paginationContainer.insertAdjacentHTML('beforeend', `<a href="#" id="prev-page">&laquo; Previous</a>`);
+                        }
+                        if ((data.page * data.per_page) < data.total_records) {
+                            paginationContainer.insertAdjacentHTML('beforeend', `<a href="#" id="next-page">Next &raquo;</a>`);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            cityDropdown.addEventListener('change', function () {
+                const selectedCity = cityDropdown.value;
+                micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
+                priceDropdown.innerHTML = '<option value="">Select Price</option>';
+
+                if (selectedCity !== "") {
+                    // Fetch micromarkets for the selected city
+                    fetch(`/admin/get_micromarkets/${encodeURIComponent(selectedCity)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(function (micromarket) {
+                                const option = document.createElement('option');
+                                option.value = micromarket;
+                                option.text = micromarket;
+                                micromarketDropdown.appendChild(option);
+                            });
+                        });
+
+                    // Fetch prices only when micromarket is also selected
+                    micromarketDropdown.addEventListener('change', function () {
+                        const selectedMicromarket = micromarketDropdown.value;
+                        if (selectedMicromarket !== "") {
+                            fetch(`/admin/get_prices/${encodeURIComponent(selectedCity)}/${encodeURIComponent(selectedMicromarket)}`)
+                                .then(response => response.json())
+                                .then(data => {
+                                    priceDropdown.innerHTML = '<option value="">Select Price</option>';  // Reset dropdown
+                                    data.forEach(function (price) {
+                                        const option = document.createElement('option');
+                                        option.value = price;
+                                        option.text = price;
+                                        priceDropdown.appendChild(option);
+                                    });
+                                });
+                        }
+                    });
+                }
+                fetchListings(); // Fetch listings immediately after city is selected
+            });
+
+            micromarketDropdown.addEventListener('change', function () {
+                fetchListings(); // Update listings when micromarket changes
+            });
+
+            priceDropdown.addEventListener('change', function () {
+                fetchListings(); // Update listings when price changes
+            });
+
+            // Initial load
+            fetchListings();
+        });
+    </script>
+</body>
+</html>

@@ -418,3 +418,136 @@ def leads_dashboard():
                            kpi_fig=kpi_fig.to_html(full_html=False),
                            pie_fig=pie_fig.to_html(full_html=False),
                            bar_fig=bar_fig.to_html(full_html=False))
+
+
+# Fetching listings
+@admin_bp.route('/listings', methods=['GET'])
+def listings():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']
+    coworking_spaces = db.coworking_spaces
+
+    # Get filter parameters from the request
+    city = request.args.get('city', None)
+    micromarket = request.args.get('micromarket', None)
+    price = request.args.get('price', None)
+
+    # Build query filters
+    filters = {}
+    if city:
+        filters['city'] = city
+    if micromarket:
+        filters['micromarket'] = micromarket
+    
+    if price:
+        try:
+            filters['price'] = {'$lte': int(price)}  # Convert to integer safely
+        except ValueError:
+            pass  # Handle invalid price input gracefully
+
+    # Fetch data with pagination
+    try:
+        page = int(request.args.get('page', 1))  # Get current page, default is 1
+    except ValueError:
+        page = 1  # Fallback to page 1 if the conversion fails
+    
+    per_page = 10  # Number of records per page
+    skip = (page - 1) * per_page
+
+    total_records = coworking_spaces.count_documents(filters)
+    coworking_list = coworking_spaces.find(filters).skip(skip).limit(per_page)
+
+    # Fetch distinct cities for the filter form
+    cities = coworking_spaces.distinct('city')
+
+    # Fetch micromarkets based on the selected city for dynamic micromarket filtering
+    micromarkets = []
+    if city:
+        micromarkets = coworking_spaces.distinct('micromarket', {'city': city})
+
+    return render_template('listings.html', 
+                           coworking_list=coworking_list, 
+                           cities=cities, 
+                           micromarkets=micromarkets, 
+                           city=city, 
+                           micromarket=micromarket, 
+                           price=price, 
+                           page=page, 
+                           total_records=total_records, 
+                           per_page=per_page)
+
+# Fetch Micromarkets based on the City
+@admin_bp.route('/get_micromarkets/<city>', methods=['GET'])
+def get_micromarkets(city):
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']
+
+    # Find micromarkets for the selected city
+    micromarkets = db.coworking_spaces.distinct("micromarket", {"city": city})
+
+    if not micromarkets:
+        return jsonify({'status': 'error', 'message': 'No micromarkets found for the city'}), 404
+
+    return jsonify(micromarkets)
+
+# Fetch Prices based on City and Micromarket
+@admin_bp.route('/get_prices/<city>/<micromarket>', methods=['GET'])
+def get_prices(city, micromarket):
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']
+
+    # If micromarket is empty or not provided, return an error
+    if not micromarket:
+        return jsonify({'status': 'error', 'message': 'Micromarket is required'}), 400
+
+    # Find prices for the selected city and micromarket
+    prices = db.coworking_spaces.distinct("price", {"city": city, "micromarket": micromarket})
+
+    if not prices:
+        return jsonify({'status': 'error', 'message': 'No prices found'}), 404
+
+    return jsonify(prices)
+
+
+# Route to dynamically fetch filtered listings without refreshing the whole page
+@admin_bp.route('/fetch_listings', methods=['GET'])
+def fetch_listings():
+    db = current_app.config['db']
+    city = request.args.get('city', None)
+    micromarket = request.args.get('micromarket', None)
+    price = request.args.get('price', None)
+
+    filters = {}
+    if city:
+        filters['city'] = city
+    if micromarket:
+        filters['micromarket'] = micromarket
+    if price:
+        try:
+            filters['price'] = {'$lte': int(price)}
+        except ValueError:
+            pass
+
+    coworking_spaces = db.coworking_spaces.find(filters)
+    coworking_list = list(coworking_spaces)
+
+    # Convert the documents to JSON format
+    result_list = [{
+        'city': space['city'],
+        'micromarket': space['micromarket'],
+        'price': space['price'],
+        'seats': space.get('seats', 'N/A')  # Handle missing seats data gracefully
+    } for space in coworking_list]
+
+    return jsonify({
+        'coworking_list': result_list,
+        'page': int(request.args.get('page', 1)),
+        'per_page': 10,  # Pagination setup
+        'total_records': db.coworking_spaces.count_documents(filters)
+    })
