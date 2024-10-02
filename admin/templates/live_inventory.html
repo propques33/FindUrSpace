@@ -32,15 +32,82 @@
         }
         th {
             background-color: #f2f2f2;
-            cursor: pointer; /* Make headers clickable */
+            cursor: pointer;
         }
         tbody tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+        tbody tr {
+            cursor: pointer;
         }
         /* Ensure the table's body section is scrollable if content overflows */
         .table-container {
             max-height: 75vh;
             overflow-y: auto;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            width: 35%; /* Fix width to right side */
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto; /* Add vertical scroll if content overflows */
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            opacity: 0;
+            transform: translateX(100%); /* Start off-screen */
+        }
+        .modal.show {
+            opacity: 1;
+            transform: translateX(0); /* Slide in from the right */
+        }
+        .modal-content {
+            padding: 20px;
+            height: calc(100% - 40px); /* Deduct padding */
+            overflow-y: auto;
+        }
+        .modal-content {
+            overflow-y: scroll;  /* Enable vertical scrolling */
+            scrollbar-width: none;  /* For Firefox */
+            -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+        }
+
+        .modal-content::-webkit-scrollbar {
+            display: none;  /* For Chrome, Safari, and Opera */
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Updated content styles */
+        .modal-content h3 {
+            margin-top: 20px;
+            font-weight: bold;
+            border-bottom: 2px solid #f2f2f2;
+            padding-bottom: 5px;
+        }
+        .modal-content p, .modal-content ul {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .modal-content p span {
+            font-weight: normal; /* Regular font for content */
+        }
+        .modal-content ul li {
+            list-style-type: none;
+            margin: 5px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -68,12 +135,50 @@
         </div>
     </div>
 
+    <!-- Modal for displaying coworking details -->
+    <div id="coworking-modal" class="modal">
+        <span class="close" id="modal-close">&times;</span>
+        <div class="modal-content">
+            <h2 id="coworking-name"></h2>
+
+            <h3>Owner Information</h3>
+            <p><span>Name:</span> <span id="owner-info-name"></span></p>
+            <p><span>Phone:</span> <span id="owner-info-phone"></span></p>
+            <p><span>Email:</span> <span id="owner-info-email"></span></p>
+
+            <h3>General Information</h3>
+            <p><span>City:</span> <span id="city-info"></span></p>
+            <p><span>Micromarket:</span> <span id="micromarket-info"></span></p>
+            <p><span>Total Seats:</span> <span id="total-seats-info"></span></p>
+            <p><span>Current Vacancy:</span> <span id="vacancy-info"></span></p>
+
+            <h3>Inventory</h3>
+            <ul id="inventory-list"></ul>
+        </div>
+    </div>
+
     <script>
         let inventoryData = []; // Store the fetched data for sorting
 
         document.addEventListener('DOMContentLoaded', function () {
             const tableBody = document.querySelector('#inventory-table tbody');
             const sortCityButton = document.querySelector('#sort-city');
+            const modal = document.getElementById('coworking-modal');
+            const modalClose = document.getElementById('modal-close');
+
+            // Function to close the modal when clicking outside
+            window.onclick = function(event) {
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                    modal.classList.remove("show");
+                }
+            };
+
+            // Close modal on clicking 'X'
+            modalClose.onclick = function() {
+                modal.style.display = "none";
+                modal.classList.remove("show");
+            };
 
             let isAsc = true; // Track sorting order
 
@@ -100,8 +205,37 @@
                         <td>${space.total_seats}</td>
                         <td>${space.current_vacancy}</td>
                     `;
+                    // Add an event listener to make the row clickable
+                    row.addEventListener('click', () => {
+                        displayModal(space);
+                    });
                     tableBody.appendChild(row);
                 });
+            }
+
+            // Display Modal with Details
+            function displayModal(space) {
+                document.getElementById('coworking-name').textContent = space.coworking_name;
+                document.getElementById('owner-info-name').textContent = space.owner.name;
+                document.getElementById('owner-info-phone').textContent = space.owner.phone;
+                document.getElementById('owner-info-email').textContent = space.owner.email;
+                document.getElementById('city-info').textContent = space.city;
+                document.getElementById('micromarket-info').textContent = space.micromarket;
+                document.getElementById('total-seats-info').textContent = space.total_seats;
+                document.getElementById('vacancy-info').textContent = space.current_vacancy;
+
+                const inventoryList = document.getElementById('inventory-list');
+                inventoryList.innerHTML = ''; // Clear previous inventory
+
+                space.inventory.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.type}: ${item.count} seats at ${item.price_per_seat} per seat`;
+                    inventoryList.appendChild(li);
+                });
+
+                // Show modal
+                modal.classList.add("show");
+                modal.style.display = "flex";
             }
 
             // Sorting function

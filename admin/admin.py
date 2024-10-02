@@ -668,3 +668,21 @@ def fetch_inventory():
     return jsonify({
         'spaces': coworking_list
     })
+
+
+@admin_bp.route('/coworking_details', methods=['GET'])
+def coworking_details():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    coworking_name = request.args.get('coworking_name')
+    db = current_app.config['db']  # Access the db instance from the current app context
+    fillurdetails_collection = db['fillurdetails']
+
+    # Fetch the coworking space details by name
+    coworking_space = fillurdetails_collection.find_one({'coworking_name': coworking_name}, {'_id': 0})
+
+    if coworking_space:
+        return render_template('coworking_details.html', space=coworking_space)
+    else:
+        return "Coworking space not found", 404

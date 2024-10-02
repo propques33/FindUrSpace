@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ space.coworking_name }} - Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    {% include 'navigation.html' %}
+
+    <div class="content">
+        <h1>{{ space.coworking_name }} Details</h1>
+
+        <h2>Owner Information</h2>
+        <p>Name: {{ space.owner.name }}</p>
+        <p>Phone: {{ space.owner.phone }}</p>
+        <p>Email: {{ space.owner.email }}</p>
+
+        <h2>General Information</h2>
+        <p>City: {{ space.city }}</p>
+        <p>Micromarket: {{ space.micromarket }}</p>
+        <p>Total Seats: {{ space.total_seats }}</p>
+        <p>Current Vacancy: {{ space.current_vacancy }}</p>
+
+        <h2>Inventory</h2>
+        <ul>
+            {% for item in space.inventory %}
+                <li>{{ item.type }}: {{ item.count }} seats at {{ item.price_per_seat }} per seat</li>
+            {% endfor %}
+        </ul>
+
+        <!-- You can add more details here as needed -->
+    </div>
+</body>
+</html>
