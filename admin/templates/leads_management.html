@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leads Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        /* Styling for the lead stages and containers */
+        .stages-container-wrapper {
+            width: 100%;
+            overflow-x: auto; /* Adds horizontal scroll */
+            padding: 20px;
+        }
+
+        .stages-container {
+            display: flex;
+            width: 160%; /* Adjust width based on the number of stages */
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .stage {
+            width: 18%;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px;
+            display: flex;
+            flex-direction: column;
+            height: 400px; /* Set fixed height for each container */
+        }
+
+        .leads-list {
+            flex-grow: 1;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: white;
+            overflow-y: auto; /* Adds vertical scroll for leads list */
+            height: 100%; /* Ensure it takes the available space */
+        }
+
+
+
+        .lead-item {
+            margin: 10px 0;
+            padding: 8px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .stage h3 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navigation.html' %}
+
+    <div class="content">
+        <h1>Leads Management</h1>
+
+        <div class="stages-container-wrapper">
+            <div class="stages-container">
+                <div class="stage" data-stage="visit done">
+                    <h3>Visit Done</h3>
+                    <div class="leads-list" id="visit-done">
+                        {% for lead in stages['visit done'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stage" data-stage="qualified">
+                    <h3>Qualified</h3>
+                    <div class="leads-list" id="qualified">
+                        {% for lead in stages['qualified'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stage" data-stage="negotiation">
+                    <h3>Negotiation</h3>
+                    <div class="leads-list" id="negotiation">
+                        {% for lead in stages['negotiation'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stage" data-stage="won">
+                    <h3>Won</h3>
+                    <div class="leads-list" id="won">
+                        {% for lead in stages['won'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stage" data-stage="lost">
+                    <h3>Lost</h3>
+                    <div class="leads-list" id="lost">
+                        {% for lead in stages['lost'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stage" data-stage="follow-up">
+                    <h3>Follow-Up</h3>
+                    <div class="leads-list" id="follow-up">
+                        {% for lead in stages['follow-up'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="stage" data-stage="unqualified">
+                    <h3>Unqualified</h3>
+                    <div class="leads-list" id="unqualified">
+                        {% for lead in stages['unqualified'] %}
+                        <div class="lead-item" id="{{ lead.lead_id }}">
+                            {{ lead.user_name }} ({{ lead.user_company }})
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const leads = document.querySelectorAll('.lead-item');
+            const stages = document.querySelectorAll('.leads-list');
+
+            // Enable dragging for leads
+            leads.forEach(lead => {
+                lead.draggable = true;
+                lead.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', e.target.id);
+                });
+            });
+
+            // Enable dropping on stages
+            stages.forEach(stage => {
+                stage.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                });
+
+                stage.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    const leadId = e.dataTransfer.getData('text/plain');
+                    const leadElement = document.getElementById(leadId);
+                    this.appendChild(leadElement);
+
+                    // Update backend with the new stage
+                    const newStage = this.parentElement.getAttribute('data-stage');
+                    updateLeadStage(leadId, newStage);
+                });
+            });
+
+            function updateLeadStage(leadId, newStage) {
+                fetch('/admin/update_lead_stage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lead_id: leadId,
+                        new_stage: newStage
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('Lead stage updated successfully');
+                    } else {
+                        console.error('Error updating lead stage');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

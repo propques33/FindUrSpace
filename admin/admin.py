@@ -551,3 +551,120 @@ def fetch_listings():
         'per_page': 10,  # Pagination setup
         'total_records': db.coworking_spaces.count_documents(filters)
     })
+
+
+# ---------------------------------------------------------Lead management------------------------------------------------------------------------------------
+@admin_bp.route('/leads_management', methods=['GET'])
+def leads_management():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']
+    
+    # Fetch all leads and their current opportunity stages
+    leads = list(db.leads_status.find())
+
+    # Organize leads by stages (use lowercase keys to match the DB)
+    stages = {
+        'visit done': [],
+        'qualified': [],
+        'negotiation': [],
+        'won': [],
+        'lost': [],
+        'unqualified': [],
+        'follow-up': []
+    }
+
+    for lead in leads:
+        # Normalize opportunity stage to lowercase to match dictionary keys
+        stage = lead.get('opportunity_stage', '').lower()  
+        user = db.users.find_one({'_id': lead['user_id']})
+        
+        lead_data = {
+            'lead_id': str(lead['user_id']),
+            'property_id': str(lead['property_id']),
+            'user_name': user.get('name', 'Unknown'),
+            'user_company': user.get('company', 'Unknown'),
+            'user_email': user.get('email', 'N/A'),
+            'user_contact': user.get('contact', 'N/A'),
+            'opportunity_stage': lead['opportunity_stage'],
+            'notes': lead.get('notes', '')
+        }
+
+        # Append lead to the appropriate stage in lowercase
+        if stage in stages:
+            stages[stage].append(lead_data)
+        else:
+            print(f"Stage '{stage}' not found in stages dictionary")  # Debugging
+
+    return render_template('leads_management.html', stages=stages)
+
+@admin_bp.route('/update_lead_stage', methods=['POST'])
+def update_lead_stage():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    data = request.get_json()
+    lead_id = data.get('lead_id')
+    new_stage = data.get('new_stage')
+
+    db = current_app.config['db']
+    
+    # Update the lead's opportunity_stage in the database
+    result = db.leads_status.update_one(
+        {'user_id': ObjectId(lead_id)},
+        {'$set': {'opportunity_stage': new_stage}}
+    )
+
+    if result.modified_count > 0:
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Lead not updated'})
+
+@admin_bp.route('/get_lead/<lead_id>', methods=['GET'])
+def get_lead(lead_id):
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']
+    
+    lead = db.leads_status.find_one({'user_id': ObjectId(lead_id)})
+    if lead:
+        user = db.users.find_one({'_id': lead['user_id']})
+        return jsonify({
+            'lead_id': str(lead['user_id']),
+            'property_id': str(lead['property_id']),
+            'user_name': user.get('name', 'Unknown'),
+            'user_company': user.get('company', 'Unknown'),
+            'user_email': user.get('email', 'N/A'),
+            'user_contact': user.get('contact', 'N/A'),
+            'opportunity_stage': lead.get('opportunity_stage', 'Visit Done'),
+            'notes': lead.get('notes', '')
+        })
+    else:
+        return jsonify({'status': 'error', 'message': 'Lead not found'}), 404
+
+
+# --------------------------------LIVE INVENTORY --------------------------------------------------------------------------------------------
+@admin_bp.route('/live_inventory', methods=['GET'])
+def live_inventory():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    return render_template('live_inventory.html')
+
+@admin_bp.route('/fetch_inventory', methods=['GET'])
+def fetch_inventory():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']  # Access the db instance from the current app context
+    fillurdetails_collection = db['fillurdetails']
+
+    # Fetch coworking space data without pagination
+    coworking_list = list(fillurdetails_collection.find({}, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0, 'date': 0}))
+
+    # Return the data as JSON
+    return jsonify({
+        'spaces': coworking_list
+    })
