@@ -133,23 +133,46 @@
             font-size: 0.875rem;
             color: #6c757d;
         }
+
+        /* Flash Message Styles */
+        .flash-message {
+            font-size: 1.5rem; /* Larger text */
+            padding: 15px; /* More padding for emphasis */
+            margin-bottom: 20px;
+            text-align: center; /* Center align text */
+        }
+        .flash-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .flash-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
+
+    <!-- Flash Messages (Success/Error) -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="mb-4">
+        {% for category, message in messages %}
+          <div class="flash-message flash-{{ 'success' if category == 'success' else 'error' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+{% endwith %}
+
     <h1 class="text-center mb-4">List Your Space</h1>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-        {% for category, message in messages %}
-          <li class="{{ category }}">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+
 
     <!-- Stage 1: Owner Information -->
     <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') }}" method="post" enctype="multipart/form-data">

@@ -1,4 +1,4 @@
-#image_upload.py
+# image_upload.py
 import os
 import boto3
 from PIL import Image
@@ -12,7 +12,7 @@ load_dotenv()
 
 # DigitalOcean Spaces configurations
 DO_SPACE_NAME = "findurspace"
-DO_REGION = "blr1"  # Replace with your region
+DO_REGION = "blr1"
 DO_ENDPOINT = f"https://{DO_SPACE_NAME}.{DO_REGION}.digitaloceanspaces.com"
 DO_SPACES_KEY = os.getenv("DO_SPACES_KEY")
 DO_SPACES_SECRET = os.getenv("DO_SPACES_SECRET")
@@ -34,41 +34,46 @@ def get_db():
     db = client['FindYourSpace']
     return db
 
-# Compress image to 512KB
-def compress_image(image_file, max_size_kb=512):
+from PIL import Image
+from io import BytesIO
+
+# Compress image and convert to WebP at 80% quality
+def compress_image(image_file, max_size_kb=512, max_dimensions=(1024, 1024)):
     img = Image.open(image_file)
-    img_format = img.format
+
+    # Resize image if larger than the specified dimensions
+    img.thumbnail(max_dimensions)
 
     # Buffer to hold the compressed image in memory
     buffer = BytesIO()
-    quality = 85  # Start with 85% quality
 
-    while True:
-        buffer.seek(0)
-        buffer.truncate(0)
-        img.save(buffer, format=img_format, quality=quality)
-        size_kb = buffer.tell() / 1024
+    # Convert the image to WebP format and save with 80% quality
+    img.save(buffer, format="WEBP", quality=100)
 
-        if size_kb <= max_size_kb or quality <= 10:
-            break
-        quality -= 5
-
+    size_kb = buffer.tell() / 1024
+    print(f"Compressed WebP image size: {size_kb:.2f} KB")
+    
     buffer.seek(0)
-    return buffer, img_format
+    return buffer, "WEBP"
 
 # Upload compressed image to DigitalOcean Space
 def upload_image_to_space(image_buffer, file_name):
     try:
+        # Upload the image to the correct folder within the DigitalOcean space
         s3_client.upload_fileobj(
             image_buffer,
             DO_SPACE_NAME,
-            f"findurspace/{file_name}",
-            ExtraArgs={'ACL': 'public-read', 'ContentType': f'image/{file_name.split(".")[-1]}'}
+            f"{file_name}",  # Ensure only one 'findurspace/' folder
+            ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/webp'}
         )
+
+        print(f"Image uploaded to {file_name}")
+        # Return the correct URL format with the nested folder structure
         return f"{DO_ENDPOINT}/findurspace/{file_name}"
     except Exception as e:
         print(f"Failed to upload image: {e}")
         return None
+
 
 # Process and upload images
 def process_and_upload_images(image_files, owner_info, coworking_name):
@@ -76,27 +81,21 @@ def process_and_upload_images(image_files, owner_info, coworking_name):
     image_urls = []
 
     for image_file in image_files:
-        # Compress image
-        compressed_image, img_format = compress_image(image_file)
+        try:
+            print(f"Processing file: {image_file.filename}")
+            # Compress image
+            compressed_image, img_format = compress_image(image_file)
 
-        # Create a unique file name
-        file_name = f"{coworking_name}_{owner_info['name']}_{image_file.filename}"
+            # Create a unique file name
+            file_name = f"{coworking_name}_{owner_info['name']}_{image_file.filename}"
 
-        # Upload image to DigitalOcean Space
-        image_url = upload_image_to_space(compressed_image, file_name)
-        if image_url:
-            image_urls.append(image_url)
-        else:
-            print(f"Failed to upload {image_file.filename}")
+            # Upload image to DigitalOcean Space
+            image_url = upload_image_to_space(compressed_image, file_name)
+            if image_url:
+                image_urls.append(image_url)
+            else:
+                print(f"Failed to upload {image_file.filename}")
+        except Exception as e:
+            print(f"Error processing file {image_file.filename}: {e}")
 
-    # Save image URLs to the database
-    property_details = {
-        'owner': owner_info,
-        'coworking_name': coworking_name,
-        'layout_images': image_urls,
-        'date': datetime.now()
-    }
-
-    db.coworking_spaces.insert_one(property_details)
-    print(f"Uploaded {len(image_urls)} images and saved them in DB.")
-
+    return image_urls

@@ -7,7 +7,7 @@ import threading
 import io
 from integrations.gsheet_updater import handle_new_property_entry
 from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
-
+from core.image_upload import process_and_upload_images
 
 # Function to handle Google Sheet updates in the background
 def update_gsheet_background(app, db, property_data):
@@ -213,6 +213,8 @@ def list_your_space():
             owner_email = request.form.get('owner_email')
             coworking_name = request.form.get('coworking_name')
 
+            print(f"Owner Info - Name: {name}, Phone: {owner_phone}, Email: {owner_email}, Coworking Name: {coworking_name}")
+
             # Get list of space indices
             space_indices = request.form.getlist('space_indices[]')
 
@@ -222,13 +224,13 @@ def list_your_space():
             total_seats_list = request.form.getlist('total_seats[]')
             current_vacancies = request.form.getlist('current_vacancy[]')
 
-            # Authenticate with Google Drive
-            creds = authenticate_google_drive()
+            print(f"Received cities: {cities}, micromarkets: {micromarkets}")
 
             # Process each space
             for idx, city, micromarket, total_seats, current_vacancy in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies):
-                # Convert idx to string in case it's not
-                idx_str = str(idx)
+                idx_str = str(idx)  # Convert idx to string in case it's not
+
+                print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
 
                 # Get inventories for this space
                 inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
@@ -243,17 +245,15 @@ def list_your_space():
                         'price_per_seat': price_per_seats[i]
                     })
 
+                print(f"Inventory: {inventory}")
+
                 # Handle file uploads (Images for Layouts)
                 layout_images = request.files.getlist(f'layout_images_{idx}[]')
-                layout_image_links = []
 
-                for image_file in layout_images:
-                    if image_file and (image_file.filename.endswith('.png') or image_file.filename.endswith('.jpg') or image_file.filename.endswith('.jpeg')):
-                        # Convert the uploaded image to a buffer
-                        image_buffer = io.BytesIO(image_file.read())
-                        # Upload image to Google Drive and get shareable link
-                        shareable_link = upload_image_to_google_drive(image_buffer, creds, image_file.filename)
-                        layout_image_links.append(shareable_link)
+                # Call the process and upload images function (handles compression & DigitalOcean upload)
+                layout_image_links = process_and_upload_images(layout_images, {'name': name}, coworking_name)
+
+                print(f"Uploaded image links: {layout_image_links}")
 
                 # Create a document for each coworking space with owner info
                 property_details = {
@@ -268,7 +268,7 @@ def list_your_space():
                     'total_seats': total_seats,
                     'current_vacancy': current_vacancy,
                     'inventory': inventory,
-                    'layout_images': layout_image_links,  # Store Google Drive image links
+                    'layout_images': layout_image_links,
                     'interactive_layout': False,  # Set interactive_layout as False initially
                     'date': datetime.datetime.now()
                 }
@@ -280,5 +280,6 @@ def list_your_space():
 
         except Exception as e:
             flash(f"Failed to submit property details: {str(e)}", 'error')
+            print(f"Error: {e}")
 
     return render_template('FillUrDetails.html')
