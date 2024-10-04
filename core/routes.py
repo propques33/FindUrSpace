@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, flash, session, current_app
+from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory
 from collections import defaultdict
 import datetime
 from core.email_handler import send_email_and_whatsapp_with_pdf
@@ -28,6 +28,10 @@ def send_email_and_whatsapp_background(app, email, name, contact, filtered_prope
 
 # Define the Blueprint for core routes
 core_bp = Blueprint('core_bp', __name__)
+
+@core_bp.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory(directory='/', path='sitemap.xml')
 
 # Route to render index.html
 @core_bp.route('/')
