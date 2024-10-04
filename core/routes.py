@@ -44,7 +44,11 @@ def index():
 
     # Counting workspaces for each city
     for space in coworking_spaces:
-        city_workspace_counts[space['city']] += 1
+        city = space.get('city', None)
+        if city:
+            city_workspace_counts[city] += 1
+        else:
+            print(f"Warning: Document missing 'city' field. Document: {space}")
 
     # Preparing the data in a format suitable for the template
     city_data = []
