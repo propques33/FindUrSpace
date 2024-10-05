@@ -1,4 +1,5 @@
 # image_upload.py
+
 import os
 import boto3
 from PIL import Image
@@ -6,6 +7,8 @@ from io import BytesIO
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import datetime
+import uuid  # Import uuid for unique filename generation
+from werkzeug.utils import secure_filename  # Import secure_filename
 
 # Load environment variables
 load_dotenv()
@@ -34,9 +37,6 @@ def get_db():
     db = client['FindYourSpace']
     return db
 
-from PIL import Image
-from io import BytesIO
-
 # Compress image and convert to WebP at 80% quality
 def compress_image(image_file, max_size_kb=512, max_dimensions=(1024, 1024)):
     img = Image.open(image_file)
@@ -48,7 +48,7 @@ def compress_image(image_file, max_size_kb=512, max_dimensions=(1024, 1024)):
     buffer = BytesIO()
 
     # Convert the image to WebP format and save with 80% quality
-    img.save(buffer, format="WEBP", quality=100)
+    img.save(buffer, format="WEBP", quality=80)
 
     size_kb = buffer.tell() / 1024
     print(f"Compressed WebP image size: {size_kb:.2f} KB")
@@ -74,7 +74,6 @@ def upload_image_to_space(image_buffer, file_name):
         print(f"Failed to upload image: {e}")
         return None
 
-
 # Process and upload images
 def process_and_upload_images(image_files, owner_info, coworking_name):
     db = get_db()
@@ -86,8 +85,11 @@ def process_and_upload_images(image_files, owner_info, coworking_name):
             # Compress image
             compressed_image, img_format = compress_image(image_file)
 
-            # Create a unique file name
-            file_name = f"{coworking_name}_{owner_info['name']}_{image_file.filename}"
+            # Create a unique file name using UUID
+            unique_id = uuid.uuid4().hex
+            # Secure the original filename to prevent directory traversal attacks
+            original_filename = secure_filename(image_file.filename)
+            file_name = f"{coworking_name}_{owner_info['name']}_{unique_id}_{original_filename}"
 
             # Upload image to DigitalOcean Space
             image_url = upload_image_to_space(compressed_image, file_name)
