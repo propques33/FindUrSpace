@@ -25,132 +25,210 @@
       }]
     }
     </script>
+
+    <!-- Parsley CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/parsleyjs/src/parsley.css">
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Optional: Include your own CSS for additional styling -->
     <style>
-        body {
-            background-color: #ffffff; /* Light greyish blue background */
-            color: #333; /* Darker text color for better readability */
-        }
-        .container {
-            max-width: 800px;
-            margin-top: 40px;
-            margin-bottom: 40px;
-        }
-        .card {
-            margin-bottom: 20px;
-        }
-        .centered-button {
-            display: block; /* Make the button block-level to center */
-            margin: 0 auto; /* Center the button horizontally */
-            padding: 5px 20px; /* Add padding around the text */
-            border-radius: 5px; /* Rounded corners for the button */
-            font-size: 16px; /* Adjust the text size */
-            background-color: #28a745; /* Green background */
-            color: white; /* White text */
-            border: 2px solid #28a745; /* Border color same as background */
-            width: auto; /* Ensure the button fits around the text */
-            text-align: center; /* Center the text inside the button */
-        }
+    /* General Body Styling */
+    body {
+        background-color: #ffffff; /* Light background */
+        color: #333; /* Darker text for readability */
+    }
 
-        .centered-button:hover {
-            background-color: #218838; /* Darken the button on hover */
-            border-color: #218838; /* Change border color on hover */
-        }
+    .container {
+        max-width: 800px;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
 
-        .delete-button {
-            background: none;
-            border: none;
-            color: #dc3545;
-            font-size: 1.2rem;
-            margin-right: 10px;
-        }
-        .delete-button:hover {
-            color: #a71d2a;
-        }
-        .preview-img-container {
-            position: relative;
-            display: inline-block;
-        }
-        .preview-img {
-            max-width: 100px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-        .preview-img-container .delete-button {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: red;
-            color: white;
-            border: none;
-            font-size: 14px;
-            border-radius: 50%;
-            padding: 0 5px;
-            cursor: pointer;
-        }
-        .required:after {
-            content:" *";
-            color: red;
-        }
-        /* Adjust the form fields to be two per row */
+    .card {
+        margin-bottom: 20px;
+    }
+
+    /* Centered Button */
+    .centered-button {
+        display: block; /* Center the button */
+        margin: 0 auto;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: #28a745; /* Green background */
+        color: white;
+        border: 2px solid #28a745;
+        width: auto;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .centered-button:hover {
+        background-color: #218838; /* Darker green on hover */
+        border-color: #218838;
+    }
+
+    /* Delete Button */
+    .delete-button {
+        background: none;
+        border: none;
+        color: #dc3545;
+        font-size: 1.2rem;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+
+    .delete-button:hover {
+        color: #a71d2a;
+    }
+
+    /* Image Preview Styles */
+    .preview-img-container {
+        position: relative;
+        display: inline-block;
+        margin-right: 10px;
+        margin-bottom: 10px;
+    }
+
+    .preview-img {
+        max-width: 100px;
+        cursor: pointer;
+        border: 2px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .preview-img-container .delete-button {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: red;
+        color: white;
+        border: none;
+        font-size: 14px;
+        border-radius: 50%;
+        padding: 0 5px;
+        cursor: pointer;
+    }
+    /* General Input Styling */
+    input, select, textarea {
+        border: 2px solid #ccc; /* Default neutral border color */
+        background-color: #f8f9fa; /* Light gray background */
+        transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+    }
+
+    /* Input Validation Styling */
+    input.parsley-error,
+    select.parsley-error,
+    textarea.parsley-error {
+        border: 2px solid #dc3545; /* Use Bootstrap's danger color */
+        background-color: #fff1f2; /* Light red background */
+        position: relative;
+    }
+
+    /* Placeholder as Error Message Inside Input Field */
+    input.parsley-error::placeholder,
+    select.parsley-error::placeholder,
+    textarea.parsley-error::placeholder {
+        color: #dc3545; /* Red placeholder for error message */
+        opacity: 1; /* Ensure full visibility of the error message */
+    }
+
+    /* On hover, change input border color */
+    input.parsley-error:hover,
+    select.parsley-error:hover,
+    textarea.parsley-error:hover {
+        border-color: #e63946; /* Slightly darker red on hover */
+    }
+
+    /* Success Input Fields */
+    input.parsley-success,
+    select.parsley-success,
+    textarea.parsley-success {
+        border: 2px solid #28a745; /* Green border for valid inputs */
+        background-color: #e6ffe7; /* Light green background */
+    }
+
+    /* Error Message Styling */
+    .parsley-errors-list {
+        margin-top: 5px; /* Space between input and error message */
+        color: #dc3545; /* Bootstrap's danger color */
+        font-size: 0.875rem; /* Slightly smaller font size */
+        font-weight: bold;
+        list-style-type: none; /* No bullet points */
+        padding-left: 0; /* No padding */
+        position: relative; /* Ensure it stays relative to input */
+        display: block; /* Force the error message to appear below */
+        width: 100%; /* Make sure it takes up full width below the input */
+        min-height: 1.2em; /* Reserve space for error messages */
+    }
+
+    /* Form Fields Two per Row */
+    .form-group {
+        display: flex;
+        gap: 15px;
+        align-items: flex-start; /* Align inputs and error messages */
+    }
+
+    .form-group .form-control {
+        flex: 1;
+    }
+
+    /* Inventory Item Layout */
+    .inventory-item .form-select,
+    .inventory-item .form-control {
+        flex: 1;
+    }
+
+    .inventory-item .form-group {
+        align-items: flex-start;
+    }
+
+    .inventory-item {
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+        margin-top: 15px;
+    }
+
+    /* For Small Screens, Stack Fields Vertically */
+    @media (max-width: 576px) {
         .form-group {
-            display: flex;
-            gap: 15px;
+            flex-direction: column;
         }
-        .form-group .form-control {
-            flex: 1;
-        }
-        /* Ensure image previews wrap correctly */
-        #imagePreview {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        /* Adjust select and input widths within inventory items */
-        .inventory-item .form-select,
-        .inventory-item .form-control {
-            flex: 1;
-        }
-        .inventory-item .form-group {
-            align-items: flex-start;
-        }
-        /* Add padding and separator for inventory items */
-        .inventory-item {
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-            margin-top: 15px;
-        }
-        /* For small screens, stack fields vertically */
-        @media (max-width: 576px) {
-            .form-group {
-                flex-direction: column;
-            }
-        }
-        /* Add note for file formats */
-        .file-format-note {
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
+    }
 
-        /* Flash Message Styles */
-        .flash-message {
-            font-size: 1.5rem; /* Larger text */
-            padding: 15px; /* More padding for emphasis */
-            margin-bottom: 20px;
-            text-align: center; /* Center align text */
-        }
-        .flash-success {
-            color: #155724;
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-        }
-        .flash-error {
-            color: #721c24;
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-        }
+    /* File Format Note */
+    .file-format-note {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+
+    /* Loading Spinner Styles */
+    #loadingSpinner {
+        display: none;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    /* Flash Messages Styling */
+    .flash-message {
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+    .flash-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .flash-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
     </style>
 </head>
 <body>
@@ -158,36 +236,52 @@
 <div class="container">
 
     <!-- Flash Messages (Success/Error) -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      <div class="mb-4">
-        {% for category, message in messages %}
-          <div class="flash-message flash-{{ 'success' if category == 'success' else 'error' }}">
-            {{ message }}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="mb-4">
+            {% for category, message in messages %}
+              <div class="flash-message flash-{{ 'success' if category == 'success' else 'error' }}">
+                {{ message }}
+              </div>
+            {% endfor %}
           </div>
-        {% endfor %}
-      </div>
-    {% endif %}
-{% endwith %}
+        {% endif %}
+    {% endwith %}
 
     <h1 class="text-center mb-4">List Your Space</h1>
 
-
-
     <!-- Stage 1: Owner Information -->
-    <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') }}" method="post" enctype="multipart/form-data">
+    <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') }}" method="post" enctype="multipart/form-data" data-parsley-validate>
         <div class="card">
             <div class="card-header">
                 Stage 1: Owner Information
             </div>
             <div class="card-body">
                 <div class="form-group mb-3">
-                    <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required>
-                    <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required>
+                    <div class="mb-3 w-100">
+                        <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
+                            data-parsley-required-message="Please enter the coworking space name." data-parsley-trigger="change" aria-label="Coworking Name">
+                    </div>
+                    <div class="mb-3 w-100">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required
+                            data-parsley-required-message="Please enter your name." data-parsley-trigger="change" aria-label="Your Name">
+                    </div>
                 </div>
                 <div class="form-group mb-3">
-                    <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required>
-                    <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required>
+                    <div class="mb-3 w-100">
+                        <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required
+                            data-parsley-required-message="Please enter your phone number."
+                            data-parsley-pattern="^[0-9]{10}$"
+                            data-parsley-pattern-message="Please enter a valid 10-digit phone number."
+                            data-parsley-trigger="change" aria-label="Owner Phone Number">
+                    </div>
+                    <div class="mb-3 w-100">
+                        <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required
+                            data-parsley-required-message="Please enter your email address."
+                            data-parsley-type="email"
+                            data-parsley-type-message="Please enter a valid email address."
+                            data-parsley-trigger="change" aria-label="Owner Email Address">
+                    </div>
                 </div>
             </div>
         </div>
@@ -200,19 +294,34 @@
         <!-- Button to add more coworking spaces -->
         <button type="button" class="btn btn-primary mb-3" onclick="addSpaceDetails()"> Add Coworking Space</button>
 
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center my-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p>Submitting your information...</p>
+        </div>
+
         <!-- Submit Button -->
-        <button type="submit" class="btn centered-button">Submit</button>
+        <button type="submit" class="btn centered-button" id="submitButton">Submit</button>
 
     </form>
 </div>
 
+<!-- jQuery (Required for Parsley.js if using older versions; optional for newer setups) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Parsley JS -->
+<script src="https://cdn.jsdelivr.net/npm/parsleyjs"></script>
+
 <!-- Bootstrap JS (for components like modals, if needed) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- JavaScript to handle dynamic form sections -->
+<!-- JavaScript to handle dynamic form sections and Parsley validation -->
 <script>
     let spaceCount = 0;
 
+    // Function to add a coworking space section
     function addSpaceDetails() {
         spaceCount++;
 
@@ -223,7 +332,7 @@
         spaceCard.innerHTML = `
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Stage 2: Coworking Space Details (${spaceCount})</span>
-                <button type="button" class="delete-button" onclick="removeSpaceDetails(this)">&times;</button>
+                <button type="button" class="delete-button" onclick="removeSpaceDetails(this)" title="Remove this coworking space">&times;</button>
             </div>
             <div class="card-body">
                 <!-- Hidden input to keep track of space indices -->
@@ -231,15 +340,31 @@
 
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
-                    <input type="text" class="form-control" name="city[]" placeholder="City" required>
-                    <input type="text" class="form-control" name="micromarket[]" placeholder="Micromarket" required>
+                    <div class="mb-3 w-100">
+                        <input type="text" class="form-control" name="city[]" placeholder="City" required
+                            data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City">
+                    </div>
+                    <div class="mb-3 w-100">
+                        <input type="text" class="form-control" name="micromarket[]" placeholder="Micromarket" required
+                            data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket">
+                    </div>
                 </div>
 
                 <!-- About Space -->
                 <h5>About Space</h5>
                 <div class="form-group mb-3">
-                    <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required>
-                    <input type="number" class="form-control" name="current_vacancy[]" placeholder="Current Vacancy" min="0" required>
+                    <div class="mb-3 w-100">
+                        <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required
+                            data-parsley-required-message="Please enter the total number of seats."
+                            data-parsley-type="number"
+                            data-parsley-trigger="change" aria-label="Total Seats">
+                    </div>
+                    <div class="mb-3 w-100">
+                        <input type="number" class="form-control" name="current_vacancy[]" placeholder="Current Vacancy" min="0" required
+                            data-parsley-required-message="Please enter the current vacancy."
+                            data-parsley-type="number"
+                            data-parsley-trigger="change" aria-label="Current Vacancy">
+                    </div>
                 </div>
 
                 <!-- Inventory Breakup -->
@@ -253,7 +378,8 @@
                 <h5>Upload Layouts or Images</h5>
                 <p class="file-format-note">Only JPG, JPEG, and PNG files are allowed. You can upload multiple images.</p>
                 <div class="mb-3">
-                    <input type="file" class="form-control" name="layout_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple onchange="previewImages(event, ${spaceCount})">
+                    <input type="file" class="form-control" name="layout_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple onchange="previewImages(event, ${spaceCount})" required
+                        data-parsley-required-message="Please upload at least one image." data-parsley-trigger="change" aria-label="Upload Layouts or Images">
                 </div>
                 <div id="imagePreview_${spaceCount}" class="d-flex flex-wrap">
                     <!-- Image previews will be displayed here -->
@@ -262,15 +388,23 @@
         `;
         spaceDetailsContainer.appendChild(spaceCard);
 
-        // Initialize the inventory section
+        // Initialize the inventory section with one inventory item
         addInventory(spaceCount);
+
+        // Refresh Parsley to recognize new fields
+        $('#listSpaceForm').parsley().refresh();
     }
 
+    // Function to remove a coworking space section
     function removeSpaceDetails(button) {
         const spaceCard = button.closest('.card');
         spaceCard.remove();
+
+        // Refresh Parsley to exclude removed fields
+        $('#listSpaceForm').parsley().refresh();
     }
 
+    // Function to add an inventory item
     function addInventory(spaceId) {
         const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
 
@@ -281,37 +415,58 @@
         inventoryRow.innerHTML = `
 
             <h6>Inventory ${inventoryCount}</h6>
-    
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="removeInventory(this)"></button>
+
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="removeInventory(this)" title="Remove this inventory item"></button>
             <div class="form-group mb-3">
                 
-                <select class="form-select" name="inventory_type_${spaceId}[]" required>
-                    <option value="" disabled selected>Inventory Type</option>
-                    <option value="Hot desk">Hot desk</option>
-                    <option value="Fixed desk">Fixed desk</option>
-                    <option value="Manager Cabin">Manager Cabin</option>
-                    <option value="Team Suites">Team Suites</option>
-                    <option value="Meeting rooms">Meeting rooms</option>
-                    <option value="Conference rooms">Conference rooms</option>
-                    <option value="Gaming zones">Gaming zones</option>
-                    <option value="Discussion rooms">Discussion rooms</option>
-                </select>
-                <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required>
+                <div class="mb-3 w-100">
+                    <select class="form-select" name="inventory_type_${spaceId}[]" required
+                        data-parsley-required-message="Please select an inventory type." data-parsley-trigger="change" aria-label="Inventory Type">
+                        <option value="" disabled selected>Inventory Type</option>
+                        <option value="Hot desk">Hot desk</option>
+                        <option value="Fixed desk">Fixed desk</option>
+                        <option value="Manager Cabin">Manager Cabin</option>
+                        <option value="Team Suites">Team Suites</option>
+                        <option value="Meeting rooms">Meeting rooms</option>
+                        <option value="Conference rooms">Conference rooms</option>
+                        <option value="Gaming zones">Gaming zones</option>
+                        <option value="Discussion rooms">Discussion rooms</option>
+                    </select>
+                </div>
+                <div class="mb-3 w-100">
+                    <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required
+                        data-parsley-required-message="Please enter the number of inventory."
+                        data-parsley-type="number"
+                        data-parsley-trigger="change" aria-label="Number of Inventory">
+                </div>
             </div>
             <div class="form-group mb-3">
-                <input type="number" class="form-control" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required>
-                <!-- Placeholder input to maintain two per row layout -->
+                <div class="mb-3 w-100">
+                    <input type="number" class="form-control" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required
+                        data-parsley-required-message="Please enter the price per seat."
+                        data-parsley-type="number"
+                        data-parsley-trigger="change" aria-label="Price per Seat">
+                </div>
+                <!-- Placeholder div to maintain two per row layout -->
                 <div style="flex:1;"></div>
             </div>
         `;
         inventoryContainer.appendChild(inventoryRow);
+
+        // Refresh Parsley to recognize new fields
+        $('#listSpaceForm').parsley().refresh();
     }
 
+    // Function to remove an inventory item
     function removeInventory(button) {
-        const inventoryRow = button.closest('.border');
+        const inventoryRow = button.closest('.inventory-item');
         inventoryRow.remove();
+
+        // Refresh Parsley to exclude removed fields
+        $('#listSpaceForm').parsley().refresh();
     }
 
+    // Function to preview uploaded images
     function previewImages(event, spaceId) {
         const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
         imagePreviewContainer.innerHTML = '';
@@ -323,8 +478,8 @@
                 const imgContainer = document.createElement('div');
                 imgContainer.classList.add('preview-img-container');
                 imgContainer.innerHTML = `
-                    <img src="${e.target.result}" class="preview-img" data-bs-toggle="modal" data-bs-target="#imageModal_${spaceId}_${index}">
-                    <button type="button" class="delete-button" onclick="removeImage(${index}, ${spaceId})">&times;</button>
+                    <img src="${e.target.result}" class="preview-img" data-bs-toggle="modal" data-bs-target="#imageModal_${spaceId}_${index}" alt="Image Preview">
+                    <button type="button" class="delete-button" onclick="removeImage(${index}, ${spaceId})" title="Remove this image">&times;</button>
                 `;
 
                 // Append the image container to the preview
@@ -345,7 +500,7 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <img src="${e.target.result}" class="img-fluid">
+                                <img src="${e.target.result}" class="img-fluid" alt="Full Image">
                             </div>
                         </div>
                     </div>
@@ -358,10 +513,13 @@
         });
     }
 
+    // Function to remove image previews
     function removeImage(index, spaceId) {
         const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
         const imgToRemove = imagePreviewContainer.querySelectorAll('.preview-img-container')[index];
-        imgToRemove.remove();
+        if (imgToRemove) {
+            imgToRemove.remove();
+        }
 
         // Remove the corresponding modal
         const modalToRemove = document.getElementById(`imageModal_${spaceId}_${index}`);
@@ -370,6 +528,52 @@
         }
     }
 
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Parsley for the form
+        $('#listSpaceForm').parsley();
+
+        // Add one coworking space section when the page loads
+        addSpaceDetails();
+
+        // Optional: Customize Parsley error placement
+        $('#listSpaceForm').parsley().on('field:error', function() {
+            // Custom behavior on error if needed
+        }).on('field:success', function() {
+            // Custom behavior on success if needed
+        }).on('form:error', function() {
+            // Scroll to the first error field
+            const firstError = document.querySelector('.parsley-error');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        // Handle form submission to show loading spinner and prevent multiple submissions
+        document.getElementById('listSpaceForm').addEventListener('submit', function(e) {
+            const spaceDetailsContainer = document.getElementById('spaceDetailsContainer');
+
+            // Prevent form submission if no coworking space section is present
+            if (spaceDetailsContainer.children.length === 0) {
+                e.preventDefault();
+                alert("You must add at least one coworking space.");
+                return;
+            }
+
+            // Continue if Parsley validation passes
+            var form = $(this);
+            form.parsley().validate();
+
+            if (form.parsley().isValid()) {
+                // Show the loading spinner
+                document.getElementById('loadingSpinner').style.display = 'block';
+                // Disable the submit button to prevent multiple submissions
+                document.getElementById('submitButton').disabled = true;
+            } else {
+                // Prevent form submission if validation fails
+                e.preventDefault();
+            }
+        });
+    });
 </script>
 
 </body>
