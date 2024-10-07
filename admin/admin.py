@@ -93,43 +93,6 @@ def view_collection(collection_name):
 
     return render_template('view_collection.html', collection_name=collection_name, documents=documents)
 
-# Route to download binary files from MongoDB
-@admin_bp.route('/download_file/<collection_name>/<document_id>/<filename>')
-def download_file(collection_name, document_id, filename):
-    db = current_app.config['db']  # Access the database here
-    document = db[collection_name].find_one({'_id': ObjectId(document_id)})
-
-    if document and 'pdf_files' in document:
-        for file in document['pdf_files']:
-            if file['filename'] == filename:
-                # Use a default content_type if it's missing
-                content_type = file.get('content_type', 'application/octet-stream')
-                return send_file(BytesIO(file['data']),
-                                 download_name=filename,
-                                 as_attachment=True,
-                                 mimetype=content_type)
-
-    return redirect(url_for('admin.view_collection', collection_name=collection_name))
-
-# Route to download images from MongoDB
-@admin_bp.route('/download_image/<document_id>/<image_filename>')
-def download_image(document_id, image_filename):
-    db = current_app.config['db']
-    document = db.fillurdetails.find_one({'_id': ObjectId(document_id)})
-
-    if document and 'floors' in document:
-        for floor in document['floors']:
-            if floor['image_filename'] == image_filename:
-                # Use a default content_type if it's missing
-                content_type = floor.get('content_type', 'application/octet-stream')
-                return send_file(BytesIO(floor['image_data']),
-                                 download_name=image_filename,
-                                 as_attachment=True,
-                                 mimetype=content_type)
-
-    flash('Image not found.', 'error')
-    return redirect(url_for('admin.view_collection', collection_name='fillurdetails'))
-
 # Delete Document Route
 @admin_bp.route('/delete_document/<collection_name>/<document_id>', methods=['POST'])
 def delete_document(collection_name, document_id):
@@ -141,75 +104,7 @@ def delete_document(collection_name, document_id):
 
     return redirect(url_for('admin.view_collection', collection_name=collection_name))
 
-@admin_bp.route('/update_interactive_layout/<property_id>', methods=['POST'])
-def update_interactive_layout(property_id):
-    db = current_app.config['db']  # Access the database here
-
-    try:
-        # Find the property by its ID and update the interactive_layout field
-        db.fillurdetails.update_one(
-            {'_id': ObjectId(property_id)},
-            {'$set': {'interactive_layout': True}}
-        )
-        flash('Interactive layout updated successfully.', 'success')
-    except Exception as e:
-        flash(f"Error updating interactive layout: {e}", 'error')
-        print(f"Error updating interactive layout: {e}")  # Debugging step
-
-    return redirect(url_for('admin.leads_dashboard'))  # Redirect to leads_dashboard
-
-# Route to show "Manage Interactive Layout" page
-@admin_bp.route('/manage-interactive-layout', methods=['GET'])
-def manage_interactive_layout():
-    db = current_app.config['db']
-    # Fetch all properties that have floors or images that haven't been made interactive
-    properties = db.fillurdetails.find({'interactive_layout': False}, {'coworking_name': 1, 'floors': 1, '_id': 1})
-    return render_template('manage_interactive_layout.html', properties=properties)
-
-# Route to retrieve property images from MongoDB
-@admin_bp.route('/get_property_images/<property_id>', methods=['GET'])
-def get_property_images(property_id):
-    db = current_app.config['db']
-    # Fetch the images related to the property
-    property_data = db.fillurdetails.find_one({'_id': ObjectId(property_id)}, {'floors': 1})
-    if not property_data or 'floors' not in property_data:
-        return jsonify({'status': 'error', 'message': 'No images found'}), 404
-
-    images = [{'image_filename': floor['image_filename'], '_id': str(floor['_id'])} for floor in property_data['floors']]
-    return jsonify({'images': images})
-
-# Route to retrieve a specific image from MongoDB
-@admin_bp.route('/get_image/<image_id>', methods=['GET'])
-def get_image(image_id):
-    db = current_app.config['db']
-    # Fetch the specific image by its ID
-    floor = db.fillurdetails.find_one({'floors._id': ObjectId(image_id)}, {'floors.$': 1})
-    if not floor or 'floors' not in floor or len(floor['floors']) == 0:
-        return "Image not found", 404
-
-    image = floor['floors'][0]
-    return send_file(BytesIO(image['image_data']),
-                     mimetype=image.get('content_type', 'image/jpeg'),
-                     as_attachment=False,
-                     download_name=image.get('image_filename', 'floor_image.png'))
-
-# Route to save the interactive layout
-@admin_bp.route('/save_interactive_layout', methods=['POST'])
-def save_interactive_layout():
-    data = request.get_json()
-    image_id = data['imageId']
-    layout_json = data['layout']
-
-    # Update the specific floor document with the layout
-    db = current_app.config['db']
-    db.fillurdetails.update_one(
-        {'floors._id': ObjectId(image_id)},
-        {'$set': {'floors.$.layout_json': layout_json, 'floors.$.interactive_layout': True}}
-    )
-
-    return jsonify({'status': 'success'})
-
-
+# Updated view_leads function with 'city' and 'micromarket' instead of 'location' and 'area'
 @admin_bp.route('/leads', methods=['GET', 'POST'])
 def view_leads():
     if 'admin' not in session:
@@ -219,6 +114,8 @@ def view_leads():
 
     properties = db.properties.find()
     leads = []
+    cities_set = set()
+    micromarkets_set = set()
 
     for property_data in properties:
         user = db.users.find_one({'_id': property_data['user_id']})
@@ -231,9 +128,33 @@ def view_leads():
                     'property_id': property_data['_id'],
                     'opportunity_status': 'open',
                     'opportunity_stage': 'visit done',
-                    'notes': ''
+                    'notes': []  # Initialize as an empty list
                 }
                 db.leads_status.insert_one(lead_status)
+
+            # Ensure 'notes' is a list
+            if isinstance(lead_status.get('notes', []), str):
+                lead_status['notes'] = [{"text": lead_status['notes'], "timestamp": "N/A"}]
+                db.leads_status.update_one(
+                    {'user_id': property_data['user_id'], 'property_id': property_data['_id']},
+                    {'$set': {'notes': lead_status['notes']}}
+                )
+            elif not isinstance(lead_status.get('notes', []), list):
+                lead_status['notes'] = []
+                db.leads_status.update_one(
+                    {'user_id': property_data['user_id'], 'property_id': property_data['_id']},
+                    {'$set': {'notes': lead_status['notes']}}
+                )
+
+            # Retrieve 'city' and 'micromarket' instead of 'location' and 'area'
+            city = property_data.get('city', 'N/A')
+            micromarket = property_data.get('micromarket', 'N/A')
+
+            # Collect unique cities and micromarkets for dropdown options (optional)
+            if city != 'N/A':
+                cities_set.add(city)
+            if micromarket != 'N/A':
+                micromarkets_set.add(micromarket)
 
             leads.append({
                 'lead_id': str(lead_status['user_id']),
@@ -242,16 +163,22 @@ def view_leads():
                 'user_company': user.get('company', 'Unknown'),
                 'user_email': user.get('email', 'N/A'),
                 'user_contact': user.get('contact', 'N/A'),
-                'property_location': property_data.get('location', 'N/A'),
+                'city': city,  # Updated field
+                'micromarket': micromarket,  # Added field
                 'property_seats': property_data.get('seats', 'N/A'),
                 'property_budget': property_data.get('budget', 'N/A'),
                 'opportunity_status': lead_status.get('opportunity_status', 'open'),
                 'opportunity_stage': lead_status.get('opportunity_stage', 'visit done'),
-                'notes': lead_status.get('notes', '')
+                'notes': lead_status.get('notes', [])
             })
 
-    return render_template('view_leads.html', leads=leads)
+    # Convert sets to sorted lists for dropdowns (if needed)
+    cities = sorted(list(cities_set))
+    micromarkets = sorted(list(micromarkets_set))
 
+    return render_template('view_leads.html', leads=leads, cities=cities, micromarkets=micromarkets)
+
+# Route to update lead fields
 @admin_bp.route('/update_lead', methods=['POST'])
 def update_lead():
     if 'admin' not in session:
@@ -263,17 +190,23 @@ def update_lead():
     field = data.get('field')
     value = data.get('value')
 
+    if not lead_id or not property_id or not field or value is None:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+
     db = current_app.config['db']
     
     # Update the leads_status collection with the new values
-    db.leads_status.update_one(
+    result = db.leads_status.update_one(
         {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
         {'$set': {field: value}}
     )
 
-    return jsonify({'status': 'success'})
+    if result.modified_count > 0:
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'No changes made'}), 200
 
-
+# Route to delete a lead
 @admin_bp.route('/delete_lead', methods=['POST'])
 def delete_lead():
     if 'admin' not in session:
@@ -283,15 +216,20 @@ def delete_lead():
     lead_id = data.get('lead_id')
     property_id = data.get('property_id')
 
+    if not lead_id or not property_id:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+
     db = current_app.config['db']
 
     # Delete from leads_status
-    db.leads_status.delete_one({'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)})
+    result = db.leads_status.delete_one({'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)})
     
-    # Delete the corresponding property
-    db.properties.delete_one({'_id': ObjectId(property_id)})
-
-    return jsonify({'status': 'success'})
+    if result.deleted_count > 0:
+        # Optionally delete the corresponding property
+        db.properties.delete_one({'_id': ObjectId(property_id)})
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Lead not found'}), 404
 
 # Route for Leads Dashboard
 @admin_bp.route('/leads_dashboard')
@@ -326,8 +264,17 @@ def leads_dashboard():
 
     # Count based on the opportunity_status and opportunity_stage
     for lead in leads_status:
-        status_counts[lead['opportunity_status']] += 1
-        stage_counts[lead['opportunity_stage']] += 1
+        status = lead.get('opportunity_status', 'open').lower()
+        if status in status_counts:
+            status_counts[status] += 1
+        else:
+            status_counts[status] = 1  # Handle unexpected statuses
+
+        stage = lead.get('opportunity_stage', 'visit done').lower()
+        if stage in stage_counts:
+            stage_counts[stage] += 1
+        else:
+            stage_counts[stage] = 1  # Handle unexpected stages
 
     # Preparing Plotly visualizations
 
@@ -343,7 +290,7 @@ def leads_dashboard():
     # KPI (Open Leads)
     kpi_open = go.Indicator(
         mode="number",
-        value=status_counts['open'],
+        value=status_counts.get('open', 0),
         title={"text": "Open Leads"},
         domain={'x': [0.5, 1], 'y': [0.7, 1]},
         number={'font': {'size': 40, 'color': '#1f77b4'}}
@@ -352,7 +299,7 @@ def leads_dashboard():
     # KPI (Closed Leads)
     kpi_closed = go.Indicator(
         mode="number",
-        value=status_counts['closed'],
+        value=status_counts.get('closed', 0),
         title={"text": "Closed Leads"},
         domain={'x': [0, 0.5], 'y': [0.4, 0.7]},
         number={'font': {'size': 40, 'color': '#ff7f0e'}}
@@ -361,7 +308,7 @@ def leads_dashboard():
     # KPI (Won Leads)
     kpi_won = go.Indicator(
         mode="number",
-        value=status_counts['won'],
+        value=status_counts.get('won', 0),
         title={"text": "Won Leads"},
         domain={'x': [0.5, 1], 'y': [0.4, 0.7]},
         number={'font': {'size': 40, 'color': '#2ca02c'}}
@@ -553,7 +500,7 @@ def fetch_listings():
     })
 
 
-# ---------------------------------------------------------Lead management------------------------------------------------------------------------------------
+# ---------------------------------------------------------Lead Management------------------------------------------------------------------------------------
 @admin_bp.route('/leads_management', methods=['GET'])
 def leads_management():
     if 'admin' not in session:
@@ -563,7 +510,7 @@ def leads_management():
     
     # Fetch all leads and their current opportunity stages
     leads = list(db.leads_status.find())
-
+    
     # Organize leads by stages (use lowercase keys to match the DB)
     stages = {
         'visit done': [],
@@ -577,9 +524,28 @@ def leads_management():
 
     for lead in leads:
         # Normalize opportunity stage to lowercase to match dictionary keys
-        stage = lead.get('opportunity_stage', '').lower()  
+        stage = lead.get('opportunity_stage', '').lower()
         user = db.users.find_one({'_id': lead['user_id']})
         
+        # Handle cases where user might not be found
+        if not user:
+            continue  # Skip this lead if user data is missing
+
+        # Ensure 'notes' is a list
+        notes = lead.get('notes', [])
+        if isinstance(notes, str):
+            notes = [{"text": notes, "timestamp": "N/A"}]
+            db.leads_status.update_one(
+                {'_id': lead['_id']},
+                {'$set': {'notes': notes}}
+            )
+        elif not isinstance(notes, list):
+            notes = []
+            db.leads_status.update_one(
+                {'_id': lead['_id']},
+                {'$set': {'notes': notes}}
+            )
+
         lead_data = {
             'lead_id': str(lead['user_id']),
             'property_id': str(lead['property_id']),
@@ -587,8 +553,8 @@ def leads_management():
             'user_company': user.get('company', 'Unknown'),
             'user_email': user.get('email', 'N/A'),
             'user_contact': user.get('contact', 'N/A'),
-            'opportunity_stage': lead['opportunity_stage'],
-            'notes': lead.get('notes', '')
+            'opportunity_stage': lead.get('opportunity_stage', 'visit done'),
+            'notes': notes
         }
 
         # Append lead to the appropriate stage in lowercase
@@ -606,20 +572,24 @@ def update_lead_stage():
 
     data = request.get_json()
     lead_id = data.get('lead_id')
+    property_id=data.get('property_id')
     new_stage = data.get('new_stage')
+
+    if not lead_id or not new_stage:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
 
     db = current_app.config['db']
     
     # Update the lead's opportunity_stage in the database
     result = db.leads_status.update_one(
-        {'user_id': ObjectId(lead_id)},
+        {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
         {'$set': {'opportunity_stage': new_stage}}
     )
 
     if result.modified_count > 0:
         return jsonify({'status': 'success'})
     else:
-        return jsonify({'status': 'error', 'message': 'Lead not updated'})
+        return jsonify({'status': 'error', 'message': 'Lead not updated'}), 400
 
 @admin_bp.route('/get_lead/<lead_id>', methods=['GET'])
 def get_lead(lead_id):
@@ -631,6 +601,24 @@ def get_lead(lead_id):
     lead = db.leads_status.find_one({'user_id': ObjectId(lead_id)})
     if lead:
         user = db.users.find_one({'_id': lead['user_id']})
+        if not user:
+            return jsonify({'status': 'error', 'message': 'User not found'}), 404
+
+        # Ensure 'notes' is a list
+        notes = lead.get('notes', [])
+        if isinstance(notes, str):
+            notes = [{"text": notes, "timestamp": "N/A"}]
+            db.leads_status.update_one(
+                {'_id': lead['_id']},
+                {'$set': {'notes': notes}}
+            )
+        elif not isinstance(notes, list):
+            notes = []
+            db.leads_status.update_one(
+                {'_id': lead['_id']},
+                {'$set': {'notes': notes}}
+            )
+
         return jsonify({
             'lead_id': str(lead['user_id']),
             'property_id': str(lead['property_id']),
@@ -639,8 +627,123 @@ def get_lead(lead_id):
             'user_email': user.get('email', 'N/A'),
             'user_contact': user.get('contact', 'N/A'),
             'opportunity_stage': lead.get('opportunity_stage', 'Visit Done'),
-            'notes': lead.get('notes', '')
+            'notes': notes
         })
+    else:
+        return jsonify({'status': 'error', 'message': 'Lead not found'}), 404
+
+
+# ---------------------------------------------------------Lead Management Enhancements------------------------------------------------------------------------------------
+
+@admin_bp.route('/add_lead_note', methods=['POST'])
+def add_lead_note():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    data = request.get_json()
+    lead_id = data.get('lead_id')
+    property_id = data.get('property_id')
+    note_text = data.get('note')
+    # Generate timestamp in desired format
+    timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")  # UTC time
+
+    if not lead_id or not property_id or not note_text :
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+
+    db = current_app.config['db']
+
+    # Construct the note object
+    note = {
+        'text': note_text,
+        'timestamp': timestamp  # Store in 'YYYY-MM-DD HH:MM:SS' format
+    }
+
+    # Ensure 'notes' is a list before pushing
+    lead = db.leads_status.find_one({'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)})
+    if not lead:
+        return jsonify({'status': 'error', 'message': 'Lead not found'}), 404
+
+    if isinstance(lead.get('notes'), str):
+        # Convert 'notes' to a list containing the existing string note
+        db.leads_status.update_one(
+            {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
+            {'$set': {'notes': [{'text': lead['notes'], 'timestamp': 'N/A'}]}}
+        )
+    
+    elif not isinstance(lead.get('notes'), list):
+        # If 'notes' is neither string nor list, initialize it as an empty list
+        db.leads_status.update_one(
+            {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
+            {'$set': {'notes': []}}
+        )
+
+    # Append the new note to the notes array
+    result = db.leads_status.update_one(
+        {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
+        {'$push': {'notes': note}}
+    )
+
+    if result.modified_count > 0:
+        return jsonify({'status': 'success', 'message': 'Note added successfully'}), 200
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to add note'}), 500
+
+@admin_bp.route('/get_lead_notes', methods=['GET'])
+def get_lead_notes():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    lead_id = request.args.get('lead_id')
+    property_id = request.args.get('property_id')
+
+    if not lead_id or not property_id:
+        return jsonify({'status': 'error', 'message': 'Lead ID and Property ID are required'}), 400
+
+    db = current_app.config['db']
+
+    lead = db.leads_status.find_one({'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)}, {'notes': 1, '_id': 0})
+
+    if lead:
+        notes = lead.get('notes', [])
+        if isinstance(notes, str):
+            # Convert 'notes' to a list containing the existing string note
+            notes = [{"text": notes, "timestamp": "N/A"}]
+            db.leads_status.update_one(
+                {'user_id': ObjectId(lead_id)},
+                {'$set': {'notes': notes}}
+            )
+        elif not isinstance(notes, list):
+            notes = []
+            db.leads_status.update_one(
+                {'user_id': ObjectId(lead_id)},
+                {'$set': {'notes': notes}}
+            )
+
+        # Function to parse timestamp with multiple formats
+        def parse_timestamp(ts):
+            if ts == "N/A":
+                return datetime.datetime.min
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%m/%d/%Y, %H:%M:%S"):
+                try:
+                    return datetime.datetime.strptime(ts, fmt)
+                except ValueError:
+                    continue
+            # If all formats fail, return minimum datetime
+            return datetime.datetime.min
+
+        # Sort notes by timestamp descending (latest first)
+        try:
+            sorted_notes = sorted(
+                notes, 
+                key=lambda x: parse_timestamp(x['timestamp']), 
+                reverse=True
+            )
+        except Exception as e:
+            # If sorting fails due to unexpected issues, return unsorted notes
+            print(f"Error sorting notes: {e}")
+            sorted_notes = notes
+
+        return jsonify({'status': 'success', 'notes': sorted_notes}), 200
     else:
         return jsonify({'status': 'error', 'message': 'Lead not found'}), 404
 
@@ -686,3 +789,38 @@ def coworking_details():
         return render_template('coworking_details.html', space=coworking_space)
     else:
         return "Coworking space not found", 404
+
+# ---------------------------------------------------------New Route to Update City and Micromarket------------------------------------------------------------------------------------
+
+@admin_bp.route('/update_property', methods=['POST'])
+def update_property():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    data = request.get_json()
+    property_id = data.get('property_id')
+    field = data.get('field')
+    value = data.get('value')
+
+    # Validate input
+    if not property_id or not field or value is None:
+        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
+
+    # Define allowed fields to prevent unauthorized updates
+    allowed_fields = ['city', 'micromarket']
+    if field not in allowed_fields:
+        return jsonify({'status': 'error', 'message': f'Field "{field}" is not allowed to be updated'}), 400
+
+    db = current_app.config['db']
+
+    try:
+        result = db.properties.update_one(
+            {'_id': ObjectId(property_id)},
+            {'$set': {field: value}}
+        )
+        if result.modified_count > 0:
+            return jsonify({'status': 'success', 'message': f'Property {field} updated successfully'}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'No changes made or property not found'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500

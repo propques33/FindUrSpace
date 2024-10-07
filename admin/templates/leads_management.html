@@ -6,7 +6,7 @@
     <title>Leads Management</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <style>
-        /* Styling for the lead stages and containers */
+        /* Existing Styles */
         .stages-container-wrapper {
             width: 100%;
             overflow-x: auto; /* Adds horizontal scroll */
@@ -40,8 +40,6 @@
             height: 100%; /* Ensure it takes the available space */
         }
 
-
-
         .lead-item {
             margin: 10px 0;
             padding: 8px;
@@ -54,6 +52,83 @@
         .stage h3 {
             text-align: center;
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 50px auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+            border-radius: 8px;
+            max-height: 80%;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .modal-header, .modal-footer {
+            padding: 10px;
+            text-align: right;
+        }
+
+        .modal-body {
+            padding: 10px;
+        }
+
+        .modal-body textarea {
+            width: 100%;
+            height: 100px;
+            resize: vertical;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .modal-body .notes-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .note-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .note-timestamp {
+            font-size: 0.8em;
+            color: #555;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -64,76 +139,47 @@
 
         <div class="stages-container-wrapper">
             <div class="stages-container">
-                <div class="stage" data-stage="visit done">
-                    <h3>Visit Done</h3>
-                    <div class="leads-list" id="visit-done">
-                        {% for lead in stages['visit done'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
+                {% for stage_key, stage_leads in stages.items() %}
+                <div class="stage" data-stage="{{ stage_key }}">
+                    <h3>{{ stage_key.replace('-', ' ').title() }}</h3>
+                    <div class="leads-list" id="{{ stage_key }}">
+                        {% for lead in stage_leads %}
+                        <div class="lead-item" id="{{ lead.lead_id }}" 
+                            data-lead-id="{{ lead.lead_id }}" 
+                            data-property-id="{{ lead.property_id }}"
+                            data-user-name="{{ lead.user_name }}" 
+                            data-user-company="{{ lead.user_company }}">
                             {{ lead.user_name }} ({{ lead.user_company }})
                         </div>
+
                         {% endfor %}
                     </div>
                 </div>
-                <div class="stage" data-stage="qualified">
-                    <h3>Qualified</h3>
-                    <div class="leads-list" id="qualified">
-                        {% for lead in stages['qualified'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
-                            {{ lead.user_name }} ({{ lead.user_company }})
-                        </div>
-                        {% endfor %}
-                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="leadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2>Lead Details</h2>
+            </div>
+            <div class="modal-body">
+                <h3 id="modal-lead-name"></h3>
+                <p><strong>Company:</strong> <span id="modal-lead-company"></span></p>
+                <h4>Add Note / Timeline</h4>
+                <textarea id="note-input" placeholder="Enter your note here..."></textarea>
+                <button id="save-note-btn">Save Note</button>
+                <h4>Existing Notes</h4>
+                <div class="notes-list" id="notes-list">
+                    <!-- Existing notes will be appended here -->
                 </div>
-                <div class="stage" data-stage="negotiation">
-                    <h3>Negotiation</h3>
-                    <div class="leads-list" id="negotiation">
-                        {% for lead in stages['negotiation'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
-                            {{ lead.user_name }} ({{ lead.user_company }})
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="stage" data-stage="won">
-                    <h3>Won</h3>
-                    <div class="leads-list" id="won">
-                        {% for lead in stages['won'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
-                            {{ lead.user_name }} ({{ lead.user_company }})
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="stage" data-stage="lost">
-                    <h3>Lost</h3>
-                    <div class="leads-list" id="lost">
-                        {% for lead in stages['lost'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
-                            {{ lead.user_name }} ({{ lead.user_company }})
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="stage" data-stage="follow-up">
-                    <h3>Follow-Up</h3>
-                    <div class="leads-list" id="follow-up">
-                        {% for lead in stages['follow-up'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
-                            {{ lead.user_name }} ({{ lead.user_company }})
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="stage" data-stage="unqualified">
-                    <h3>Unqualified</h3>
-                    <div class="leads-list" id="unqualified">
-                        {% for lead in stages['unqualified'] %}
-                        <div class="lead-item" id="{{ lead.lead_id }}">
-                            {{ lead.user_name }} ({{ lead.user_company }})
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-modal-btn">Close</button>
             </div>
         </div>
     </div>
@@ -148,6 +194,15 @@
                 lead.draggable = true;
                 lead.addEventListener('dragstart', function(e) {
                     e.dataTransfer.setData('text/plain', e.target.id);
+                });
+
+                // Add click event to open modal
+                lead.addEventListener('click', function(e) {
+                    const leadId = e.target.dataset.leadId;
+                    const propertyId = e.target.dataset.propertyId;
+                    const userName = e.target.dataset.userName;
+                    const userCompany = e.target.dataset.userCompany;
+                    openModal(leadId, propertyId, userName, userCompany);
                 });
             });
 
@@ -182,12 +237,130 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {
+                    if (data.status=='success') {
                         console.log('Lead stage updated successfully');
                     } else {
                         console.error('Error updating lead stage');
                     }
                 });
+            }
+
+            // Modal Functionality
+            const modal = document.getElementById('leadModal');
+            const closeModalSpan = document.querySelector('.close');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const saveNoteBtn = document.getElementById('save-note-btn');
+            const noteInput = document.getElementById('note-input');
+            const notesList = document.getElementById('notes-list');
+            let currentLeadId = null;
+
+            function openModal(leadId, property_id, userName, userCompany) {
+                currentLeadId = leadId;
+                currentPropertyId = property_id;
+                document.getElementById('modal-lead-name').innerText = userName;
+                document.getElementById('modal-lead-company').innerText = userCompany;
+                notesList.innerHTML = ''; // Clear previous notes
+                noteInput.value = ''; // Clear input
+
+                // Fetch existing notes
+                fetch(`/admin/get_lead_notes?lead_id=${leadId}&property_id=${property_id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status=='success' && data.notes.length > 0) {
+                            data.notes.forEach(note => {
+                                const noteDiv = document.createElement('div');
+                                noteDiv.classList.add('note-item');
+                                noteDiv.innerHTML = `<p>${note.note}</p><div class="note-timestamp">${formatIST(new Date(note.timestamp))}</div>`;
+                                notesList.appendChild(noteDiv);
+                            });
+                        } else {
+                            notesList.innerHTML = '<p>No notes available.</p>';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error fetching notes:', err);
+                        notesList.innerHTML = '<p>Error loading notes.</p>';
+                    });
+
+                modal.style.display = 'block';
+            }
+
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+
+            closeModalSpan.onclick = closeModal;
+            closeModalBtn.onclick = closeModal;
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    closeModal();
+                }
+            }
+
+            saveNoteBtn.addEventListener('click', function() {
+                const note = noteInput.value.trim();
+                if (note === '') {
+                    alert('Please enter a note.');
+                    return;
+                }
+
+                // Get current time in IST
+                const now = new Date();
+                const options = { timeZone: 'Asia/Kolkata', hour12: false };
+                const istTime = new Intl.DateTimeFormat('en-US', {
+                    ...options,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).format(now);
+
+                fetch('/admin/add_lead_note', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        lead_id: currentLeadId,
+                        property_id:currentPropertyId,
+                        note: note
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status=='success') {
+                        // Append the new note to the notes list
+                        const noteDiv = document.createElement('div');
+                        noteDiv.classList.add('note-item');
+                        noteDiv.innerHTML = `<p>${note}</p><div class="note-timestamp">${istTime}</div>`;
+                        notesList.appendChild(noteDiv);
+                        noteInput.value = ''; // Clear input
+                        console.log('Note added successfully');
+                    } else {
+                        alert('Error adding note.');
+                        console.error('Error adding note:', data.message);
+                    }
+                })
+                .catch(err => {
+                    alert('Error adding note.');
+                    console.error('Error:', err);
+                });
+            });
+
+            function formatIST(date) {
+                // Format date to IST
+                return new Intl.DateTimeFormat('en-GB', {
+                    timeZone: 'Asia/Kolkata',
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }).format(date);
             }
         });
     </script>

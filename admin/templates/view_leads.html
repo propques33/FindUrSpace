@@ -5,6 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leads</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        /* Add this style to hide the scrollbar while allowing horizontal scrolling */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        /* For WebKit browsers */
+        .table-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* For Firefox */
+        .table-container {
+            scrollbar-width: none; /* Firefox */
+        }
+
+        /* Optional: Improve table styling */
+        .leads-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leads-table th, .leads-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .leads-table th {
+            background-color: #2f59b4;
+        }
+
+        .action-button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
     <script>
         // Function to update lead data via AJAX
         function updateLead(lead_id, property_id, field, value) {
@@ -17,6 +65,19 @@
                 field: field,
                 value: value
             }));
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.status === 'success') {
+                        alert('Lead updated successfully.');
+                    } else {
+                        alert('Error updating lead: ' + response.message);
+                    }
+                } else {
+                    alert('An error occurred while updating the lead.');
+                }
+            }
         }
 
         // Function to delete a lead via AJAX
@@ -31,8 +92,16 @@
                 }));
                 xhr.onload = function() {
                     if (xhr.status === 200) {
-                        // Reload the page after successful deletion
-                        location.reload();
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.status === 'success') {
+                            alert('Lead deleted successfully.');
+                            // Reload the page after successful deletion
+                            location.reload();
+                        } else {
+                            alert('Error deleting lead: ' + response.message);
+                        }
+                    } else {
+                        alert('An error occurred while deleting the lead.');
                     }
                 }
             }
@@ -47,66 +116,62 @@
     <div class="content">
         <h1>Leads</h1>
 
-        <div class="button-container">
-            <button class="switch-btn" onclick="window.location.href='{{ url_for('admin.leads_dashboard') }}'">
-                View Leads Dashboard
-            </button>
-        </div>
-
-        <table class="leads-table">
-            <thead>
+        <div class="table-container">
+            <table class="leads-table">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Company</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>City</th>
+                        <th>Micromarket</th>
+                        <th>Seats</th>
+                        <th>Budget</th>
+                        <th>Opportunity Status</th>
+                        <th>Opportunity Stage</th>
+                        <!-- Removed "Notes by Bot" column -->
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for lead in leads %}
                 <tr>
-                    <th>User Name</th>
-                    <th>Company</th>
-                    <th>Email</th>
-                    <th>Contact</th>
-                    <th>Location</th>
-                    <th>Seats</th>
-                    <th>Budget</th>
-                    <th>Opportunity Status</th>
-                    <th>Opportunity Stage</th>
-                    <th>Notes by Bot</th>
-                    <th>Actions</th>
+                    <td>{{ lead.user_name }}</td>
+                    <td>{{ lead.user_company }}</td>
+                    <td>{{ lead.user_email }}</td>
+                    <td>{{ lead.user_contact }}</td>
+                    <td>{{ lead.city }}</td>
+                    <td>{{ lead.micromarket }}</td>
+                    <td>{{ lead.property_seats }}</td>
+                    <td>{{ lead.property_budget }}</td>
+                    <td>
+                        <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_status', this.value)">
+                            <option value="open" {% if lead.opportunity_status == 'open' %}selected{% endif %}>Open</option>
+                            <option value="closed" {% if lead.opportunity_status == 'closed' %}selected{% endif %}>Closed</option>
+                            <option value="won" {% if lead.opportunity_status == 'won' %}selected{% endif %}>Won</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_stage', this.value)">
+                            <option value="visit done" {% if lead.opportunity_stage == 'visit done' %}selected{% endif %}>Visit Done</option>
+                            <option value="qualified" {% if lead.opportunity_stage == 'qualified' %}selected{% endif %}>Qualified</option>
+                            <option value="follow-up" {% if lead.opportunity_stage == 'follow-up' %}selected{% endif %}>Follow-Up</option>
+                            <option value="negotiation" {% if lead.opportunity_stage == 'negotiation' %}selected{% endif %}>Negotiation</option>
+                            <option value="won" {% if lead.opportunity_stage == 'won' %}selected{% endif %}>Won</option>
+                            <option value="lost" {% if lead.opportunity_stage == 'lost' %}selected{% endif %}>Lost</option>
+                            <option value="unqualified" {% if lead.opportunity_stage == 'unqualified' %}selected{% endif %}>Unqualified</option>
+                        </select>
+                    </td>
+                    <!-- Removed "Notes by Bot" textarea -->
+                    <td>
+                        <button class="action-button delete-btn" onclick="deleteLead('{{ lead.lead_id }}', '{{ lead.property_id }}')">Delete</button>
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-            {% for lead in leads %}
-            <tr>
-                <td>{{ lead.user_name }}</td>
-                <td>{{ lead.user_company }}</td>
-                <td>{{ lead.user_email }}</td>
-                <td>{{ lead.user_contact }}</td>
-                <td>{{ lead.property_location }}</td>
-                <td>{{ lead.property_seats }}</td>
-                <td>{{ lead.property_budget }}</td>
-                <td>
-                    <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_status', this.value)">
-                        <option value="open" {% if lead.opportunity_status == 'open' %}selected{% endif %}>Open</option>
-                        <option value="closed" {% if lead.opportunity_status == 'closed' %}selected{% endif %}>Closed</option>
-                        <option value="won" {% if lead.opportunity_status == 'won' %}selected{% endif %}>Won</option>
-                    </select>
-                </td>
-                <td>
-                    <select onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'opportunity_stage', this.value)">
-                        <option value="visit done" {% if lead.opportunity_stage == 'visit done' %}selected{% endif %}>Visit Done</option>
-                        <option value="qualified" {% if lead.opportunity_stage == 'qualified' %}selected{% endif %}>Qualified</option>
-                        <option value="follow-up" {% if lead.opportunity_stage == 'follow-up' %}selected{% endif %}>Follow-Up</option>
-                        <option value="negotiation" {% if lead.opportunity_stage == 'negotiation' %}selected{% endif %}>Negotiation</option>
-                        <option value="won" {% if lead.opportunity_stage == 'won' %}selected{% endif %}>Won</option>
-                        <option value="lost" {% if lead.opportunity_stage == 'lost' %}selected{% endif %}>Lost</option>
-                        <option value="unqualified" {% if lead.opportunity_stage == 'unqualified' %}selected{% endif %}>Unqualified</option>
-                    </select>
-                </td>
-                <td>
-                    <textarea onchange="updateLead('{{ lead.lead_id }}', '{{ lead.property_id }}', 'notes', this.value)">{{ lead.notes }}</textarea>
-                </td>
-                <td>
-                    <button class="action-button delete-btn" onclick="deleteLead('{{ lead.lead_id }}', '{{ lead.property_id }}')">Delete</button>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </body>

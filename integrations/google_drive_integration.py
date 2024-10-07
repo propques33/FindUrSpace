@@ -102,7 +102,7 @@ def send_pdf_via_cunnekt(shareable_link, recipient_number):
                             "type": "document",
                             "document": {
                                 "link": shareable_link,
-                                "filename": "sample.pdf"  # Filename of the uploaded PDF
+                                "filename": "Your_Options.pdf"  # Filename of the uploaded PDF
                             }
                         }
                     ]
