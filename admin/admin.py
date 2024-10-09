@@ -112,7 +112,7 @@ def view_leads():
 
     db = current_app.config['db']
 
-    properties = db.properties.find()
+    properties = db.properties.find().sort('date', -1)
     leads = []
     cities_set = set()
     micromarkets_set = set()
@@ -765,7 +765,7 @@ def fetch_inventory():
     fillurdetails_collection = db['fillurdetails']
 
     # Fetch coworking space data without pagination
-    coworking_list = list(fillurdetails_collection.find({}, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0, 'date': 0}))
+    coworking_list = list(fillurdetails_collection.find({}, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0, 'date': 0}).sort('date',-1))
 
     # Return the data as JSON
     return jsonify({
