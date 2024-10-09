@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory
+from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory, redirect, url_for
 from collections import defaultdict
 import datetime
 from core.email_handler import send_email_and_whatsapp_with_pdf
@@ -277,9 +277,16 @@ def list_your_space():
                 db.fillurdetails.insert_one(property_details)
 
             flash("Property details submitted successfully.", 'success')
+            
+            return redirect(url_for('core_bp.thank_you'))
 
         except Exception as e:
             flash(f"Failed to submit property details: {str(e)}", 'error')
             print(f"Error: {e}")
 
     return render_template('FillUrDetails.html')
+
+
+@core_bp.route('/thank-you')
+def thank_you():
+    return render_template('thank_you.html')
