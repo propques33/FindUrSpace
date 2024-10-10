@@ -120,6 +120,7 @@
             <table id="inventory-table">
                 <thead>
                     <tr>
+                        <th>Date</th>
                         <th>Owner Name</th>
                         <th>Coworking Name</th>
                         <th>Micromarket</th>
@@ -196,8 +197,15 @@
                 tableBody.innerHTML = '';  // Clear previous entries
 
                 data.forEach(space => {
+                    const formattedDate = new Date(space.date).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
+                        <td>${formattedDate || 'N/A'}</td>
                         <td>${space.owner.name}</td>
                         <td>${space.coworking_name}</td>
                         <td>${space.micromarket}</td>
@@ -212,6 +220,8 @@
                     tableBody.appendChild(row);
                 });
             }
+
+            
 
             // Display Modal with Details
             function displayModal(space) {

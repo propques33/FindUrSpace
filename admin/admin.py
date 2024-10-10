@@ -149,6 +149,7 @@ def view_leads():
             # Retrieve 'city' and 'micromarket' instead of 'location' and 'area'
             city = property_data.get('city', 'N/A')
             micromarket = property_data.get('micromarket', 'N/A')
+            date = property_data.get('date','N/A')
 
             # Collect unique cities and micromarkets for dropdown options (optional)
             if city != 'N/A':
@@ -165,6 +166,7 @@ def view_leads():
                 'user_contact': user.get('contact', 'N/A'),
                 'city': city,  # Updated field
                 'micromarket': micromarket,  # Added field
+                'date': date,
                 'property_seats': property_data.get('seats', 'N/A'),
                 'property_budget': property_data.get('budget', 'N/A'),
                 'opportunity_status': lead_status.get('opportunity_status', 'open'),
@@ -765,7 +767,7 @@ def fetch_inventory():
     fillurdetails_collection = db['fillurdetails']
 
     # Fetch coworking space data without pagination
-    coworking_list = list(fillurdetails_collection.find({}, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0, 'date': 0}).sort('date',-1))
+    coworking_list = list(fillurdetails_collection.find({}, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0}).sort('date',-1))
 
     # Return the data as JSON
     return jsonify({

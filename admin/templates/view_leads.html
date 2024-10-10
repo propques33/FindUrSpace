@@ -35,6 +35,7 @@
 
         .leads-table th {
             background-color: #2f59b4;
+            color: white;
         }
 
         .action-button {
@@ -120,6 +121,7 @@
             <table class="leads-table">
                 <thead>
                     <tr>
+                        <th>Date</th>
                         <th>User Name</th>
                         <th>Company</th>
                         <th>Email</th>
@@ -130,13 +132,14 @@
                         <th>Budget</th>
                         <th>Opportunity Status</th>
                         <th>Opportunity Stage</th>
-                        <!-- Removed "Notes by Bot" column -->
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for lead in leads %}
                 <tr>
+                    <!-- Format the date using Jinja2 to display only the date in the format DD Mon YYYY -->
+                    <td>{{ lead.date.strftime('%d %b %Y') }}</td>
                     <td>{{ lead.user_name }}</td>
                     <td>{{ lead.user_company }}</td>
                     <td>{{ lead.user_email }}</td>
@@ -163,7 +166,6 @@
                             <option value="unqualified" {% if lead.opportunity_stage == 'unqualified' %}selected{% endif %}>Unqualified</option>
                         </select>
                     </td>
-                    <!-- Removed "Notes by Bot" textarea -->
                     <td>
                         <button class="action-button delete-btn" onclick="deleteLead('{{ lead.lead_id }}', '{{ lead.property_id }}')">Delete</button>
                     </td>
