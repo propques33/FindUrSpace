@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, render_template, request, redirect, url_for, session, send_file, current_app, flash
 import datetime
+import threading
 from bson import ObjectId
 from io import BytesIO
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+from core.email_handler import send_email_and_whatsapp_with_pdf
 
 # Blueprint definition
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates')
@@ -13,6 +15,47 @@ admin_credentials = {
     "project.propques@gmail.com": "Prop@11@@33",
     "buzz@propques.com": "Prop@11@@33"
 }
+
+# Helper function to send the email and WhatsApp with app context
+def send_email_and_whatsapp_background(app, email, mobile, selected_properties):
+    with app.app_context():  # Set up the app context
+        try:
+            success, error = send_email_and_whatsapp_with_pdf(email, None, mobile, selected_properties)
+            if success:
+                print("Email and WhatsApp sent successfully.")
+            else:
+                print(f"Failed to send: {error}")
+        except Exception as e:
+            print(f"Error in sending email and WhatsApp: {e}")
+
+@admin_bp.route('/send_selected_properties', methods=['POST'])
+def send_selected_properties():
+    data = request.get_json()
+    email = data.get('email')
+    mobile = data.get('mobile')
+    selected_property_ids = data.get('selectedProperties')
+
+    if not selected_property_ids or not email:
+        return jsonify({'status': 'error', 'message': 'Missing required information'})
+
+    db = current_app.config['db']
+
+    # Fetch the details of the selected coworking spaces from the database
+    selected_properties = list(db.coworking_spaces.find({
+        '_id': {'$in': [ObjectId(id) for id in selected_property_ids]}
+    }))
+
+    if not selected_properties:
+        return jsonify({'status': 'error', 'message': 'No properties found'})
+
+    # Send email and WhatsApp (PDF logic already implemented in email_handler.py)
+    app = current_app._get_current_object()
+    email_thread = threading.Thread(target=send_email_and_whatsapp_background, args=(app, email, mobile, selected_properties))
+    email_thread.start()
+
+    return jsonify({'status': 'success', 'message': 'Email sent successfully'})
+
+
 
 # Admin Login Route
 @admin_bp.route('/login', methods=['GET', 'POST'])

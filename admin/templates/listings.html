@@ -26,6 +26,67 @@
         tr:hover {
             background-color: #f5f5f5;
         }
+        .send-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            z-index: 1000;
+            width: 350px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .modal h3 {
+            margin-bottom: 20px;
+        }
+        .modal label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .modal input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            color: #ff0000;
+        }
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
     </style>
 </head>
 <body>
@@ -67,19 +128,19 @@
             <table>
                 <thead>
                     <tr>
+                        <th>Select</th>
                         <th>City</th>
                         <th>Micromarket</th>
                         <th>Price</th>
-                        <th>Seats Available</th>
                     </tr>
                 </thead>
                 <tbody id="listings-body">
                     {% for space in coworking_list %}
                     <tr>
+                        <td><input type="checkbox" class="select-property" data-property-id="{{ space._id }}"></td>
                         <td>{{ space.city }}</td>
                         <td>{{ space.micromarket }}</td>
                         <td>{{ space.price }}</td>
-                        <td>{{ space.seats }}</td>
                     </tr>
                     {% else %}
                     <tr>
@@ -99,6 +160,24 @@
                 <a href="#" id="next-page">Next &raquo;</a>
             {% endif %}
         </div>
+
+        <!-- Send Button -->
+        <button id="send-btn" class="send-btn">Send</button>
+
+    </div>
+
+    <!-- Modal for Email and Mobile Input -->
+    <div id="modal-backdrop" class="modal-backdrop"></div>
+    <div id="modal" class="modal">
+        <button class="close-btn">&times;</button>
+        <h3>Send to Email and WhatsApp</h3>
+        <form id="send-form">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <label for="mobile">Mobile:</label>
+            <input type="text" id="mobile" name="mobile" required>
+            <button type="submit" class="send-btn">Send</button>
+        </form>
     </div>
 
     <script>
@@ -106,35 +185,39 @@
             const cityDropdown = document.getElementById('city');
             const micromarketDropdown = document.getElementById('micromarket');
             const priceDropdown = document.getElementById('price');
-            const tableContainer = document.getElementById('table-container');
-
+            const sendButton = document.getElementById('send-btn');
+            const modal = document.getElementById('modal');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const sendForm = document.getElementById('send-form');
+            const closeModalButton = document.querySelector('.close-btn');
+    
             function fetchListings() {
                 const selectedCity = cityDropdown.value;
                 const selectedMicromarket = micromarketDropdown.value;
                 const selectedPrice = priceDropdown.value;
-
+    
                 let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&price=${encodeURIComponent(selectedPrice)}`;
-
+    
                 fetch(`/admin/fetch_listings?${query}`)
                     .then(response => response.json())
                     .then(data => {
                         const listingsBody = document.getElementById('listings-body');
                         listingsBody.innerHTML = '';
-
+    
                         if (data.coworking_list.length > 0) {
                             data.coworking_list.forEach(function (space) {
                                 const row = `<tr>
+                                    <td><input type="checkbox" class="select-property" data-property-id="${space._id}"></td>
                                     <td>${space.city}</td>
                                     <td>${space.micromarket}</td>
                                     <td>${space.price}</td>
-                                    <td>${space.seats}</td>
                                 </tr>`;
                                 listingsBody.insertAdjacentHTML('beforeend', row);
                             });
                         } else {
                             listingsBody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
                         }
-
+    
                         // Update Pagination if required
                         const paginationContainer = document.getElementById('pagination-container');
                         paginationContainer.innerHTML = ''; // Reset pagination
@@ -147,12 +230,12 @@
                     })
                     .catch(error => console.error('Error:', error));
             }
-
+    
             cityDropdown.addEventListener('change', function () {
                 const selectedCity = cityDropdown.value;
                 micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
                 priceDropdown.innerHTML = '<option value="">Select Price</option>';
-
+    
                 if (selectedCity !== "") {
                     // Fetch micromarkets for the selected city
                     fetch(`/admin/get_micromarkets/${encodeURIComponent(selectedCity)}`)
@@ -165,7 +248,7 @@
                                 micromarketDropdown.appendChild(option);
                             });
                         });
-
+    
                     // Fetch prices only when micromarket is also selected
                     micromarketDropdown.addEventListener('change', function () {
                         const selectedMicromarket = micromarketDropdown.value;
@@ -186,18 +269,80 @@
                 }
                 fetchListings(); // Fetch listings immediately after city is selected
             });
-
+    
             micromarketDropdown.addEventListener('change', function () {
                 fetchListings(); // Update listings when micromarket changes
             });
-
+    
             priceDropdown.addEventListener('change', function () {
                 fetchListings(); // Update listings when price changes
             });
-
+    
+            sendButton.addEventListener('click', function () {
+                const selectedProperties = Array.from(document.querySelectorAll('.select-property:checked'))
+                    .map(checkbox => checkbox.dataset.propertyId); // Collect selected property IDs
+    
+                if (selectedProperties.length === 0) {
+                    alert('Please select at least one property.');
+                    return;
+                }
+    
+                // Show modal for email and phone input
+                modal.style.display = 'block';
+                modalBackdrop.style.display = 'block';
+    
+                // Handle form submission after entering email and mobile number
+                sendForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const mobile = document.getElementById('mobile').value;
+    
+                    if (!email || !mobile) {
+                        alert('Please enter both email and mobile.');
+                        return;
+                    }
+    
+                    // Send selected properties, email, and mobile to the backend
+                    fetch('/admin/send_selected_properties', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            mobile: mobile,
+                            selectedProperties: selectedProperties
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert('Email sent successfully!');
+                            closeModal();
+                        } else {
+                            alert('Error sending email.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });
+    
+            modalBackdrop.addEventListener('click', function () {
+                closeModal();
+            });
+    
+            closeModalButton.addEventListener('click', function () {
+                closeModal();
+            });
+    
+            function closeModal() {
+                modal.style.display = 'none';
+                modalBackdrop.style.display = 'none';
+            }
+    
             // Initial load
             fetchListings();
         });
     </script>
-</body>
+    </body>
 </html>
