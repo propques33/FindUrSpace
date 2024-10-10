@@ -303,15 +303,15 @@ function setInitialScroll() {
     }
 }
 
-function scrollLeft() {
-    document.getElementById("cities-wrapper").scrollBy({
+function scrollLeftTrending() {
+    document.getElementById("trending-cities-wrapper").scrollBy({
         left: -300,
         behavior: "smooth"
     });
 }
 
-function scrollRight() {
-    document.getElementById("cities-wrapper").scrollBy({
+function scrollRightTrending() {
+    document.getElementById("trending-cities-wrapper").scrollBy({
         left: 300,
         behavior: "smooth"
     });

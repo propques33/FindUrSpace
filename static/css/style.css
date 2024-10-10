@@ -78,11 +78,11 @@ body {
 }
 
 .scroll-btn.left {
-    left: -20px; /* Adjust this as needed */
+    left: 10px; /* Adjust this as needed */
 }
 
 .scroll-btn.right {
-    right: -20px; /* Adjust this as needed */
+    right: 10px; /* Adjust this as needed */
 }
 
 .scroll-btn:hover {
