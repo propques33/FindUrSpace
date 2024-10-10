@@ -11,31 +11,22 @@
             margin-left: 250px; /* Adjust for the navbar width */
             padding: 20px;
         }
-        .container {
+        .kpi-container {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns */
+            grid-template-columns: repeat(5, 1fr); /* 5 equal columns for KPIs */
             grid-gap: 20px;
             margin: 20px auto;
+            width: calc(100% - 250px); /* Full width minus the navbar */
+        }
+        .individual-kpi {
+            margin-bottom: 20px;
         }
         .chart-container {
-            width: 100%;
-            height: 100%;
+            margin-top: 20px;
+            width: calc(100% - 250px); /* Full width minus the navbar */
         }
-        .button-container {
-            margin: 20px;
-            text-align: center;
-        }
-        .switch-button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .switch-button:hover {
-            background-color: #0056b3;
+        .chart-container h2 {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -45,26 +36,28 @@
 {% include 'navigation.html' %}
 
 <div class="content">
-    <!-- Single Leads Dashboard Heading -->
     <h1>Leads Dashboard</h1>
 
-    <div class="container">
-        <!-- KPI Cards -->
-        <div class="chart-container">
+    <!-- Separate KPI Containers -->
+    <div class="kpi-container">
+        {% for kpi_fig in kpi_figures %}
+        <div class="individual-kpi">
             {{ kpi_fig|safe }}
         </div>
-
-        <!-- Opportunity Status Pie Chart -->
-        <div class="chart-container">
-            {{ pie_fig|safe }}
-        </div>
-
-        <!-- Opportunity Stage Stacked Bar Chart -->
-        <div class="chart-container" style="grid-column: span 2;">
-            {{ bar_fig|safe }}
-        </div>
+        {% endfor %}
     </div>
 
+    <!-- Opportunity Stage Bar Chart (full width) -->
+    <div class="chart-container">
+        <h2>Opportunity Stage Distribution</h2>
+        {{ stage_bar_fig|safe }}
+    </div>
+
+    <!-- Live Inventory by City Bar Chart (full width) -->
+    <div class="chart-container">
+        <h2>Live Inventory by City</h2>
+        {{ city_bar_fig|safe }}
+    </div>
 </div>
 
 </body>

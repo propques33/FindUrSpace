@@ -3,6 +3,7 @@ import datetime
 from bson import ObjectId
 from io import BytesIO
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 # Blueprint definition
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates')
@@ -180,193 +181,119 @@ def view_leads():
 
     return render_template('view_leads.html', leads=leads, cities=cities, micromarkets=micromarkets)
 
-# Route to update lead fields
-@admin_bp.route('/update_lead', methods=['POST'])
-def update_lead():
-    if 'admin' not in session:
-        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
 
-    data = request.get_json()
-    lead_id = data.get('lead_id')
-    property_id = data.get('property_id')
-    field = data.get('field')
-    value = data.get('value')
-
-    if not lead_id or not property_id or not field or value is None:
-        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
-
-    db = current_app.config['db']
-    
-    # Update the leads_status collection with the new values
-    result = db.leads_status.update_one(
-        {'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)},
-        {'$set': {field: value}}
-    )
-
-    if result.modified_count > 0:
-        return jsonify({'status': 'success'})
-    else:
-        return jsonify({'status': 'error', 'message': 'No changes made'}), 200
-
-# Route to delete a lead
-@admin_bp.route('/delete_lead', methods=['POST'])
-def delete_lead():
-    if 'admin' not in session:
-        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
-
-    data = request.get_json()
-    lead_id = data.get('lead_id')
-    property_id = data.get('property_id')
-
-    if not lead_id or not property_id:
-        return jsonify({'status': 'error', 'message': 'Missing required fields'}), 400
-
-    db = current_app.config['db']
-
-    # Delete from leads_status
-    result = db.leads_status.delete_one({'user_id': ObjectId(lead_id), 'property_id': ObjectId(property_id)})
-    
-    if result.deleted_count > 0:
-        # Optionally delete the corresponding property
-        db.properties.delete_one({'_id': ObjectId(property_id)})
-        return jsonify({'status': 'success'})
-    else:
-        return jsonify({'status': 'error', 'message': 'Lead not found'}), 404
-
-# Route for Leads Dashboard
 @admin_bp.route('/leads_dashboard')
 def leads_dashboard():
     if 'admin' not in session:
         return redirect(url_for('admin.admin_login'))
 
     db = current_app.config['db']
-    
+
+    # Count of live inventory (all properties)
+    live_inventory_count = db.fillurdetails.count_documents({})
+
     # Fetch leads data from the 'leads_status' collection
     leads_status = db.leads_status.find()
 
     # Count total number of leads
     total_leads = db.leads_status.count_documents({})
 
-    # Aggregating opportunity status
-    status_counts = {
-        'open': 0,
-        'closed': 0,
-        'won': 0
-    }
-
+    # Aggregating opportunity status and stages
+    status_counts = {'open': 0, 'closed': 0, 'won': 0}
     stage_counts = {
-        'qualified': 0,
-        'follow-up': 0,
-        'visit done': 0,
-        'negotiation': 0,
-        'won': 0,
-        'lost': 0,
-        'unqualified': 0
+        'qualified': 0, 'follow-up': 0, 'visit done': 0,
+        'negotiation': 0, 'won': 0, 'lost': 0, 'unqualified': 0
     }
 
-    # Count based on the opportunity_status and opportunity_stage
     for lead in leads_status:
         status = lead.get('opportunity_status', 'open').lower()
-        if status in status_counts:
-            status_counts[status] += 1
-        else:
-            status_counts[status] = 1  # Handle unexpected statuses
+        status_counts[status] = status_counts.get(status, 0) + 1
 
         stage = lead.get('opportunity_stage', 'visit done').lower()
-        if stage in stage_counts:
-            stage_counts[stage] += 1
+        stage_counts[stage] = stage_counts.get(stage, 0) + 1
+
+    # Aggregating city-wise inventory count (convert city names to title case and normalize names)
+    city_inventory = db.fillurdetails.aggregate([
+        {"$group": {"_id": {"$toUpper": "$city"}, "count": {"$sum": 1}}}
+    ])
+    city_inventory_data = list(city_inventory)
+
+    # Convert city names to handle common names
+    city_name_mapping = {
+        "BANGALORE": "Bengaluru",
+        "GURGAON": "Gurugram"
+    }
+
+    city_inventory_normalized = []
+    for item in city_inventory_data:
+        city = item['_id'].title()
+        city = city_name_mapping.get(city.upper(), city)  # Use normalized name if available
+        found = next((i for i in city_inventory_normalized if i['_id'] == city), None)
+        if found:
+            found['count'] += item['count']
         else:
-            stage_counts[stage] = 1  # Handle unexpected stages
+            city_inventory_normalized.append({'_id': city, 'count': item['count']})
 
-    # Preparing Plotly visualizations
+    # Preparing KPI visualizations
+    kpi_figures = []
+    kpis = [
+        {"label": "Total Leads", "value": total_leads, "color": "#17becf"},
+        {"label": "Open Leads", "value": status_counts.get('open', 0), "color": "#1f77b4"},
+        {"label": "Closed Leads", "value": status_counts.get('closed', 0), "color": "#ff7f0e"},
+        {"label": "Won Leads", "value": status_counts.get('won', 0), "color": "#2ca02c"},
+        {"label": "Live Inventory", "value": live_inventory_count, "color": "#e377c2"}
+    ]
 
-    # KPI (Total Leads)
-    kpi_total = go.Indicator(
-        mode="number",
-        value=total_leads,
-        title={"text": "Total Leads"},
-        domain={'x': [0, 0.5], 'y': [0.7, 1]},
-        number={'font': {'size': 40, 'color': '#17becf'}},
-    )
+    for kpi in kpis:
+        kpi_fig = go.Figure(go.Indicator(
+            mode="number",
+            value=kpi['value'],
+            title={"text": kpi['label']},
+            number={'font': {'size': 40, 'color': kpi['color']}}
+        ))
+        kpi_fig.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200)
+        kpi_figures.append(kpi_fig.to_html(full_html=False))
 
-    # KPI (Open Leads)
-    kpi_open = go.Indicator(
-        mode="number",
-        value=status_counts.get('open', 0),
-        title={"text": "Open Leads"},
-        domain={'x': [0.5, 1], 'y': [0.7, 1]},
-        number={'font': {'size': 40, 'color': '#1f77b4'}}
-    )
-
-    # KPI (Closed Leads)
-    kpi_closed = go.Indicator(
-        mode="number",
-        value=status_counts.get('closed', 0),
-        title={"text": "Closed Leads"},
-        domain={'x': [0, 0.5], 'y': [0.4, 0.7]},
-        number={'font': {'size': 40, 'color': '#ff7f0e'}}
-    )
-
-    # KPI (Won Leads)
-    kpi_won = go.Indicator(
-        mode="number",
-        value=status_counts.get('won', 0),
-        title={"text": "Won Leads"},
-        domain={'x': [0.5, 1], 'y': [0.4, 0.7]},
-        number={'font': {'size': 40, 'color': '#2ca02c'}}
-    )
-
-    # Combine all KPI indicators into a single figure
-    kpi_fig = go.Figure(data=[kpi_total, kpi_open, kpi_closed, kpi_won])
-    kpi_fig.update_layout(
-        grid={'rows': 2, 'columns': 2, 'pattern': "independent"},
-        margin=dict(l=20, r=20, t=40, b=20),
-        height=400
-    )
-
-    # Pie Chart (Opportunity Status)
-    pie_fig = go.Figure(go.Pie(
-        labels=list(status_counts.keys()),
-        values=list(status_counts.values()),
-        title="Opportunity Status",
-        marker={'colors': ['#1f77b4', '#ff7f0e', '#2ca02c']}
-    ))
-
-    pie_fig.update_layout(
-        height=300,
-        margin=dict(l=20, r=20, t=40, b=20),
-        showlegend=True,
-    )
-
-    # Stacked Bar Chart (Opportunity Stages)
-    bar_fig = go.Figure()
-    bar_fig.add_trace(go.Bar(
+    # Bar Chart for Opportunity Stages
+    stage_bar_fig = go.Figure(go.Bar(
         x=list(stage_counts.keys()),
         y=list(stage_counts.values()),
-        name='Opportunity Stage',
         marker_color='rgb(55, 83, 109)'
     ))
-
-    bar_fig.update_layout(
-        title="Opportunity Stage Breakdown",
-        xaxis_tickfont_size=12,
-        yaxis=dict(
-            title='Number of Leads',
-            titlefont_size=14,
-            tickfont_size=12,
-        ),
-        barmode='stack',
-        bargap=0.15,  # gap between bars
-        bargroupgap=0.1,  # gap between grouped bars
-        height=300,
-        margin=dict(l=20, r=20, t=40, b=20)
+    stage_bar_fig.update_layout(
+        title='Opportunity Stage Distribution',
+        xaxis_title='Opportunity Stage',
+        yaxis_title='Count',
+        width=1200,
+        height=450,
+        margin=dict(l=40, r=40, t=60, b=40)
     )
 
-    # Render the dashboard template
-    return render_template('leads_dashboard.html', 
-                           kpi_fig=kpi_fig.to_html(full_html=False),
-                           pie_fig=pie_fig.to_html(full_html=False),
-                           bar_fig=bar_fig.to_html(full_html=False))
+    # Bar Chart for Live Inventory by City
+    city_names = [item['_id'] for item in city_inventory_normalized]
+    city_counts = [item['count'] for item in city_inventory_normalized]
+
+    city_bar_fig = go.Figure(go.Bar(
+        x=city_names,
+        y=city_counts,
+        marker_color='rgb(26, 118, 255)'
+    ))
+    city_bar_fig.update_layout(
+        title='Live Inventory by City',
+        xaxis_title='City',
+        yaxis_title='Inventory Count',
+        width=1200,
+        height=450,
+        margin=dict(l=40, r=40, t=60, b=40),
+    )
+
+    # Render the dashboard template with the new figures
+    return render_template(
+        'leads_dashboard.html',
+        kpi_figures=kpi_figures,
+        stage_bar_fig=stage_bar_fig.to_html(full_html=False),
+        city_bar_fig=city_bar_fig.to_html(full_html=False)
+    )
 
 
 # Fetching listings
