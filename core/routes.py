@@ -213,6 +213,9 @@ def list_your_space():
             owner_email = request.form.get('owner_email')
             coworking_name = request.form.get('coworking_name')
 
+            # Get where the user heard from us
+            hear_from = request.form.get('hear_from')
+
             print(f"Owner Info - Name: {name}, Phone: {owner_phone}, Email: {owner_email}, Coworking Name: {coworking_name}")
 
             # Get list of space indices
@@ -270,6 +273,7 @@ def list_your_space():
                     'inventory': inventory,
                     'layout_images': layout_image_links,
                     'interactive_layout': False,  # Set interactive_layout as False initially
+                    'hear_from': hear_from,
                     'date': datetime.datetime.now()
                 }
 

@@ -302,6 +302,32 @@
             <p>Submitting your information...</p>
         </div>
 
+
+        <!-- "Where did you hear from us?" Section -->
+        <div class="card">
+            <div class="card-header">
+                How Did You Hear About Us?
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <div class="mb-3 w-100">
+                        <label for="hear_from" class="form-label">Where did you hear from us?</label>
+                        <select class="form-select" id="hear_from" name="hear_from" required
+                            data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Where did you hear from us?">
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="Email campaigns">Email campaigns</option>
+                            <option value="WhatsApp campaigns">WhatsApp campaigns</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Calls">Calls</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <!-- Submit Button -->
         <button type="submit" class="btn centered-button" id="submitButton">Submit</button>
 
@@ -405,57 +431,74 @@
     }
 
     // Function to add an inventory item
-    function addInventory(spaceId) {
-        const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
+function addInventory(spaceId) {
+    const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
 
-        const inventoryCount = inventoryContainer.childElementCount + 1;
+    const inventoryCount = inventoryContainer.childElementCount + 1;
 
-        const inventoryRow = document.createElement('div');
-        inventoryRow.classList.add('border', 'p-3', 'mb-3', 'position-relative', 'inventory-item');
-        inventoryRow.innerHTML = `
+    const inventoryRow = document.createElement('div');
+    inventoryRow.classList.add('border', 'p-3', 'mb-3', 'position-relative', 'inventory-item');
+    inventoryRow.innerHTML = `
+        <h6>Inventory ${inventoryCount}</h6>
 
-            <h6>Inventory ${inventoryCount}</h6>
-
-            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="removeInventory(this)" title="Remove this inventory item"></button>
-            <div class="form-group mb-3">
-                
-                <div class="mb-3 w-100">
-                    <select class="form-select" name="inventory_type_${spaceId}[]" required
-                        data-parsley-required-message="Please select an inventory type." data-parsley-trigger="change" aria-label="Inventory Type">
-                        <option value="" disabled selected>Inventory Type</option>
-                        <option value="Hot desk">Hot desk</option>
-                        <option value="Fixed desk">Fixed desk</option>
-                        <option value="Manager Cabin">Manager Cabin</option>
-                        <option value="Team Suites">Team Suites</option>
-                        <option value="Meeting rooms">Meeting rooms</option>
-                        <option value="Conference rooms">Conference rooms</option>
-                        <option value="Gaming zones">Gaming zones</option>
-                        <option value="Discussion rooms">Discussion rooms</option>
-                    </select>
-                </div>
-                <div class="mb-3 w-100">
-                    <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required
-                        data-parsley-required-message="Please enter the number of inventory."
-                        data-parsley-type="number"
-                        data-parsley-trigger="change" aria-label="Number of Inventory">
-                </div>
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="removeInventory(this)" title="Remove this inventory item"></button>
+        <div class="form-group mb-3">
+            <div class="mb-3 w-100">
+                <select class="form-select" name="inventory_type_${spaceId}[]" required
+                    data-parsley-required-message="Please select an inventory type." data-parsley-trigger="change" aria-label="Inventory Type" onchange="handlePriceChange(this, ${spaceId}, ${inventoryCount})">
+                    <option value="" disabled selected>Inventory Type</option>
+                    <option value="Hot desk">Hot desk</option>
+                    <option value="Fixed desk">Fixed desk</option>
+                    <option value="Manager Cabin">Manager Cabin</option>
+                    <option value="Team Suites">Team Suites</option>
+                    <option value="Meeting rooms">Meeting rooms</option>
+                    <option value="Conference rooms">Conference rooms</option>
+                    <option value="Gaming zones">Gaming zones</option>
+                    <option value="Discussion rooms">Discussion rooms</option>
+                </select>
             </div>
-            <div class="form-group mb-3">
-                <div class="mb-3 w-100">
-                    <input type="number" class="form-control" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required
-                        data-parsley-required-message="Please enter the price per seat."
-                        data-parsley-type="number"
-                        data-parsley-trigger="change" aria-label="Price per Seat">
-                </div>
-                <!-- Placeholder div to maintain two per row layout -->
-                <div style="flex:1;"></div>
+            <div class="mb-3 w-100">
+                <input type="number" class="form-control" id="priceInput_${spaceId}_${inventoryCount}" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required
+                    data-parsley-required-message="Please enter the price per seat."
+                    data-parsley-type="number"
+                    data-parsley-trigger="change" aria-label="Price per Seat">
             </div>
-        `;
-        inventoryContainer.appendChild(inventoryRow);
+        </div>
+        <div class="form-group mb-3">
+            <div class="mb-3 w-100">
+                <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required
+                    data-parsley-required-message="Please enter the number of inventory."
+                    data-parsley-type="number"
+                    data-parsley-trigger="change" aria-label="Number of Inventory">
+            </div>
+            <!-- Placeholder div to maintain two per row layout -->
+            <div style="flex:1;"></div>
+        </div>
+    `;
+    inventoryContainer.appendChild(inventoryRow);
 
-        // Refresh Parsley to recognize new fields
-        $('#listSpaceForm').parsley().refresh();
+    // Refresh Parsley to recognize new fields
+    $('#listSpaceForm').parsley().refresh();
+}
+
+// Function to handle dynamic change for price input
+function handlePriceChange(selectElement, spaceId, inventoryCount) {
+    const selectedValue = selectElement.value;
+    const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
+
+    if (selectedValue === 'Conference rooms' || selectedValue === 'Discussion rooms') {
+        priceInput.placeholder = "Price per Hour";
+        priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per hour.');
+        priceInput.setAttribute('aria-label', 'Price per Hour');
+    } else {
+        priceInput.placeholder = "Price per Seat";
+        priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat.');
+        priceInput.setAttribute('aria-label', 'Price per Seat');
     }
+
+    // Refresh Parsley validation after changes
+    $('#listSpaceForm').parsley().refresh();
+}
 
     // Function to remove an inventory item
     function removeInventory(button) {
