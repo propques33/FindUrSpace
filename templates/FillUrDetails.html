@@ -4,7 +4,7 @@
     <!-- Meta Tags and Title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="List your property effortlessly on Findurspace. Reach potential tenants quickly with our easy-to-use platform for commercial and residential spaces.">
+    <meta description="List your property effortlessly on Findurspace. Reach potential tenants quickly with our easy-to-use platform for commercial and residential spaces.">
     <link rel="canonical" href="https://findurspace.tech/list-your-space" />
     <title>List Your Coworking Space - FindUrSpace</title>
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
@@ -248,10 +248,10 @@
         {% endif %}
     {% endwith %}
 
-    <h1 class="text-center mb-4">List Your Space</h1>
+    <h1 class="text-center mb-4">{{ 'Edit Your Space' if space else 'List Your Space' }}</h1>
 
-    <!-- Stage 1: Owner Information -->
-    <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') }}" method="post" enctype="multipart/form-data" data-parsley-validate>
+    <!-- Form: Owner Information and Coworking Space Details -->
+    <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') if not space else url_for('operators.edit_space', space_id=space['_id']) }}" method="post" enctype="multipart/form-data" data-parsley-validate>
         <div class="card">
             <div class="card-header">
                 Stage 1: Owner Information
@@ -260,16 +260,19 @@
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
+                            value="{{ space['coworking_name'] if space else '' }}"
                             data-parsley-required-message="Please enter the coworking space name." data-parsley-trigger="change" aria-label="Coworking Name">
                     </div>
                     <div class="mb-3 w-100">
                         <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required
+                            value="{{ space['owner']['name'] if space else '' }}"
                             data-parsley-required-message="Please enter your name." data-parsley-trigger="change" aria-label="Your Name">
                     </div>
                 </div>
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required
+                            value="{{ space['owner']['phone'] if space else '' }}"
                             data-parsley-required-message="Please enter your phone number."
                             data-parsley-pattern="^[0-9]{10}$"
                             data-parsley-pattern-message="Please enter a valid 10-digit phone number."
@@ -277,6 +280,7 @@
                     </div>
                     <div class="mb-3 w-100">
                         <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required
+                            value="{{ space['owner']['email'] if space else '' }}"
                             data-parsley-required-message="Please enter your email address."
                             data-parsley-type="email"
                             data-parsley-type-message="Please enter a valid email address."
@@ -291,8 +295,10 @@
             <!-- Dynamic coworking space entries will be appended here -->
         </div>
 
-        <!-- Button to add more coworking spaces -->
+        <!-- Button to add more coworking spaces (Hide when editing) -->
+        {% if not space %}
         <button type="button" class="btn btn-primary mb-3" onclick="addSpaceDetails()"> Add Coworking Space</button>
+        {% endif %}
 
         <!-- Loading Spinner -->
         <div id="loadingSpinner" class="text-center my-3">
@@ -314,13 +320,13 @@
                         <label for="hear_from" class="form-label">Where did you hear from us?</label>
                         <select class="form-select" id="hear_from" name="hear_from" required
                             data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Where did you hear from us?">
-                            <option value="" disabled selected>Select an option</option>
-                            <option value="Email campaigns">Email campaigns</option>
-                            <option value="WhatsApp campaigns">WhatsApp campaigns</option>
-                            <option value="Facebook">Facebook</option>
-                            <option value="Instagram">Instagram</option>
-                            <option value="Calls">Calls</option>
-                            <option value="Other">Other</option>
+                            <option value="" disabled {{ 'selected' if not space or not space.get('hear_from') else '' }}>Select an option</option>
+                            <option value="Email campaigns" {{ 'selected' if space and space.get('hear_from') == 'Email campaigns' else '' }}>Email campaigns</option>
+                            <option value="WhatsApp campaigns" {{ 'selected' if space and space.get('hear_from') == 'WhatsApp campaigns' else '' }}>WhatsApp campaigns</option>
+                            <option value="Facebook" {{ 'selected' if space and space.get('hear_from') == 'Facebook' else '' }}>Facebook</option>
+                            <option value="Instagram" {{ 'selected' if space and space.get('hear_from') == 'Instagram' else '' }}>Instagram</option>
+                            <option value="Calls" {{ 'selected' if space and space.get('hear_from') == 'Calls' else '' }}>Calls</option>
+                            <option value="Other" {{ 'selected' if space and space.get('hear_from') == 'Other' else '' }}>Other</option>
                         </select>
                     </div>
                 </div>
@@ -329,7 +335,7 @@
 
 
         <!-- Submit Button -->
-        <button type="submit" class="btn centered-button" id="submitButton">Submit</button>
+        <button type="submit" class="btn centered-button" id="submitButton">{{ 'Update Space' if space else 'Submit' }}</button>
 
     </form>
 </div>
@@ -347,18 +353,30 @@
 <script>
     let spaceCount = 0;
 
+    // Pass the 'space' data from the backend to JavaScript
+    var spaceData = {{ space | default(None) | tojson | safe }};
+
     // Function to add a coworking space section
-    function addSpaceDetails() {
+    function addSpaceDetails(spaceData = null) {
         spaceCount++;
 
         const spaceDetailsContainer = document.getElementById('spaceDetailsContainer');
 
         const spaceCard = document.createElement('div');
         spaceCard.classList.add('card');
+
+        // Pre-fill values if spaceData is provided
+        const city = spaceData ? spaceData['city'] || '' : '';
+        const micromarket = spaceData ? spaceData['micromarket'] || '' : '';
+        const total_seats = spaceData ? spaceData['total_seats'] || '' : '';
+        const current_vacancy = spaceData ? spaceData['current_vacancy'] || '' : '';
+
+        const inventoryList = spaceData ? spaceData['inventory'] || [] : [];
+
         spaceCard.innerHTML = `
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Stage 2: Coworking Space Details (${spaceCount})</span>
-                <button type="button" class="delete-button" onclick="removeSpaceDetails(this)" title="Remove this coworking space">&times;</button>
+                ${spaceData ? '' : '<button type="button" class="delete-button" onclick="removeSpaceDetails(this)" title="Remove this coworking space">&times;</button>'}
             </div>
             <div class="card-body">
                 <!-- Hidden input to keep track of space indices -->
@@ -368,10 +386,12 @@
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <input type="text" class="form-control" name="city[]" placeholder="City" required
+                            value="${city}"
                             data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City">
                     </div>
                     <div class="mb-3 w-100">
                         <input type="text" class="form-control" name="micromarket[]" placeholder="Micromarket" required
+                            value="${micromarket}"
                             data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket">
                     </div>
                 </div>
@@ -381,12 +401,14 @@
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required
+                            value="${total_seats}"
                             data-parsley-required-message="Please enter the total number of seats."
                             data-parsley-type="number"
                             data-parsley-trigger="change" aria-label="Total Seats">
                     </div>
                     <div class="mb-3 w-100">
                         <input type="number" class="form-control" name="current_vacancy[]" placeholder="Current Vacancy" min="0" required
+                            value="${current_vacancy}"
                             data-parsley-required-message="Please enter the current vacancy."
                             data-parsley-type="number"
                             data-parsley-trigger="change" aria-label="Current Vacancy">
@@ -404,7 +426,7 @@
                 <h5>Upload Layouts or Images</h5>
                 <p class="file-format-note">Only JPG, JPEG, and PNG files are allowed. You can upload multiple images.</p>
                 <div class="mb-3">
-                    <input type="file" class="form-control" name="layout_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple onchange="previewImages(event, ${spaceCount})" required
+                    <input type="file" class="form-control" name="layout_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple onchange="previewImages(event, ${spaceCount})" ${spaceData ? '' : 'required'}
                         data-parsley-required-message="Please upload at least one image." data-parsley-trigger="change" aria-label="Upload Layouts or Images">
                 </div>
                 <div id="imagePreview_${spaceCount}" class="d-flex flex-wrap">
@@ -414,10 +436,133 @@
         `;
         spaceDetailsContainer.appendChild(spaceCard);
 
-        // Initialize the inventory section with one inventory item
-        addInventory(spaceCount);
+        // Initialize the inventory section
+        if (inventoryList.length > 0) {
+            inventoryList.forEach((inventoryItem) => {
+                addInventory(spaceCount, inventoryItem);
+            });
+        } else {
+            addInventory(spaceCount);
+        }
+
+        // Display existing images if any
+        if (spaceData && spaceData['layout_images'] && spaceData['layout_images'].length > 0) {
+            const imagePreviewContainer = document.getElementById(`imagePreview_${spaceCount}`);
+            spaceData['layout_images'].forEach((imageUrl, index) => {
+                const imgContainer = document.createElement('div');
+                imgContainer.classList.add('preview-img-container');
+                imgContainer.innerHTML = `
+                    <img src="${imageUrl}" class="preview-img" data-bs-toggle="modal" data-bs-target="#existingImageModal_${spaceCount}_${index}" alt="Image Preview">
+                    <button type="button" class="delete-button" onclick="removeExistingImage(${spaceCount}, ${index})" title="Remove this image">&times;</button>
+                `;
+
+                // Append the image container to the preview
+                imagePreviewContainer.appendChild(imgContainer);
+
+                // Create the modal for magnification
+                const modal = document.createElement('div');
+                modal.classList.add('modal', 'fade');
+                modal.id = `existingImageModal_${spaceCount}_${index}`;
+                modal.setAttribute('tabindex', '-1');
+                modal.setAttribute('aria-labelledby', `existingImageModalLabel_${spaceCount}_${index}`);
+                modal.setAttribute('aria-hidden', 'true');
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="existingImageModalLabel_${spaceCount}_${index}">Image Preview</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="${imageUrl}" class="img-fluid" alt="Full Image">
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Append the modal to the body
+                document.body.appendChild(modal);
+            });
+        }
 
         // Refresh Parsley to recognize new fields
+        $('#listSpaceForm').parsley().refresh();
+    }
+
+    // Function to add an inventory item
+    function addInventory(spaceId, inventoryData = null) {
+        const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
+
+        const inventoryCount = inventoryContainer.childElementCount + 1;
+
+        // Pre-fill values if inventoryData is provided
+        const inventoryType = inventoryData ? inventoryData['type'] || '' : '';
+        const inventoryCountValue = inventoryData ? inventoryData['count'] || '' : '';
+        const pricePerSeat = inventoryData ? inventoryData['price_per_seat'] || '' : '';
+
+        const inventoryRow = document.createElement('div');
+        inventoryRow.classList.add('border', 'p-3', 'mb-3', 'position-relative', 'inventory-item');
+        inventoryRow.innerHTML = `
+            <h6>Inventory ${inventoryCount}</h6>
+
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="removeInventory(this)" title="Remove this inventory item"></button>
+            <div class="form-group mb-3">
+                <div class="mb-3 w-100">
+                    <select class="form-select" name="inventory_type_${spaceId}[]" required
+                        data-parsley-required-message="Please select an inventory type." data-parsley-trigger="change" aria-label="Inventory Type" onchange="handlePriceChange(this, ${spaceId}, ${inventoryCount})">
+                        <option value="" disabled ${!inventoryType ? 'selected' : ''}>Inventory Type</option>
+                        <option value="Hot desk" ${inventoryType === 'Hot desk' ? 'selected' : ''}>Hot desk</option>
+                        <option value="Fixed desk" ${inventoryType === 'Fixed desk' ? 'selected' : ''}>Fixed desk</option>
+                        <option value="Manager Cabin" ${inventoryType === 'Manager Cabin' ? 'selected' : ''}>Manager Cabin</option>
+                        <option value="Team Suites" ${inventoryType === 'Team Suites' ? 'selected' : ''}>Team Suites</option>
+                        <option value="Meeting rooms" ${inventoryType === 'Meeting rooms' ? 'selected' : ''}>Meeting rooms</option>
+                        <option value="Conference rooms" ${inventoryType === 'Conference rooms' ? 'selected' : ''}>Conference rooms</option>
+                        <option value="Gaming zones" ${inventoryType === 'Gaming zones' ? 'selected' : ''}>Gaming zones</option>
+                        <option value="Discussion rooms" ${inventoryType === 'Discussion rooms' ? 'selected' : ''}>Discussion rooms</option>
+                    </select>
+                </div>
+                <div class="mb-3 w-100">
+                    <input type="number" class="form-control" id="priceInput_${spaceId}_${inventoryCount}" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required
+                        value="${pricePerSeat}"
+                        data-parsley-required-message="Please enter the price per seat."
+                        data-parsley-type="number"
+                        data-parsley-trigger="change" aria-label="Price per Seat">
+                </div>
+            </div>
+            <div class="form-group mb-3">
+                <div class="mb-3 w-100">
+                    <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required
+                        value="${inventoryCountValue}"
+                        data-parsley-required-message="Please enter the number of inventory."
+                        data-parsley-type="number"
+                        data-parsley-trigger="change" aria-label="Number of Inventory">
+                </div>
+                <!-- Placeholder div to maintain two per row layout -->
+                <div style="flex:1;"></div>
+            </div>
+        `;
+        inventoryContainer.appendChild(inventoryRow);
+
+        // Refresh Parsley to recognize new fields
+        $('#listSpaceForm').parsley().refresh();
+    }
+
+    // Function to handle dynamic change for price input
+    function handlePriceChange(selectElement, spaceId, inventoryCount) {
+        const selectedValue = selectElement.value;
+        const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
+
+        if (selectedValue === 'Conference rooms' || selectedValue === 'Discussion rooms') {
+            priceInput.placeholder = "Price per Hour";
+            priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per hour.');
+            priceInput.setAttribute('aria-label', 'Price per Hour');
+        } else {
+            priceInput.placeholder = "Price per Seat";
+            priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat.');
+            priceInput.setAttribute('aria-label', 'Price per Seat');
+        }
+
+        // Refresh Parsley validation after changes
         $('#listSpaceForm').parsley().refresh();
     }
 
@@ -429,76 +574,6 @@
         // Refresh Parsley to exclude removed fields
         $('#listSpaceForm').parsley().refresh();
     }
-
-    // Function to add an inventory item
-function addInventory(spaceId) {
-    const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
-
-    const inventoryCount = inventoryContainer.childElementCount + 1;
-
-    const inventoryRow = document.createElement('div');
-    inventoryRow.classList.add('border', 'p-3', 'mb-3', 'position-relative', 'inventory-item');
-    inventoryRow.innerHTML = `
-        <h6>Inventory ${inventoryCount}</h6>
-
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="removeInventory(this)" title="Remove this inventory item"></button>
-        <div class="form-group mb-3">
-            <div class="mb-3 w-100">
-                <select class="form-select" name="inventory_type_${spaceId}[]" required
-                    data-parsley-required-message="Please select an inventory type." data-parsley-trigger="change" aria-label="Inventory Type" onchange="handlePriceChange(this, ${spaceId}, ${inventoryCount})">
-                    <option value="" disabled selected>Inventory Type</option>
-                    <option value="Hot desk">Hot desk</option>
-                    <option value="Fixed desk">Fixed desk</option>
-                    <option value="Manager Cabin">Manager Cabin</option>
-                    <option value="Team Suites">Team Suites</option>
-                    <option value="Meeting rooms">Meeting rooms</option>
-                    <option value="Conference rooms">Conference rooms</option>
-                    <option value="Gaming zones">Gaming zones</option>
-                    <option value="Discussion rooms">Discussion rooms</option>
-                </select>
-            </div>
-            <div class="mb-3 w-100">
-                <input type="number" class="form-control" id="priceInput_${spaceId}_${inventoryCount}" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required
-                    data-parsley-required-message="Please enter the price per seat."
-                    data-parsley-type="number"
-                    data-parsley-trigger="change" aria-label="Price per Seat">
-            </div>
-        </div>
-        <div class="form-group mb-3">
-            <div class="mb-3 w-100">
-                <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required
-                    data-parsley-required-message="Please enter the number of inventory."
-                    data-parsley-type="number"
-                    data-parsley-trigger="change" aria-label="Number of Inventory">
-            </div>
-            <!-- Placeholder div to maintain two per row layout -->
-            <div style="flex:1;"></div>
-        </div>
-    `;
-    inventoryContainer.appendChild(inventoryRow);
-
-    // Refresh Parsley to recognize new fields
-    $('#listSpaceForm').parsley().refresh();
-}
-
-// Function to handle dynamic change for price input
-function handlePriceChange(selectElement, spaceId, inventoryCount) {
-    const selectedValue = selectElement.value;
-    const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
-
-    if (selectedValue === 'Conference rooms' || selectedValue === 'Discussion rooms') {
-        priceInput.placeholder = "Price per Hour";
-        priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per hour.');
-        priceInput.setAttribute('aria-label', 'Price per Hour');
-    } else {
-        priceInput.placeholder = "Price per Seat";
-        priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat.');
-        priceInput.setAttribute('aria-label', 'Price per Seat');
-    }
-
-    // Refresh Parsley validation after changes
-    $('#listSpaceForm').parsley().refresh();
-}
 
     // Function to remove an inventory item
     function removeInventory(button) {
@@ -571,12 +646,34 @@ function handlePriceChange(selectElement, spaceId, inventoryCount) {
         }
     }
 
+    // Function to remove existing images (when editing)
+    function removeExistingImage(spaceId, index) {
+        // Implement functionality to mark the image for deletion
+        // For simplicity, we'll just remove it from the preview
+        const imagePreviewContainer = document.getElementById(`imagePreview_${spaceId}`);
+        const imgContainers = imagePreviewContainer.querySelectorAll('.preview-img-container');
+        if (imgContainers[index]) {
+            imgContainers[index].remove();
+        }
+
+        // Remove the corresponding modal
+        const modalToRemove = document.getElementById(`existingImageModal_${spaceId}_${index}`);
+        if (modalToRemove) {
+            modalToRemove.remove();
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Parsley for the form
         $('#listSpaceForm').parsley();
 
-        // Add one coworking space section when the page loads
-        addSpaceDetails();
+        // Initialize form with existing data if editing
+        if (spaceData) {
+            addSpaceDetails(spaceData);
+        } else {
+            // Add one coworking space section when the page loads
+            addSpaceDetails();
+        }
 
         // Optional: Customize Parsley error placement
         $('#listSpaceForm').parsley().on('field:error', function() {
