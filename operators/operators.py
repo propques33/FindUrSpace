@@ -50,4 +50,5 @@ def inventory():
         'owner.phone': operator['owner']['phone']
     })
     
-    return render_template('operators_inventory.html', inventory=inventory)
+    # Pass operator's name and inventory to the template
+    return render_template('operators_inventory.html', inventory=inventory, owner_name=operator['owner']['name'])

@@ -116,9 +116,22 @@
 
                 <!-- Details container -->
                 <div class="details-container">
-                    <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
-                    <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
-                    <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>City:</strong> {{ space['city'] }}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
+                        </div>
+                    </div>
 
                     <!-- Inventory Table -->
                     <table class="table inventory-table">
