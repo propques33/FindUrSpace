@@ -1,7 +1,6 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, current_app, flash
 from bson import ObjectId
 import datetime  # Import datetime for date handling
-import json
 from bson.json_util import dumps  # Import for handling BSON types
 
 # Define blueprint for operators
@@ -22,6 +21,22 @@ def operators_login():
         if operator:
             # Store operator's phone in session
             session['operator_phone'] = mobile
+            
+            # Check if an agreement exists for this operator, if not create one
+            existing_agreement = db.agreement.find_one({'operator_mobile': mobile})
+            if not existing_agreement:
+                new_agreement = {
+                    "operator_name": operator['owner']['name'],
+                    "operator_mobile": mobile,
+                    "operator_email": operator['owner']['email'],
+                    "coworking_name": operator['coworking_name'],
+                    "commission_rate": "10%",  # Fixed for now
+                    "signed": False,
+                    "sign_date": None,
+                    "signed_pdf_url": None
+                }
+                db.agreement.insert_one(new_agreement)
+            
             return redirect(url_for('operators.inventory'))
         else:
             return render_template('operators_login.html', error="Invalid mobile number")
@@ -64,6 +79,24 @@ def inventory():
     
     # Pass operator's name and inventory to the template
     return render_template('operators_inventory.html', inventory=inventory, owner_name=owner_name)
+
+
+@operators_bp.route('/show_agreement', methods=['GET'])
+def show_agreement():
+    if 'operator_phone' not in session:
+        return redirect(url_for('operators.operators_login'))
+
+    db = current_app.config['db']
+    operator_phone = session['operator_phone']
+    
+    # Fetch the agreement based on the operator's phone number
+    agreement = db.agreement.find_one({'operator_mobile': operator_phone})
+
+    if agreement:
+        return render_template('show_agreement.html', agreement=agreement)
+    else:
+        flash("No agreement found for this operator.")
+        return redirect(url_for('operators.inventory'))
 
 
 @operators_bp.route('/edit_space/<space_id>', methods=['GET', 'POST'])
@@ -184,4 +217,3 @@ def edit_space(space_id):
 
         # Render the FillUrDetails.html with pre-filled data
         return render_template('FillUrDetails.html', space=space)
-
