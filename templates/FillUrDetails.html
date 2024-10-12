@@ -250,6 +250,30 @@
 
     <h1 class="text-center mb-4">{{ 'Edit Your Space' if space else 'List Your Space' }}</h1>
 
+            <!-- "Where did you hear from us?" Section -->
+            <div class="card">
+                <div class="card-header">
+                    How Did You Hear About Us?
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <div class="mb-3 w-100">
+                            <label for="hear_from" class="form-label">Where did you hear from us?</label>
+                            <select class="form-select" id="hear_from" name="hear_from" required
+                                data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Where did you hear from us?">
+                                <option value="" disabled {{ 'selected' if not space or not space.get('hear_from') else '' }}>Select an option</option>
+                                <option value="Email campaigns" {{ 'selected' if space and space.get('hear_from') == 'Email campaigns' else '' }}>Email campaigns</option>
+                                <option value="WhatsApp campaigns" {{ 'selected' if space and space.get('hear_from') == 'WhatsApp campaigns' else '' }}>WhatsApp campaigns</option>
+                                <option value="Facebook" {{ 'selected' if space and space.get('hear_from') == 'Facebook' else '' }}>Facebook</option>
+                                <option value="Instagram" {{ 'selected' if space and space.get('hear_from') == 'Instagram' else '' }}>Instagram</option>
+                                <option value="Calls" {{ 'selected' if space and space.get('hear_from') == 'Calls' else '' }}>Calls</option>
+                                <option value="Other" {{ 'selected' if space and space.get('hear_from') == 'Other' else '' }}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
     <!-- Form: Owner Information and Coworking Space Details -->
     <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') if not space else url_for('operators.edit_space', space_id=space['_id']) }}" method="post" enctype="multipart/form-data" data-parsley-validate>
         <div class="card">
@@ -307,32 +331,6 @@
             </div>
             <p>Submitting your information...</p>
         </div>
-
-
-        <!-- "Where did you hear from us?" Section -->
-        <div class="card">
-            <div class="card-header">
-                How Did You Hear About Us?
-            </div>
-            <div class="card-body">
-                <div class="form-group mb-3">
-                    <div class="mb-3 w-100">
-                        <label for="hear_from" class="form-label">Where did you hear from us?</label>
-                        <select class="form-select" id="hear_from" name="hear_from" required
-                            data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Where did you hear from us?">
-                            <option value="" disabled {{ 'selected' if not space or not space.get('hear_from') else '' }}>Select an option</option>
-                            <option value="Email campaigns" {{ 'selected' if space and space.get('hear_from') == 'Email campaigns' else '' }}>Email campaigns</option>
-                            <option value="WhatsApp campaigns" {{ 'selected' if space and space.get('hear_from') == 'WhatsApp campaigns' else '' }}>WhatsApp campaigns</option>
-                            <option value="Facebook" {{ 'selected' if space and space.get('hear_from') == 'Facebook' else '' }}>Facebook</option>
-                            <option value="Instagram" {{ 'selected' if space and space.get('hear_from') == 'Instagram' else '' }}>Instagram</option>
-                            <option value="Calls" {{ 'selected' if space and space.get('hear_from') == 'Calls' else '' }}>Calls</option>
-                            <option value="Other" {{ 'selected' if space and space.get('hear_from') == 'Other' else '' }}>Other</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-
 
         <!-- Submit Button -->
         <button type="submit" class="btn centered-button" id="submitButton">{{ 'Update Space' if space else 'Submit' }}</button>

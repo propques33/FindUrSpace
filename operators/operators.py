@@ -2,9 +2,13 @@ from flask import Blueprint, request, session, redirect, url_for, render_templat
 from bson import ObjectId
 import datetime  # Import datetime for date handling
 from bson.json_util import dumps  # Import for handling BSON types
+import requests, os
 
 # Define blueprint for operators
 operators_bp = Blueprint('operators', __name__, url_prefix='/operators', template_folder='templates')
+
+ZOHO_CONTRACTS_API_URL = "https://contracts.zoho.com/api/v1/contracts"
+
 
 @operators_bp.route('/login', methods=['GET', 'POST'])
 def operators_login():
@@ -79,6 +83,158 @@ def inventory():
     
     # Pass operator's name and inventory to the template
     return render_template('operators_inventory.html', inventory=inventory, owner_name=owner_name)
+
+
+
+# Constants
+ZOHO_CONTRACTS_API_URL = "https://contracts.zoho.com/api/v1/contracts"
+ZOHO_CLIENT_ID = os.getenv('ZOHO_CLIENT_ID')
+ZOHO_CLIENT_SECRET = os.getenv('ZOHO_CLIENT_SECRET')
+ZOHO_REDIRECT_URI = os.getenv('ZOHO_REDIRECT_URI')
+ZOHO_AUTH_URL = 'https://accounts.zoho.com/oauth/v2/auth'
+ZOHO_TOKEN_URL = 'https://accounts.zoho.com/oauth/v2/token'
+ZOHO_SCOPES = 'ZohoContracts.contracts.ALL'
+
+
+@operators_bp.route('/zoho-auth')
+def zoho_auth():
+    auth_url = (f"{ZOHO_AUTH_URL}?client_id={ZOHO_CLIENT_ID}&response_type=code"
+                f"&scope={ZOHO_SCOPES}&redirect_uri={ZOHO_REDIRECT_URI}&access_type=offline")
+    return redirect(auth_url)
+
+@operators_bp.route('/callback')
+def zoho_callback():
+    authorization_code = request.args.get('code')
+    if not authorization_code:
+        return "Authorization code not provided.", 400
+
+    # Exchange authorization code for access token
+    token_response = requests.post(ZOHO_TOKEN_URL, data={
+        'grant_type': 'authorization_code',
+        'client_id': ZOHO_CLIENT_ID,
+        'client_secret': ZOHO_CLIENT_SECRET,
+        'redirect_uri': ZOHO_REDIRECT_URI,
+        'code': authorization_code
+    })
+
+    token_data = token_response.json()
+
+    if 'access_token' in token_data:
+        session['zoho_access_token'] = token_data['access_token']
+        session['zoho_refresh_token'] = token_data.get('refresh_token')
+        return redirect(url_for('core_bp.show_agreement'))  # Redirect after successful authentication
+    else:
+        return f"Failed to obtain access token: {token_data.get('error', 'Unknown error')}", 400
+
+def refresh_zoho_token():
+    refresh_token = session.get('zoho_refresh_token')
+    if not refresh_token:
+        return "No refresh token found."
+
+    token_response = requests.post(ZOHO_TOKEN_URL, data={
+        'grant_type': 'refresh_token',
+        'client_id': ZOHO_CLIENT_ID,
+        'client_secret': ZOHO_CLIENT_SECRET,
+        'refresh_token': refresh_token
+    })
+
+    token_data = token_response.json()
+
+    if 'access_token' in token_data:
+        session['zoho_access_token'] = token_data['access_token']
+        return token_data['access_token']
+    else:
+        return f"Error refreshing token: {token_data.get('error_description', 'Unknown error')}", 400
+
+
+# Function to create Zoho Contract
+def create_zoho_contract(operator_name, email, coworking_name, agreement_details):
+    # Get the access token from session
+    access_token = session.get('zoho_access_token')
+
+    # If no access token is found, redirect to OAuth
+    if not access_token:
+        return redirect(url_for('operators.zoho_auth'))
+
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+        'Content-Type': 'application/json',
+    }
+
+    # Define the contract data
+    contract_data = {
+        "template_id": "your_template_id",  # Zoho Contract Template ID, update with your actual template ID
+        "contract_title": f"Agreement with {coworking_name}",
+        "contract_type": "Standard Agreement",
+        "parties": [
+            {
+                "role": "Operator",
+                "name": operator_name,
+                "email": email
+            }
+        ],
+        "custom_fields": {
+            "commission_rate": agreement_details['commission_rate'],
+            "coworking_name": agreement_details['coworking_name'],
+        }
+    }
+
+    # Send the request to Zoho Contracts API
+    response = requests.post(ZOHO_CONTRACTS_API_URL, headers=headers, json=contract_data)
+
+    if response.status_code == 201:
+        contract_info = response.json()
+        return contract_info['contract_url']  # Return contract URL for signing
+    else:
+        print(f"Error creating contract: {response.text}")
+        return None
+
+# Route to send contract
+@operators_bp.route('/send_contract', methods=['GET'])
+def send_contract():
+    if 'operator_phone' not in session:
+        return redirect(url_for('operators.operators_login'))
+
+    db = current_app.config['db']
+    operator_phone = session['operator_phone']
+
+    # Fetch operator details
+    operator = db.fillurdetails.find_one({'owner.phone': operator_phone})
+    if not operator:
+        flash("Operator not found.")
+        return redirect(url_for('operators.inventory'))
+
+    # Fetch agreement details for the operator
+    agreement = db.agreement.find_one({'operator_mobile': operator_phone})
+    if not agreement:
+        flash("Agreement not found for this operator.")
+        return redirect(url_for('operators.inventory'))
+    
+    zoho_access_token= session.get('zoho_access_token')
+    if not zoho_access_token:
+        flash("Zoho access token is missing. Please authenticate again.")
+        return redirect(url_for('operators.zoho_auth'))
+
+    # Create Zoho contract for the operator
+    contract_url = create_zoho_contract(
+        operator_name=operator['owner']['name'],
+        email=operator['owner']['email'],
+        coworking_name=operator['coworking_name'],
+        agreement_details=agreement
+    )
+
+    if contract_url:
+        # Store contract URL in the agreement document
+        db.agreement.update_one(
+            {'operator_mobile': operator_phone},
+            {'$set': {'signed_pdf_url': contract_url}}
+        )
+
+        flash(f"Contract sent successfully. Please sign at: {contract_url}")
+    else:
+        flash("Failed to create contract.")
+
+    return redirect(url_for('operators.show_agreement'))
 
 
 @operators_bp.route('/show_agreement', methods=['GET'])

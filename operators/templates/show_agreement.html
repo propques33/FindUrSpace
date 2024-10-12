@@ -98,12 +98,12 @@
                         </div>
                     </div>
 
-                    <!-- Placeholder for the sign contract button -->
+                    <!-- Conditional button for signing or downloading the agreement -->
                     {% if not agreement.signed %}
                         <div class="text-center mt-4">
                             <p class="text-danger">You haven't signed the contract yet! Please sign it to proceed.</p>
-                            <!-- Placeholder button for future integration -->
-                            <button type="button" class="btn btn-primary" disabled>Sign the Contract (Feature coming soon)</button>
+                            <!-- Trigger Zoho Contracts OAuth for signing -->
+                            <a href="{{ url_for('operators.zoho_auth') }}" class="btn btn-primary">Sign the Contract</a>
                         </div>
                     {% else %}
                         <div class="mt-4 text-center">

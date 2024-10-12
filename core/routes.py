@@ -5,6 +5,9 @@ from core.email_handler import send_email_and_whatsapp_with_pdf
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 import threading
 import io
+import os
+import requests
+from dotenv import load_dotenv
 from integrations.gsheet_updater import handle_new_property_entry
 from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
 from core.image_upload import process_and_upload_images
