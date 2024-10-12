@@ -102,80 +102,77 @@
 <body>
     {% include 'operators_navigation.html' %}
 
-    <div class="container">
-        <h2 class="text-dark my-4">Live Inventory</h2>
+    <div id="page-content-wrapper">
+        <div class="container">
+            <h2 class="text-dark my-4">Edit Your Space Details</h2>
 
-        <!-- Greeting message -->
-        <div class="greeting-message">
-            Hello, {{ owner_name }}! Here's your inventory:
-        </div>
-
-        {% for space in inventory %}
-        <div class="property-card">
-            <!-- Coworking Name as Card Heading -->
-            <div class="property-header">
-                {{ space['coworking_name'] }}
-            </div>
-
-            <!-- Card Content (Images on the left, Info on the right) -->
-            <div class="property-content">
-                <!-- Image container (Fixed size) -->
-                <div class="image-container">
-                    {% if space['layout_images'] %}
-                        <img src="{{ space['layout_images'][0] }}" alt="Layout Image">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300x200" alt="No Image Available">
-                    {% endif %}
+            {% for space in inventory %}
+            <div class="property-card">
+                <!-- Coworking Name as Card Heading -->
+                <div class="property-header">
+                    {{ space['coworking_name'] }}
                 </div>
 
-                <!-- Details container -->
-                <div class="details-container">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>City:</strong> {{ space['city'] }}</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
-                        </div>
+                <!-- Card Content (Images on the left, Info on the right) -->
+                <div class="property-content">
+                    <!-- Image container (Fixed size) -->
+                    <div class="image-container">
+                        {% if space['layout_images'] %}
+                            <img src="{{ space['layout_images'][0] }}" alt="Layout Image">
+                        {% else %}
+                            <img src="https://via.placeholder.com/300x200" alt="No Image Available">
+                        {% endif %}
                     </div>
 
-                    <!-- Inventory Table -->
-                    <table class="table inventory-table">
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Count</th>
-                                <th>Price per Seat</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in space['inventory'] %}
-                            <tr>
-                                <td>{{ item['type'] }}</td>
-                                <td>{{ item['count'] }}</td>
-                                <td>{{ item['price_per_seat'] }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <!-- Details container -->
+                    <div class="details-container">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>City:</strong> {{ space['city'] }}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
+                            </div>
+                        </div>
 
-                    <!-- Edit Button -->
-                    <div class="text-right">
-                        <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit">Edit</a>
+                        <!-- Inventory Table -->
+                        <table class="table inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Count</th>
+                                    <th>Price per Seat</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in space['inventory'] %}
+                                <tr>
+                                    <td>{{ item['type'] }}</td>
+                                    <td>{{ item['count'] }}</td>
+                                    <td>{{ item['price_per_seat'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <!-- Edit Button -->
+                        <div class="text-right">
+                            <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit">Edit</a>
+                        </div>
+
                     </div>
-
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 
     <!-- Bootstrap JS and dependencies (Optional for JS functionality like modals, dropdowns) -->
