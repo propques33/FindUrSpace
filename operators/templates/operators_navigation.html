@@ -23,6 +23,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ url_for('operators.leads') }}" class="nav-link">
+                        <i class="fas fa-user-plus"></i>
+                        <span class="nav-text">Leads</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ url_for('operators.operators_logout') }}" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i>
                         <span class="nav-text">Logout</span>
@@ -49,6 +55,12 @@
             <a href="{{ url_for('operators.show_agreement') }}" class="nav-link">
                 <i class="fas fa-file-signature"></i>
                 <span class="nav-text">Show Agreement</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{{ url_for('operators.leads') }}" class="nav-link">
+                <i class="fas fa-user-plus"></i>
+                <span class="nav-text">Leads</span>
             </a>
         </li>
         <li class="nav-item">

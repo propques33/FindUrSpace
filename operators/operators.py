@@ -373,3 +373,12 @@ def edit_space(space_id):
 
         # Render the FillUrDetails.html with pre-filled data
         return render_template('FillUrDetails.html', space=space)
+
+
+@operators_bp.route('/leads', methods=['GET'])
+def leads():
+    if 'operator_phone' not in session:
+        return redirect(url_for('operators.operators_login'))
+
+    # Render the leads page
+    return render_template('operators_leads.html')
