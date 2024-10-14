@@ -102,15 +102,20 @@
                     {% if not agreement.signed %}
                         <div class="text-center mt-4">
                             <p class="text-danger">You haven't signed the contract yet! Please sign it to proceed.</p>
-                            <!-- Trigger Zoho Contracts OAuth for signing -->
+                            <!-- Commented out the current sign button -->
+                            {# 
                             <a href="{{ url_for('operators.zoho_auth') }}" class="btn btn-primary">Sign the Contract</a>
+                            #}
+
+                            <!-- Dummy 'Coming Soon' button -->
+                            <button class="btn btn-secondary" disabled>Coming Soon!</button>
                         </div>
                     {% else %}
                         <div class="mt-4 text-center">
                             <a href="{{ agreement.signed_pdf_url }}" class="btn btn-success" target="_blank">Download Signed Contract (PDF)</a>
                         </div>
                     {% endif %}
-                    
+
                     <div class="mt-5 text-center">
                         <p>FindurSpace.Tech is a trademark of PropQues Services Pvt. Ltd.</p>
                     </div>
