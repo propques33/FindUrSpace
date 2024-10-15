@@ -6,7 +6,7 @@ import OTPLessAuthSDK
 def send_whatsapp_verification(mobile):
     client_id = os.getenv('CLIENT_ID')
     client_secret = os.getenv('CLIENT_SECRET')
-    redirect_uri = "https://findurspace-app-i989y.ondigitalocean.app/verify_mobile"
+    redirect_uri = "https://findurspace.tech/operators/verify_mobile"
     channel = "WHATSAPP"
 
     # Remove leading zero from mobile number if present
