@@ -1,8 +1,9 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, current_app, flash
+from flask import Blueprint, request, session, redirect, url_for, render_template, current_app, flash, jsonify
 from bson import ObjectId
 import datetime  # Import datetime for date handling
 from bson.json_util import dumps  # Import for handling BSON types
 import requests, os
+from integrations.whatsapp_integration import send_whatsapp_verification
 
 # Define blueprint for operators
 operators_bp = Blueprint('operators', __name__, url_prefix='/operators', template_folder='templates')
@@ -46,6 +47,41 @@ def operators_login():
             return render_template('operators_login.html', error="Invalid mobile number")
     
     return render_template('operators_login.html')
+
+
+@operators_bp.route('/send_magic_link', methods=['POST'])
+def send_magic_link():
+    data = request.get_json()
+    mobile = data.get('mobile')
+
+    if not mobile:
+        return jsonify({'success': False, 'message': 'Mobile number is required.'}), 400
+
+    try:
+        # Generate magic link and send via WhatsApp
+        user_details = send_whatsapp_verification(mobile)
+
+        if user_details.get('success'):
+            return jsonify({'success': True, 'message': 'Magic link sent successfully!'})
+        else:
+            return jsonify({'success': False, 'message': 'Failed to send magic link.'}), 500
+
+    except Exception as e:
+        print(f"Error sending magic link: {str(e)}")
+        return jsonify({'success': False, 'message': 'An error occurred.'}), 500
+
+
+@operators_bp.route('/verify_mobile', methods=['GET'])
+def verify_mobile():
+    mobile = request.args.get('mobile')
+
+    if not mobile:
+        flash('Verification failed. Mobile number is missing.', 'error')
+        return redirect(url_for('operators.operators_login'))
+
+    session['operator_phone'] = mobile  # Store the phone number in the session
+    flash('Login successful!', 'success')
+    return redirect(url_for('operators.inventory'))
 
 
 @operators_bp.route('/logout')
