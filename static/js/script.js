@@ -142,6 +142,15 @@ function submitUserPreferences() {
         return;
     }
 
+     // Add Meta Pixel event tracking before submitting the preferences
+     fbq('track', 'SubmitPreferences', {
+        content_name: 'User Preferences Submission',
+        seats: seats,
+        location: location,
+        area: area,
+        budget: budget
+    });
+
     fetch('/submit_preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
