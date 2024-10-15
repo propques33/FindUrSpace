@@ -3,7 +3,7 @@ from bson import ObjectId
 import datetime  # Import datetime for date handling
 from bson.json_util import dumps  # Import for handling BSON types
 import requests, os
-from integrations.whatsapp_integration import send_whatsapp_verification
+from integrations.otplessauth import OtpLessAuth
 
 # Define blueprint for operators
 operators_bp = Blueprint('operators', __name__, url_prefix='/operators', template_folder='templates')
@@ -48,40 +48,38 @@ def operators_login():
     
     return render_template('operators_login.html')
 
-
-@operators_bp.route('/send_magic_link', methods=['POST'])
-def send_magic_link():
+@operators_bp.route('/send_otp', methods=['POST'])
+def send_otp():
     data = request.get_json()
     mobile = data.get('mobile')
 
     if not mobile:
         return jsonify({'success': False, 'message': 'Mobile number is required.'}), 400
 
-    try:
-        # Generate magic link and send via WhatsApp
-        user_details = send_whatsapp_verification(mobile)
+    # Send OTP using the OtpLessAuth class
+    response = OtpLessAuth.send_otp(mobile)
+    if response.get('success'):
+        return jsonify({'success': True, 'requestId': response['requestId']})
+    else:
+        return jsonify({'success': False, 'message': response.get('message')}), 500
 
-        if user_details.get('success'):
-            return jsonify({'success': True, 'message': 'Magic link sent successfully!'})
-        else:
-            return jsonify({'success': False, 'message': 'Failed to send magic link.'}), 500
+@operators_bp.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    data = request.get_json()
+    request_id = data.get('requestId')
+    otp = data.get('otp')
 
-    except Exception as e:
-        print(f"Error sending magic link: {str(e)}")
-        return jsonify({'success': False, 'message': 'An error occurred.'}), 500
+    if not request_id or not otp:
+        return jsonify({'success': False, 'message': 'Request ID and OTP are required.'}), 400
 
-
-@operators_bp.route('/verify_mobile', methods=['GET'])
-def verify_mobile():
-    mobile = request.args.get('mobile')
-
-    if not mobile:
-        flash('Verification failed. Mobile number is missing.', 'error')
-        return redirect(url_for('operators.operators_login'))
-
-    session['operator_phone'] = mobile  # Store the phone number in the session
-    flash('Login successful!', 'success')
-    return redirect(url_for('operators.inventory'))
+    # Verify the OTP using the OtpLessAuth class
+    response = OtpLessAuth.verify_otp(request_id, otp)
+    if response.get('success'):
+        # On success, store operator's phone in session
+        session['operator_phone'] = response.get('mobile')  # Store the verified phone number in session
+        return jsonify({'success': True, 'message': 'OTP verified successfully!'})
+    else:
+        return jsonify({'success': False, 'message': response.get('message')}), 500
 
 
 @operators_bp.route('/logout')
