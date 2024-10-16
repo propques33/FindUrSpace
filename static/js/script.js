@@ -32,7 +32,7 @@ function loadFormStep() {
                 <input type="checkbox" id="accept-terms" name="accept-terms" required>
                 <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions</a></label>
             </div>
-            <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
+            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
         `;
         initializeIntlTelInput();
     } 
@@ -57,7 +57,7 @@ function loadFormStep() {
                     <option selected disabled>Select Budget</option>
                 </select>
             </div>
-            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
+            <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
         fetchLocations(); // Fetch locations when this step loads
     } 
@@ -65,7 +65,7 @@ function loadFormStep() {
     else if (currentStep === 3) {
         form.innerHTML = `
             <p>Thank you for your submission! Your report will be sent to your email and WhatsApp shortly.</p>
-            <button type="button" id="submit-btn" class="btn btn-secondary btn-block mt-3" onclick="startAgain()">Start Again</button>
+            <button type="button" class="btn btn-secondary btn-block mt-3" onclick="startAgain()">Start Again</button>
         `;
     }
 }
