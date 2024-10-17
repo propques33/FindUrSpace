@@ -301,3 +301,25 @@ def list_your_space():
 @core_bp.route('/thank-you')
 def thank_you():
     return render_template('thank_you.html')
+
+@core_bp.route('/property_images/<property_id>', methods=['GET'])
+def property_images(property_id):
+    db = current_app.config['db']  # Access the database instance
+    
+    try:
+        # Fetch the property document using the property_id
+        property_data = db.fillurdetails.find_one({'_id': ObjectId(property_id)})
+
+        if not property_data:
+            flash('Property not found', 'error')
+            return redirect(url_for('core_bp.index'))
+
+        # Extract the layout images
+        layout_images = property_data.get('layout_images', [])
+        
+        # Render the template and pass the image URLs and other details
+        return render_template('property_images.html', images=layout_images, property_name=property_data['coworking_name'])
+
+    except Exception as e:
+        flash(f'Error fetching property images: {str(e)}', 'error')
+        return redirect(url_for('core_bp.index'))
