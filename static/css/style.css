@@ -1833,3 +1833,112 @@ h1, h2, h3, p, span, a {
 .mailus:hover {
     color: #ffcc00; /* Optional hover color */
 }
+
+/* Featured Media Section */
+.featured-media-section {
+    background-color: #151d31;
+    padding: 40px 0;
+    color: white;
+    border-radius: 20px;
+    margin: 20px auto;
+    width: 90%;
+  }
+  
+  /* Flexbox container to align text and logos side by side */
+  .media-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 20px 30px;
+  }
+  
+  /* Left-side text styling */
+  .media-text {
+    flex: 1;
+    max-width: 45%;
+    text-align: left;
+    color: #f1f1f1;
+  }
+  
+  #featured-media-title {
+    font-family: 'Report School Heavy', Arial, sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .media-text p {
+    font-family: 'Report School Regular', Arial, sans-serif;
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  
+  /* Right-side media logos styling with two rows */
+  .media-logos-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .media-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  /* Styling for each media logo */
+  .media-logo {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    background-color: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Hover effect for logos */
+  .media-logo:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Animation */
+  .media-logo {
+    animation: fadeIn 1s ease;
+  }
+  
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  /* Responsive layout for smaller screens */
+  @media (max-width: 768px) {
+    .media-container {
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 20px;
+    }
+  
+    .media-text {
+      max-width: 100%;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  
+    .media-logos-wrapper {
+      justify-content: center;
+      max-width: 100%;
+    }
+  }
+  

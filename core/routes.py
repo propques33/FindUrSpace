@@ -302,6 +302,10 @@ def list_your_space():
 def thank_you():
     return render_template('thank_you.html')
 
+@core_bp.route('/press-room')
+def press_room():
+    return render_template('press-room.html')
+
 @core_bp.route('/property_images/<property_id>', methods=['GET'])
 def property_images(property_id):
     db = current_app.config['db']  # Access the database instance
