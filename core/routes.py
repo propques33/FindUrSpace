@@ -102,6 +102,10 @@ def submit_info():
         flash('User information saved successfully.', 'success')
         return jsonify({'status': 'success', 'message': 'User added successfully', 'user_id': session['user_id']})
 
+@core_bp.route('/thankyou')
+def thankyou():
+    return render_template('thankyou.html')
+
 # Route to handle user preferences submission (Your Preference form)
 @core_bp.route('/submit_preferences', methods=['POST'])
 def submit_preferences():
