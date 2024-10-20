@@ -40,8 +40,14 @@ function loadFormStep() {
     else if (currentStep === 2) {
         form.innerHTML = `
             <div class="form-group mb-3">
-                <input type="number" id="seats" name="seats" class="form-control" placeholder="Number of Seats">
-            </div>
+            <select id="seats" name="seats" class="form-select">
+                <option selected disabled>Select Number of Seats</option>
+                <option value="0-5">0-5</option>
+                <option value="5-20">5-20</option>
+                <option value="20-50">20-50</option>
+                <option value="50+">50+</option>
+            </select>
+        </div>
             <div class="form-group mb-3">
                 <select id="location" class="form-select" onchange="fetchMicromarkets()">
                     <option selected disabled>Select Location</option>
