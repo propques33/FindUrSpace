@@ -328,71 +328,46 @@ def property_images(property_id):
         flash(f'Error fetching property images: {str(e)}', 'error')
         return redirect(url_for('core_bp.index'))
 
-# Route to display blogs on findurspace
-# Route to display blogs on findurspace
 @core_bp.route('/blog')
 def blog():
     try:
-        # Strapi API URL to fetch blog posts
         api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts'
-        
-        # Fetch the API key from the environment variable
         api_key = os.getenv('STRAPI_API_KEY')
-        
         if not api_key:
             return "API key not found in environment variables", 500
         
-        # Set headers with the API token
         headers = {
             'Authorization': f'Bearer {api_key}',
         }
-        
-        # Fetch blog posts from Strapi
         response = requests.get(api_url, headers=headers)
+        print(response.json())  # Log the response to inspect the structure
         
-        # Check if the request was successful
-        if response.status_code == 200:
-            # Extract blog data directly from the response
-            blog_data = response.json().get('data', [])
-        else:
-            blog_data = []
-
-        # Render the blog template with the correct blog data structure
+        blog_data = response.json().get('data', [])
         return render_template('blog.html', blogs=blog_data)
-
     except Exception as e:
         return str(e)
 
 
-# Route to display a single blog post in detail
-# Route to display a single blog post in detail
-@core_bp.route('/blog/<int:blog_id>')
-def blog_detail(blog_id):
+@core_bp.route('/blog/<slug>')
+def blog_detail(slug):
     try:
-        # Strapi API URL to fetch a single blog post by its ID
-        api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts/{blog_id}'
-        
-        # Fetch the API key from the environment variable
+        api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}'
         api_key = os.getenv('STRAPI_API_KEY')
-        
         if not api_key:
             return "API key not found in environment variables", 500
         
         headers = {
             'Authorization': f'Bearer {api_key}',
         }
-        
-        # Fetch the blog post from Strapi
         response = requests.get(api_url, headers=headers)
+        print(response.json())  # Log the response to inspect the structure
         
-        if response.status_code == 200:
-            blog_post = response.json().get('data')
-            if not blog_post:
-                return "Blog post not found", 404
+        blog_post_data = response.json().get('data')
+        if blog_post_data and len(blog_post_data) > 0:
+            blog_post = blog_post_data[0]  # Fetch the first post
         else:
-            return "Failed to fetch blog post", 404
-
+            return "Blog post not found", 404
+        
         return render_template('blog_detail.html', blog=blog_post)
-
     except Exception as e:
         return str(e)
