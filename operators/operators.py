@@ -10,6 +10,10 @@ operators_bp = Blueprint('operators', __name__, url_prefix='/operators', templat
 
 ZOHO_CONTRACTS_API_URL = "https://contracts.zoho.com/api/v1/contracts"
 
+@operators_bp.route('/not_found', methods=['GET'])
+def operators_not_found():
+    return render_template('operators_not_found.html')
+
 
 @operators_bp.route('/login', methods=['GET', 'POST'])
 def operators_login():
@@ -22,11 +26,11 @@ def operators_login():
         db = current_app.config['db']
 
         if mobile and not otp:
-            # User submitted mobile number, send OTP
+            # User submitted mobile number, check if operator exists
             operator = db.fillurdetails.find_one({'owner.phone': mobile})
 
             if operator:
-                # Send OTP
+                # Operator found, send OTP
                 mobile_with_country_code = '+91' + mobile  # Assuming India country code
 
                 otp_response = OtpLessAuth.send_otp(mobile_with_country_code)
@@ -39,7 +43,8 @@ def operators_login():
                 else:
                     return render_template('operators_login.html', error=otp_response['message'])
             else:
-                return render_template('operators_login.html', error="Invalid mobile number")
+                # Operator not found, redirect to "not found" page
+                return redirect(url_for('operators.operators_not_found'))
 
         elif otp:
             # User submitted OTP, verify it

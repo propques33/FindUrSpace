@@ -32,7 +32,7 @@ function loadFormStep() {
                 <input type="checkbox" id="accept-terms" name="accept-terms" required>
                 <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions</a></label>
             </div>
-            <button type="button" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
+            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
         `;
         initializeIntlTelInput();
     } 
@@ -40,8 +40,14 @@ function loadFormStep() {
     else if (currentStep === 2) {
         form.innerHTML = `
             <div class="form-group mb-3">
-                <input type="number" id="seats" name="seats" class="form-control" placeholder="Number of Seats">
-            </div>
+            <select id="seats" name="seats" class="form-select">
+                <option selected disabled>Select Number of Seats</option>
+                <option value="0-5">0-5</option>
+                <option value="5-20">5-20</option>
+                <option value="20-50">20-50</option>
+                <option value="50+">50+</option>
+            </select>
+        </div>
             <div class="form-group mb-3">
                 <select id="location" class="form-select" onchange="fetchMicromarkets()">
                     <option selected disabled>Select Location</option>
@@ -57,16 +63,9 @@ function loadFormStep() {
                     <option selected disabled>Select Budget</option>
                 </select>
             </div>
-            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
+            <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
         fetchLocations(); // Fetch locations when this step loads
-    } 
-    // Step 3: Thank You Page
-    else if (currentStep === 3) {
-        form.innerHTML = `
-            <p>Thank you for your submission! Your report will be sent to your email and WhatsApp shortly.</p>
-            <button type="button" id="submit-btn" class="btn btn-secondary btn-block mt-3" onclick="startAgain()">Start Again</button>
-        `;
     }
 }
 
@@ -159,8 +158,7 @@ function submitUserPreferences() {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            currentStep++;
-            loadFormStep(); 
+            window.location.href='/thankyou'; 
         } else {
             alert(data.message);
         }

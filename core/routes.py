@@ -102,6 +102,10 @@ def submit_info():
         flash('User information saved successfully.', 'success')
         return jsonify({'status': 'success', 'message': 'User added successfully', 'user_id': session['user_id']})
 
+@core_bp.route('/thankyou')
+def thankyou():
+    return render_template('thankyou.html')
+
 # Route to handle user preferences submission (Your Preference form)
 @core_bp.route('/submit_preferences', methods=['POST'])
 def submit_preferences():
@@ -297,3 +301,73 @@ def list_your_space():
 @core_bp.route('/thank-you')
 def thank_you():
     return render_template('thank_you.html')
+
+@core_bp.route('/press-room')
+def press_room():
+    return render_template('press-room.html')
+
+@core_bp.route('/property_images/<property_id>', methods=['GET'])
+def property_images(property_id):
+    db = current_app.config['db']  # Access the database instance
+    
+    try:
+        # Fetch the property document using the property_id
+        property_data = db.fillurdetails.find_one({'_id': ObjectId(property_id)})
+
+        if not property_data:
+            flash('Property not found', 'error')
+            return redirect(url_for('core_bp.index'))
+
+        # Extract the layout images
+        layout_images = property_data.get('layout_images', [])
+        
+        # Render the template and pass the image URLs and other details
+        return render_template('property_images.html', images=layout_images, property_name=property_data['coworking_name'])
+
+    except Exception as e:
+        flash(f'Error fetching property images: {str(e)}', 'error')
+        return redirect(url_for('core_bp.index'))
+
+# @core_bp.route('/blog')
+# def blog():
+#     try:
+#         api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts'
+#         api_key = os.getenv('STRAPI_API_KEY')
+#         if not api_key:
+#             return "API key not found in environment variables", 500
+        
+#         headers = {
+#             'Authorization': f'Bearer {api_key}',
+#         }
+#         response = requests.get(api_url, headers=headers)
+#         print(response.json())  # Log the response to inspect the structure
+        
+#         blog_data = response.json().get('data', [])
+#         return render_template('blog.html', blogs=blog_data)
+#     except Exception as e:
+#         return str(e)
+
+
+# @core_bp.route('/blog/<slug>')
+# def blog_detail(slug):
+#     try:
+#         api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}'
+#         api_key = os.getenv('STRAPI_API_KEY')
+#         if not api_key:
+#             return "API key not found in environment variables", 500
+        
+#         headers = {
+#             'Authorization': f'Bearer {api_key}',
+#         }
+#         response = requests.get(api_url, headers=headers)
+#         print(response.json())  # Log the response to inspect the structure
+        
+#         blog_post_data = response.json().get('data')
+#         if blog_post_data and len(blog_post_data) > 0:
+#             blog_post = blog_post_data[0]  # Fetch the first post
+#         else:
+#             return "Blog post not found", 404
+        
+#         return render_template('blog_detail.html', blog=blog_post)
+#     except Exception as e:
+#         return str(e)
