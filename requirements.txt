@@ -19,4 +19,3 @@ google-api-python-client
 
 plotly
 boto3
-flask_session
