@@ -12,7 +12,7 @@ from operators.operators import operators_bp
 load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+app.secret_key = os.environ.get('SECRET_KEY')
 
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -41,4 +41,4 @@ if __name__ == '__main__':
     
     # Use the PORT environment variable if available, default to 5000
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=False)

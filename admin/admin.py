@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, render_template, request, redirect, url_for, session, send_file, current_app, flash
-import datetime
 import threading
 from bson import ObjectId
 from io import BytesIO
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from core.email_handler import send_email_and_whatsapp_with_pdf
+from datetime import datetime
+
 
 # Blueprint definition
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates')
@@ -148,7 +149,7 @@ def delete_document(collection_name, document_id):
 
     return redirect(url_for('admin.view_collection', collection_name=collection_name))
 
-# Updated view_leads function with 'city' and 'micromarket' instead of 'location' and 'area'
+
 @admin_bp.route('/leads', methods=['GET', 'POST'])
 def view_leads():
     if 'admin' not in session:
@@ -193,7 +194,17 @@ def view_leads():
             # Retrieve 'city' and 'micromarket' instead of 'location' and 'area'
             city = property_data.get('city', 'N/A')
             micromarket = property_data.get('micromarket', 'N/A')
-            date = property_data.get('date','N/A')
+            date_str = property_data.get('date', 'N/A')
+
+            # Try to convert date string to a datetime object
+            try:
+                if isinstance(date_str, str):
+                    date = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S.%f')  # Adjusted format to include time and microseconds
+                else:
+                    date = date_str  # It's already a datetime object
+            except Exception as e:
+                print(f"Error converting date: {e}")
+                date = 'N/A'
 
             # Collect unique cities and micromarkets for dropdown options (optional)
             if city != 'N/A':

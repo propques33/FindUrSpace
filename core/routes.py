@@ -151,6 +151,7 @@ def submit_preferences():
 
     return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.'})
 
+
 # Route to fetch unique locations (cities)
 @core_bp.route('/get_locations', methods=['GET'])
 def get_locations():
