@@ -112,6 +112,7 @@ function submitUserInfo() {
 
     fetch('/submit_info', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ name, contact, company, email })
     })
@@ -141,17 +142,9 @@ function submitUserPreferences() {
         return;
     }
 
-     // Add Meta Pixel event tracking before submitting the preferences
-     fbq('track', 'SubmitPreferences', {
-        content_name: 'User Preferences Submission',
-        seats: seats,
-        location: location,
-        area: area,
-        budget: budget
-    });
-
     fetch('/submit_preferences', {
         method: 'POST',
+        credentials:'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ seats, location, area, budget })
     })

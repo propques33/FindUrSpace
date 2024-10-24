@@ -59,6 +59,7 @@ def submit_info():
     if existing_user:
         # If the user exists, fetch their user_id and save it in the session
         session['user_id'] = str(existing_user['_id'])
+        print(f"Session after existing user login: {session}")
         flash('Welcome back! Your details are already in our system.', 'success')
         return jsonify({'status': 'exists', 'message': 'User exists', 'user_id': session['user_id']})
     else:
@@ -74,6 +75,7 @@ def submit_info():
         session['name'] = name
         session['email'] = email
         session['contact'] = contact
+        print(f"Session after new user creation: {session}")
         flash('User information saved successfully.', 'success')
         return jsonify({'status': 'success', 'message': 'User added successfully', 'user_id': session['user_id']})
 
@@ -93,6 +95,7 @@ def submit_preferences():
     budget = request.form.get('budget')
 
     # Check if the session has a user_id
+    print(f"Session before accessing user_id: {session}")
     user_id = session.get('user_id')
 
     if not user_id:
