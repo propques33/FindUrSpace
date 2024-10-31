@@ -148,7 +148,7 @@ def submit_preferences():
 
     # Get max budget
     max_budget = get_max_budget(budget)
-    print(f"Max budget calculated: {max_budget}")
+   
     # Initial query for location and area
     query = {
         'city': {'$regex': f'^{location.strip()}$', '$options': 'i'},
@@ -157,10 +157,10 @@ def submit_preferences():
 
     # Fetch properties
     all_properties = list(db.fillurdetails.find(query))
-    print(f"Found {len(all_properties)} properties matching location and area.")
 
     # Filter properties based on price only (using lowest price from inventory)
     filtered_properties = []
+    operator_numbers=[]
     for prop in all_properties:
         inventory = prop.get('inventory', [])
         lowest_price = get_lowest_price(inventory)
@@ -168,9 +168,12 @@ def submit_preferences():
             # Add the lowest price to the property object for reference
             prop['lowest_price'] = lowest_price
             filtered_properties.append(prop)
+
+            operator_phone= prop.get('owner',{}).get('phone')
+            if operator_phone:
+                operator_numbers.append(operator_phone)
     
-    print(f"{len(filtered_properties)} properties matched the budget.")
- 
+    
     # Sort properties by lowest price
     filtered_properties.sort(key=lambda x: x.get('lowest_price', float('inf')))
 
@@ -185,6 +188,7 @@ def submit_preferences():
         'micromarket': area,
         'budget': budget,
         'property_names': property_names,
+        'operator_numbers': operator_numbers,
         'date': datetime.datetime.now()
     }
 
