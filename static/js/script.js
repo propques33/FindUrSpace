@@ -231,12 +231,13 @@ function fetchMicromarkets() {
 }
 
 // Fetch unique prices for the selected city and micromarket
+// JavaScript function update:
 function fetchPrices() {
     const city = document.getElementById('location').value;
     const micromarket = document.getElementById('area').value;
     console.log('Fetching prices for city:', city, 'and micromarket:', micromarket);
 
-    fetch(`/get_prices?city=${city}&micromarket=${micromarket}`, {
+    fetch(`/get_prices?city=${encodeURIComponent(city)}&micromarket=${encodeURIComponent(micromarket)}`, {
         method: 'GET'
     })
     .then(response => response.json())
@@ -245,10 +246,14 @@ function fetchPrices() {
         const budgetDropdown = document.getElementById('budget');
         budgetDropdown.innerHTML = '<option selected disabled>Select Budget</option>';
         
-        data.prices.forEach(function(price) {
+        // Sort prices in ascending order
+        const sortedPrices = data.prices.sort((a, b) => a - b);
+        
+        sortedPrices.forEach(function(price) {
             let option = document.createElement("option");
             option.value = price;
-            option.text = price;
+            // Format the price with commas and add "₹" symbol
+            option.text = `₹${price.toLocaleString('en-IN')} per seat`;
             budgetDropdown.appendChild(option);
         });
 

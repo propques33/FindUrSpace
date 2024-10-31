@@ -13,4 +13,3 @@ def get_db():
     client = MongoClient(mongo_uri)
     db = client['FindUrSpace']  # Replace with your actual database name
     return db
-

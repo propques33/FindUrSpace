@@ -25,6 +25,7 @@ def fetch_image(url):
     return None
 
 # Generate PDF with property details
+# Adjusted PDF generation function to handle layout_images
 def generate_property_pdf(properties, doc, styles):
     elements = []
 
@@ -35,22 +36,36 @@ def generate_property_pdf(properties, doc, styles):
     for i, p in enumerate(properties, start=1):
         elements.append(Paragraph(f"Option {i}", styles['EnhancedHeading']))
         elements.append(Spacer(1, 16))
-        elements.append(Paragraph(f"Name: {p['name']}", styles['EnhancedNormal']))
+        
+        coworking_name = p.get('coworking_name', 'Unknown Property')
+        print(f"Generating PDF for property: {coworking_name}")
+        elements.append(Paragraph(f"Name: {coworking_name}", styles['EnhancedNormal']))
+        
+        micromarket = p.get('micromarket', 'Unknown Micromarket')
+        city = p.get('city', 'Unknown City')
         elements.append(Spacer(1, 16))
-        elements.append(Paragraph(f"Address: {p['micromarket']}, {p['city']}", styles['EnhancedNormal']))
+        elements.append(Paragraph(f"Address: {micromarket}, {city}", styles['EnhancedNormal']))
+        
+        details = p.get('details', 'No details available')
         elements.append(Spacer(1, 16))
-        elements.append(Paragraph(f"Details: {p['details']}", styles['EnhancedNormal']))
+        elements.append(Paragraph(f"Details: {details}", styles['EnhancedNormal']))
         elements.append(Spacer(1, 32))
 
-        # Fetch images
-        image1 = fetch_image(p['img1'])
-        image2 = fetch_image(p['img2'])
+        # Access layout_images from property data
+        layout_images = p.get('layout_images', [])
+
+        # Fetch first two images if available
+        image1_url = layout_images[0] if len(layout_images) > 0 else None
+        image2_url = layout_images[1] if len(layout_images) > 1 else None
+
+        image1 = fetch_image(image1_url) if image1_url else None
+        image2 = fetch_image(image2_url) if image2_url else None
 
         if image1 and image2:
-            # Adjust image size, position, and add white space between them
-            table_data = [[Image(BytesIO(requests.get(p['img1']).content), width=6.0 * inch, height=5.0 * inch),
+            # Both images available
+            table_data = [[Image(BytesIO(requests.get(image1_url).content), width=6.0 * inch, height=5.0 * inch),
                            Spacer(0.5 * inch, 0),
-                           Image(BytesIO(requests.get(p['img2']).content), width=6.0 * inch, height=5.0 * inch)]]
+                           Image(BytesIO(requests.get(image2_url).content), width=6.0 * inch, height=5.0 * inch)]]
 
             image_table = Table(table_data)
             image_table.setStyle(TableStyle([
@@ -60,12 +75,18 @@ def generate_property_pdf(properties, doc, styles):
                 ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             ]))
             elements.append(image_table)
+        elif image1 or image2:
+            # One image available, add it alone
+            single_image = image1 if image1 else image2
+            elements.append(Image(BytesIO(requests.get(image1_url if image1 else image2_url).content), width=6.0 * inch, height=5.0 * inch))
         else:
+            # No images available
             elements.append(Paragraph("Images could not be loaded.", styles['EnhancedNormal']))
 
         elements.append(Spacer(1, 48))  # Add a gap between properties
 
     doc.build(elements)
+
 
 # Send email and WhatsApp with the same PDF
 def send_email_and_whatsapp_with_pdf(to_email, name, contact, properties):

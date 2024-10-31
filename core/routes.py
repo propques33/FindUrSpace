@@ -1,8 +1,10 @@
+# current routes.py
 from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory, redirect, url_for
 from collections import defaultdict
 import datetime
 from core.email_handler import send_email_and_whatsapp_with_pdf
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
+from bson.regex import Regex
 import threading
 import io
 import os
@@ -24,10 +26,41 @@ def update_gsheet_background(app, db, property_data):
 def send_email_and_whatsapp_background(app, email, name, contact, filtered_properties):
     with app.app_context():  # Push the application context
         try:
+            print("Sending email and WhatsApp with the following details:")
+            print(f"Email: {email}, Name: {name}, Contact: {contact}")
+            print(f"Filtered Properties: {filtered_properties}")
             success, _ = send_email_and_whatsapp_with_pdf(email, name, contact, filtered_properties)
+            print("Email and whatapp sent successfully")
         except Exception as e:
-            pass
+            print(f"Failed to send email and whatsapp: {e}")
 
+
+# Helper function to parse price strings and convert to float
+def parse_price(price_str):
+    try:
+        return float(str(price_str).replace(',', '').replace('₹', ''))
+    except (ValueError, TypeError):
+        return 0.0
+
+# Helper function to get max budget with 20% buffer
+def get_max_budget(budget):
+    try:
+        # Remove any currency symbols and commas, convert to float
+        budget = float(str(budget).replace(',', '').replace('₹', ''))
+        # Allow for a 20% variance above the budget
+        return budget * 1.2  # 20% above budget
+    except (ValueError, TypeError):
+        return float('inf')
+
+# Helper function to get lowest price from inventory
+def get_lowest_price(inventory):
+    lowest_price = float('inf')
+    for item in inventory:
+        if item.get('type') not in ['Meeting rooms', 'Conference rooms']:
+            price = parse_price(item.get('price_per_seat', 0))
+            if price > 0:  # Ensure we don't consider zero or invalid prices
+                lowest_price = min(lowest_price, price)
+    return lowest_price if lowest_price != float('inf') else 0
 
 # Define the Blueprint for core routes
 core_bp = Blueprint('core_bp', __name__)
@@ -59,8 +92,6 @@ def submit_info():
     if existing_user:
         # If the user exists, fetch their user_id and save it in the session
         session['user_id'] = str(existing_user['_id'])
-        print(f"Session after existing user login: {session}")
-        flash('Welcome back! Your details are already in our system.', 'success')
         return jsonify({'status': 'exists', 'message': 'User exists', 'user_id': session['user_id']})
     else:
         # If the user doesn't exist, store user data in the `users` collection
@@ -75,8 +106,6 @@ def submit_info():
         session['name'] = name
         session['email'] = email
         session['contact'] = contact
-        print(f"Session after new user creation: {session}")
-        flash('User information saved successfully.', 'success')
         return jsonify({'status': 'success', 'message': 'User added successfully', 'user_id': session['user_id']})
 
 @core_bp.route('/thankyou')
@@ -95,7 +124,6 @@ def submit_preferences():
     budget = request.form.get('budget')
 
     # Check if the session has a user_id
-    print(f"Session before accessing user_id: {session}")
     user_id = session.get('user_id')
 
     if not user_id:
@@ -103,14 +131,12 @@ def submit_preferences():
         return jsonify({'status': 'error', 'message': 'User information is missing'})
 
     try:
-        # Convert user_id to ObjectId for querying
         user_object_id = ObjectId(user_id)
     except Exception as e:
         return jsonify({'status': 'error', 'message': 'Invalid user ID format'})
 
-    # Fetch name, email, and contact from the users collection using user_object_id
+    # Fetch user information
     user = db.users.find_one({'_id': user_object_id})
-
     if not user:
         flash('User not found. Please fill out the "Your Info" form again.', 'error')
         return jsonify({'status': 'error', 'message': 'User not found'})
@@ -118,25 +144,47 @@ def submit_preferences():
     name = user.get('name')
     email = user.get('email')
     contact = user.get('contact')
+    print(f"User details - Name: {name}, Email: {email}, Contact: {contact}")
 
-    # Fetch properties that match the user's preferences
-    filtered_properties = list(db.coworking_spaces.find({
-        'city': location,
-        'micromarket': area,
-        'price': {'$lte': float(budget)}
-    }))
+    # Get max budget
+    max_budget = get_max_budget(budget)
+    print(f"Max budget calculated: {max_budget}")
+    # Initial query for location and area
+    query = {
+        'city': {'$regex': f'^{location.strip()}$', '$options': 'i'},
+        'micromarket': {'$regex': f'^{area.strip()}$', '$options': 'i'},
+    }
 
-    # Prepare property names for logging (or mark as N/A)
-    property_names = ", ".join([p['name'] for p in filtered_properties]) if filtered_properties else 'N/A'
+    # Fetch properties
+    all_properties = list(db.fillurdetails.find(query))
+    print(f"Found {len(all_properties)} properties matching location and area.")
+
+    # Filter properties based on price only (using lowest price from inventory)
+    filtered_properties = []
+    for prop in all_properties:
+        inventory = prop.get('inventory', [])
+        lowest_price = get_lowest_price(inventory)
+        if lowest_price <= max_budget:
+            # Add the lowest price to the property object for reference
+            prop['lowest_price'] = lowest_price
+            filtered_properties.append(prop)
+    
+    print(f"{len(filtered_properties)} properties matched the budget.")
+ 
+    # Sort properties by lowest price
+    filtered_properties.sort(key=lambda x: x.get('lowest_price', float('inf')))
+
+    # Prepare property names for logging
+    property_names = ", ".join([p.get('coworking_name', 'Unknown') for p in filtered_properties]) if filtered_properties else 'N/A'
 
     # Store preferences in the `properties` collection
     new_property = {
-        'user_id': user_object_id,  # Ensure user_id is an ObjectId
+        'user_id': user_object_id,
         'seats': seats,
-        'city': location,  # Ensure city is passed
-        'micromarket': area,  # Ensure micromarket is passed
+        'city': location,
+        'micromarket': area,
         'budget': budget,
-        'property_names': property_names,  # Capture the names of properties for sharing
+        'property_names': property_names,
         'date': datetime.datetime.now()
     }
 
@@ -145,21 +193,31 @@ def submit_preferences():
 
     # Background threads for email and Google Sheets updates
     app = current_app._get_current_object()
-    # Modify the existing thread to send both email and WhatsApp
-    email_thread = threading.Thread(target=send_email_and_whatsapp_background, args=(app, email, name, contact, filtered_properties))
+    email_thread = threading.Thread(
+        target=send_email_and_whatsapp_background,
+        args=(app, email, name, contact, filtered_properties)
+    )
     email_thread.start()
 
-    gsheet_thread = threading.Thread(target=update_gsheet_background, args=(app, db, new_property))
+    gsheet_thread = threading.Thread(
+        target=update_gsheet_background,
+        args=(app, db, new_property)
+    )
     gsheet_thread.start()
 
     return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.'})
 
+# Helper function to format input for case-insensitive, trimmed match
+def format_query_param(param):
+    return {'$regex': f'^{param.strip()}$', '$options': 'i'} if param else None
 
 # Route to fetch unique locations (cities)
 @core_bp.route('/get_locations', methods=['GET'])
 def get_locations():
     db = current_app.config['db']
-    cities = db.coworking_spaces.distinct('city')
+    cities = db.fillurdetails.distinct('city')
+    # Use a list comprehension to ensure unique, trimmed, and case-insensitive results
+    cities = list(set(city.strip().lower() for city in cities))
     return jsonify({'locations': cities})
 
 # Route to fetch unique micromarkets based on selected city
@@ -167,18 +225,42 @@ def get_locations():
 def get_micromarkets():
     db = current_app.config['db']
     city = request.args.get('city')
-    micromarkets = db.coworking_spaces.distinct('micromarket', {'city': city})
+    query = {'city': format_query_param(city)}
+    micromarkets = db.fillurdetails.distinct('micromarket', query)
+    micromarkets = list(set(micromarket.strip().lower() for micromarket in micromarkets))
     return jsonify({'micromarkets': micromarkets})
 
 # Route to fetch unique prices based on selected city and micromarket
+
 @core_bp.route('/get_prices', methods=['GET'])
 def get_prices():
-    db = current_app.config['db']
-    city = request.args.get('city')
-    micromarket = request.args.get('micromarket')
-    prices = db.coworking_spaces.distinct('price', {'city': city, 'micromarket': micromarket})
-    return jsonify({'prices': prices})
-
+    try:
+        db = current_app.config['db']
+        city = request.args.get('city')
+        micromarket = request.args.get('micromarket')
+        
+        query = {
+            'city': {'$regex': f'^{city.strip()}$', '$options': 'i'},
+            'micromarket': {'$regex': f'^{micromarket.strip()}$', '$options': 'i'}
+        }
+        
+        # Find all matching documents
+        documents = db.fillurdetails.find(query)
+        
+        # Get lowest prices for each property
+        prices = set()
+        for doc in documents:
+            lowest_price = get_lowest_price(doc.get('inventory', []))
+            if lowest_price > 0:
+                prices.add(lowest_price)
+        
+        prices_list = sorted(list(prices))
+        return jsonify({'prices': prices_list})
+        
+    except Exception as e:
+        current_app.logger.error(f"Error in get_prices: {str(e)}")
+        return jsonify({'prices': [], 'error': 'An error occurred while fetching prices'}), 500
+    
 @core_bp.route('/tc')
 def terms_and_conditions():
     return render_template('T&C.html')
