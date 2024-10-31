@@ -1,3 +1,4 @@
+# email_handler.py
 from flask_mail import Mail, Message
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
