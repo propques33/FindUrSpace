@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, current_app, flash
+from flask import Blueprint, request, session, redirect, url_for, render_template, current_app, flash, jsonify
 from bson import ObjectId
 import datetime
 from bson.json_util import dumps
@@ -243,16 +243,116 @@ def edit_space(space_id):
 
         # Render the FillUrDetails.html with pre-filled data
         return render_template('FillUrDetails.html', space=space)
-
-
+    
 @operators_bp.route('/leads', methods=['GET'])
 def leads():
     if 'operator_phone' not in session:
         return redirect(url_for('operators.operators_login'))
 
-    # Render the leads page
-    return render_template('operators_leads.html')
+    db = current_app.config['db']
+    operator_phone = session['operator_phone']
 
+    # Find properties associated with the operator's phone number
+    properties = db.properties.find({
+        'operator_numbers': operator_phone
+    }).sort('date', -1)
+    
+    leads = []
+    cities_set = set()
+    micromarkets_set = set()
+
+    for property_data in properties:
+        user = db.users.find_one({'_id': property_data['user_id']})
+        if user:
+            lead_status = db.operator_lead_status.find_one({'user_id': property_data['user_id'], 'property_id': property_data['_id']})
+
+            if not lead_status:
+                lead_status = {
+                    'user_id': property_data['user_id'],
+                    'property_id': property_data['_id'],
+                    'opportunity_status': 'open',
+                    'opportunity_stage': 'visit done'
+                }
+                db.operator_lead_status.insert_one(lead_status)
+
+            # Ensure the date is properly formatted
+            date_str = property_data.get('date', 'N/A')
+            try:
+                date = datetime.datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S.%f') if isinstance(date_str, str) else date_str
+            except Exception as e:
+                print(f"Error converting date: {e}")
+                date = 'N/A'
+
+            # Collect unique cities and micromarkets for filtering
+            city = property_data.get('city', 'N/A')
+            micromarket = property_data.get('micromarket', 'N/A')
+            if city != 'N/A':
+                cities_set.add(city)
+            if micromarket != 'N/A':
+                micromarkets_set.add(micromarket)
+
+            leads.append({
+                'lead_id': str(lead_status['user_id']),
+                'property_id': str(lead_status['property_id']),
+                'user_name': user.get('name', 'Unknown'),
+                'user_company': user.get('company', 'Unknown'),
+                'user_email': user.get('email', 'N/A'),
+                'user_contact': user.get('contact', 'N/A'),
+                'city': city,
+                'micromarket': micromarket,
+                'date': date,
+                'property_seats': property_data.get('seats', 'N/A'),
+                'property_budget': property_data.get('budget', 'N/A'),
+                'opportunity_status': lead_status.get('opportunity_status', 'open'),
+                'opportunity_stage': lead_status.get('opportunity_stage', 'visit done')
+            })
+
+    # Convert sets to sorted lists for filtering options in the template
+    cities = sorted(list(cities_set))
+    micromarkets = sorted(list(micromarkets_set))
+
+    return render_template('operators_leads.html', leads=leads, cities=cities, micromarkets=micromarkets)
+
+@operators_bp.route('/update_lead_status', methods=['POST'])
+def update_lead_status():
+    if 'operator_phone' not in session:
+        print("User is not logged in. Redirecting to login page.")  # Debugging print
+        return redirect(url_for('operators.operators_login'))
+
+    db = current_app.config['db']
+    data = request.json  
+    try:
+        lead_id = ObjectId(data.get('lead_id'))
+        property_id = ObjectId(data.get('property_id'))
+    except Exception as e:
+        return jsonify({'status': 'failure', 'message': 'Invalid lead_id or property_id format'}), 400
+
+    # Prepare the update data with only the provided fields
+    update_data = {}
+    if 'opportunity_status' in data:
+        update_data['opportunity_status'] = data['opportunity_status']
+    if 'opportunity_stage' in data:
+        update_data['opportunity_stage'] = data['opportunity_stage']
+
+    if not update_data:
+        return jsonify({'status': 'failure', 'message': 'No fields to update'}), 400
+
+    # Perform the update operation on the document
+    try:
+        result = db.operator_lead_status.update_one(
+            {'user_id': lead_id, 'property_id': property_id},
+            {'$set': update_data}
+        )
+        print("Update result:", result.raw_result)  # Log raw MongoDB update result
+
+        # Check the outcome of the update operation
+        if result.modified_count > 0:
+            return jsonify({'status': 'success', 'message': 'Lead status updated successfully'})
+        else:
+            return jsonify({'status': 'failure', 'message': 'No changes made or lead not found'}), 400
+    except Exception as e:
+        print("Error during database update:", e)  # Log exception for debugging
+        return jsonify({'status': 'failure', 'message': 'Error during database update'}), 500
 
 @operators_bp.route('/show_agreement', methods=['GET'])
 def show_agreement():
