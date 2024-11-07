@@ -173,7 +173,7 @@
     <div id="modal" class="modal">
         <button class="close-btn">&times;</button>
         <h3>Send to Email and WhatsApp</h3>
-        <form id="send-form">
+        <form id="send-form" data-thank-you-url="{{ url_for('admin.greeting') }}">
             <label for="email">Email:</label>
             <input type="email" id="email" name="email" required>
             <label for="mobile">Mobile:</label>
@@ -304,6 +304,8 @@
                         alert('Please enter both email and mobile.');
                         return;
                     }
+
+                    const thankYouUrl= this.dataset.thankYouUrl
     
                     // Send selected properties, email, and mobile to the backend
                     fetch('/admin/send_selected_properties', {
@@ -320,8 +322,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === 'success') {
-                            alert('Email sent successfully!');
-                            closeModal();
+                            window.location.href = thankYouUrl;
                         } else {
                             alert('Error sending email.');
                         }

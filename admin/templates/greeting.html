@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sent - FindUrSpace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        .thank-you-container {
+            text-align: center;
+            padding: 100px 20px;
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        .thank-you-title {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .thank-you-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navigation.html' %}
+    
+    <div class="thank-you-container">
+        <h1 class="thank-you-title">Email and WhatsApp Sent Successfully!</h1>
+        <p class="thank-you-message">The property details have been sent to the specified contact.</p>
+        <div class="button-container">
+            <a href="{{ url_for('admin.listings') }}" class="back-button">Go Back to Listings</a>
+        </div>
+    </div>
+</body>
+</html>

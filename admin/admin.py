@@ -73,6 +73,13 @@ def send_selected_properties():
         print(f"Error in send_selected_properties: {e}")
         return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
 
+
+@admin_bp.route('/greeting')
+def greeting():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+    return render_template('greeting.html')
+
 # Admin Login Route
 @admin_bp.route('/login', methods=['GET', 'POST'])
 def admin_login():
