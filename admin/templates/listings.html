@@ -129,6 +129,7 @@
                 <thead>
                     <tr>
                         <th>Select</th>
+                        <th>Name</th>
                         <th>City</th>
                         <th>Micromarket</th>
                         <th>Price</th>
@@ -138,13 +139,14 @@
                     {% for space in coworking_list %}
                     <tr>
                         <td><input type="checkbox" class="select-property" data-property-id="{{ space._id }}"></td>
+                        <td>{{ space.name }}</td>
                         <td>{{ space.city }}</td>
                         <td>{{ space.micromarket }}</td>
                         <td>{{ space.price }}</td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4">No data available</td>
+                        <td colspan="5">No data available</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -208,6 +210,7 @@
                             data.coworking_list.forEach(function (space) {
                                 const row = `<tr>
                                     <td><input type="checkbox" class="select-property" data-property-id="${space._id}"></td>
+                                    <td>${space.name}</td>
                                     <td>${space.city}</td>
                                     <td>${space.micromarket}</td>
                                     <td>${space.price}</td>
@@ -215,7 +218,7 @@
                                 listingsBody.insertAdjacentHTML('beforeend', row);
                             });
                         } else {
-                            listingsBody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
+                            listingsBody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
                         }
     
                         // Update Pagination if required

@@ -41,22 +41,37 @@ def send_selected_properties():
 
     db = current_app.config['db']
 
-    # Fetch the details of the selected coworking spaces from the database
-    selected_properties = list(db.coworking_spaces.find({
-        '_id': {'$in': [ObjectId(id) for id in selected_property_ids]}
-    }))
+    try:
+        # Fetch from coworking_spaces
+        properties = list(db.coworking_spaces.find({
+            '_id': {'$in': [ObjectId(id) for id in selected_property_ids]}
+        }))
 
-    if not selected_properties:
-        return jsonify({'status': 'error', 'message': 'No properties found'})
+        # Transform the data to match live_inventory format
+        transformed_properties = []
+        for p in properties:
+            transformed_p = {
+                'coworking_name': p.get('name'),  # Map 'name' to 'coworking_name'
+                'city': p.get('city'),
+                'micromarket': p.get('micromarket'),
+                'details': p.get('details'),
+                'layout_images': [p.get('img1', ''), p.get('img2', '')] if p.get('img1') else []
+            }
+            transformed_properties.append(transformed_p)
 
-    # Send email and WhatsApp (PDF logic already implemented in email_handler.py)
-    app = current_app._get_current_object()
-    email_thread = threading.Thread(target=send_email_and_whatsapp_background, args=(app, email, mobile, selected_properties))
-    email_thread.start()
+        # Send email with transformed data
+        app = current_app._get_current_object()
+        email_thread = threading.Thread(
+            target=send_email_and_whatsapp_background, 
+            args=(app, email, mobile, transformed_properties)
+        )
+        email_thread.start()
 
-    return jsonify({'status': 'success', 'message': 'Email sent successfully'})
+        return jsonify({'status': 'success', 'message': 'Email sent successfully'})
 
-
+    except Exception as e:
+        print(f"Error in send_selected_properties: {e}")
+        return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
 
 # Admin Login Route
 @admin_bp.route('/login', methods=['GET', 'POST'])
@@ -467,21 +482,22 @@ def fetch_listings():
     coworking_spaces = db.coworking_spaces.find(filters)
     coworking_list = list(coworking_spaces)
 
-    # Convert the documents to JSON format
+    # Convert the documents to JSON format and include _id
     result_list = [{
+        '_id': str(space['_id']),  # Convert ObjectId to string
+        'name': space['name'],
         'city': space['city'],
         'micromarket': space['micromarket'],
         'price': space['price'],
-        'seats': space.get('seats', 'N/A')  # Handle missing seats data gracefully
+        'seats': space.get('seats', 'N/A')
     } for space in coworking_list]
 
     return jsonify({
         'coworking_list': result_list,
         'page': int(request.args.get('page', 1)),
-        'per_page': 10,  # Pagination setup
+        'per_page': 10,
         'total_records': db.coworking_spaces.count_documents(filters)
     })
-
 
 # ---------------------------------------------------------Lead Management------------------------------------------------------------------------------------
 @admin_bp.route('/leads_management', methods=['GET'])
