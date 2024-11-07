@@ -7,7 +7,6 @@ function loadFormStep() {
     const steps = document.querySelectorAll('.step');    
     const termsAndConditionsUrl = document.body.getAttribute('data-terms-url');
 
-    console.log(termsAndConditionsUrl); // Check what URL is fetched
     if (!form) {
         console.error("Form element with id 'dynamic-form' not found.");
         return;
@@ -22,53 +21,88 @@ function loadFormStep() {
     // Step 1: User Info
     if (currentStep === 1) {
         form.innerHTML = `
-            <input type="text" id="name" name="name" class="form-control" placeholder="Your Name">
+            <input type="text" id="name" name="name" class="form-control" placeholder="Your Name *" required>
             <div class="input-group mb-3">
-                <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact">
+                <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact *" required>
             </div>
-            <input type="text" id="company" name="company" class="form-control" placeholder="Company Name">
-            <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail">
+            <input type="text" id="company" name="company" class="form-control" placeholder="Company Name *" required>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail *" required>
             <div class="form-group mb-3">
                 <input type="checkbox" id="accept-terms" name="accept-terms" required>
-                <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions</a></label>
+                <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions *</a></label>
             </div>
             <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
         `;
         initializeIntlTelInput();
     } 
     // Step 2: User Preferences
-    else if (currentStep === 2) {
+    else // In the loadFormStep function, replace the price input section with this styled version:
+
+    if (currentStep === 2) {
         form.innerHTML = `
             <div class="form-group mb-3">
-            <select id="seats" name="seats" class="form-select">
-                <option selected disabled>Select Number of Seats</option>
-                <option value="0-5">0-5</option>
-                <option value="5-20">5-20</option>
-                <option value="20-50">20-50</option>
-                <option value="50+">50+</option>
-            </select>
-        </div>
-            <div class="form-group mb-3">
-                <select id="location" class="form-select" onchange="fetchMicromarkets()">
-                    <option selected disabled>Select Location</option>
+                <select id="seats" name="seats" class="form-select" required>
+                    <option value="" selected disabled>Select Number of Seats *</option>
+                    <option value="0-5">0-5</option>
+                    <option value="5-20">5-20</option>
+                    <option value="20-50">20-50</option>
+                    <option value="50+">50+</option>
                 </select>
             </div>
             <div class="form-group mb-3">
-                <select id="area" class="form-select">
-                    <option selected disabled>Select Micromarket</option>
+                <select id="location" class="form-select" required onchange="fetchMicromarkets()">
+                    <option value="" selected disabled>Select Location *</option>
                 </select>
             </div>
             <div class="form-group mb-3">
-                <select id="budget" class="form-select">
-                    <option selected disabled>Select Budget</option>
+                <select id="area" class="form-select" required>
+                    <option value="" selected disabled>Select Micromarket *</option>
                 </select>
+            </div>
+            <div class="form-group mb-3">
+                <input type="text" 
+                       id="budget" 
+                       class="form-select" 
+                       placeholder="Enter Budget Per Seat (₹) *" 
+                       required 
+                       onkeyup="validatePrice(this)" 
+                       onblur="validatePrice(this)"
+                       style="height: auto; padding: 0.375rem 0.75rem;">
             </div>
             <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
-        fetchLocations(); // Fetch locations when this step loads
+        fetchLocations();
     }
 }
-
+    
+    // Update the validatePrice function to format the value with the ₹ symbol
+    function validatePrice(input) {
+        // Remove any non-numeric characters except decimal point
+        let value = input.value.replace(/[^\d.]/g, '');
+        
+        // Ensure only one decimal point
+        let parts = value.split('.');
+        if (parts.length > 2) {
+            value = parts[0] + '.' + parts.slice(1).join('');
+        }
+        
+        // Limit to two decimal places
+        if (parts.length > 1) {
+            value = parts[0] + '.' + parts[1].slice(0, 2);
+        }
+        
+        // Update input value
+        input.value = value;
+        
+        // Validate if it's a valid number
+        if (value !== '' && (!isFinite(value) || value <= 0)) {
+            alert('Please enter a valid price (numbers only)');
+            input.value = '';
+            input.focus();
+            return false;
+        }
+        return true;
+    }
 
 // Function to initialize intlTelInput for the "Your Contact" field
 function initializeIntlTelInput() {
@@ -84,18 +118,9 @@ function initializeIntlTelInput() {
             telInput.classList.remove("error");
         } else {
             telInput.classList.add("error");
+            alert('Please enter a valid contact number');
         }
     });
-
-    telInput.addEventListener('keyup', function () {
-        telInput.classList.remove("error");
-    });
-}
-
-// Function to reset the form and start again
-function startAgain() {
-    currentStep = 1; 
-    loadFormStep(); 
 }
 
 // Function to handle form submission for "Your Info"
@@ -104,9 +129,16 @@ function submitUserInfo() {
     let contact = document.getElementById('contact').value;
     let company = document.getElementById('company').value;
     let email = document.getElementById('email').value;
+    let acceptTerms = document.getElementById('accept-terms').checked;
 
-    if (!name || !contact || !company || !email) {
-        alert('All fields are required.');
+    if (!name || !contact || !company || !email || !acceptTerms) {
+        alert('All fields and terms acceptance are required.');
+        return;
+    }
+
+    // Validate email format
+    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        alert('Please enter a valid email address.');
         return;
     }
 
@@ -142,16 +174,21 @@ function submitUserPreferences() {
         return;
     }
 
+    // Validate budget
+    if (!validatePrice(document.getElementById('budget'))) {
+        return;
+    }
+
     fetch('/submit_preferences', {
         method: 'POST',
-        credentials:'include',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ seats, location, area, budget })
     })
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            window.location.href='/thankyou'; 
+            window.location.href = '/thankyou';
         } else {
             alert(data.message);
         }
