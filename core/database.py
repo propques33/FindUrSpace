@@ -11,5 +11,5 @@ load_dotenv()
 def get_db():
     mongo_uri = os.environ.get('MONGO_URI')  # Ensure the MONGO_URI is defined in your .env file
     client = MongoClient(mongo_uri)
-    db = client['FindUrSpace']  # Replace with your actual database name
+    db = client['FindYourSpace']  # Replace with your actual database name FindUrSpace
     return db
