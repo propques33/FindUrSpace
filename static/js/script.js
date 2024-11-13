@@ -200,8 +200,6 @@ function submitUserPreferences() {
 
 // Fetch unique locations (cities) from the database and make dropdown scrollable
 function fetchLocations() {
-    const locationDropdown = document.getElementById('location');
-    locationDropdown.innerHTML = '<option selected disabled>Loading...</option>';
     console.log('Fetching locations...');
     fetch('/get_locations', {
         method: 'GET'
@@ -209,6 +207,7 @@ function fetchLocations() {
     .then(response => response.json())
     .then(data => {
         console.log('Locations data:', data); // Debugging info
+        const locationDropdown = document.getElementById('location');
         locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
         
         data.locations.forEach(function(location) {
@@ -233,21 +232,10 @@ function fetchLocations() {
     });
 }
 
-// Trigger `fetchLocations` when the `location` dropdown is focused (clicked)
-document.getElementById('location').addEventListener('focus', fetchLocations);
-
 // Fetch unique micromarkets for the selected city
 function fetchMicromarkets() {
     const city = document.getElementById('location').value;
-    const areaDropdown = document.getElementById('area');
     console.log('Fetching micromarkets for city:', city);
-
-    if (!city) {
-        alert('Please select a city first');
-        return;
-    }
-
-    areaDropdown.innerHTML = '<option selected disabled>Loading...</option>';
 
     fetch(`/get_micromarkets?city=${city}`, {
         method: 'GET'
@@ -255,6 +243,7 @@ function fetchMicromarkets() {
     .then(response => response.json())
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
+        const areaDropdown = document.getElementById('area');
         areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
         
         data.micromarkets.forEach(function(micromarket) {
@@ -277,9 +266,6 @@ function fetchMicromarkets() {
         console.error('Error fetching micromarkets:', error);
     });
 }
-
-// Trigger `fetchMicromarkets` when the `area` dropdown is focused (clicked)
-document.getElementById('area').addEventListener('focus', fetchMicromarkets);
 
 // Fetch unique prices for the selected city and micromarket
 // JavaScript function update:
