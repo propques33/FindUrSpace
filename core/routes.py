@@ -1,5 +1,5 @@
 # current routes.py
-from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory, redirect, url_for
+from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory, redirect, url_for,make_response
 from collections import defaultdict
 import datetime
 from core.email_handler import send_email_and_whatsapp_with_pdf
@@ -222,7 +222,12 @@ def get_locations():
     cities = db.fillurdetails.distinct('city')
     # Use a list comprehension to ensure unique, trimmed, and case-insensitive results
     cities = list(set(city.strip().lower() for city in cities))
-    return jsonify({'locations': cities})
+    # Build response to prevent caching
+    response = make_response(jsonify({'locations': cities}))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    
+    return response
 
 # Route to fetch unique micromarkets based on selected city
 @core_bp.route('/get_micromarkets', methods=['GET'])
@@ -232,7 +237,12 @@ def get_micromarkets():
     query = {'city': format_query_param(city)}
     micromarkets = db.fillurdetails.distinct('micromarket', query)
     micromarkets = list(set(micromarket.strip().lower() for micromarket in micromarkets))
-    return jsonify({'micromarkets': micromarkets})
+    # Build response to prevent caching
+    response = make_response(jsonify({'micromarkets': micromarkets}))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    
+    return response
 
 # Route to fetch unique prices based on selected city and micromarket
 

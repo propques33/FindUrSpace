@@ -202,7 +202,11 @@ function submitUserPreferences() {
 function fetchLocations() {
     console.log('Fetching locations...');
     fetch('/get_locations', {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+        'Cache-Control': 'no-cache', // Prevents caching
+        'Pragma': 'no-cache'
+    }
     })
     .then(response => response.json())
     .then(data => {
@@ -238,7 +242,11 @@ function fetchMicromarkets() {
     console.log('Fetching micromarkets for city:', city);
 
     fetch(`/get_micromarkets?city=${city}`, {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+        'Cache-Control': 'no-cache', // Prevents caching
+        'Pragma': 'no-cache'
+    }
     })
     .then(response => response.json())
     .then(data => {
