@@ -180,21 +180,23 @@ function submitUserPreferences() {
     let inventoryType = document.getElementById('inventory-type').value;
     // Check if the location was entered manually
     let locationField = document.getElementById('location');
-    let location = locationField ? locationField.value : null;
+    let location = locationField;
+    //  ? locationField.value : null;
 
     // If locationField is replaced by manual input
-    if (!location && document.getElementById('location-manual')) {
-        location = document.getElementById('location-manual').value;
-    }
+    // if (!location && document.getElementById('location-manual')) {
+    //     location = document.getElementById('location-manual').value;
+    // }
 
     // Check if the area was entered manually
     let areaField = document.getElementById('area');
-    let area = areaField ? areaField.value : null;
+    let area = areaField;
+    //  ? areaField.value : null;
 
     // If areaField is replaced by manual input
-    if (!area && document.getElementById('area-manual')) {
-        area = document.getElementById('area-manual').value;
-    }
+    // if (!area && document.getElementById('area-manual')) {
+    //     area = document.getElementById('area-manual').value;
+    // }
 
     let seats = document.getElementById('seats').value;
     let budget = document.getElementById('budget').value;
@@ -228,25 +230,25 @@ function submitUserPreferences() {
     });
 }
 
-function enableManualEntry(selectId) {
-    const selectElement = document.getElementById(selectId);
+// function enableManualEntry(selectId) {
+//     const selectElement = document.getElementById(selectId);
     
-    // Listen for changes in the dropdown
-    selectElement.addEventListener('change', function () {
-        if (selectElement.value === 'manual') {
-            // Replace the dropdown with a text input
-            const manualInput = document.createElement('input');
-            manualInput.type = 'text';
-            manualInput.id = `${selectId}-manual`;
-            manualInput.name = selectId;
-            manualInput.classList.add('form-control');
-            manualInput.placeholder = 'Enter your Location';
+//     // Listen for changes in the dropdown
+//     selectElement.addEventListener('change', function () {
+//         if (selectElement.value === 'manual') {
+//             // Replace the dropdown with a text input
+//             const manualInput = document.createElement('input');
+//             manualInput.type = 'text';
+//             manualInput.id = `${selectId}-manual`;
+//             manualInput.name = selectId;
+//             manualInput.classList.add('form-control');
+//             manualInput.placeholder = 'Enter your Location';
 
-            // Replace the dropdown with the input
-            selectElement.parentElement.replaceChild(manualInput, selectElement);
-        }
-    });
-}
+//             // Replace the dropdown with the input
+//             selectElement.parentElement.replaceChild(manualInput, selectElement);
+//         }
+//     });
+// }
 
 // Fetch unique locations (cities) from the database and make dropdown scrollable
 function fetchLocations() {
@@ -260,7 +262,7 @@ function fetchLocations() {
         const locationDropdown = document.getElementById('location');
         locationDropdown.innerHTML = `
             <option selected disabled>Select Location</option>
-            <option value="manual">Enter Manually</option>
+            // <option value="manual">Enter Manually</option>
         `;
         
         data.locations.forEach(function(location) {
@@ -269,7 +271,7 @@ function fetchLocations() {
             option.text = location;
             locationDropdown.appendChild(option);
         });
-        enableManualEntry('location');
+        // enableManualEntry('location');
 
         // Adjust size of the dropdown on focus
         locationDropdown.addEventListener('focus', function () {
@@ -300,7 +302,7 @@ function fetchMicromarkets() {
         const areaDropdown = document.getElementById('area');
         areaDropdown.innerHTML = `
             <option selected disabled>Select Micromarket</option>
-            <option value="manual">Enter Manually</option>
+            // <option value="manual">Enter Manually</option>
         `;
         
         data.micromarkets.forEach(function(micromarket) {
@@ -310,7 +312,7 @@ function fetchMicromarkets() {
             areaDropdown.appendChild(option);
         });
 
-        enableManualEntry('area');
+        // enableManualEntry('area');
 
         areaDropdown.addEventListener('focus', function () {
             areaDropdown.size = 5;
