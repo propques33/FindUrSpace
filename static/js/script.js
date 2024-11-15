@@ -198,6 +198,26 @@ function submitUserPreferences() {
     });
 }
 
+function enableManualEntry(selectId) {
+    const selectElement = document.getElementById(selectId);
+    
+    // Listen for changes in the dropdown
+    selectElement.addEventListener('change', function () {
+        if (selectElement.value === 'manual') {
+            // Replace the dropdown with a text input
+            const manualInput = document.createElement('input');
+            manualInput.type = 'text';
+            manualInput.id = `${selectId}-manual`;
+            manualInput.name = selectId;
+            manualInput.classList.add('form-control');
+            manualInput.placeholder = 'Enter your Location';
+
+            // Replace the dropdown with the input
+            selectElement.parentElement.replaceChild(manualInput, selectElement);
+        }
+    });
+}
+
 // Fetch unique locations (cities) from the database and make dropdown scrollable
 function fetchLocations() {
     console.log('Fetching locations...');
@@ -208,7 +228,10 @@ function fetchLocations() {
     .then(data => {
         console.log('Locations data:', data); // Debugging info
         const locationDropdown = document.getElementById('location');
-        locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
+        locationDropdown.innerHTML = `
+            <option selected disabled>Select Location</option>
+            <option value="manual">Enter Manually</option>
+        `;
         
         data.locations.forEach(function(location) {
             let option = document.createElement("option");
@@ -216,6 +239,7 @@ function fetchLocations() {
             option.text = location;
             locationDropdown.appendChild(option);
         });
+        enableManualEntry('location');
 
         // Adjust size of the dropdown on focus
         locationDropdown.addEventListener('focus', function () {
@@ -244,7 +268,10 @@ function fetchMicromarkets() {
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
         const areaDropdown = document.getElementById('area');
-        areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+        areaDropdown.innerHTML = `
+            <option selected disabled>Select Micromarket</option>
+            <option value="manual">Enter Manually</option>
+        `;
         
         data.micromarkets.forEach(function(micromarket) {
             let option = document.createElement("option");
@@ -252,6 +279,8 @@ function fetchMicromarkets() {
             option.text = micromarket;
             areaDropdown.appendChild(option);
         });
+
+        enableManualEntry('area');
 
         areaDropdown.addEventListener('focus', function () {
             areaDropdown.size = 5;
