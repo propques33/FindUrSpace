@@ -164,9 +164,26 @@ function submitUserInfo() {
 
 // Function to handle form submission for "Your Preference"
 function submitUserPreferences() {
+
+    // Check if the location was entered manually
+    let locationField = document.getElementById('location');
+    let location = locationField ? locationField.value : null;
+
+    // If locationField is replaced by manual input
+    if (!location && document.getElementById('location-manual')) {
+        location = document.getElementById('location-manual').value;
+    }
+
+    // Check if the area was entered manually
+    let areaField = document.getElementById('area');
+    let area = areaField ? areaField.value : null;
+
+    // If areaField is replaced by manual input
+    if (!area && document.getElementById('area-manual')) {
+        area = document.getElementById('area-manual').value;
+    }
+
     let seats = document.getElementById('seats').value;
-    let location = document.getElementById('location').value;
-    let area = document.getElementById('area').value;
     let budget = document.getElementById('budget').value;
 
     if (!seats || !location || !area || !budget) {
