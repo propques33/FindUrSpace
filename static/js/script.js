@@ -262,7 +262,6 @@ function fetchLocations() {
         const locationDropdown = document.getElementById('location');
         locationDropdown.innerHTML = `
             <option selected disabled>Select Location</option>
-            // <option value="manual">Enter Manually</option>
         `;
         
         data.locations.forEach(function(location) {
@@ -302,7 +301,6 @@ function fetchMicromarkets() {
         const areaDropdown = document.getElementById('area');
         areaDropdown.innerHTML = `
             <option selected disabled>Select Micromarket</option>
-            // <option value="manual">Enter Manually</option>
         `;
         
         data.micromarkets.forEach(function(micromarket) {
