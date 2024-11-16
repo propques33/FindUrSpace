@@ -735,14 +735,24 @@ function fetchLocations() {
             locationDropdown.appendChild(option);
         });
 
+        // Add "Other" option
+        let otherOption = document.createElement("option");
+        otherOption.value = "Other";
+        otherOption.text = "Other";
+        locationDropdown.appendChild(otherOption);
+
         // Adjust size of the dropdown on focus
         locationDropdown.addEventListener('focus', function () {
             locationDropdown.size = 5;
         });
 
         locationDropdown.addEventListener('change', function () {
-            closeDropdown(`location_${spaceCount}`);
-            fetchMicromarkets(); // Fetch micromarkets when location changes
+            if (locationDropdown.value === "Other") {
+                showCustomInput('location', spaceCount);
+            } else {
+                closeDropdown(`location_${spaceCount}`);
+                fetchMicromarkets(); // Fetch micromarkets when location changes
+            }
         });
     })
     .catch(error => {
@@ -776,6 +786,12 @@ function fetchMicromarkets() {
                     micromarketDropdown.appendChild(option);
                 });
 
+                // Add "Other" option
+                let otherOption = document.createElement("option");
+                otherOption.value = "Other";
+                otherOption.text = "Other";
+                micromarketDropdown.appendChild(otherOption);
+
                 // Ensure the dropdown is clickable
                 micromarketDropdown.disabled = false;
                 micromarketDropdown.addEventListener('focus', function () {
@@ -783,13 +799,35 @@ function fetchMicromarkets() {
                 });
 
                 micromarketDropdown.addEventListener('change', function () {
+                if (micromarketDropdown.value === "Other") {
+                    showCustomInput('micromarket', spaceCount);
+                } else {
                     micromarketDropdown.size = 1; // Close the dropdown on change
-                });
+                }
+            });
             }
         })
         .catch(error => {
             console.error('Error fetching micromarkets:', error);
         });
+}
+
+// Show custom input field when "Other" is selected
+function showCustomInput(type, spaceCount) {
+    const container = document.createElement("div");
+    container.classList.add("custom-input-container");
+
+    container.innerHTML = `
+        <input type="text" class="form-control mt-2" placeholder="Enter ${type}" name="${type}_custom_${spaceCount}" 
+            required data-parsley-required-message="Please enter your ${type}." 
+            data-parsley-trigger="change" aria-label="Custom ${type}" />
+    `;
+
+    const dropdown = document.getElementById(`${type}_${spaceCount}`);
+    dropdown.parentNode.appendChild(container);
+
+    dropdown.size = 1; // Close the dropdown
+    dropdown.disabled = true; // Disable dropdown when custom input is active
 }
 
 
