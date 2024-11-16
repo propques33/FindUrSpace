@@ -761,7 +761,12 @@ function fetchMicromarkets() {
     .then(response => response.json())
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
-        const areaDropdown = document.getElementById('area');
+        // Select the micromarket dropdown dynamically for the specific coworking space card
+        const spaceCards = document.querySelectorAll('.card');
+
+        spaceCards.forEach((card) => {
+        const areaDropdown = card.querySelector('select[name="micromarket[]"]');
+        if (areaDropdown) {
         areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
         
         data.micromarkets.forEach(function(micromarket) {
@@ -778,6 +783,8 @@ function fetchMicromarkets() {
         areaDropdown.addEventListener('change', function () {
             closeDropdown('area');
             fetchPrices(); // Fetch prices when micromarket changes
+        });
+    }
         });
     })
     .catch(error => {
