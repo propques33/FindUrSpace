@@ -754,7 +754,7 @@ function fetchLocations() {
 function fetchMicromarkets() {
     const cityDropdown = document.getElementById(`location_${spaceCount}`);
     const selectedCity = cityDropdown.value; 
-    console.log('Fetching micromarkets for city:', city);
+    console.log('Fetching micromarkets for city:', selectedCity);
 
     fetch(`/get_micromarkets?city=${selectedCity}`, {
         method: 'GET'
