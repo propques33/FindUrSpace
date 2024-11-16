@@ -383,13 +383,13 @@
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
-                        <select id="location" class="form-control" name="city[]" placeholder="City" value="${city}"
+                        <select id="location_${spaceCount}" class="form-control" name="city[]" placeholder="City" value="${city}"
                         data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
                             <option value="" selected disabled>Select Location *</option>
                         </select>
                     </div>
                     <div class="mb-3 w-100">
-                        <select id="area" class="form-control" name="micromarket[]" placeholder="Micromarket" required
+                        <select id="micromarket_${spaceCount}" class="form-control" name="micromarket[]" placeholder="Micromarket" required
                             value="${micromarket}"
                             data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
                             <option value="" selected disabled>Select Micromarket *</option>
@@ -725,7 +725,7 @@ function fetchLocations() {
     .then(response => response.json())
     .then(data => {
         console.log('Locations data:', data); // Debugging info
-        const locationDropdown = document.getElementById('location');
+        const locationDropdown = document.getElementById("location_${spaceCount}");
         locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
         
         data.locations.forEach(function(location) {
@@ -752,7 +752,7 @@ function fetchLocations() {
 
 // Fetch unique micromarkets for the selected city
 function fetchMicromarkets() {
-    const cityDropdown = document.getElementById('location');
+    const cityDropdown = document.getElementById('location_${spaceCount}');
     const selectedCity = cityDropdown.value; 
     console.log('Fetching micromarkets for city:', city);
 
