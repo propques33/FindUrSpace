@@ -383,14 +383,23 @@
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
-                        <input type="text" class="form-control" name="city[]" placeholder="City" required
-                            value="${city}"
-                            data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City">
+                        <label for="city_${spaceCount}" class="form-label">City</label>
+                        <select class="form-select" id="city_${spaceCount}" name="city[]" required
+                            onchange="fetchMicromarkets(this)"
+                            data-parsley-required-message="Please select a city." data-parsley-trigger="change" aria-label="City">
+                            <option value="" disabled selected>Select City</option>
+                        </select>
+                        <input type="text" id="city_custom_${spaceCount}" name="city_custom[]" class="form-control mt-2 d-none"
+                            placeholder="Enter your city" aria-label="Custom City">
                     </div>
                     <div class="mb-3 w-100">
-                        <input type="text" class="form-control" name="micromarket[]" placeholder="Micromarket" required
-                            value="${micromarket}"
-                            data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket">
+                        <label for="micromarket_${spaceCount}" class="form-label">Micromarket</label>
+                        <select class="form-select" id="micromarket_${spaceCount}" name="micromarket[]" required
+                            data-parsley-required-message="Please select a micromarket." data-parsley-trigger="change" aria-label="Micromarket">
+                            <option value="" disabled selected>Select Micromarket</option>
+                        </select>
+                        <input type="text" id="micromarket_custom_${spaceCount}" name="micromarket_custom[]" class="form-control mt-2 d-none"
+                            placeholder="Enter your micromarket" aria-label="Custom Micromarket">
                     </div>
                 </div>
 
@@ -544,6 +553,130 @@
         // Refresh Parsley to recognize new fields
         $('#listSpaceForm').parsley().refresh();
     }
+
+// Fetch cities for the City dropdown
+function fetchCities() {
+    console.log('Fetching cities...');
+    fetch('/get_cities', {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Cities data:', data); // Debugging info
+        const cityDropdown = document.querySelectorAll('[id^="city_"]');
+        cityDropdown.forEach((dropdown) => {
+            dropdown.innerHTML = '<option selected disabled>Select City</option>';
+            data.cities.forEach(function(city) {
+                let option = document.createElement("option");
+                option.value = city;
+                option.text = city;
+                dropdown.appendChild(option);
+            });
+
+            // Add the "Other" option
+            let otherOption = document.createElement("option");
+            otherOption.value = "Other";
+            otherOption.text = "Other";
+            dropdown.appendChild(otherOption);
+
+            dropdown.addEventListener('focus', function () {
+                dropdown.size = 5;
+            });
+
+            dropdown.addEventListener('change', function () {
+                closeDropdown(dropdown.id);
+                toggleCustomInput(this, 'city');
+                fetchMicromarkets(dropdown); // Fetch micromarkets when city changes
+            });
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching cities:', error);
+    });
+}
+
+// Fetch micromarkets for the selected city
+function fetchMicromarkets(cityDropdown) {
+    const city = cityDropdown.value;
+    const micromarketDropdown = cityDropdown.parentElement.querySelector('[id^="micromarket_"]');
+    console.log('Fetching micromarkets for city:', city);
+
+    if (city === "Other") {
+        // If "Other" is selected, skip fetching micromarkets
+        micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+        toggleCustomInput(micromarketDropdown, 'micromarket'); // Show custom input
+        return;
+    }
+
+    fetch(`/get_micromarkets?city=${encodeURIComponent(city)}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Micromarkets data:', data); // Debugging info
+        micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+        data.micromarkets.forEach(function(micromarket) {
+            let option = document.createElement("option");
+            option.value = micromarket;
+            option.text = micromarket;
+            micromarketDropdown.appendChild(option);
+        });
+
+        // Add the "Other" option
+        let otherOption = document.createElement("option");
+        otherOption.value = "Other";
+        otherOption.text = "Other";
+        micromarketDropdown.appendChild(otherOption);
+
+        micromarketDropdown.addEventListener('focus', function () {
+            micromarketDropdown.size = 5;
+        });
+
+        micromarketDropdown.addEventListener('change', function () {
+            closeDropdown(micromarketDropdown.id);
+            toggleCustomInput(this, 'micromarket');
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching micromarkets:', error);
+    });
+}
+
+// Close dropdown after selection
+function closeDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.size = 1; // Close dropdown when an option is selected
+}
+
+// Trigger fetchCities on page load
+document.addEventListener('DOMContentLoaded', function () {
+    fetchCities();
+});
+
+// Toggle custom input field for "Other" option
+function toggleCustomInput(dropdown, fieldName) {
+    const parentDiv = dropdown.parentElement;
+    let customInput = parentDiv.querySelector(`#${fieldName}_custom_${spaceCount}`);
+
+    if (dropdown.value === "Other") {
+        if (!customInput) {
+            customInput = document.createElement("input");
+            customInput.type = "text";
+            customInput.id = `${fieldName}_custom_${spaceCount}`;
+            customInput.name = `${fieldName}_custom[]`;
+            customInput.classList.add("form-control", "mt-2");
+            customInput.placeholder = `Enter your ${fieldName}`;
+            customInput.required = true;
+            parentDiv.appendChild(customInput);
+        }
+        customInput.classList.remove("d-none");
+    } else if (customInput) {
+        customInput.classList.add("d-none");
+        customInput.value = "";
+        customInput.required = false;
+    }
+}
+
 
     // Function to handle dynamic change for price input
     function handlePriceChange(selectElement, spaceId, inventoryCount) {
