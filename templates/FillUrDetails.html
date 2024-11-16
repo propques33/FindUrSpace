@@ -557,7 +557,7 @@
 // Fetch cities for the City dropdown
 function fetchCities() {
     console.log('Fetching cities...');
-    fetch('/get_cities', {
+    fetch('/get_locations', {
         method: 'GET'
     })
     .then(response => response.json())
