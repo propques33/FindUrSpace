@@ -187,11 +187,11 @@ def submit_preferences():
         'seats': seats,
         'city': location,
         'micromarket': area,
+        'inventory-type':inventory,
         'budget': budget,
         'property_names': property_names,
         'operator_numbers': operator_numbers,
-        'date': datetime.datetime.now(),
-        'inventory-type':inventory
+        'date': datetime.datetime.now()
     }
 
     # Insert property data into the collection
