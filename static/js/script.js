@@ -1,3 +1,8 @@
+
+
+
+
+
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
 
@@ -40,19 +45,6 @@ function loadFormStep() {
 
     if (currentStep === 2) {
         form.innerHTML = `
-            <div class="form-group mb-3">
-                <select id="inventory-type" name="inventory-type" class="form-select" required>
-                    <option value="" selected disabled>Select Inventory Type *</option>
-                    <option value="hot-desk">Hot Desk</option>
-                    <option value="fixed-desk">Fixed Desk</option>
-                    <option value="manager-cabin">Manager Cabin</option>
-                    <option value="team-suites">Team Suites</option>
-                    <option value="meeting-rooms">Meeting Rooms</option>
-                    <option value="conference-rooms">Conference Rooms</option>
-                    <option value="gaming-zones">Gaming Zones</option>
-                    <option value="discussion-rooms">Discussion Rooms</option>
-                </select>
-            </div>
             <div class="form-group mb-3">
                 <select id="seats" name="seats" class="form-select" required>
                     <option value="" selected disabled>Select Number of Seats *</option>
@@ -177,31 +169,12 @@ function submitUserInfo() {
 
 // Function to handle form submission for "Your Preference"
 function submitUserPreferences() {
-    let inventoryType = document.getElementById('inventory-type').value;
-    // Check if the location was entered manually
-    let locationField = document.getElementById('location');
-    let location = locationField;
-    //  ? locationField.value : null;
-
-    // If locationField is replaced by manual input
-    // if (!location && document.getElementById('location-manual')) {
-    //     location = document.getElementById('location-manual').value;
-    // }
-
-    // Check if the area was entered manually
-    let areaField = document.getElementById('area');
-    let area = areaField;
-    //  ? areaField.value : null;
-
-    // If areaField is replaced by manual input
-    // if (!area && document.getElementById('area-manual')) {
-    //     area = document.getElementById('area-manual').value;
-    // }
-
     let seats = document.getElementById('seats').value;
+    let location = document.getElementById('location').value;
+    let area = document.getElementById('area').value;
     let budget = document.getElementById('budget').value;
 
-    if (!inventoryType || !seats || !location || !area || !budget) {
+    if (!seats || !location || !area || !budget) {
         alert('All fields are required.');
         return;
     }
@@ -215,7 +188,7 @@ function submitUserPreferences() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ inventoryType, seats, location, area, budget })
+        body: new URLSearchParams({ seats, location, area, budget })
     })
     .then(response => response.json())
     .then(data => {
@@ -230,26 +203,6 @@ function submitUserPreferences() {
     });
 }
 
-// function enableManualEntry(selectId) {
-//     const selectElement = document.getElementById(selectId);
-    
-//     // Listen for changes in the dropdown
-//     selectElement.addEventListener('change', function () {
-//         if (selectElement.value === 'manual') {
-//             // Replace the dropdown with a text input
-//             const manualInput = document.createElement('input');
-//             manualInput.type = 'text';
-//             manualInput.id = `${selectId}-manual`;
-//             manualInput.name = selectId;
-//             manualInput.classList.add('form-control');
-//             manualInput.placeholder = 'Enter your Location';
-
-//             // Replace the dropdown with the input
-//             selectElement.parentElement.replaceChild(manualInput, selectElement);
-//         }
-//     });
-// }
-
 // Fetch unique locations (cities) from the database and make dropdown scrollable
 function fetchLocations() {
     console.log('Fetching locations...');
@@ -260,9 +213,7 @@ function fetchLocations() {
     .then(data => {
         console.log('Locations data:', data); // Debugging info
         const locationDropdown = document.getElementById('location');
-        locationDropdown.innerHTML = `
-            <option selected disabled>Select Location</option>
-        `;
+        locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
         
         data.locations.forEach(function(location) {
             let option = document.createElement("option");
@@ -270,7 +221,6 @@ function fetchLocations() {
             option.text = location;
             locationDropdown.appendChild(option);
         });
-        // enableManualEntry('location');
 
         // Adjust size of the dropdown on focus
         locationDropdown.addEventListener('focus', function () {
@@ -299,9 +249,7 @@ function fetchMicromarkets() {
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
         const areaDropdown = document.getElementById('area');
-        areaDropdown.innerHTML = `
-            <option selected disabled>Select Micromarket</option>
-        `;
+        areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
         
         data.micromarkets.forEach(function(micromarket) {
             let option = document.createElement("option");
@@ -309,8 +257,6 @@ function fetchMicromarkets() {
             option.text = micromarket;
             areaDropdown.appendChild(option);
         });
-
-        // enableManualEntry('area');
 
         areaDropdown.addEventListener('focus', function () {
             areaDropdown.size = 5;
