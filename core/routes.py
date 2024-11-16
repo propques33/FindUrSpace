@@ -190,7 +190,8 @@ def submit_preferences():
         'budget': budget,
         'property_names': property_names,
         'operator_numbers': operator_numbers,
-        'date': datetime.datetime.now()
+        'date': datetime.datetime.now(),
+        'inventory-type':inventory
     }
 
     # Insert property data into the collection
