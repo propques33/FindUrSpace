@@ -384,15 +384,17 @@
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <select id="location_${spaceCount}" class="form-control" name="city[]" placeholder="City" value="${city}"
-                        data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
+                        data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()" onchange="handleCityChange(this, ${spaceCount})">
                             <option value="" selected disabled>Select Location *</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                     <div class="mb-3 w-100">
-                        <select id="micromarket_${spaceCount}" class="form-control" name="micromarket[]" placeholder="Micromarket" required
+                        <select id="micromarket_${spaceCount}" class="form-control" name="micromarket[]" placeholder="Micromarket" onchange="handleMicromarketChange(this, ${spaceCount})" required
                             value="${micromarket}"
                             data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
                             <option value="" selected disabled>Select Micromarket *</option>
+                            <option value="Other">Other</option>
                         </select>
                     </div>
                 </div>
@@ -808,6 +810,42 @@ document.addEventListener('click', function (event) {
         }
     });
 });
+
+function handleCityChange(selectElement, spaceCount) {
+    const selectedValue = selectElement.value;
+    if (selectedValue === "Other") {
+        // Replace dropdown with an input field
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.className = "form-control";
+        inputField.name = `city_${spaceCount}`;
+        inputField.placeholder = "Enter your city";
+        inputField.required = true;
+        inputField.setAttribute("data-parsley-required-message", "Please enter the city.");
+        inputField.setAttribute("aria-label", "City");
+
+        // Replace the dropdown with the input field
+        selectElement.parentNode.replaceChild(inputField, selectElement);
+    }
+}
+
+function handleMicromarketChange(selectElement, spaceCount) {
+    const selectedValue = selectElement.value;
+    if (selectedValue === "Other") {
+        // Replace dropdown with an input field
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.className = "form-control";
+        inputField.name = `micromarket_${spaceCount}`;
+        inputField.placeholder = "Enter your micromarket";
+        inputField.required = true;
+        inputField.setAttribute("data-parsley-required-message", "Please enter the micromarket.");
+        inputField.setAttribute("aria-label", "Micromarket");
+
+        // Replace the dropdown with the input field
+        selectElement.parentNode.replaceChild(inputField, selectElement);
+    }
+}
 </script>
 
 </body>
