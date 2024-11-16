@@ -784,6 +784,22 @@ function fetchMicromarkets() {
         console.error('Error fetching micromarkets:', error);
     });
 }
+
+// Close dropdown after selection
+function closeDropdown(dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.size = 1; // Close dropdown when an option is selected
+}
+
+// Handle dropdown close when clicked outside
+document.addEventListener('click', function (event) {
+    var dropdowns = document.querySelectorAll('.form-select');
+    dropdowns.forEach(function (dropdown) {
+        if (!dropdown.contains(event.target)) {
+            dropdown.size = 1; // Close dropdown when clicked outside
+        }
+    });
+});
 </script>
 
 </body>
