@@ -560,24 +560,37 @@ function fetchCities() {
     fetch('/get_locations', {
         method: 'GET'
     })
-    .then(response => response.json())
+    .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
     .then(data => {
         console.log('Cities data:', data); // Debugging info
         const cityDropdown = document.querySelectorAll('[id^="city_"]');
+        if (!cityDropdowns || cityDropdowns.length === 0) {
+                console.error('No city dropdowns found in the DOM.');
+                return;
+            }
         cityDropdown.forEach((dropdown) => {
             dropdown.innerHTML = '<option selected disabled>Select City</option>';
-            data.cities.forEach(function(city) {
-                let option = document.createElement("option");
-                option.value = city;
-                option.text = city;
-                dropdown.appendChild(option);
-            });
+            if (data.cities && Array.isArray(data.cities)) {
+                    data.cities.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city;
+                        option.text = city;
+                        dropdown.appendChild(option);
+                    });
 
             // Add the "Other" option
-            let otherOption = document.createElement("option");
+            const otherOption = document.createElement("option");
             otherOption.value = "Other";
             otherOption.text = "Other";
             dropdown.appendChild(otherOption);
+        } else {
+                    console.error('Cities data is not an array or is missing.');
+                }
 
             dropdown.addEventListener('focus', function () {
                 dropdown.size = 5;
@@ -601,32 +614,46 @@ function fetchMicromarkets(cityDropdown) {
     const micromarketDropdown = cityDropdown.parentElement.querySelector('[id^="micromarket_"]');
     console.log('Fetching micromarkets for city:', city);
 
+    // Reset and disable micromarket dropdown initially
+    micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+    micromarketDropdown.disabled = true;
+
     if (city === "Other") {
-        // If "Other" is selected, skip fetching micromarkets
-        micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
-        toggleCustomInput(micromarketDropdown, 'micromarket'); // Show custom input
+        // Skip fetching micromarkets if "Other" is selected
+        toggleCustomInput(micromarketDropdown, 'micromarket'); // Show custom input for micromarket
+        micromarketDropdown.disabled = false; // Enable dropdown for "Other"
         return;
     }
 
     fetch(`/get_micromarkets?city=${encodeURIComponent(city)}`, {
         method: 'GET'
     })
-    .then(response => response.json())
+    .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
-        micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
-        data.micromarkets.forEach(function(micromarket) {
-            let option = document.createElement("option");
-            option.value = micromarket;
-            option.text = micromarket;
-            micromarketDropdown.appendChild(option);
-        });
+        if (data.micromarkets && Array.isArray(data.micromarkets)) {
+                // Populate the micromarket dropdown with options
+                data.micromarkets.forEach(micromarket => {
+                    const option = document.createElement('option');
+                    option.value = micromarket;
+                    option.text = micromarket;
+                    micromarketDropdown.appendChild(option);
+                });
 
         // Add the "Other" option
-        let otherOption = document.createElement("option");
+        const otherOption = document.createElement("option");
         otherOption.value = "Other";
         otherOption.text = "Other";
         micromarketDropdown.appendChild(otherOption);
+        micromarketDropdown.disabled = false; // Enable dropdown after fetching
+            } else {
+                console.error('Micromarkets data is not an array or is missing.');
+            }
 
         micromarketDropdown.addEventListener('focus', function () {
             micromarketDropdown.size = 5;
