@@ -1,4 +1,3 @@
-
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
 

@@ -53,7 +53,8 @@ def update_google_sheet(sheet, user_data, property_data):
             user_data.get('email', 'N/A'),        # Email Address
             property_data.get('property_names', 'N/A'), # Option shared
             "",                                   # Notes by bot
-            date_created                          # Opportunity Last Modified
+            date_created,                          # Opportunity Last Modified
+            property_data.get('inventory-type')  #inventory type
         ]
         
         # Append the row to the sheet
