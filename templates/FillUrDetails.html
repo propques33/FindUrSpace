@@ -382,17 +382,18 @@
 
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
-                    <div class="form-group">
-                        <div class="mb-3">
-                            <select id="location_${spaceCount}" class="form-select" name="city[]" required onchange="fetchMicromarkets()">
-                                <option selected disabled>Select Location</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <select id="micromarket_${spaceCount}" class="form-select" name="micromarket[]" required disabled>
-                                <option selected disabled>Select Micromarket</option>
-                            </select>
-                        </div>
+                    <div class="mb-3 w-100">
+                        <select id="location" class="form-control" name="city[]" placeholder="City" value="${city}"
+                        data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
+                            <option value="" selected disabled>Select Location *</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 w-100">
+                        <select id="area" class="form-control" name="micromarket[]" placeholder="Micromarket" required
+                            value="${micromarket}"
+                            data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
+                            <option value="" selected disabled>Select Micromarket *</option>
+                        </select>
                     </div>
                 </div>
                 <!-- About Space -->
