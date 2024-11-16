@@ -383,17 +383,19 @@
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
-                        <input type="text" class="form-control" name="city[]" placeholder="City" required
-                            value="${city}"
-                            data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City">
+                        <select id="location" class="form-control" name="city[]" placeholder="City" value="${city}"
+                        data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
+                            <option value="" selected disabled>Select Location *</option>
+                        </select>
                     </div>
                     <div class="mb-3 w-100">
-                        <input type="text" class="form-control" name="micromarket[]" placeholder="Micromarket" required
+                        <select id="area" class="form-control" name="micromarket[]" placeholder="Micromarket" required
                             value="${micromarket}"
-                            data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket">
+                            data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
+                            <option value="" selected disabled>Select Micromarket *</option>
+                        </select>
                     </div>
                 </div>
-
                 <!-- About Space -->
                 <h5>About Space</h5>
                 <div class="form-group mb-3">
@@ -433,6 +435,7 @@
             </div>
         `;
         spaceDetailsContainer.appendChild(spaceCard);
+        fetchLocations();
 
         // Initialize the inventory section
         if (inventoryList.length > 0) {
@@ -712,6 +715,75 @@
             }
         });
     });
+
+    // Fetch unique locations (cities) from the database and make dropdown scrollable
+function fetchLocations() {
+    console.log('Fetching locations...');
+    fetch('/get_locations', {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Locations data:', data); // Debugging info
+        const locationDropdown = document.getElementById('location');
+        locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
+        
+        data.locations.forEach(function(location) {
+            let option = document.createElement("option");
+            option.value = location;
+            option.text = location;
+            locationDropdown.appendChild(option);
+        });
+
+        // Adjust size of the dropdown on focus
+        locationDropdown.addEventListener('focus', function () {
+            locationDropdown.size = 5;
+        });
+
+        locationDropdown.addEventListener('change', function () {
+            closeDropdown('location');
+            fetchMicromarkets(); // Fetch micromarkets when location changes
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching locations:', error);
+    });
+}
+
+// Fetch unique micromarkets for the selected city
+function fetchMicromarkets() {
+    const city = document.getElementById('location').value;
+    console.log('Fetching micromarkets for city:', city);
+
+    fetch(`/get_micromarkets?city=${city}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Micromarkets data:', data); // Debugging info
+        const areaDropdown = document.getElementById('area');
+        areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+        
+        data.micromarkets.forEach(function(micromarket) {
+            let option = document.createElement("option");
+            option.value = micromarket;
+            option.text = micromarket;
+            areaDropdown.appendChild(option);
+        });
+
+        areaDropdown.addEventListener('focus', function () {
+            areaDropdown.size = 5;
+        });
+
+        areaDropdown.addEventListener('change', function () {
+            closeDropdown('area');
+            fetchPrices(); // Fetch prices when micromarket changes
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching micromarkets:', error);
+    });
+}
 </script>
 
 </body>
