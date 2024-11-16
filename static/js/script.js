@@ -1,8 +1,4 @@
 
-
-
-
-
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
 
@@ -45,6 +41,19 @@ function loadFormStep() {
 
     if (currentStep === 2) {
         form.innerHTML = `
+            <div class="form-group mb-3">
+                <select id="inventory-type" name="inventory-type" class="form-select" required>
+                    <option value="" selected disabled>Select Inventory Type *</option>
+                    <option value="hot-desk">Hot Desk</option>
+                    <option value="fixed-desk">Fixed Desk</option>
+                    <option value="manager-cabin">Manager Cabin</option>
+                    <option value="team-suites">Team Suites</option>
+                    <option value="meeting-rooms">Meeting Rooms</option>
+                    <option value="conference-rooms">Conference Rooms</option>
+                    <option value="gaming-zones">Gaming Zones</option>
+                    <option value="discussion-rooms">Discussion Rooms</option>
+                </select>
+            </div>
             <div class="form-group mb-3">
                 <select id="seats" name="seats" class="form-select" required>
                     <option value="" selected disabled>Select Number of Seats *</option>
@@ -169,12 +178,13 @@ function submitUserInfo() {
 
 // Function to handle form submission for "Your Preference"
 function submitUserPreferences() {
+    let inventoryType = document.getElementById('inventory-type').value;
     let seats = document.getElementById('seats').value;
     let location = document.getElementById('location').value;
     let area = document.getElementById('area').value;
     let budget = document.getElementById('budget').value;
 
-    if (!seats || !location || !area || !budget) {
+    if (!inventoryType || !seats || !location || !area || !budget) {
         alert('All fields are required.');
         return;
     }
@@ -188,7 +198,7 @@ function submitUserPreferences() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ seats, location, area, budget })
+        body: new URLSearchParams({inventoryType,  seats, location, area, budget })
     })
     .then(response => response.json())
     .then(data => {
