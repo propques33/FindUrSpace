@@ -382,18 +382,17 @@
 
                 <!-- City and Micromarket -->
                 <div class="form-group mb-3">
-                    <div class="mb-3 w-100">
-                        <select id="location" class="form-control" name="city[]" placeholder="City" value="${city}"
-                        data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
-                            <option value="" selected disabled>Select Location *</option>
-                        </select>
-                    </div>
-                    <div class="mb-3 w-100">
-                        <select id="area" class="form-control" name="micromarket[]" placeholder="Micromarket" required
-                            value="${micromarket}"
-                            data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
-                            <option value="" selected disabled>Select Micromarket *</option>
-                        </select>
+                    <div class="form-group">
+                        <div class="mb-3">
+                            <select id="location_${spaceCount}" class="form-select" name="city[]" required onchange="fetchMicromarkets()">
+                                <option selected disabled>Select Location</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <select id="micromarket_${spaceCount}" class="form-select" name="micromarket[]" required disabled>
+                                <option selected disabled>Select Micromarket</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <!-- About Space -->
@@ -752,45 +751,46 @@ function fetchLocations() {
 
 // Fetch unique micromarkets for the selected city
 function fetchMicromarkets() {
-    const city = document.getElementById('location').value;
+    const cityDropdown = document.getElementById('location');
+    const selectedCity = cityDropdown.value; 
     console.log('Fetching micromarkets for city:', city);
 
-    fetch(`/get_micromarkets?city=${city}`, {
+    fetch(`/get_micromarkets?city=${selectedCity}`, {
         method: 'GET'
     })
     .then(response => response.json())
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
         // Select the micromarket dropdown dynamically for the specific coworking space card
-        const spaceCards = document.querySelectorAll('.card');
+        const micromarketDropdown = cityDropdown.closest('.form-group').querySelector('select[name="micromarket[]"]');
 
-        spaceCards.forEach((card) => {
-        const areaDropdown = card.querySelector('select[name="micromarket[]"]');
-        if (areaDropdown) {
-        areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
-        
-        data.micromarkets.forEach(function(micromarket) {
-            let option = document.createElement("option");
-            option.value = micromarket;
-            option.text = micromarket;
-            areaDropdown.appendChild(option);
-        });
+        if (micromarketDropdown) {
+                // Clear and populate the micromarket dropdown
+                micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
 
-        areaDropdown.addEventListener('focus', function () {
-            areaDropdown.size = 5;
-        });
+                data.micromarkets.forEach(function (micromarket) {
+                    let option = document.createElement('option');
+                    option.value = micromarket;
+                    option.text = micromarket;
+                    micromarketDropdown.appendChild(option);
+                });
 
-        areaDropdown.addEventListener('change', function () {
-            closeDropdown('area');
-            fetchPrices(); // Fetch prices when micromarket changes
+                // Ensure the dropdown is clickable
+                micromarketDropdown.disabled = false;
+                micromarketDropdown.addEventListener('focus', function () {
+                    micromarketDropdown.size = 5; // Expand the dropdown on focus
+                });
+
+                micromarketDropdown.addEventListener('change', function () {
+                    micromarketDropdown.size = 1; // Close the dropdown on change
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching micromarkets:', error);
         });
-    }
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching micromarkets:', error);
-    });
 }
+
 
 // Close dropdown after selection
 function closeDropdown(dropdownId) {
