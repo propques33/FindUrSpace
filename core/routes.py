@@ -118,7 +118,6 @@ def submit_preferences():
     db = current_app.config['db']
 
     # Get form data
-    inventory= request.form.get('inventory-type')
     seats = request.form.get('seats')
     location = request.form.get('location')
     area = request.form.get('area')
@@ -187,7 +186,6 @@ def submit_preferences():
         'seats': seats,
         'city': location,
         'micromarket': area,
-        'inventory-type':inventory,
         'budget': budget,
         'property_names': property_names,
         'operator_numbers': operator_numbers,
