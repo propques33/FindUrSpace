@@ -814,21 +814,29 @@ function fetchMicromarkets() {
 
 // Show custom input field when "Other" is selected
 function showCustomInput(type, spaceCount) {
-    const container = document.createElement("div");
-    container.classList.add("custom-input-container");
-
-    container.innerHTML = `
-        <input type="text" class="form-control mt-2" placeholder="Enter ${type}" name="${type}_custom_${spaceCount}" 
-            required data-parsley-required-message="Please enter your ${type}." 
-            data-parsley-trigger="change" aria-label="Custom ${type}" />
-    `;
-
     const dropdown = document.getElementById(`${type}_${spaceCount}`);
-    dropdown.parentNode.appendChild(container);
+    const customInputId = `${type}_custom_input_${spaceCount}`; // Unique ID for the custom input field
+    const existingInput = document.getElementById(customInputId);
 
-    dropdown.size = 1; // Close the dropdown
-    dropdown.disabled = true; // Disable dropdown when custom input is active
+    // Check if the custom input field already exists
+    if (!existingInput) {
+        const container = document.createElement("div");
+        container.classList.add("custom-input-container");
+        container.setAttribute("id", customInputId); // Set unique ID for the input container
+
+        container.innerHTML = `
+            <input type="text" class="form-control mt-2" placeholder="Enter ${type}" name="${type}_custom_${spaceCount}" 
+                required data-parsley-required-message="Please enter your ${type}." 
+                data-parsley-trigger="change" aria-label="Custom ${type}" />
+        `;
+
+        dropdown.parentNode.appendChild(container);
+
+        // Disable dropdown when custom input is active
+        dropdown.disabled = true;
+    }
 }
+
 
 
 // Close dropdown after selection
