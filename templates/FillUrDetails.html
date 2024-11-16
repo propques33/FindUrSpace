@@ -442,6 +442,7 @@
             </div>
         `;
         spaceDetailsContainer.appendChild(spaceCard);
+        populateCities(spaceCount);
 
         // Initialize the inventory section
         if (inventoryList.length > 0) {
@@ -554,76 +555,72 @@
         $('#listSpaceForm').parsley().refresh();
     }
 
-// Fetch cities for the City dropdown
-function fetchCities() {
-    console.log('Fetching cities...');
-    fetch('/get_locations', {
-        method: 'GET'
-    })
-    .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            return response.json();
-        })
-    .then(data => {
-        console.log('Cities data:', data); // Debugging info
-        const cityDropdown = document.querySelectorAll('[id^="city_"]');
-        if (!cityDropdowns || cityDropdowns.length === 0) {
-                console.error('No city dropdowns found in the DOM.');
-                return;
-            }
-        cityDropdown.forEach((dropdown) => {
-            dropdown.innerHTML = '<option selected disabled>Select City</option>';
-            if (data.cities && Array.isArray(data.cities)) {
+//     function fetchCities() {
+//     fetch('/get_locations')
+//         .then(response => {
+//             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+//             return response.json();
+//         })
+//         .then(data => {
+//             const cityDropdowns = document.querySelectorAll('[id^="city_"]');
+//             cityDropdowns.forEach((dropdown) => {
+//                 dropdown.innerHTML = '<option value="" disabled selected>Select City</option>';
+//                 data.cities.forEach(city => {
+//                     const option = document.createElement('option');
+//                     option.value = city;
+//                     option.text = city;
+//                     dropdown.appendChild(option);
+//                 });
+//                 const otherOption = document.createElement('option');
+//                 otherOption.value = 'Other';
+//                 otherOption.text = 'Other';
+//                 dropdown.appendChild(otherOption);
+//             });
+//         })
+//         .catch(error => console.error('Error fetching cities:', error));
+// }
+
+    function populateCities(spaceCount) {
+        fetch('/get_locations')
+            .then(response => {
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                const cityDropdown = document.getElementById(`city_${spaceCount}`);
+                cityDropdown.innerHTML = '<option value="" disabled selected>Select City</option>';
+                if (Array.isArray(data.cities)) {
                     data.cities.forEach(city => {
                         const option = document.createElement('option');
                         option.value = city;
                         option.text = city;
-                        dropdown.appendChild(option);
+                        cityDropdown.appendChild(option);
+                    });
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'Other';
+                    otherOption.text = 'Other';
+                    cityDropdown.appendChild(otherOption);
+
+                    dropdown.addEventListener('focus', function () {
+                        dropdown.size = 5;
                     });
 
-            // Add the "Other" option
-            const otherOption = document.createElement("option");
-            otherOption.value = "Other";
-            otherOption.text = "Other";
-            dropdown.appendChild(otherOption);
-        } else {
-                    console.error('Cities data is not an array or is missing.');
+                    dropdown.addEventListener('change', function () {
+                        closeDropdown(dropdown.id);
+                        toggleCustomInput(this, 'city');
+                        fetchMicromarkets(dropdown); // Fetch micromarkets when city changes
+                    });
                 }
-
-            dropdown.addEventListener('focus', function () {
-                dropdown.size = 5;
-            });
-
-            dropdown.addEventListener('change', function () {
-                closeDropdown(dropdown.id);
-                toggleCustomInput(this, 'city');
-                fetchMicromarkets(dropdown); // Fetch micromarkets when city changes
-            });
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching cities:', error);
-    });
-}
+            })
+            .catch(error => console.error('Error fetching cities:', error));
+    }
 
 // Fetch micromarkets for the selected city
-function fetchMicromarkets(cityDropdown) {
+function fetchMicromarkets(cityDropdown, spaceCount) {
     const city = cityDropdown.value;
-    const micromarketDropdown = cityDropdown.parentElement.querySelector('[id^="micromarket_"]');
-    console.log('Fetching micromarkets for city:', city);
-
-    // Reset and disable micromarket dropdown initially
-    micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
-    micromarketDropdown.disabled = true;
-
-    if (city === "Other") {
-        // Skip fetching micromarkets if "Other" is selected
-        toggleCustomInput(micromarketDropdown, 'micromarket'); // Show custom input for micromarket
-        micromarketDropdown.disabled = false; // Enable dropdown for "Other"
-        return;
-    }
+    const micromarketDropdown = document.getElementById(`micromarket_${spaceCount}`);
+    micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket</option>';
 
     fetch(`/get_micromarkets?city=${encodeURIComponent(city)}`, {
         method: 'GET'
@@ -635,39 +632,63 @@ function fetchMicromarkets(cityDropdown) {
             return response.json();
         })
     .then(data => {
-        console.log('Micromarkets data:', data); // Debugging info
-        if (data.micromarkets && Array.isArray(data.micromarkets)) {
-                // Populate the micromarket dropdown with options
-                data.micromarkets.forEach(micromarket => {
-                    const option = document.createElement('option');
-                    option.value = micromarket;
-                    option.text = micromarket;
-                    micromarketDropdown.appendChild(option);
-                });
+        if (Array.isArray(data.micromarkets)) {
+                    data.micromarkets.forEach(micromarket => {
+                        const option = document.createElement('option');
+                        option.value = micromarket;
+                        option.text = micromarket;
+                        micromarketDropdown.appendChild(option);
+                    });
 
-        // Add the "Other" option
-        const otherOption = document.createElement("option");
-        otherOption.value = "Other";
-        otherOption.text = "Other";
-        micromarketDropdown.appendChild(otherOption);
-        micromarketDropdown.disabled = false; // Enable dropdown after fetching
-            } else {
-                console.error('Micromarkets data is not an array or is missing.');
-            }
+                    // Add "Other" option
+                    const otherOption = document.createElement('option');
+                    otherOption.value = 'Other';
+                    otherOption.text = 'Other';
+                    micromarketDropdown.appendChild(otherOption);
 
-        micromarketDropdown.addEventListener('focus', function () {
-            micromarketDropdown.size = 5;
-        });
+                    micromarketDropdown.addEventListener('focus', function () {
+                        micromarketDropdown.size = 5;
+                    });
 
-        micromarketDropdown.addEventListener('change', function () {
-            closeDropdown(micromarketDropdown.id);
-            toggleCustomInput(this, 'micromarket');
-        });
+                    micromarketDropdown.addEventListener('change', function () {
+                        closeDropdown(micromarketDropdown.id);
+                        toggleCustomInput(this, 'micromarket');
+                    });
+                }
     })
     .catch(error => {
         console.error('Error fetching micromarkets:', error);
     });
 }
+
+function handleCityChange(cityDropdown, spaceCount) {
+        const customInput = document.getElementById(`city_custom_${spaceCount}`);
+        if (cityDropdown.value === 'Other') {
+            customInput.classList.remove('d-none');
+            customInput.required = true;
+        } else {
+            customInput.classList.add('d-none');
+            customInput.value = '';
+            customInput.required = false;
+            fetchMicromarkets(cityDropdown, spaceCount);
+        }
+    }
+
+    function handleMicromarketChange(micromarketDropdown, spaceCount) {
+        const customInput = document.getElementById(`micromarket_custom_${spaceCount}`);
+        if (micromarketDropdown.value === 'Other') {
+            customInput.classList.remove('d-none');
+            customInput.required = true;
+        } else {
+            customInput.classList.add('d-none');
+            customInput.value = '';
+            customInput.required = false;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        addSpaceDetails(); // Add the first space details section on load
+    });
 
 // Close dropdown after selection
 function closeDropdown(dropdownId) {
