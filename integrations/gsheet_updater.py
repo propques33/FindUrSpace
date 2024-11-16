@@ -51,10 +51,11 @@ def update_google_sheet(sheet, user_data, property_data):
             user_data.get('name', 'Unknown'),     # Primary Contact (First)
             user_data.get('mobile_number', 'N/A'),# Phone Number
             user_data.get('email', 'N/A'),        # Email Address
+            property_data.get('inventory-type','N/A'),  #inventory type
+            "Test", #where id you hear about us
             property_data.get('property_names', 'N/A'), # Option shared
             "",                                   # Notes by bot
-            date_created,                          # Opportunity Last Modified
-            property_data.get('inventory-type','N/A')  #inventory type
+            date_created                       # Opportunity Last Modified
         ]
         
         # Append the row to the sheet
