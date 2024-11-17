@@ -728,7 +728,12 @@ function fetchLocations() {
         const locationDropdown = document.getElementById(`location_${spaceCount}`);
         locationDropdown.innerHTML = '<option selected disabled>Select Location</option>';
         
-        data.locations.forEach(function(location) {
+        // Sort locations and capitalize the first letter
+        const sortedLocations = data.locations
+            .map(location => location.charAt(0).toUpperCase() + location.slice(1))
+            .sort();
+
+        sortedLocations.forEach(function(location) {
             let option = document.createElement("option");
             option.value = location;
             option.text = location;
@@ -779,12 +784,17 @@ function fetchMicromarkets() {
                 // Clear and populate the micromarket dropdown
                 micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
 
-                data.micromarkets.forEach(function (micromarket) {
-                    let option = document.createElement('option');
-                    option.value = micromarket;
-                    option.text = micromarket;
-                    micromarketDropdown.appendChild(option);
-                });
+                // Sort micromarkets and capitalize the first letter
+            const sortedMicromarkets = data.micromarkets
+                .map(micromarket => micromarket.charAt(0).toUpperCase() + micromarket.slice(1))
+                .sort();
+
+            sortedMicromarkets.forEach(function(micromarket) {
+                let option = document.createElement("option");
+                option.value = micromarket;
+                option.text = micromarket;
+                micromarketDropdown.appendChild(option);
+            });
 
                 // Add "Other" option
                 let otherOption = document.createElement("option");
