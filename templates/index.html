@@ -916,6 +916,7 @@
 </section>
 
 
+
     <!-- Footer Section
     <footer class="text-center">
         <p>&copy; 2024 FindUrSpace. All rights reserved.</p>
@@ -1018,6 +1019,14 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
+    <div id="otp-modal" class="modal">
+      <div class="modal-content">
+          <h2>Enter OTP</h2>
+          <p>An OTP has been sent to your mobile number. Please enter it below:</p>
+          <input type="text" id="otp" maxlength="6" class="form-control" placeholder="Enter OTP">
+          <button class="btn btn-primary" onclick="verifyOtp()">Verify OTP</button>
+      </div>
+  </div>
 </body>
     
 </html>

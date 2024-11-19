@@ -8,12 +8,51 @@ from bson.regex import Regex
 import threading
 import io
 import os
+import random
 import requests
 from dotenv import load_dotenv
 from integrations.gsheet_updater import handle_new_property_entry
 from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
 from core.image_upload import process_and_upload_images
+from integrations.otplessauth import OtpLessAuth
 
+# Define the Blueprint for core routes
+core_bp = Blueprint('core_bp', __name__)
+
+# Temporary storage for OTPs (consider a more secure storage like Redis)
+otp_store = {}
+
+@core_bp.route('/send_otp', methods=['POST'])
+def send_otp():
+    contact = request.form.get('contact')
+    if not contact:
+        return jsonify({"status": "error", "message": "Contact number is required."}), 400
+
+    result = OtpLessAuth.send_otp(contact)
+    if result['success']:
+        # Store requestId temporarily for verification
+        session['request_id'] = result['requestId']
+        return jsonify({"status": "success", "message": "OTP sent successfully."})
+    else:
+        return jsonify({"status": "error", "message": result.get('message', 'Failed to send OTP.')}), 500
+    
+@core_bp.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    request_id = session.get('request_id')  # Retrieve requestId from session
+    otp = request.form.get('otp')
+
+    if not request_id or not otp:
+        return jsonify({"status": "error", "message": "Request ID and OTP are required."}), 400
+
+    result = OtpLessAuth.verify_otp(request_id, otp)
+    if result['success']:
+        # Store verification status and mobile number in session
+        session['otp_verified'] = True
+        session['verified_mobile'] = result['mobile']
+        return jsonify({"status": "success", "message": result['message']})
+    else:
+        return jsonify({"status": "error", "message": result.get('message', 'Failed to verify OTP.')}), 400
+    
 # Function to handle Google Sheet updates in the background
 def update_gsheet_background(app, db, property_data):
     with app.app_context():  # Ensure app context is available in the background thread
@@ -61,9 +100,6 @@ def get_lowest_price(inventory):
             if price > 0:  # Ensure we don't consider zero or invalid prices
                 lowest_price = min(lowest_price, price)
     return lowest_price if lowest_price != float('inf') else 0
-
-# Define the Blueprint for core routes
-core_bp = Blueprint('core_bp', __name__)
 
 @core_bp.route('/sitemap.xml')
 def sitemap():
@@ -122,6 +158,7 @@ def submit_preferences():
     location = request.form.get('location')
     area = request.form.get('area')
     budget = request.form.get('budget')
+    contact = request.form.get('contact')
 
     # Check if the session has a user_id
     user_id = session.get('user_id')

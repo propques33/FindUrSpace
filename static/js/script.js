@@ -168,6 +168,7 @@ function submitUserPreferences() {
     let location = document.getElementById('location').value;
     let area = document.getElementById('area').value;
     let budget = document.getElementById('budget').value;
+    let contact = document.getElementById('contact').value; 
 
     if (!seats || !location || !area || !budget) {
         alert('All fields are required.');
@@ -183,12 +184,18 @@ function submitUserPreferences() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ seats, location, area, budget })
+        body: new URLSearchParams({ seats, location, area, budget,contact })
     })
     .then(response => response.json())
     .then(data => {
+        // if (data.status === 'success') {
+        //     window.location.href = '/thankyou';
+        // } else {
+        //     alert(data.message);
+        // }
         if (data.status === 'success') {
-            window.location.href = '/thankyou';
+            // Proceed to OTP step after successful form submission
+            sendOtp(contact);
         } else {
             alert(data.message);
         }
@@ -197,6 +204,57 @@ function submitUserPreferences() {
         console.error('Error:', error);
     });
 }
+
+// Function to send OTP to user's contact number
+function sendOtp(contact) {
+    fetch('/send_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ contact })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            openOtpModal();
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error sending OTP:', error));
+}
+
+// Function to verify OTP
+function verifyOtp() {
+    const otp = document.getElementById('otp').value;
+    fetch('/verify_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('OTP verified successfully!');
+            window.location.href = '/thankyou';
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(error => console.error('Error verifying OTP:', error));
+}
+
+// Function to open OTP modal
+function openOtpModal() {
+    const modal = document.getElementById('otp-modal');
+    modal.style.display = 'flex';
+}
+
+// Function to close OTP modal
+function closeOtpModal() {
+    const modal = document.getElementById('otp-modal');
+    modal.style.display = 'none';
+}
+
 
 // Fetch unique locations (cities) from the database and make dropdown scrollable
 function fetchLocations() {
@@ -336,6 +394,20 @@ document.addEventListener('click', function (event) {
 // Trigger the initial form loading when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
     loadFormStep(); 
+    // Add OTP modal dynamically if it doesn't exist
+if (!document.getElementById('otp-modal')) {
+    const modalHtml = `
+        <div id="otp-modal" class="modal">
+            <div class="modal-content">
+                <h2>Enter OTP</h2>
+                <p>An OTP has been sent to your contact number. Please enter it below:</p>
+                <input type="text" id="otp" maxlength="6" class="form-control" placeholder="Enter OTP">
+                <button class="btn btn-primary" onclick="verifyOtp()">Verify OTP</button>
+                <button class="btn btn-secondary" onclick="closeOtpModal()">Cancel</button>
+            </div>
+        </div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
 });
 
 // discover section
