@@ -219,7 +219,8 @@ function submitUserPreferences() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ seats, location, area, budget, inventoryType, hearAbout })
+        body: new URLSearchParams({ seats, location, area, budget, 'inventory-type': inventoryType, 
+            'hear-about': hearAbout  })
     })
     .then(response => response.json())
     .then(data => {
