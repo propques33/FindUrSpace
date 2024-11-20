@@ -122,6 +122,8 @@ def submit_preferences():
     location = request.form.get('location')
     area = request.form.get('area')
     budget = request.form.get('budget')
+    inventory_type = request.form.get('inventory-type')  # New field
+    hear_about = request.form.get('hear-about')  # New field
 
     # Check if the session has a user_id
     user_id = session.get('user_id')
@@ -187,6 +189,8 @@ def submit_preferences():
         'city': location,
         'micromarket': area,
         'budget': budget,
+        'inventory_type': inventory_type,  # Save new field
+        'hear_about': hear_about,  # Save new field
         'property_names': property_names,
         'operator_numbers': operator_numbers,
         'date': datetime.datetime.now()

@@ -51,6 +51,8 @@ def update_google_sheet(sheet, user_data, property_data):
             user_data.get('name', 'Unknown'),     # Primary Contact (First)
             user_data.get('mobile_number', 'N/A'),# Phone Number
             user_data.get('email', 'N/A'),        # Email Address
+            property_data.get('inventory_type', 'N/A'),
+            property_data.get('hear_about', 'N/A'), 
             property_data.get('property_names', 'N/A'), # Option shared
             "",                                   # Notes by bot
             date_created                          # Opportunity Last Modified

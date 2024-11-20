@@ -40,6 +40,33 @@ function loadFormStep() {
 
     if (currentStep === 2) {
         form.innerHTML = `
+            <!-- Inventory Type Dropdown -->
+        <div class="form-group mb-3">
+            <label for="inventory-type" class="form-label">Inventory Type *</label>
+            <select id="inventory-type" name="inventory-type" class="form-select" required>
+                <option value="" selected disabled>Select Inventory Type</option>
+                <option value="coworking space">Coworking Space</option>
+                <option value="meeting room">Meeting Room</option>
+                <option value="virtual office">Virtual Office</option>
+                <option value="dedicated desk">Dedicated Desk</option>
+                <option value="private cabin">Private Cabin</option>
+                <option value="day pass">Day Pass</option>
+                <option value="serviced offices">Serviced Offices</option>
+                <option value="conference rooms">Conference Rooms</option>
+            </select>
+        </div>
+        
+        <!-- Hear About Us Dropdown -->
+        <div class="form-group mb-3">
+            <label for="hear-about" class="form-label">Where did you hear about us? *</label>
+            <select id="hear-about" name="hear-about" class="form-select" required>
+                <option value="" selected disabled>Select Source</option>
+                <option value="facebook">Facebook</option>
+                <option value="google">Google</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
             <div class="form-group mb-3">
                 <select id="seats" name="seats" class="form-select" required>
                     <option value="" selected disabled>Select Number of Seats *</option>
@@ -168,8 +195,10 @@ function submitUserPreferences() {
     let location = document.getElementById('location').value;
     let area = document.getElementById('area').value;
     let budget = document.getElementById('budget').value;
+    let inventoryType = document.getElementById('inventory-type').value; // New field
+    let hearAbout = document.getElementById('hear-about').value; // New field
 
-    if (!seats || !location || !area || !budget) {
+    if (!seats || !location || !area || !budget|| !inventoryType || !hearAbout) {
         alert('All fields are required.');
         return;
     }
@@ -190,7 +219,7 @@ function submitUserPreferences() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ seats, location, area, budget })
+        body: new URLSearchParams({ seats, location, area, budget, inventoryType, hearAbout })
     })
     .then(response => response.json())
     .then(data => {
