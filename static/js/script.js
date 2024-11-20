@@ -174,6 +174,13 @@ function submitUserPreferences() {
         return;
     }
 
+    // Check if a valid micromarket is selected
+    if (area === "") {
+        alert('Please select a valid Micromarket.');
+        document.getElementById('area').focus();
+        return;
+    }
+
     // Validate budget
     if (!validatePrice(document.getElementById('budget'))) {
         return;
@@ -249,7 +256,7 @@ function fetchMicromarkets() {
     .then(data => {
         console.log('Micromarkets data:', data); // Debugging info
         const areaDropdown = document.getElementById('area');
-        areaDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+        areaDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket *</option>';
         
         // Sort micromarkets alphabetically and capitalize the first letter of each option
         const sortedMicromarkets = data.micromarkets
