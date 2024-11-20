@@ -407,11 +407,9 @@
                             data-parsley-trigger="change" aria-label="Total Seats">
                     </div>
                     <div class="mb-3 w-100">
-                        <input type="number" class="form-control" name="current_vacancy[]" placeholder="Current Vacancy" min="0" required
-                            value="${current_vacancy}"
-                            data-parsley-required-message="Please enter the current vacancy."
-                            data-parsley-type="number"
-                            data-parsley-trigger="change" aria-label="Current Vacancy">
+                        <input type="number" class="form-control" name="current_vacancy[]" placeholder="This value is automatically calculated" min="0" readonly
+                            value="0" id="current_vacancy_${spaceCount}" aria-label="Current Vacancy">
+                        <small class="text-muted">This value will be automatically calculated based on the inventory.</small>
                     </div>
                 </div>
 
@@ -512,14 +510,14 @@
                     <select class="form-select" name="inventory_type_${spaceId}[]" required
                         data-parsley-required-message="Please select an inventory type." data-parsley-trigger="change" aria-label="Inventory Type" onchange="handlePriceChange(this, ${spaceId}, ${inventoryCount})">
                         <option value="" disabled ${!inventoryType ? 'selected' : ''}>Inventory Type</option>
-                        <option value="Hot desk" ${inventoryType === 'Hot desk' ? 'selected' : ''}>Hot desk</option>
-                        <option value="Fixed desk" ${inventoryType === 'Fixed desk' ? 'selected' : ''}>Fixed desk</option>
-                        <option value="Manager Cabin" ${inventoryType === 'Manager Cabin' ? 'selected' : ''}>Manager Cabin</option>
-                        <option value="Team Suites" ${inventoryType === 'Team Suites' ? 'selected' : ''}>Team Suites</option>
-                        <option value="Meeting rooms" ${inventoryType === 'Meeting rooms' ? 'selected' : ''}>Meeting rooms</option>
                         <option value="Conference rooms" ${inventoryType === 'Conference rooms' ? 'selected' : ''}>Conference rooms</option>
-                        <option value="Gaming zones" ${inventoryType === 'Gaming zones' ? 'selected' : ''}>Gaming zones</option>
-                        <option value="Discussion rooms" ${inventoryType === 'Discussion rooms' ? 'selected' : ''}>Discussion rooms</option>
+                        <option value="Coworking space" ${inventoryType === 'Coworking space' ? 'selected' : ''}>Coworking space</option>
+                        <option value="Day pass" ${inventoryType === 'Day pass' ? 'selected' : ''}>Day pass</option>
+                        <option value="Dedicated desk" ${inventoryType === 'Dedicated desk' ? 'selected' : ''}>Dedicated desk</option>
+                        <option value="Meeting rooms" ${inventoryType === 'Meeting rooms' ? 'selected' : ''}>Meeting rooms</option>
+                        <option value="Private cabin" ${inventoryType === 'Private cabin' ? 'selected' : ''}>Private cabin</option>
+                        <option value="Serviced offices" ${inventoryType === 'Serviced offices' ? 'selected' : ''}>Serviced offices</option>
+                        <option value="Virtual office" ${inventoryType === 'Virtual office' ? 'selected' : ''}>Virtual office</option>
                     </select>
                 </div>
                 <div class="mb-3 w-100">
@@ -532,11 +530,12 @@
             </div>
             <div class="form-group mb-3">
                 <div class="mb-3 w-100">
-                    <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Inventory" min="0" required
+                    <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Vacant Inventory" min="0" required
                         value="${inventoryCountValue}"
-                        data-parsley-required-message="Please enter the number of inventory."
+                        onchange="updateCurrentVacancy(${spaceId})"
+                        data-parsley-required-message="Please enter the number of vacant inventory."
                         data-parsley-type="number"
-                        data-parsley-trigger="change" aria-label="Number of Inventory">
+                        data-parsley-trigger="change" aria-label="Number of Vacant Inventory">
                 </div>
                 <!-- Placeholder div to maintain two per row layout -->
                 <div style="flex:1;"></div>
@@ -547,6 +546,19 @@
         // Refresh Parsley to recognize new fields
         $('#listSpaceForm').parsley().refresh();
     }
+
+    function updateCurrentVacancy(spaceId) {
+    const inventoryCounts = document.querySelectorAll(`#inventoryContainer_${spaceId} input[name^="inventory_count_${spaceId}"]`);
+    let totalVacancy = 0;
+
+    inventoryCounts.forEach(input => {
+        totalVacancy += parseInt(input.value) || 0; // Sum up inventory counts
+    });
+
+    // Update the Current Vacancy field
+    const currentVacancyField = document.getElementById(`current_vacancy_${spaceId}`);
+    currentVacancyField.value = totalVacancy; // Set calculated value
+}
 
     // Function to handle dynamic change for price input
     function handlePriceChange(selectElement, spaceId, inventoryCount) {
