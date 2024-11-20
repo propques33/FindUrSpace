@@ -42,7 +42,6 @@ function loadFormStep() {
         form.innerHTML = `
             <!-- Inventory Type Dropdown -->
         <div class="form-group mb-3">
-            <label for="inventory-type" class="form-label">Inventory Type *</label>
             <select id="inventory-type" name="inventory-type" class="form-select" required>
                 <option value="" selected disabled>Select Inventory Type</option>
                 <option value="coworking space">Coworking Space</option>
@@ -58,7 +57,6 @@ function loadFormStep() {
         
         <!-- Hear About Us Dropdown -->
         <div class="form-group mb-3">
-            <label for="hear-about" class="form-label">Where did you hear about us? *</label>
             <select id="hear-about" name="hear-about" class="form-select" required>
                 <option value="" selected disabled>Select Source</option>
                 <option value="facebook">Facebook</option>
