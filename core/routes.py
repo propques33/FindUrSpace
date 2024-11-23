@@ -166,7 +166,7 @@ def submit_preferences():
     for prop in all_properties:
         inventory = prop.get('inventory', [])
         lowest_price = get_lowest_price(inventory)
-        if lowest_price <= max_budget:
+        if max_budget:
             # Add the lowest price to the property object for reference
             prop['lowest_price'] = lowest_price
             filtered_properties.append(prop)
