@@ -1,5 +1,6 @@
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
+let requestId = null; // Store the requestId for OTP verification
 
 // Function to load the form based on the current step
 function loadFormStep() {
@@ -22,8 +23,14 @@ function loadFormStep() {
     if (currentStep === 1) {
         form.innerHTML = `
             <input type="text" id="name" name="name" class="form-control" placeholder="Your Name *" required>
-            <div class="input-group mb-3">
+            <div class="input-group mb-3 verifybt">
                 <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact *" required>
+                <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width: 80px; border-radius:8px; padding:4px 0px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="sendOtp()">Verify</button>
+            </div>
+            <div class="form-group mt-3" id="otp-section" style="display:none;">
+                <label for="otpInput">Enter OTP</label>
+                <input type="text" id="otpInput" class="form-control" placeholder="Enter OTP" required>
+                <button type="button" class="btn btn-primary mt-2" onclick="verifyOtp()">Verify OTP</button>
             </div>
             <input type="text" id="company" name="company" class="form-control" placeholder="Company Name *" required>
             <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail *" required>
@@ -99,6 +106,75 @@ function loadFormStep() {
         fetchLocations();
     }
 }
+
+function sendOtp() {
+    const contactField = document.getElementById('contact');
+    const contact = contactField.value.trim();
+
+    // Validate the contact number
+    if (!/^\d{10}$/.test(contact)) {
+        alert('Please enter a valid 10-digit contact number.');
+        contactField.focus();
+        return;
+    }
+
+    // Prepend +91 for Indian numbers
+    const formattedContact = `+91${contact}`;
+
+    // Send OTP request
+    fetch('/send_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mobile: formattedContact })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            requestId = data.requestId; // Save requestId for verification
+            document.getElementById('otp-section').style.display = 'block'; // Show OTP input
+            alert('OTP sent successfully. Please check your mobile.');
+        } else {
+            alert(data.message || 'Failed to send OTP. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error sending OTP:', error);
+        alert('An error occurred while sending OTP. Please try again.');
+    });
+}
+
+function verifyOtp() {
+    const otpInput = document.getElementById('otpInput');
+    const otp = otpInput.value.trim();
+
+    if (!/^\d{4,6}$/.test(otp)) { // Check for a valid 4-6 digit OTP
+        alert('Please enter a valid OTP.');
+        otpInput.focus();
+        return;
+    }
+
+    // Verify OTP request
+    fetch('/verify_otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId, otp })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('OTP verified successfully!');
+            document.getElementById('otp-section').style.display = 'none'; // Hide OTP input
+            document.getElementById('contact').disabled = true; // Disable contact input
+            document.getElementById('verify-btn').disabled = true; // Disable verify button
+        } else {
+            alert(data.message || 'Failed to verify OTP. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error verifying OTP:', error);
+        alert('An error occurred during OTP verification. Please try again.');
+    });
+}
     
     // Update the validatePrice function to format the value with the ₹ symbol
     function validatePrice(input) {
@@ -150,13 +226,18 @@ function initializeIntlTelInput() {
 
 // Function to handle form submission for "Your Info"
 function submitUserInfo() {
+    const contactField = document.getElementById('contact');
+    if (!contactField.disabled) {
+        alert('Please verify your contact number before proceeding.');
+        return;
+    }
+
     let name = document.getElementById('name').value;
-    let contact = document.getElementById('contact').value;
     let company = document.getElementById('company').value;
     let email = document.getElementById('email').value;
     let acceptTerms = document.getElementById('accept-terms').checked;
 
-    if (!name || !contact || !company || !email || !acceptTerms) {
+    if (!name || !company || !email || !acceptTerms) {
         alert('All fields and terms acceptance are required.');
         return;
     }
@@ -171,7 +252,7 @@ function submitUserInfo() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ name, contact, company, email })
+        body: new URLSearchParams({ name, contact: contactField.value, company, email })
     })
     .then(response => response.json())
     .then(data => {

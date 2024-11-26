@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from integrations.gsheet_updater import handle_new_property_entry
 from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
 from core.image_upload import process_and_upload_images
+from integrations.otplessauth import OtpLessAuth
 
 # Function to handle Google Sheet updates in the background
 def update_gsheet_background(app, db, property_data):
@@ -21,6 +22,7 @@ def update_gsheet_background(app, db, property_data):
             handle_new_property_entry(db, property_data)  # Update the Google Sheet
         except Exception as e:
             print(f"Failed to update Google Sheet: {e}")
+
 
 # Helper function to send the email and WhatsApp in the background
 def send_email_and_whatsapp_background(app, email, name, contact, filtered_properties):
@@ -65,6 +67,38 @@ def get_lowest_price(inventory):
 # Define the Blueprint for core routes
 core_bp = Blueprint('core_bp', __name__)
 
+@core_bp.route('/send_otp', methods=['POST'])
+def send_otp():
+    mobile = request.json.get('mobile')
+    if not mobile:
+        return jsonify({'success': False, 'message': 'Mobile number is required'})
+
+    otp_service = OtpLessAuth()
+    response = otp_service.send_otp(mobile)
+
+    if response['success']:
+        session['contact'] = mobile  # Store mobile in session
+        return jsonify({'success': True, 'requestId': response['requestId']})
+    else:
+        return jsonify({'success': False, 'message': response.get('message', 'Failed to send OTP')})
+
+@core_bp.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    request_id = request.json.get('requestId')
+    otp = request.json.get('otp')
+
+    if not request_id or not otp:
+        return jsonify({'success': False, 'message': 'Both requestId and OTP are required'})
+
+    otp_service = OtpLessAuth()
+    response = otp_service.verify_otp(request_id, otp)
+
+    if response['success']:
+        session['otp_verified'] = True  # Mark OTP as verified in session
+        return jsonify({'success': True, 'message': 'OTP verified successfully!'})
+    else:
+        return jsonify({'success': False, 'message': response.get('message', 'Failed to verify OTP')})
+                       
 @core_bp.route('/sitemap.xml')
 def sitemap():
     return send_from_directory(directory='/', path='sitemap.xml')
@@ -78,6 +112,9 @@ def index():
 # Route to handle form submission (Your Info form)
 @core_bp.route('/submit_info', methods=['POST'])
 def submit_info():
+    if not session.get('otp_verified'):
+        return jsonify({'status': 'error', 'message': 'Please verify your OTP before submitting the form.'})
+    
     db = current_app.config['db']  # Get the db instance from the app config
 
     # Get form data

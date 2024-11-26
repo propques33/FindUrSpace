@@ -1979,3 +1979,11 @@ h1, h2, h3, p, span, a {
     transform: translateY(0); /* Reset lift on click */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Return to normal shadow */
 }
+
+.verifybt{
+    position:relative;
+}
+.verify{
+    position:absolute;
+    right:0;
+}

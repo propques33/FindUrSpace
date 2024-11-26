@@ -4,6 +4,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
 from reportlab.lib.units import inch
+from reportlab.lib.colors import black, lightgrey
 from io import BytesIO
 from PyPDF2 import PdfWriter, PdfReader
 import os
@@ -25,6 +26,17 @@ def fetch_image(url):
         print(f"Failed to fetch image from {url}: {e}")
     return None
 
+# Helper function to fetch and resize an image
+def fetch_and_resize_image(url, width=6 * inch, height=4 * inch):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            image = BytesIO(response.content)
+            return Image(image, width=width, height=height)
+    except Exception as e:
+        print(f"Error fetching image from {url}: {e}")
+    return None
+
 # Generate PDF with property details
 # Adjusted PDF generation function to handle layout_images
 def generate_property_pdf(properties, doc, styles):
@@ -34,57 +46,64 @@ def generate_property_pdf(properties, doc, styles):
     styles.add(ParagraphStyle(name='EnhancedHeading', fontName='Helvetica-Bold', fontSize=32, spaceAfter=24))
     styles.add(ParagraphStyle(name='EnhancedNormal', fontName='Helvetica', fontSize=24, spaceAfter=16, leading=28))
 
-    for i, p in enumerate(properties, start=1):
+    for i, property_data in enumerate(properties, start=1):
         elements.append(Paragraph(f"Option {i}", styles['EnhancedHeading']))
-        elements.append(Spacer(1, 16))
+        elements.append(Spacer(1, 12))
         
-        coworking_name = p.get('coworking_name', 'Unknown Property')
+        coworking_name = property_data.get('coworking_name', 'Unknown Property')
         print(f"Generating PDF for property: {coworking_name}")
         elements.append(Paragraph(f"Name: {coworking_name}", styles['EnhancedNormal']))
         
-        micromarket = p.get('micromarket', 'Unknown Micromarket')
-        city = p.get('city', 'Unknown City')
+        city = property_data.get('city', 'Unknown City')
+        micromarket = property_data.get('micromarket', 'Unknown Micromarket')
         elements.append(Spacer(1, 16))
         elements.append(Paragraph(f"Address: {micromarket}, {city}", styles['EnhancedNormal']))
         
-        details = p.get('details', 'No details available')
+        # Inventory details
+        inventory = property_data.get('inventory', [])
+        if inventory:
+            elements.append(Spacer(1, 16))
+            elements.append(Paragraph("Inventory Details:", styles['EnhancedNormal']))
+            for item in inventory:
+                inventory_type = item.get('type', 'N/A')
+                price_per_seat = item.get('price_per_seat', '0')
+                elements.append(Paragraph(
+                    f"- {inventory_type}: ₹{price_per_seat} price per seat", 
+                    styles['EnhancedNormal']
+                ))
+        else:
+            elements.append(Paragraph("Inventory details not available.", styles['EnhancedNormal']))
         elements.append(Spacer(1, 16))
-        elements.append(Paragraph(f"Details: {details}", styles['EnhancedNormal']))
-        elements.append(Spacer(1, 32))
 
         # Access layout_images from property data
-        layout_images = p.get('layout_images', [])
+        layout_images = property_data.get('layout_images', [])
 
-        # Fetch first two images if available
-        image1_url = layout_images[0] if len(layout_images) > 0 else None
-        image2_url = layout_images[1] if len(layout_images) > 1 else None
+        if layout_images:
+            elements.append(Spacer(1, 8))
+            elements.append(Paragraph("Property Images:", styles['EnhancedNormal']))
 
-        image1 = fetch_image(image1_url) if image1_url else None
-        image2 = fetch_image(image2_url) if image2_url else None
+            # Fetch and display up to two images per property
+            image_row = []
+            for img_url in layout_images[:2]:  # Limit to the first two images
+                img = fetch_and_resize_image(img_url)
+                if img:
+                    image_row.append(img)
 
-        if image1 and image2:
-            # Both images available
-            table_data = [[Image(BytesIO(requests.get(image1_url).content), width=6.0 * inch, height=5.0 * inch),
-                           Spacer(0.5 * inch, 0),
-                           Image(BytesIO(requests.get(image2_url).content), width=6.0 * inch, height=5.0 * inch)]]
-
-            image_table = Table(table_data)
-            image_table.setStyle(TableStyle([
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('LEFTPADDING', (0, 0), (-1, -1), 0),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-            ]))
-            elements.append(image_table)
-        elif image1 or image2:
-            # One image available, add it alone
-            single_image = image1 if image1 else image2
-            elements.append(Image(BytesIO(requests.get(image1_url if image1 else image2_url).content), width=6.0 * inch, height=5.0 * inch))
+            if image_row:
+                image_table = Table([image_row], colWidths=[8 * inch] * len(image_row))
+                image_table.setStyle(TableStyle([
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                ]))
+                elements.append(image_table)
+            else:
+                elements.append(Paragraph("No images available.", styles['EnhancedNormal']))
         else:
-            # No images available
-            elements.append(Paragraph("Images could not be loaded.", styles['EnhancedNormal']))
+            elements.append(Paragraph("No images available.", styles['EnhancedNormal']))
 
-        elements.append(Spacer(1, 48))  # Add a gap between properties
+        elements.append(Spacer(1, 20))  # Add a gap between properties
 
     doc.build(elements)
 
