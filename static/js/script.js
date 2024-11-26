@@ -27,10 +27,9 @@ function loadFormStep() {
                 <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact *" required>
                 <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width: 80px; border-radius:8px; padding:4px 0px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="sendOtp()">Verify</button>
             </div>
-            <div class="form-group mt-3" id="otp-section" style="display:none;">
-                <label for="otpInput">Enter OTP</label>
-                <input type="text" id="otpInput" class="form-control" placeholder="Enter OTP" required>
-                <button type="button" class="btn btn-primary mt-2" onclick="verifyOtp()">Verify OTP</button>
+            <div class="form-group mt-3" id="otp-section" style="display:none; position:relative;">
+                <input type="text" id="otpInput" class="form-control mr-4"  placeholder="Enter OTP" required>
+                <button type="button" class="btn btn-primary ml-2" style="position:absolute; right:10px; top:6px; width:100px; padding:6px 0px; font-size:16px;" onclick="verifyOtp()">Verify OTP</button>
             </div>
             <input type="text" id="company" name="company" class="form-control" placeholder="Company Name *" required>
             <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail *" required>
