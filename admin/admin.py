@@ -4,7 +4,7 @@ from bson import ObjectId
 from io import BytesIO
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from core.email_handler import send_email_and_whatsapp_with_pdf
+from core.email_handler_listing import send_email_and_whatsapp_with_pdf
 from datetime import datetime
 
 
