@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory, redirect, url_for,make_response
 from collections import defaultdict
 import datetime
-from core.email_handler import send_email_and_whatsapp_with_pdf
+from core.email_handler import send_email_and_whatsapp_with_pdf1
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 from bson.regex import Regex
 import threading
@@ -31,7 +31,7 @@ def send_email_and_whatsapp_background(app, email, name, contact, filtered_prope
             print("Sending email and WhatsApp with the following details:")
             print(f"Email: {email}, Name: {name}, Contact: {contact}")
             print(f"Filtered Properties: {filtered_properties}")
-            success, _ = send_email_and_whatsapp_with_pdf(email, name, contact, filtered_properties)
+            success, _ = send_email_and_whatsapp_with_pdf1(email, name, contact, filtered_properties)
             print("Email and whatapp sent successfully")
         except Exception as e:
             print(f"Failed to send email and whatsapp: {e}")

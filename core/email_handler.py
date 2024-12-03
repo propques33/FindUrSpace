@@ -183,7 +183,7 @@ def generate_property_pdf(properties, doc, styles):
 
 
 # Send email and WhatsApp with the same PDF
-def send_email_and_whatsapp_with_pdf(to_email, name, contact, properties):
+def send_email_and_whatsapp_with_pdf1(to_email, name, contact, properties):
     try:
         # Ensure the contact number starts with '91' (for Cunnekt API)
         if not contact.startswith('91'):
