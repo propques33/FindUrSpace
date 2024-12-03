@@ -207,9 +207,9 @@
             function fetchInventory() {
                 const selectedCity = cityDropdown.value;
                 const selectedMicromarket = micromarketDropdown.value;
-                const selectedPrice = priceDropdown.value;
+                // const selectedPrice = priceDropdown.value;
 
-                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&price=${encodeURIComponent(selectedPrice)}`;
+                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}`;
 
                 fetch(`/admin/fetch_inventory?${query}`)
                     .then(response => response.json())
