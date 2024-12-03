@@ -116,6 +116,25 @@
 
     <div class="content">
         <h1>Live Inventory</h1>
+
+        <!-- Filter Form -->
+    <form id="filter-form" method="GET">
+        <select id="city" name="city">
+            <option value="">Select City</option>
+            {% for city in cities %}
+                <option value="{{ city }}">{{ city }}</option>
+            {% endfor %}
+        </select>
+        
+        <select id="micromarket" name="micromarket">
+            <option value="">Select Micromarket</option>
+        </select>
+
+        <select id="price" name="price">
+            <option value="">Select Price</option>
+        </select>
+    </form>
+
         <div class="table-container">
             <table id="inventory-table">
                 <thead>
@@ -162,6 +181,9 @@
         let inventoryData = []; // Store the fetched data for sorting
 
         document.addEventListener('DOMContentLoaded', function () {
+            const cityDropdown = document.getElementById('city');
+            const micromarketDropdown = document.getElementById('micromarket');
+            const priceDropdown = document.getElementById('price');
             const tableBody = document.querySelector('#inventory-table tbody');
             const sortCityButton = document.querySelector('#sort-city');
             const modal = document.getElementById('coworking-modal');
@@ -184,7 +206,13 @@
             let isAsc = true; // Track sorting order
 
             function fetchInventory() {
-                fetch(`/admin/fetch_inventory`)
+                const selectedCity = cityDropdown.value;
+                const selectedMicromarket = micromarketDropdown.value;
+                const selectedPrice = priceDropdown.value;
+
+                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&price=${encodeURIComponent(selectedPrice)}`;
+
+                fetch(`/admin/fetch_inventory?${query}`)
                     .then(response => response.json())
                     .then(data => {
                         inventoryData = data.spaces; // Store the fetched data
@@ -221,7 +249,42 @@
                 });
             }
 
+            cityDropdown.addEventListener('change', function () {
+            const selectedCity = cityDropdown.value;
+            micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
+            priceDropdown.innerHTML = '<option value="">Select Price</option>';
+
+            if (selectedCity) {
+                fetch(`/admin/get_micromarkets/${encodeURIComponent(selectedCity)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(market => {
+                            const option = document.createElement('option');
+                            option.value = market;
+                            option.text = market;
+                            micromarketDropdown.appendChild(option);
+                        });
+                    });
             
+                    micromarketDropdown.addEventListener('change', function () {
+                    const selectedMicromarket = micromarketDropdown.value;
+                    if (selectedMicromarket) {
+                        fetch(`/admin/get_prices/${encodeURIComponent(selectedCity)}/${encodeURIComponent(selectedMicromarket)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                priceDropdown.innerHTML = '<option value="">Select Price</option>';
+                                data.forEach(price => {
+                                    const option = document.createElement('option');
+                                    option.value = price;
+                                    option.text = price;
+                                    priceDropdown.appendChild(option);
+                                });
+                            });
+                    }
+                });
+            }
+            fetchInventory(); // Fetch updated inventory
+        });
 
             // Display Modal with Details
             function displayModal(space) {
@@ -265,6 +328,9 @@
 
             // Add event listener for sorting
             sortCityButton.addEventListener('click', sortTableByCity);
+
+            micromarketDropdown.addEventListener('change', fetchInventory);
+            priceDropdown.addEventListener('change', fetchInventory);
 
             // Initial fetch
             fetchInventory();

@@ -759,8 +759,12 @@ def get_lead_notes():
 def live_inventory():
     if 'admin' not in session:
         return redirect(url_for('admin.admin_login'))
+    
+    db = current_app.config['db']
+    cities = db.fillurdetails.distinct('city')
+    micromarkets = db.fillurdetails.distinct('micromarket')
 
-    return render_template('live_inventory.html')
+    return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
 
 @admin_bp.route('/fetch_inventory', methods=['GET'])
 def fetch_inventory():
@@ -770,8 +774,24 @@ def fetch_inventory():
     db = current_app.config['db']  # Access the db instance from the current app context
     fillurdetails_collection = db['fillurdetails']
 
+    # Get filter parameters
+    city = request.args.get('city')
+    micromarket = request.args.get('micromarket')
+    price = request.args.get('price')
+
+    filters = {}
+    if city:
+        filters['city'] = city
+    if micromarket:
+        filters['micromarket'] = micromarket
+    if price:
+        try:
+            filters['price'] = {'$lte': int(price)}
+        except ValueError:
+            pass
+
     # Fetch coworking space data without pagination
-    coworking_list = list(fillurdetails_collection.find({}, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0}).sort('date',-1))
+    coworking_list = list(fillurdetails_collection.find(filters, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0}).sort('date', -1))
 
     # Return the data as JSON
     return jsonify({
