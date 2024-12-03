@@ -762,8 +762,7 @@ def live_inventory():
     
     db = current_app.config['db']
     # Fetch all city names and normalize to lowercase
-    raw_cities = db.fillurdetails.distinct('city')
-    cities = sorted(set(city.lower() for city in raw_cities if city))  # Remove duplicates and sort
+    cities = db.fillurdetails.distinct('city')
     micromarkets = db.fillurdetails.distinct('micromarket')
 
     return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
@@ -774,7 +773,6 @@ def get_micromarkets_live(city):
         return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
 
     db = current_app.config['db']
-    city = city.lower()  # Normalize to lowercase
 
     # Find micromarkets for the normalized city in the fillurdetails collection
     micromarkets = db.fillurdetails.distinct("micromarket", {"city": {"$regex": f"^{city}$", "$options": "i"}})
