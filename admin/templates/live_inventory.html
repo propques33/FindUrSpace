@@ -130,9 +130,9 @@
             <option value="">Select Micromarket</option>
         </select>
 
-        <select id="price" name="price">
+        <!-- <select id="price" name="price">
             <option value="">Select Price</option>
-        </select>
+        </select> -->
     </form>
 
         <div class="table-container">
@@ -183,7 +183,6 @@
         document.addEventListener('DOMContentLoaded', function () {
             const cityDropdown = document.getElementById('city');
             const micromarketDropdown = document.getElementById('micromarket');
-            const priceDropdown = document.getElementById('price');
             const tableBody = document.querySelector('#inventory-table tbody');
             const sortCityButton = document.querySelector('#sort-city');
             const modal = document.getElementById('coworking-modal');
@@ -252,7 +251,6 @@
             cityDropdown.addEventListener('change', function () {
             const selectedCity = cityDropdown.value;
             micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
-            priceDropdown.innerHTML = '<option value="">Select Price</option>';
 
             if (selectedCity) {
                 fetch(`/admin/get_micromarkets/${encodeURIComponent(selectedCity)}`)
@@ -266,22 +264,22 @@
                         });
                     });
             
-                    micromarketDropdown.addEventListener('change', function () {
-                    const selectedMicromarket = micromarketDropdown.value;
-                    if (selectedMicromarket) {
-                        fetch(`/admin/get_prices/${encodeURIComponent(selectedCity)}/${encodeURIComponent(selectedMicromarket)}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                priceDropdown.innerHTML = '<option value="">Select Price</option>';
-                                data.forEach(price => {
-                                    const option = document.createElement('option');
-                                    option.value = price;
-                                    option.text = price;
-                                    priceDropdown.appendChild(option);
-                                });
-                            });
-                    }
-                });
+                //     micromarketDropdown.addEventListener('change', function () {
+                //     const selectedMicromarket = micromarketDropdown.value;
+                //     if (selectedMicromarket) {
+                //         fetch(`/admin/get_prices/${encodeURIComponent(selectedCity)}/${encodeURIComponent(selectedMicromarket)}`)
+                //             .then(response => response.json())
+                //             .then(data => {
+                //                 priceDropdown.innerHTML = '<option value="">Select Price</option>';
+                //                 data.forEach(price => {
+                //                     const option = document.createElement('option');
+                //                     option.value = price;
+                //                     option.text = price;
+                //                     priceDropdown.appendChild(option);
+                //                 });
+                //             });
+                //     }
+                // });
             }
             fetchInventory(); // Fetch updated inventory
         });
@@ -330,7 +328,7 @@
             sortCityButton.addEventListener('click', sortTableByCity);
 
             micromarketDropdown.addEventListener('change', fetchInventory);
-            priceDropdown.addEventListener('change', fetchInventory);
+            // priceDropdown.addEventListener('change', fetchInventory);
 
             // Initial fetch
             fetchInventory();
