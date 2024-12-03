@@ -130,9 +130,6 @@
             <option value="">Select Micromarket</option>
         </select>
 
-        <!-- <select id="price" name="price">
-            <option value="">Select Price</option>
-        </select> -->
     </form>
 
         <div class="table-container">
@@ -207,7 +204,6 @@
             function fetchInventory() {
                 const selectedCity = cityDropdown.value;
                 const selectedMicromarket = micromarketDropdown.value;
-                // const selectedPrice = priceDropdown.value;
 
                 let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}`;
 
@@ -253,7 +249,7 @@
             micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
 
             if (selectedCity) {
-                fetch(`/admin/get_micromarkets/${encodeURIComponent(selectedCity)}`)
+                fetch(`/admin/get_micromarkets_live/${encodeURIComponent(selectedCity)}`)
                     .then(response => response.json())
                     .then(data => {
                         data.forEach(market => {
@@ -264,22 +260,7 @@
                         });
                     });
             
-                //     micromarketDropdown.addEventListener('change', function () {
-                //     const selectedMicromarket = micromarketDropdown.value;
-                //     if (selectedMicromarket) {
-                //         fetch(`/admin/get_prices/${encodeURIComponent(selectedCity)}/${encodeURIComponent(selectedMicromarket)}`)
-                //             .then(response => response.json())
-                //             .then(data => {
-                //                 priceDropdown.innerHTML = '<option value="">Select Price</option>';
-                //                 data.forEach(price => {
-                //                     const option = document.createElement('option');
-                //                     option.value = price;
-                //                     option.text = price;
-                //                     priceDropdown.appendChild(option);
-                //                 });
-                //             });
-                //     }
-                // });
+                
             }
             fetchInventory(); // Fetch updated inventory
         });
@@ -328,7 +309,6 @@
             sortCityButton.addEventListener('click', sortTableByCity);
 
             micromarketDropdown.addEventListener('change', fetchInventory);
-            // priceDropdown.addEventListener('change', fetchInventory);
 
             // Initial fetch
             fetchInventory();

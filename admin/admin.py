@@ -761,10 +761,28 @@ def live_inventory():
         return redirect(url_for('admin.admin_login'))
     
     db = current_app.config['db']
-    cities = db.fillurdetails.distinct('city')
+    # Fetch all city names and normalize to lowercase
+    raw_cities = db.fillurdetails.distinct('city')
+    cities = sorted(set(city.lower() for city in raw_cities if city))  # Remove duplicates and sort
     micromarkets = db.fillurdetails.distinct('micromarket')
 
     return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
+
+@admin_bp.route('/get_micromarkets_live/<city>', methods=['GET'])
+def get_micromarkets_live(city):
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']
+    city = city.lower()  # Normalize to lowercase
+
+    # Find micromarkets for the normalized city in the fillurdetails collection
+    micromarkets = db.fillurdetails.distinct("micromarket", {"city": {"$regex": f"^{city}$", "$options": "i"}})
+
+    if not micromarkets:
+        return jsonify({'status': 'error', 'message': 'No micromarkets found for the city'}), 404
+
+    return jsonify(micromarkets)
 
 @admin_bp.route('/fetch_inventory', methods=['GET'])
 def fetch_inventory():
@@ -797,6 +815,7 @@ def fetch_inventory():
     return jsonify({
         'spaces': coworking_list
     })
+
 
 
 @admin_bp.route('/coworking_details', methods=['GET'])
