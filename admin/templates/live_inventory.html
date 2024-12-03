@@ -164,16 +164,6 @@
         .close-btn:hover {
             color: #ff0000;
         }
-        .modal-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
     </style>
 </head>
 <body>
@@ -218,20 +208,6 @@
         </div>
         <!-- Send Button -->
         <button id="send-btn" class="send-btn">Send</button>
-    </div>
-
-    <!-- Modal for Email and Mobile Input -->
-    <div id="modal-backdrop" class="modal-backdrop"></div>
-    <div id="modal" class="modal">
-        <button class="close-btn">&times;</button>
-        <h3>Send to Email and WhatsApp</h3>
-        <form id="send-form" data-thank-you-url="{{ url_for('admin.greeting') }}">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-            <label for="mobile">Mobile:</label>
-            <input type="text" id="mobile" name="mobile" required>
-            <button type="submit" class="send-btn">Send</button>
-        </form>
     </div>
 
     <!-- Modal for displaying coworking details -->
