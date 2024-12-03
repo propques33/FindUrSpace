@@ -270,6 +270,9 @@
             const modalBackdrop = document.getElementById('modal-backdrop');
             const sendForm = document.getElementById('send-form');
             const closeModalButton = document.querySelector('.close-btn');
+            const coworkingModal = document.getElementById('coworking-modal');
+            const emailModal = document.getElementById('modal');
+            const coworkingModalClose = document.getElementById('modal-close');
 
             // Function to close the modal when clicking outside
             window.onclick = function(event) {
@@ -323,10 +326,14 @@
                         <td>${space.total_seats}</td>
                         <td>${space.current_vacancy}</td>
                     `;
-                    // Add an event listener to make the row clickable
-                    row.addEventListener('click', () => {
-                        displayModal(space);
-                    });
+                    // Add click event to open coworking modal
+            row.querySelectorAll('td').forEach(td => {
+                td.addEventListener('click', function (e) {
+                    if (!e.target.closest('input')) {
+                        displayCoworkingModal(space);
+                    }
+                });
+            });
                     tableBody.appendChild(row);
                 });
             }
@@ -361,7 +368,7 @@
                     return;
                 }
 
-                modal.style.display = 'block';
+                emailModal.style.display = 'block';
                 modalBackdrop.style.display = 'block';
 
                 sendForm.addEventListener('submit', function (event) {
@@ -394,17 +401,17 @@
             });
 
             closeModalButton.addEventListener('click', function () {
-                modal.style.display = 'none';
+                emailModal.style.display = 'none';
                 modalBackdrop.style.display = 'none';
             });
 
             modalBackdrop.addEventListener('click', function () {
-                modal.style.display = 'none';
+                emailModal.style.display = 'none';
                 modalBackdrop.style.display = 'none';
             });
 
             // Display Modal with Details
-            function displayModal(space) {
+            function displayCoworkingModal(space) {
                 document.getElementById('coworking-name').textContent = space.coworking_name;
                 document.getElementById('owner-info-name').textContent = space.owner.name;
                 document.getElementById('owner-info-phone').textContent = space.owner.phone;
@@ -427,6 +434,11 @@
                 modal.classList.add("show");
                 modal.style.display = "flex";
             }
+
+            // Close coworking modal
+    coworkingModalClose.onclick = function () {
+        coworkingModal.classList.remove('show');
+    };
 
             // Sorting function
             function sortTableByCity() {
