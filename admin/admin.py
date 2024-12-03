@@ -5,6 +5,7 @@ from io import BytesIO
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from core.email_handler_listing import send_email_and_whatsapp_with_pdf
+from core.email_handler import send_email_and_whatsapp_with_pdf1
 from datetime import datetime
 
 
@@ -22,6 +23,18 @@ def send_email_and_whatsapp_background(app, email, mobile, selected_properties):
     with app.app_context():  # Set up the app context
         try:
             success, error = send_email_and_whatsapp_with_pdf(email, None, mobile, selected_properties)
+            if success:
+                print("Email and WhatsApp sent successfully.")
+            else:
+                print(f"Failed to send: {error}")
+        except Exception as e:
+            print(f"Error in sending email and WhatsApp: {e}")
+
+# Helper function to send the email and WhatsApp with app context
+def send_email_and_whatsapp_background1(app, email, mobile, selected_properties):
+    with app.app_context():  # Set up the app context
+        try:
+            success, error = send_email_and_whatsapp_with_pdf1(email, None, mobile, selected_properties)
             if success:
                 print("Email and WhatsApp sent successfully.")
             else:
@@ -73,6 +86,49 @@ def send_selected_properties():
         print(f"Error in send_selected_properties: {e}")
         return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
 
+@admin_bp.route('/send_selected_properties_live', methods=['POST'])
+def send_selected_properties_live():
+    data = request.get_json()
+    email = data.get('email')
+    mobile = data.get('mobile')
+    selected_property_ids = data.get('selectedProperties')
+
+    if not selected_property_ids or not email:
+        return jsonify({'status': 'error', 'message': 'Missing required information'})
+
+    db = current_app.config['db']
+
+    try:
+        # Fetch from coworking_spaces
+        properties = list(db.fillurdetails.find({
+            '_id': {'$in': [ObjectId(id) for id in selected_property_ids]}
+        }))
+
+        # Transform the data to match live_inventory format
+        transformed_properties = []
+        for p in properties:
+            transformed_p = {
+                'coworking_name': p.get('name'),  # Map 'name' to 'coworking_name'
+                'city': p.get('city'),
+                'micromarket': p.get('micromarket'),
+                'details': p.get('details'),
+                'layout_images': [p.get('img1', ''), p.get('img2', '')] if p.get('img1') else []
+            }
+            transformed_properties.append(transformed_p)
+
+        # Send email with transformed data
+        app = current_app._get_current_object()
+        email_thread = threading.Thread(
+            target=send_email_and_whatsapp_background1, 
+            args=(app, email, mobile, transformed_properties)
+        )
+        email_thread.start()
+
+        return jsonify({'status': 'success', 'message': 'Email sent successfully'})
+
+    except Exception as e:
+        print(f"Error in send_selected_properties: {e}")
+        return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
 
 @admin_bp.route('/greeting')
 def greeting():
