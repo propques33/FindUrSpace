@@ -185,9 +185,12 @@ def generate_property_pdf(properties, doc, styles):
 # Send email and WhatsApp with the same PDF
 def send_email_and_whatsapp_with_pdf1(to_email, name, contact, properties):
     try:
-        # Ensure the contact number starts with '91' (for Cunnekt API)
-        if not contact.startswith('91'):
+        # Ensure the contact number is valid and formatted correctly
+        if len(contact) == 10:
             contact = '91' + contact
+        elif not contact.startswith('91') or len(contact) != 12:
+            raise ValueError("Invalid contact number format")
+        
 
         # Load the predesigned PDF and extract static pages
         static_pdf_path = os.path.join(current_app.root_path, 'static', 'pdffin.pdf')
