@@ -178,12 +178,14 @@ def send_email_and_whatsapp_with_pdf(to_email, name, contact, properties):
         combined_pdf_buffer = BytesIO()
         output_pdf.write(combined_pdf_buffer)
         combined_pdf_buffer.seek(0)
-
+        # Create email message and attach the combined PDF
+        greeting = f"Dear {name}" if name else "Hi"
+        
         # Create email message and attach the combined PDF
         message = Message(subject='Your Property Data',
                           recipients=[to_email],
                           bcc=['enterprise.propques@gmail.com', 'buzz@propques.com', 'thomas@propques.com'],
-                          html=f"<strong>Dear {name},</strong><br>"
+                          html=f"<strong>D{greeting},</strong><br>"
                                "<strong>Please find attached the details of the properties you requested:</strong><br><br>"
                                "If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.")
         message.attach("property_data.pdf", "application/pdf", combined_pdf_buffer.read())
