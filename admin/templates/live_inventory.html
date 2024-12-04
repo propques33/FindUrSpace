@@ -366,17 +366,12 @@
                         <td>${space.city}</td>
                         <td>${space.total_seats}</td>
                         <td>${space.current_vacancy}</td>
+                        <td><button class="show-details-btn">Show Details</button></td>
                     `;
                     // Prevent checkbox click from triggering row click
-            row.querySelector('.select-property').addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent event bubbling to row click
-                emailModal.classList.add('show');
-            });
-
-            // Add click event to the row to open coworking modal
-            row.addEventListener('click', () => displayCoworkingModal(space));
-
-            tableBody.appendChild(row);
+                // Add event listener for "Show Details" button
+                row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
+                tableBody.appendChild(row);
         });
     }
 
