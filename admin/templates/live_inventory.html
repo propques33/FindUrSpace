@@ -149,6 +149,73 @@
         .close-btn:hover {
             color: #ff0000;
         }
+        .modal1 {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the modal */
+            width: 30%; /* Adjust width as needed */
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            z-index: 2000; /* Ensure it appears above other content */
+        }
+
+        .modal1.show {
+            display: block;
+        }
+
+        .modal1 h3 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .modal1 label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .modal1 input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .modal1 .send-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .modal1 .send-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .modal1 .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #333;
+        }
+
+        .modal1 .close-btn:hover {
+            color: #ff0000;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +263,7 @@
     </div>
 
     <!-- Modal for Email and Mobile Input -->
-    <div id="modal" class="modal">
+    <div id="modal" class="modal1">
         <button class="close-btn">&times;</button>
         <h3>Send to Email and WhatsApp</h3>
         <form id="send-form" data-thank-you-url="{{ url_for('admin.greeting') }}">
@@ -238,14 +305,13 @@
             const micromarketDropdown = document.getElementById('micromarket');
             const tableBody = document.querySelector('#inventory-table tbody');
             const sortCityButton = document.querySelector('#sort-city');
-            const modal = document.getElementById('coworking-modal');
-            const modalClose = document.getElementById('modal-close');
             const sendButton = document.getElementById('send-btn');
             const sendForm = document.getElementById('send-form');
-            const closeModalButton = document.querySelector('.close-btn');
             const coworkingModal = document.getElementById('coworking-modal');
-            const emailModal = document.getElementById('modal');
             const coworkingModalClose = document.getElementById('modal-close');
+            const emailModal = document.getElementById('modal');
+            const closeModalButton = document.querySelector('#modal .close-btn');
+            
 
             // Function to close the modal when clicking outside
             window.onclick = function(event) {
@@ -255,11 +321,14 @@
                 }
             };
 
-            // Close modal on clicking 'X'
-            modalClose.onclick = function() {
-                modal.style.display = "none";
-                modal.classList.remove("show");
-            };
+            // Close coworking modal
+    coworkingModalClose.onclick = function() {
+        coworkingModal.style.display = "none";
+        coworkingModal.classList.remove("show");
+    };
+
+    // Close email modal
+    closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
             let isAsc = true; // Track sorting order
 
@@ -300,16 +369,17 @@
                         <td>${space.current_vacancy}</td>
                     `;
                     // Add click event to open coworking modal
-            row.querySelectorAll('td').forEach(td => {
-                td.addEventListener('click', function (e) {
-                    if (!e.target.closest('input')) {
-                        displayCoworkingModal(space);
-                    }
-                });
-            });
+                    row.addEventListener('click', () => displayCoworkingModal(space));
                     tableBody.appendChild(row);
                 });
             }
+
+            // function displayCoworkingModal(space) {
+            //     document.getElementById('coworking-name').textContent = space.coworking_name;
+            //     coworkingModal.classList.add('show');
+            // }
+
+            // coworkingModalClose.addEventListener('click', () => coworkingModal.classList.remove('show'));
 
             cityDropdown.addEventListener('change', function () {
             const selectedCity = cityDropdown.value;
@@ -332,49 +402,67 @@
             fetchInventory(); // Fetch updated inventory
         });
 
+        // sendButton.addEventListener('click', function () {
+        //         const selectedProperties = Array.from(document.querySelectorAll('.select-property:checked'))
+        //             .map(checkbox => checkbox.dataset.propertyId);
+
+        //         if (selectedProperties.length === 0) {
+        //             alert('Please select at least one property.');
+        //             return;
+        //         }
+
+        //         emailModal.style.display = 'block';
+
+        //         sendForm.addEventListener('submit', function (event) {
+        //             event.preventDefault();
+        //             const email = document.getElementById('email').value;
+        //             const mobile = document.getElementById('mobile').value;
+        //             const thankYouUrl = this.dataset.thankYouUrl;
+
+        //             fetch('/admin/send_selected_properties_live', {
+        //                 method: 'POST',
+        //                 headers: {
+        //                     'Content-Type': 'application/json',
+        //                 },
+        //                 body: JSON.stringify({
+        //                     email: email,
+        //                     mobile: mobile,
+        //                     selectedProperties: selectedProperties
+        //                 })
+        //             })
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 if (data.status === 'success') {
+        //                     window.location.href = thankYouUrl;
+        //                 } else {
+        //                     alert('Error sending email.');
+        //                 }
+        //             })
+        //             .catch(error => console.error('Error:', error));
+        //         });
+        //     });
         sendButton.addEventListener('click', function () {
-                const selectedProperties = Array.from(document.querySelectorAll('.select-property:checked'))
-                    .map(checkbox => checkbox.dataset.propertyId);
-
-                if (selectedProperties.length === 0) {
-                    alert('Please select at least one property.');
-                    return;
-                }
-
-                emailModal.style.display = 'block';
-
-                sendForm.addEventListener('submit', function (event) {
-                    event.preventDefault();
-                    const email = document.getElementById('email').value;
-                    const mobile = document.getElementById('mobile').value;
-                    const thankYouUrl = this.dataset.thankYouUrl;
-
+                const selectedProperties = [...document.querySelectorAll('.select-property:checked')].map(cb => cb.dataset.propertyId);
+                if (!selectedProperties.length) return alert('Select properties!');
+                emailModal.classList.add('show');
+                sendForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
                     fetch('/admin/send_selected_properties_live', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            email: email,
-                            mobile: mobile,
-                            selectedProperties: selectedProperties
+                            email: document.getElementById('email').value,
+                            mobile: document.getElementById('mobile').value,
+                            selectedProperties
                         })
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            window.location.href = thankYouUrl;
-                        } else {
-                            alert('Error sending email.');
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
+                        .then(res => res.json())
+                        .then(data => window.location.href = sendForm.dataset.thankYouUrl)
+                        .catch(console.error);
                 });
             });
 
-            closeModalButton.addEventListener('click', function () {
-                emailModal.style.display = 'none';
-            });
+            closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
 
             // Display Modal with Details
