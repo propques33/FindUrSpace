@@ -321,10 +321,9 @@
                 }
             };
 
-            // Close coworking modal
-    coworkingModalClose.onclick = function() {
-        coworkingModal.style.display = "none";
-        coworkingModal.classList.remove("show");
+    // Close coworking modal
+    coworkingModalClose.onclick = function () {
+        coworkingModal.classList.remove('show');
     };
 
     // Close email modal
@@ -368,11 +367,18 @@
                         <td>${space.total_seats}</td>
                         <td>${space.current_vacancy}</td>
                     `;
-                    // Add click event to open coworking modal
-                    row.addEventListener('click', () => displayCoworkingModal(space));
-                    tableBody.appendChild(row);
-                });
-            }
+                    // Prevent checkbox click from triggering row click
+            row.querySelector('.select-property').addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event bubbling to row click
+                emailModal.classList.add('show');
+            });
+
+            // Add click event to the row to open coworking modal
+            row.addEventListener('click', () => displayCoworkingModal(space));
+
+            tableBody.appendChild(row);
+        });
+    }
 
             // function displayCoworkingModal(space) {
             //     document.getElementById('coworking-name').textContent = space.coworking_name;
@@ -486,14 +492,9 @@
                 });
 
                 // Show modal
-                modal.classList.add("show");
-                modal.style.display = "flex";
+                coworkingModal.classList.add("show");
             }
 
-            // Close coworking modal
-    coworkingModalClose.onclick = function () {
-        coworkingModal.classList.remove('show');
-    };
 
             // Sorting function
             function sortTableByCity() {
