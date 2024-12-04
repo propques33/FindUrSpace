@@ -108,10 +108,10 @@ def send_selected_properties_live():
         transformed_properties = []
         for p in properties:
             transformed_p = {
-                'coworking_name': p.get('name'),  # Map 'name' to 'coworking_name'
+                'coworking_name': p.get('coworking_name'),  # Map 'name' to 'coworking_name'
                 'city': p.get('city'),
                 'micromarket': p.get('micromarket'),
-                'details': p.get('details'),
+                'inventory': p.get('inventory', []),
                 'layout_images': [p.get('img1', ''), p.get('img2', '')] if p.get('img1') else []
             }
             transformed_properties.append(transformed_p)

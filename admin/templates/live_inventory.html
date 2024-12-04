@@ -449,20 +449,28 @@
                 emailModal.classList.add('show');
                 sendForm.addEventListener('submit', function (e) {
                     e.preventDefault();
+                    const email = document.getElementById('email').value;
+        const mobile = document.getElementById('mobile').value;
                     fetch('/admin/send_selected_properties_live', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            email: document.getElementById('email').value,
-                            mobile: document.getElementById('mobile').value,
-                            selectedProperties
+                            email: email,
+                            mobile: mobile,
+                            selectedProperties: selectedProperties
                         })
                     })
-                        .then(res => res.json())
-                        .then(data => window.location.href = sendForm.dataset.thankYouUrl)
-                        .catch(console.error);
-                });
-            });
+                    .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = sendForm.dataset.thankYouUrl;
+            } else {
+                alert('Failed to send data. Please try again.');
+            }
+        })
+        .catch(console.error);
+    });
+});
 
             closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
