@@ -444,7 +444,12 @@
         //         });
         //     });
         sendButton.addEventListener('click', function () {
-                const selectedProperties = [...document.querySelectorAll('.select-property:checked')].map(cb => cb.dataset.propertyId);
+            const selectedProperties = [...document.querySelectorAll('.select-property:checked')]
+        .map(cb => cb.dataset.propertyId)
+        .filter(id => id && id.trim() !== '');
+
+        console.log('Selected Property IDs:', selectedProperties);
+
                 if (!selectedProperties.length) return alert('Select properties!');
                 emailModal.classList.add('show');
                 sendForm.addEventListener('submit', function (e) {
@@ -457,7 +462,7 @@
                         body: JSON.stringify({
                             email: email,
                             mobile: mobile,
-                            selectedProperties: selectedProperties
+                            selectedProperties
                         })
                     })
                     .then(res => res.json())

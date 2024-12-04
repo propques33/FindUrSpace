@@ -7,6 +7,7 @@ from plotly.subplots import make_subplots
 from core.email_handler_listing import send_email_and_whatsapp_with_pdf
 from core.email_handler import send_email_and_whatsapp_with_pdf1
 from datetime import datetime
+from bson.errors import InvalidId
 
 
 # Blueprint definition
@@ -99,6 +100,17 @@ def send_selected_properties_live():
     db = current_app.config['db']
 
     try:
+        # Validate ObjectIds
+        valid_ids = []
+        for id in selected_property_ids:
+            try:
+                valid_ids.append(ObjectId(id))
+            except InvalidId:
+                print(f"Invalid ObjectId: {id}")
+        
+        if not valid_ids:
+            return jsonify({'status': 'error', 'message': 'No valid property IDs provided.'})
+        
         # Fetch from coworking_spaces
         properties = list(db.fillurdetails.find({
             '_id': {'$in': [ObjectId(id) for id in selected_property_ids]}
@@ -108,13 +120,16 @@ def send_selected_properties_live():
         transformed_properties = []
         for p in properties:
             transformed_p = {
-                'coworking_name': p.get('coworking_name'),  # Map 'name' to 'coworking_name'
-                'city': p.get('city'),
-                'micromarket': p.get('micromarket'),
+                'coworking_name': p.get('coworking_name', 'Unknown'),
+                'city': p.get('city', 'Unknown'),
+                'micromarket': p.get('micromarket', 'Unknown'),
                 'inventory': p.get('inventory', []),
-                'layout_images': [p.get('img1', ''), p.get('img2', '')] if p.get('img1') else []
+                'layout_images': p.get('layout_images', [])
             }
             transformed_properties.append(transformed_p)
+
+            print(f"Email: {email}, Mobile: {mobile}, Selected Properties: {selected_property_ids}")
+
 
         # Send email with transformed data
         app = current_app._get_current_object()
