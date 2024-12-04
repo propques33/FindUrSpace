@@ -111,24 +111,17 @@ def send_selected_properties_live():
         if not valid_ids:
             return jsonify({'status': 'error', 'message': 'No valid property IDs provided.'})
         
-        # Fetch from coworking_spaces
-        properties = list(db.fillurdetails.find({
-            '_id': {'$in': [ObjectId(id) for id in selected_property_ids]}
-        }))
+         # Fetch properties
+        properties = list(db.fillurdetails.find({'_id': {'$in': valid_ids}}))
+        transformed_properties = [{
+            'coworking_name': p.get('coworking_name', 'Unknown'),
+            'city': p.get('city', 'Unknown'),
+            'micromarket': p.get('micromarket', 'Unknown'),
+            'inventory': p.get('inventory', []),
+            'layout_images': p.get('layout_images', [])
+        } for p in properties]
 
-        # Transform the data to match live_inventory format
-        transformed_properties = []
-        for p in properties:
-            transformed_p = {
-                'coworking_name': p.get('coworking_name', 'Unknown'),
-                'city': p.get('city', 'Unknown'),
-                'micromarket': p.get('micromarket', 'Unknown'),
-                'inventory': p.get('inventory', []),
-                'layout_images': p.get('layout_images', [])
-            }
-            transformed_properties.append(transformed_p)
-
-            print(f"Email: {email}, Mobile: {mobile}, Selected Properties: {selected_property_ids}")
+        print(f"Email: {email}, Mobile: {mobile}, Selected Properties: {selected_property_ids}")
 
 
         # Send email with transformed data
@@ -877,10 +870,13 @@ def fetch_inventory():
         except ValueError:
             pass
 
-    # Fetch coworking space data without pagination
-    coworking_list = list(fillurdetails_collection.find(filters, {'_id': 0, 'layout_images': 0, 'interactive_layout': 0}).sort('date', -1))
+    # Fetch coworking space data
+    coworking_list = list(fillurdetails_collection.find(filters, {'layout_images': 0, 'interactive_layout': 0}).sort('date', -1))
 
-    # Return the data as JSON
+    # Include stringified `_id`
+    for coworking in coworking_list:
+        coworking['_id'] = str(coworking['_id'])
+
     return jsonify({
         'spaces': coworking_list
     })

@@ -359,14 +359,16 @@
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td><input type="checkbox" class="select-property" data-property-id="${space._id}"></td>
+                        <td>
+                            <input type="checkbox" class="select-property" data-property-id="${space._id || ''}">
+                        </td>
                         <td>${formattedDate || 'N/A'}</td>
-                        <td>${space.owner.name}</td>
-                        <td>${space.coworking_name}</td>
-                        <td>${space.micromarket}</td>
-                        <td>${space.city}</td>
-                        <td>${space.total_seats}</td>
-                        <td>${space.current_vacancy}</td>
+            <td>${space.owner?.name || 'N/A'}</td>
+            <td>${space.coworking_name || 'N/A'}</td>
+            <td>${space.micromarket || 'N/A'}</td>
+            <td>${space.city || 'N/A'}</td>
+            <td>${space.total_seats || 'N/A'}</td>
+            <td>${space.current_vacancy || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
                     `;
                     // Prevent checkbox click from triggering row click
