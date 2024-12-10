@@ -14,6 +14,8 @@ from integrations.gsheet_updater import handle_new_property_entry
 from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
 from core.image_upload import process_and_upload_images
 from integrations.otplessauth import OtpLessAuth
+from datetime import datetime
+from flask import current_app, Blueprint
 
 # Function to handle Google Sheet updates in the background
 def update_gsheet_background(app, db, property_data):
@@ -435,6 +437,16 @@ def property_images(property_id):
         flash(f'Error fetching property images: {str(e)}', 'error')
         return redirect(url_for('core_bp.index'))
 
+# Add the dateformat filter to the current application
+@core_bp.app_template_filter('dateformat')
+def dateformat(value, format='%B %d, %Y'):
+    from datetime import datetime
+    try:
+        dt = datetime.fromisoformat(value)
+        return dt.strftime(format)
+    except (ValueError, TypeError):
+        return value
+
 @core_bp.route('/blog')
 def blog():
     try:
@@ -447,10 +459,22 @@ def blog():
             'Authorization': f'Bearer {api_key}',
         }
         response = requests.get(api_url, headers=headers)
+        response.raise_for_status()  # Raise HTTPError for bad responses
+        blog_data = response.json().get('data', [])
         print(response.json())  # Log the response to inspect the structure
         
         blog_data = response.json().get('data', [])
-        return render_template('blog.html', blogs=blog_data)
+        # Flatten blog data if necessary
+        flattened_blogs = [
+            {
+                'Title': blog.get('Title'),
+                'Image': blog.get('Image', {}).get('url'),  # Use `url` key directly from the data
+                'Published': blog.get('Published'),
+                'slug': blog.get('slug'),
+            }
+            for blog in blog_data
+        ]
+        return render_template('blog.html', blogs=flattened_blogs)
     except Exception as e:
         return str(e)
 

@@ -65,7 +65,7 @@
             <div class="subgrid">
                 <img src="{{ blog['Image'] }}" alt="blogimg" class="blogimg">
                 <div class="date">
-                    <span class="textdate">{{ blog['Published'] }}</span>
+                    <span class="textdate">{{ blog['Published'] | dateformat  }}</span>
                     <ul class="textdate"><li>9 min to read</li></ul>
                 </div>
                 <div class="horline"></div>
