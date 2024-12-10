@@ -35,12 +35,11 @@
             </div>
         </div>
     </nav>
-    <div >
+    <!-- <div >
         <h1>{{ blog['Title'] }}</h1>
         <p><strong>Published on:</strong> {{ blog['Published'] }}</p>
         <p><strong>Tags:</strong> {{ blog['Tags'] or 'No Tags' }}</p>
         <div>
-            <!-- Loop through the blog content -->
             {% for content in blog['Content'] %}
                 {% if content['type'] == 'heading' %}
                     <h{{ content['level'] }}>{{ content['children'][0]['text'] }}</h{{ content['level'] }}>
@@ -50,7 +49,8 @@
             {% endfor %}
         </div>
         <a href="{{ url_for('core_bp.blog') }}" >Back to Blogs</a>
-    </div>
+    </div> -->
+    
     <section class="human-bot-section">
         <div class="container">
             <div class="text-content">
