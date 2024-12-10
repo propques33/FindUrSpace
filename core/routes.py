@@ -490,7 +490,7 @@ def blog():
 @core_bp.route('/blog/<slug>')
 def blog_detail(slug):
     try:
-        api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}'
+        api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}&populate=*'
         api_key = os.getenv('STRAPI_API_KEY')
         if not api_key:
             return "API key not found in environment variables", 500
@@ -501,12 +501,28 @@ def blog_detail(slug):
         response = requests.get(api_url, headers=headers)
         print(response.json())  # Log the response to inspect the structure
         
-        blog_post_data = response.json().get('data')
-        if blog_post_data and len(blog_post_data) > 0:
-            blog_post = blog_post_data[0]  # Fetch the first post
-        else:
+        blog_data = response.json().get('data', [])
+        if not blog_data:
             return "Blog post not found", 404
-        
-        return render_template('blog_detail.html', blog=blog_post)
+
+        blog = blog_data[0]  # Assuming the first result is the blog we need
+        content = blog.get("Content", [])
+
+        # Extract image URL
+        image_data = blog.get("Image", [])
+        image_url = ""
+        if image_data and isinstance(image_data, list) and image_data[0].get("url"):
+            image_url = f"https://findurspace-blog-app-pemmb.ondigitalocean.app{image_data[0]['url']}"
+
+        # Flattened blog dictionary
+        flattened_blog = {
+            "Title": blog.get("Title"),
+            "Published": blog.get("Published"),
+            "Tags": blog.get("Tags"),
+            "ImageURL": image_url,
+            "Content": content
+        }
+
+        return render_template('blog_detail.html', blog=flattened_blog)
     except Exception as e:
         return str(e)

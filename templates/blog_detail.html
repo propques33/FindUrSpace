@@ -50,7 +50,7 @@
         </div>
         <a href="{{ url_for('core_bp.blog') }}" >Back to Blogs</a>
     </div> -->
-    <div class="imgsub"></div>
+    <img src="{{ blog['ImageURL'] }}" class="imgsub" alt="{{ blog['Title'] }}">
     <div class="subblog_cont">
         <h1 class="subblog_head">{{ blog['Title'] }}</h1>
         <div class="time">Published on {{ blog['Published'] }}</div>
@@ -74,17 +74,52 @@
             </div>
         </div>
     </div>
-    <p><strong>Tags:</strong> {{ blog['Tags'] or 'No Tags' }}</p>
-        <div>
-            {% for content in blog['Content'] %}
-                {% if content['type'] == 'heading' %}
-                    <h{{ content['level'] }}>{{ content['children'][0]['text'] }}</h{{ content['level'] }}>
-                {% elif content['type'] == 'paragraph' %}
-                    <p>{{ content['children'][0]['text'] }}</p>
+     <!-- Blog Content -->
+     <div>
+        {% for block in blog['Content'] %}
+            {% if block['type'] == 'heading' %}
+                <h{{ block['level'] }}>
+                    {% for child in block['children'] %}
+                        {{ child['text'] }}
+                    {% endfor %}
+                </h{{ block['level'] }}>
+            {% elif block['type'] == 'paragraph' %}
+                <p>
+                    {% for child in block['children'] %}
+                        {{ child['text'] }}
+                    {% endfor %}
+                </p>
+            {% elif block['type'] == 'list' %}
+                {% if block['format'] == 'ordered' %}
+                    <ol>
+                        {% for item in block['children'] %}
+                            <li>
+                                {% for child in item['children'] %}
+                                    {{ child['text'] }}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <ul>
+                        {% for item in block['children'] %}
+                            <li>
+                                {% for child in item['children'] %}
+                                    {{ child['text'] }}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ul>
                 {% endif %}
-            {% endfor %}
-        </div>
-        <a href="{{ url_for('core_bp.blog') }}" >Back to Blogs</a>
+            {% elif block['type'] == 'quote' %}
+                <blockquote>
+                    {% for child in block['children'] %}
+                        {{ child['text'] }}
+                    {% endfor %}
+                </blockquote>
+            {% endif %}
+        {% endfor %}
+    </div>
     <div class="content-section">
         <p>
             The modern workplace is evolving in different ways, and one of the most notable changes is the rise of coworking spaces. Coworking spaces offer a unique alternative to traditional office spaces, allowing individuals and businesses to rent space on a short-term or long-term basis. Coworking spaces are becoming increasingly popular because of their flexibility, affordability, and amenities. But what makes coworking spaces such an excellent option for both introverts and extroverts?
