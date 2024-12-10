@@ -5,27 +5,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blog</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../static/css/style.css"></head>
 </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4">Our Blogs</h1>
-        <div class="row">
-            <!-- Loop through blogs and display them as cards -->
+    <!-- Navbar Section -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <!-- Add an icon before FindUrSpace -->
+            <a class="navbar-brand" href="#">
+                <img src="../static/images/logo.png" alt="Icon" loading="lazy" width="70" height="60" class="d-inline-block align-text-top">
+                <span style="font-size: 1.5rem; font-weight: bold;">FindUrSpace</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <!-- Only ListUrSpace on the right -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('core_bp.list_your_space') }}"><h1 class="listur">ListUrSpace</h1></a>
+                    </li>
+                                    <!-- Operators Login Button -->
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ url_for('operators.operators_login') }}">
+                      <h1 class="listur">Operators Login</h1>
+                  </a>
+                </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="bloghero">
+        <div class="head1"><img src="../static/images/Border.svg" alt="point">Our Blogs</div>
+        <div class="head2">Stay Informed With Our
+            Real Estate Blog</div>
+        <div class="head3">Explore our real estate blog for insightful articles, expert tips, and industry updates to stay
+            informed about the latest trends and developments in the housing market.</div>
+    </div>
+    <!-- <div class="blog_cont">
+        <div class="blog_subcont">
             {% for blog in blogs %}
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ blog['Title'] }}</h5>
-                        <p class="card-text"><strong>Published on:</strong> {{ blog['Published'] }}</p>
-                        <p class="card-text"><strong>Tags:</strong> {{ blog['Tags'] or 'No Tags' }}</p>
-                        <!-- Button to open the full blog post -->
-                        <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="btn btn-primary">Read More</a>
+            <div>
+                <div>
+                    <div >
+                        <h5 >{{ blog['Title'] }}</h5>
+                        <p ><strong>Published on:</strong> {{ blog['Published'] }}</p>
+                        <p ><strong>Tags:</strong> {{ blog['Tags'] or 'No Tags' }}</p>
+                        <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" >Read More</a>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
+    </div> -->
+    <div class="blog_cont">
+        <div class="blog_subcont">
+            {% for blog in blogs %}
+            <div class="subgrid">
+                <img src="{{ blog['Image'] }}" alt="blogimg" class="blogimg">
+                <div class="date">
+                    <span class="textdate">{{ blog['Published'] }}</span>
+                    <ul class="textdate"><li>9 min to read</li></ul>
+                </div>
+                <div class="horline"></div>
+                <div class="bloghead">{{ blog['Title'] }}</div>
+                <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="view"><span>View Details</span><span>&#8594;</span></a>
+            </div>
+            {% endfor %}
+        </div>
     </div>
+    <section class="human-bot-section">
+        <div class="container">
+            <div class="text-content">
+                <h2>Ready to Find Your Space?</h2>
+                <h2><strong>Talk to Our Human-Bot!</strong></h2>
+                <p>
+                    Start your search with <strong>FindUrSpace</strong> today—the smarter, faster way to secure your ideal coworking space!
+                </p>
+                <div class="cta-buttons">
+                    <button class="btn btn-primary">Let's Talk</button>
+                    <!-- <button class="btn btn-success">Contact on WhatsApp</button> -->
+                </div>
+            </div>
+            <div class="image-container">
+                <img src="../static/images/Building IllustartionAsset 25.svg" alt="Cityscape" loading="lazy"/>
+            </div>
+        </div>
+    </section>
+    
+    
+    <!-- Contact section -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="row">
+                <!-- Left Side: Company Info -->
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="company-info text-start">
+                        <img src="../static/images/LogoAsset 1.svg" alt="Findurspace Logo" loading="lazy" class="logo">
+                        <p>Follow us on social media to stay updated with the <strong>latest coworking trends, special deals, & workspace tips.</strong></p>
+                        <a class="mailus" href="mailto:sales@findurspace.tech">
+                            <i class="fas fa-envelope"></i> sales@findurspace.tech
+                        </a>
+                    </div>
+                </div>
+    
+                <!-- Right Side: Social Links and Policies -->
+                <div class="col-md-6 text-end d-flex flex-column align-items-end justify-content-center">
+                    <ul class="footer-links">
+                        <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">Findurspace FAQ's</a></li>
+                        <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
+                    </ul>
+                    <div class="social-icons">
+                        <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr"><img src="../static/images/Face BookAsset 27.svg" alt="Facebook" loading="lazy"></a>
+                        <a href="https://www.instagram.com/findur.space/"><img src="../static/images/InstagramAsset 28.svg" alt="Instagram" loading="lazy"></a>
+                        <!-- <a href="#"><img src="../static/images/LinkdinAsset 29.svg" alt="LinkedIn"></a> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
