@@ -450,7 +450,7 @@ def dateformat(value, format='%B %d, %Y'):
 @core_bp.route('/blog')
 def blog():
     try:
-        api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts/populate=*'
+        api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?populate=*'
         api_key = os.getenv('STRAPI_API_KEY')
         if not api_key:
             return "API key not found in environment variables", 500
