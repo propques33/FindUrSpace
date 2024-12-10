@@ -450,7 +450,7 @@ def dateformat(value, format='%B %d, %Y'):
 @core_bp.route('/blog')
 def blog():
     try:
-        api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts'
+        api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts/populate=*'
         api_key = os.getenv('STRAPI_API_KEY')
         if not api_key:
             return "API key not found in environment variables", 500
@@ -470,9 +470,11 @@ def blog():
         # Flatten blog data
         flattened_blogs = []
         for blog in blog_data:
-            image_url = blog.get('Image', {}).get('url', '')
-            if image_url:
-                image_url = f"https://findurspace-blog-app-pemmb.ondigitalocean.app{image_url}"
+            # Handle the image URL
+            images = blog.get('Image', [])
+            image_url = ''
+            if images and isinstance(images, list) and images[0].get('url'):
+                image_url = f"{strapi_base_url}{images[0]['url']}"
 
             flattened_blogs.append({
                 'Title': blog.get('Title'),

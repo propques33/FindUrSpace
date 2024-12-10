@@ -63,7 +63,7 @@
         <div class="blog_subcont">
             {% for blog in blogs %}
             <div class="subgrid">
-                <img src="{{ blog['Image'] }}" alt="blogimg" class="blogimg">
+                <img src="{{ blog.Image }}" alt="blogimg" class="blogimg">
                 <div class="date">
                     <span class="textdate">{{ blog['Published'] | dateformat  }}</span>
                     <ul class="textdate"><li>9 min to read</li></ul>
