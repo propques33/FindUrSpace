@@ -464,16 +464,23 @@ def blog():
         print(response.json())  # Log the response to inspect the structure
         
         blog_data = response.json().get('data', [])
+        # Base URL of your Strapi server
+        strapi_base_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app'
         # Flatten blog data if necessary
-        flattened_blogs = [
-            {
+        # Flatten blog data
+        flattened_blogs = []
+        for blog in blog_data:
+            image_url = blog.get('Image', {}).get('url', '')
+            # Prepend base URL if the image URL is relative
+            if image_url and not image_url.startswith('http'):
+                image_url = f"{strapi_base_url}{image_url}"
+
+            flattened_blogs.append({
                 'Title': blog.get('Title'),
-                'Image': blog.get('Image', {}).get('url'),  # Use `url` key directly from the data
+                'Image': image_url,
                 'Published': blog.get('Published'),
                 'slug': blog.get('slug'),
-            }
-            for blog in blog_data
-        ]
+            })
         return render_template('blog.html', blogs=flattened_blogs)
     except Exception as e:
         return str(e)
