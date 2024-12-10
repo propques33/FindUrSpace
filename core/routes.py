@@ -471,9 +471,8 @@ def blog():
         flattened_blogs = []
         for blog in blog_data:
             image_url = blog.get('Image', {}).get('url', '')
-            # Prepend base URL if the image URL is relative
-            if image_url and not image_url.startswith('http'):
-                image_url = f"{strapi_base_url}{image_url}"
+            if image_url:
+                image_url = f"https://findurspace-blog-app-pemmb.ondigitalocean.app{image_url}"
 
             flattened_blogs.append({
                 'Title': blog.get('Title'),
