@@ -50,7 +50,52 @@
         </div>
         <a href="{{ url_for('core_bp.blog') }}" >Back to Blogs</a>
     </div> -->
-    
+    <div class="imgsub"></div>
+    <div class="subblog_cont">
+        <h1 class="subblog_head">{{ blog['Title'] }}</h1>
+        <div class="time">Published on {{ blog['Published'] }}</div>
+        <div class="author">
+            <div class="cont_write">
+                <img src="../static/images/cubispace.webp" alt="userimg" class="authimg"></img>
+                <div class="authname">
+                    <div class="nam">Parth Shah</div>
+                    <div class="rol">Contributing Writer</div>
+                </div>
+            </div>
+            <div class="asp">
+                <div class="readtime">
+                    <img alt="icon" src="../static/images/schedule_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" class="readicon"></img>
+                    <span>6m read</span>
+                </div>
+                <div class="view">
+                    <span class="viewicon">&#10084;</span>
+                    <span>1.6k</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p><strong>Tags:</strong> {{ blog['Tags'] or 'No Tags' }}</p>
+        <div>
+            {% for content in blog['Content'] %}
+                {% if content['type'] == 'heading' %}
+                    <h{{ content['level'] }}>{{ content['children'][0]['text'] }}</h{{ content['level'] }}>
+                {% elif content['type'] == 'paragraph' %}
+                    <p>{{ content['children'][0]['text'] }}</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('core_bp.blog') }}" >Back to Blogs</a>
+    <div class="content-section">
+        <p>
+            The modern workplace is evolving in different ways, and one of the most notable changes is the rise of coworking spaces. Coworking spaces offer a unique alternative to traditional office spaces, allowing individuals and businesses to rent space on a short-term or long-term basis. Coworking spaces are becoming increasingly popular because of their flexibility, affordability, and amenities. But what makes coworking spaces such an excellent option for both introverts and extroverts?
+            Coworking spaces provide a unique environment that can be tailored to the needs of both introverts and extroverts. While some people may think that working in a shared space would be too distracting for introverts or too isolating for extroverts, the reality is that coworking spaces can provide an excellent balance for both personality types. In this blog post, we will explore how coworking spaces can be the ideal environment for both introverts and extroverts.
+        </p>
+        <h2 class="subyhead">Benefits of Coworking Spaces for Introverts</h2>
+        <p>
+            Coworking spaces offer a variety of benefits for introverts, especially those who work remotely. Being surrounded by like-minded professionals in a shared workspace can help create a helpful, supportive atmosphere for introverts. Here are some of the key benefits:
+        </p>
+    </div>
+
     <section class="human-bot-section">
         <div class="container">
             <div class="text-content">
