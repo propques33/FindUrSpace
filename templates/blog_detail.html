@@ -43,21 +43,76 @@
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <h1>{{ blog['Title'] }}</h1>
-        <p><strong>Published on:</strong> {{ blog['Published'] }}</p>
-        <p><strong>Tags:</strong> {{ blog['Tags'] or 'No Tags' }}</p>
-        <div>
-            <!-- Loop through the blog content -->
-            {% for content in blog['Content'] %}
-                {% if content['type'] == 'heading' %}
-                    <h{{ content['level'] }}>{{ content['children'][0]['text'] }}</h{{ content['level'] }}>
-                {% elif content['type'] == 'paragraph' %}
-                    <p>{{ content['children'][0]['text'] }}</p>
-                {% endif %}
-            {% endfor %}
+    <!--Image-->
+    <div class="subblog_cont">
+        <h1 class="subblog_head">{{ blog['Title'] }}</h1>
+        <!-- <div class="time">Published on {{ blog['Published'] | dateformat  }}</div> -->
+        <div class="time">Published on {{ blog['Published'] }}</div>
+        <div class="author">
+            <div class="cont_write">
+                <img src="../static/images/logo.png" alt="userimg" class="authimg"></img>
+                <div class="authname">
+                    <div class="nam">Propques</div>
+                    <div class="rol">Contributing Writer</div>
+                </div>
+            </div>
+            <div class="asp">
+                <div class="readtime">
+                    <img alt="icon" src="../static/images/schedule_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" class="readicon"></img>
+                    <span>6m read</span>
+                </div>
+                <div class="view">
+                    <span class="viewicon">&#10084;</span>
+                    <span>1.6k</span>
+                </div>
+            </div>
         </div>
-        <a href="{{ url_for('core_bp.blog') }}" class="btn btn-secondary mt-3">Back to Blogs</a>
+    </div>
+    <!-- Blog Content -->
+    <div class="content-section">
+        {% for block in blog['Content'] %}
+            {% if block['type'] == 'heading' %}
+                <h{{ block['level'] }} class="subyhead">
+                    {% for child in block['children'] %}
+                        {{ child['text'] }}
+                    {% endfor %}
+                </h{{ block['level'] }}>
+            {% elif block['type'] == 'paragraph' %}
+                <p>
+                    {% for child in block['children'] %}
+                        {{ child['text'] }}
+                    {% endfor %}
+                </p>
+            {% elif block['type'] == 'list' %}
+                {% if block['format'] == 'ordered' %}
+                    <ol>
+                        {% for item in block['children'] %}
+                            <li>
+                                {% for child in item['children'] %}
+                                    {{ child['text'] }}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ol>
+                {% else %}
+                    <ul>
+                        {% for item in block['children'] %}
+                            <li>
+                                {% for child in item['children'] %}
+                                    {{ child['text'] }}
+                                {% endfor %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% elif block['type'] == 'quote' %}
+                <blockquote>
+                    {% for child in block['children'] %}
+                        {{ child['text'] }}
+                    {% endfor %}
+                </blockquote>
+            {% endif %}
+        {% endfor %}
     </div>
 
     <section class="human-bot-section">
