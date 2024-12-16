@@ -58,8 +58,15 @@
             {% for blog in blogs %}
             <div class="subgrid">
                     <!--Image-->
+                    <!-- Display Blog Image -->
+                    {% if blog['Image'] and blog['Image'][0] %}
+                    <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['formats']['thumbnail']['url'] }}" 
+                        alt="{{ blog['Title'] }}" 
+                        class="blogimg"
+                        data-url="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}">
+                    {% endif %}
                     <div class="date">
-                        <span class="textdate">{{ blog['Published'] }}</span>
+                        <span class="textdate">{{ blog['Published']|date('d M, Y') }}</span>
                         <ul class="textdate"><li>9 min to read</li></ul>
                     </div>
                     <div class="horline"></div>

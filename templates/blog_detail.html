@@ -44,6 +44,12 @@
     </nav>
 
     <!--Image-->
+    <!-- Display Blog Image -->
+    {% if blog['Image'] and blog['Image'][0] %}
+        <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['url'] }}" 
+             alt="{{ blog['Title'] }}" 
+             class="imgsub">
+    {% endif %}
     <div class="subblog_cont">
         <h1 class="subblog_head">{{ blog['Title'] }}</h1>
         <div class="time">Published on {{ blog['Published'] }}</div>
