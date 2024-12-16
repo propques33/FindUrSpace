@@ -446,12 +446,25 @@ def blog():
         headers = {
             'Authorization': f'Bearer {api_key}',
         }
-        response = requests.get(api_url, headers=headers)
-        response = requests.get(api_url, headers=headers)
-        blog_data = response.json().get('data', [])
-        return render_template('blog.html', blogs=blog_data)
+        # Get page and limit from query parameters
+        page = int(request.args.get('page', 1))  # Default to page 1
+        limit = 6  # Number of blogs per page
+        start = (page - 1) * limit
+
+        # Fetch paginated blogs from API
+        response = requests.get(f"{api_url}&pagination[start]={start}&pagination[limit]={limit}", headers=headers)
+        data = response.json()
+
+        blogs = data.get('data', [])
+        total_count = data.get('meta', {}).get('pagination', {}).get('total', 0)
+        total_pages = -(-total_count // limit)  # Calculate total pages
+
+        return render_template(
+            'blog.html', blogs=blogs, page=page, total_pages=total_pages
+        )
     except Exception as e:
         return str(e)
+        
 
 
 @core_bp.route('/blog/<slug>')

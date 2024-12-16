@@ -76,6 +76,22 @@
             {% endfor %}
         </div>
     </div>
+    <!-- Pagination Component -->
+<div class="pagination">
+    <ul>
+        {% if page > 1 %}
+        <li><a href="{{ url_for('core_bp.blog', page=page-1) }}">&#8592; Previous</a></li>
+        {% endif %}
+        {% for p in range(1, total_pages + 1) %}
+        <li class="{{ 'active' if p == page else '' }}">
+            <a href="{{ url_for('core_bp.blog', page=p) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+        {% if page < total_pages %}
+        <li><a href="{{ url_for('core_bp.blog', page=page+1) }}">Next &#8594;</a></li>
+        {% endif %}
+    </ul>
+</div>
     <section class="human-bot-section">
         <div class="container">
             <div class="text-content">
