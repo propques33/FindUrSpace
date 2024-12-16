@@ -165,5 +165,20 @@
             });
         });
     </script>
+    <script>
+        // Add click event to images
+        document.querySelectorAll('.blogimg').forEach(img => {
+            img.addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-url');
+            });
+        });
+    
+        // Add click event to titles
+        document.querySelectorAll('.bloghead').forEach(title => {
+            title.addEventListener('click', function() {
+                window.location.href = this.getAttribute('data-url');
+            });
+        });
+    </script>
 </body>
 </html>
