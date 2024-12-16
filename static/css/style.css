@@ -2432,7 +2432,7 @@ margin-bottom:20px;
 
 .pagination .page-link:hover {
     background-color: #f2f2f2;
-    color: #0056b3;
+    color: #151D31;
     text-decoration: none;
 }
 
@@ -2459,19 +2459,19 @@ margin-bottom:20px;
     display: inline-block;
     padding: 8px 12px;
     text-decoration: none;
-    color: #007bff;
+    color: #151D31;
     border: 1px solid #dee2e6;
     border-radius: 4px;
     transition: all 0.3s ease;
 }
 
 .pagination ul li a:hover {
-    background-color: #007bff;
+    background-color: #151D31;
     color: #fff;
 }
 
 .pagination ul li.active a {
-    background-color: #007bff;
+    background-color: #151D31;
     color: #fff;
-    border-color: #007bff;
+    border-color: #151D31;
 }
