@@ -857,6 +857,7 @@ def fetch_inventory():
     # Get filter parameters
     city = request.args.get('city')
     micromarket = request.args.get('micromarket')
+    inventory_type = request.args.get('inventory_type')
     price = request.args.get('price')
 
     filters = {}
@@ -864,6 +865,9 @@ def fetch_inventory():
         filters['city'] = city
     if micromarket:
         filters['micromarket'] = micromarket
+    if inventory_type:
+        # Match inventory type within the inventory array
+        filters['inventory.type'] = inventory_type
     if price:
         try:
             filters['price'] = {'$lte': int(price)}
