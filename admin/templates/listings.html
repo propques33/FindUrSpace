@@ -228,11 +228,28 @@
                         const paginationContainer = document.getElementById('pagination-container');
                         paginationContainer.innerHTML = ''; // Reset pagination
                         if (data.page > 1) {
-                            paginationContainer.insertAdjacentHTML('beforeend', `<a href="#" id="prev-page">&laquo; Previous</a>`);
+                            paginationContainer.insertAdjacentHTML('beforeend', `<a href="#" id="prev-page" data-page="${data.page - 1}">&laquo; Previous</a>`);
                         }
                         if ((data.page * data.per_page) < data.total_records) {
-                            paginationContainer.insertAdjacentHTML('beforeend', `<a href="#" id="next-page">Next &raquo;</a>`);
+                            paginationContainer.insertAdjacentHTML('beforeend', `<a href="#" id="next-page" data-page="${data.page + 1}">Next &raquo;</a>`);
                         }
+                        // Add event listeners for pagination links
+            const prevPageLink = document.getElementById('prev-page');
+            const nextPageLink = document.getElementById('next-page');
+
+            if (prevPageLink) {
+                prevPageLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    fetchListings(parseInt(this.dataset.page));
+                });
+            }
+
+            if (nextPageLink) {
+                nextPageLink.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    fetchListings(parseInt(this.dataset.page));
+                });
+            }
                     })
                     .catch(error => console.error('Error:', error));
             }

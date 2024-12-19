@@ -538,6 +538,9 @@ def fetch_listings():
     city = request.args.get('city', None)
     micromarket = request.args.get('micromarket', None)
     price = request.args.get('price', None)
+    page = int(request.args.get('page', 1))
+    per_page = 10
+    skip = (page - 1) * per_page
 
     filters = {}
     if city:
@@ -550,8 +553,16 @@ def fetch_listings():
         except ValueError:
             pass
 
-    coworking_spaces = db.coworking_spaces.find(filters)
-    coworking_list = list(coworking_spaces)
+    coworking_spaces = db.coworking_spaces.find(filters).skip(skip).limit(per_page)
+    total_records = db.coworking_spaces.count_documents(filters)
+    coworking_list = [{
+        '_id': str(space['_id']),
+        'name': space['name'],
+        'city': space['city'],
+        'micromarket': space['micromarket'],
+        'price': space['price'],
+        'contact': space.get('contact', 'N/A')
+    } for space in coworking_spaces]
 
     # Convert the documents to JSON format and include _id
     result_list = [{
@@ -561,7 +572,11 @@ def fetch_listings():
         'micromarket': space['micromarket'],
         'price': space['price'],
         'contact': space.get('contact', 'N/A'), 
-        'seats': space.get('seats', 'N/A')
+        'seats': space.get('seats', 'N/A'),
+        'coworking_list': coworking_list,
+        'page': page,
+        'per_page': per_page,
+        'total_records': total_records
     } for space in coworking_list]
 
     return jsonify({
