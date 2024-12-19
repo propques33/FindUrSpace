@@ -238,6 +238,18 @@
             <option value="">Select Micromarket</option>
         </select>
 
+        <!-- New Inventory Type Dropdown -->
+    <select id="inventory-type" name="inventory_type">
+        <option value="">Select Inventory Type</option>
+        <option value="Conference rooms">Conference rooms</option>
+        <option value="Coworking space">Coworking space</option>
+        <option value="Day pass">Day pass</option>
+        <option value="Dedicated desk">Dedicated desk</option>
+        <option value="Meeting rooms">Meeting rooms</option>
+        <option value="Private cabins">Private cabins</option>
+        <option value="Serviced offices">Serviced offices</option>
+        <option value="Virtual office">Virtual office</option>
+    </select>
     </form>
 
         <div class="table-container">
@@ -304,6 +316,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const cityDropdown = document.getElementById('city');
             const micromarketDropdown = document.getElementById('micromarket');
+            const inventoryTypeDropdown = document.getElementById('inventory-type');
             const tableBody = document.querySelector('#inventory-table tbody');
             const sortCityButton = document.querySelector('#sort-city');
             const sendButton = document.getElementById('send-btn');
@@ -333,10 +346,11 @@
             let isAsc = true; // Track sorting order
 
             function fetchInventory() {
-                const selectedCity = cityDropdown.value;
-                const selectedMicromarket = micromarketDropdown.value;
+                const selectedCity = cityDropdown.value || ''; // Default to empty if no value
+                const selectedMicromarket = micromarketDropdown.value || '';
+                const selectedInventoryType = document.getElementById('inventory-type').value || '';
 
-                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}`;
+                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&inventory_type=${encodeURIComponent(selectedInventoryType)}`;
 
                 fetch(`/admin/fetch_inventory?${query}`)
                     .then(response => response.json())
@@ -385,7 +399,8 @@
 
             // coworkingModalClose.addEventListener('click', () => coworkingModal.classList.remove('show'));
 
-            cityDropdown.addEventListener('change', function () {
+            // Event listeners for dropdowns
+        cityDropdown.addEventListener('change', function () {
             const selectedCity = cityDropdown.value;
             micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
 
@@ -400,8 +415,6 @@
                             micromarketDropdown.appendChild(option);
                         });
                     });
-            
-                
             }
             fetchInventory(); // Fetch updated inventory
         });
@@ -526,6 +539,7 @@
             sortCityButton.addEventListener('click', sortTableByCity);
 
             micromarketDropdown.addEventListener('change', fetchInventory);
+            inventoryTypeDropdown.addEventListener('change', fetchInventory); // Added for inventory type
 
             // Initial fetch
             fetchInventory();
