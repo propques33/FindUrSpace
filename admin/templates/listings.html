@@ -133,6 +133,7 @@
                         <th>City</th>
                         <th>Micromarket</th>
                         <th>Price</th>
+                        <th>Contact</th>
                     </tr>
                 </thead>
                 <tbody id="listings-body">
@@ -143,6 +144,7 @@
                         <td>{{ space.city }}</td>
                         <td>{{ space.micromarket }}</td>
                         <td>{{ space.price }}</td>
+                        <td>{{ space.contact }}</td>
                     </tr>
                     {% else %}
                     <tr>
@@ -214,6 +216,7 @@
                                     <td>${space.city}</td>
                                     <td>${space.micromarket}</td>
                                     <td>${space.price}</td>
+                                    <td>${space.contact || 'N/A'}</td> <!-- Dynamically insert contact -->
                                 </tr>`;
                                 listingsBody.insertAdjacentHTML('beforeend', row);
                             });

@@ -560,6 +560,7 @@ def fetch_listings():
         'city': space['city'],
         'micromarket': space['micromarket'],
         'price': space['price'],
+        'contact': space.get('contact', 'N/A'), 
         'seats': space.get('seats', 'N/A')
     } for space in coworking_list]
 
