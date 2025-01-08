@@ -868,7 +868,9 @@
               Call us today and simplify your search.
             </p>
             <div class="cta-buttons">
-                <button class="btn btn-primary">Let's Talk</button>
+                    <button class="btn btn-primary" id="dialButton">Let's Talk</button>
+<!--                 <button class="btn btn-primary">Let's Talk</button> -->
+
                 <!-- <button class="btn btn-success">Contact on WhatsApp</button> -->
             </div>
         </div>
@@ -930,6 +932,13 @@
     <footer class="text-center">
         <p>&copy; 2024 FindUrSpace. All rights reserved.</p>
     </footer> -->
+     <script>
+      document
+        .getElementById("dialButton")
+        .addEventListener("click", function () {
+          window.location.href = "tel:08069328922";
+        });
+    </script>
     <script>
       $(document).ready(function(){
           $('.featured-slider').slick({
