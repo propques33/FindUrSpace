@@ -156,9 +156,9 @@ def edit_space(space_id):
             owner_email = request.form.get('owner_email')
             coworking_name = request.form.get('coworking_name')
 
-            # Extract center manager details
-            center_manager_name = request.form.get('center_manager_name')
-            center_manager_contact = request.form.get('center_manager_contact')
+             # Extract center manager details
+            center_manager_name = request.form.getlist('center_manager_name[]')
+            center_manager_contact = request.form.getlist('center_manager_contact[]')
 
             # Get where the user heard from us
             hear_from = request.form.get('hear_from')
@@ -179,10 +179,10 @@ def edit_space(space_id):
             total_seats = total_seats_list[0]
             current_vacancy = current_vacancies[0]
 
-            # Get inventories for this space
-            inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
-            inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
-            price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
+            # Extract inventory data
+            inventory_types = request.form.getlist(f'inventory_type_1[]')
+            inventory_counts = request.form.getlist(f'inventory_count_1[]')
+            price_per_seats = request.form.getlist(f'price_per_seat_1[]')
 
             inventory = []
             for i in range(len(inventory_types)):
@@ -193,9 +193,7 @@ def edit_space(space_id):
                 })
 
             # Handle file uploads (Images for Layouts)
-            layout_images = request.files.getlist(f'layout_images_{idx}[]')
-
-            # Existing images handling
+            layout_images = request.files.getlist(f'layout_images_1[]')
             existing_images = space.get('layout_images', [])
 
             # Process new images if any
@@ -205,7 +203,7 @@ def edit_space(space_id):
             else:
                 layout_image_links = existing_images
 
-            # Update the document in the database
+            # Prepare the updated data structure for MongoDB
             updated_space_data = {
                 'owner': {
                     'name': name,
@@ -213,17 +211,17 @@ def edit_space(space_id):
                     'email': owner_email
                 },
                 'coworking_name': coworking_name,
-                'city': city,
-                'micromarket': micromarket,
-                'total_seats': total_seats,
-                'current_vacancy': current_vacancy,
-                'center_manager': {  # Add center manager as a nested object
-                    'name': center_manager_name,
-                    'contact': center_manager_contact
+                'city': cities[0] if cities else space.get('city'),
+                'micromarket': micromarkets[0] if micromarkets else space.get('micromarket'),
+                'total_seats': total_seats_list[0] if total_seats_list else space.get('total_seats'),
+                'current_vacancy': current_vacancies[0] if current_vacancies else space.get('current_vacancy'),
+                'center_manager': {
+                    'name': center_manager_name[0] if center_manager_name else space.get('center_manager', {}).get('name'),
+                    'contact': center_manager_contact[0] if center_manager_contact else space.get('center_manager', {}).get('contact')
                 },
                 'inventory': inventory,
                 'layout_images': layout_image_links,
-                'interactive_layout': space.get('interactive_layout', False),  # Preserve existing value
+                'interactive_layout': space.get('interactive_layout', False),  # Preserve the existing value
                 'hear_from': hear_from,
                 'date': datetime.datetime.now()
             }
