@@ -396,6 +396,24 @@
                         </select>
                     </div>
                 </div>
+                <!-- Center Manager Details -->
+                <h5>Center Manager Details</h5>
+                <div class="form-group mb-3">
+                    <div class="mb-3 w-100">
+                        <input type="text" class="form-control" name="center_manager_name[]" placeholder="Center Manager Name" required
+                            value="${spaceData ? spaceData['center_manager_name'] || '' : ''}"
+                            data-parsley-required-message="Please enter the center manager name."
+                            data-parsley-trigger="change" aria-label="Center Manager Name">
+                    </div>
+                    <div class="mb-3 w-100">
+                        <input type="tel" class="form-control" name="center_manager_contact[]" placeholder="Center Manager Contact" required
+                            value="${spaceData ? spaceData['center_manager_contact'] || '' : ''}"
+                            data-parsley-required-message="Please enter the center manager contact."
+                            data-parsley-pattern="^[0-9]{10}$"
+                            data-parsley-pattern-message="Please enter a valid 10-digit phone number."
+                            data-parsley-trigger="change" aria-label="Center Manager Contact">
+                    </div>
+                </div>
                 <!-- About Space -->
                 <h5>About Space</h5>
                 <div class="form-group mb-3">

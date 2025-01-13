@@ -119,6 +119,9 @@ def inventory():
     inventory = []
     for space in inventory_cursor:
         space['_id'] = str(space['_id'])
+        # Ensure `center_manager_name` and `center_manager_contact` are included
+        space['center_manager_name'] = space.get('center_manager_name', 'N/A')
+        space['center_manager_contact'] = space.get('center_manager_contact', 'N/A')
         inventory.append(space)
 
     # Pass operator's name and inventory to the template
@@ -151,6 +154,10 @@ def edit_space(space_id):
             owner_phone = request.form.get('owner_phone')
             owner_email = request.form.get('owner_email')
             coworking_name = request.form.get('coworking_name')
+
+            # Extract center manager details
+            center_manager_name = request.form.get('center_manager_name')
+            center_manager_contact = request.form.get('center_manager_contact')
 
             # Get where the user heard from us
             hear_from = request.form.get('hear_from')
@@ -209,8 +216,13 @@ def edit_space(space_id):
                 'micromarket': micromarket,
                 'total_seats': total_seats,
                 'current_vacancy': current_vacancy,
+                'center_manager': {  # Add center manager as a nested object
+                    'name': center_manager_name,
+                    'contact': center_manager_contact
+                },
                 'inventory': inventory,
                 'layout_images': layout_image_links,
+                'interactive_layout': space.get('interactive_layout', False),  # Preserve existing value
                 'hear_from': hear_from,
                 'date': datetime.datetime.now()
             }

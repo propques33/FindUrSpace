@@ -340,11 +340,13 @@ def list_your_space():
             micromarkets = request.form.getlist('micromarket[]')
             total_seats_list = request.form.getlist('total_seats[]')
             current_vacancies = request.form.getlist('current_vacancy[]')
+            center_manager_names = request.form.getlist('center_manager_name[]')
+            center_manager_contacts = request.form.getlist('center_manager_contact[]')
 
             print(f"Received cities: {cities}, micromarkets: {micromarkets}")
 
             # Process each space
-            for idx, city, micromarket, total_seats, current_vacancy in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies):
+            for idx, city, micromarket, total_seats, current_vacancy,center_manager_name, center_manager_contact in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts):
                 idx_str = str(idx)  # Convert idx to string in case it's not
 
                 print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
@@ -384,6 +386,10 @@ def list_your_space():
                     'micromarket': micromarket,
                     'total_seats': total_seats,
                     'current_vacancy': current_vacancy,
+                    'center_manager': {
+                        'name': center_manager_name,
+                        'contact': center_manager_contact
+                    },
                     'inventory': inventory,
                     'layout_images': layout_image_links,
                     'interactive_layout': False,  # Set interactive_layout as False initially
