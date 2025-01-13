@@ -129,6 +129,82 @@ def inventory():
     return render_template('operators_inventory.html', inventory=inventory, owner_name=owner_name)
 
 
+@operators_bp.route('/add_space', methods=['GET', 'POST'])
+def add_space():
+    if 'operator_phone' not in session:
+        return redirect(url_for('operators.operators_login'))
+
+    db = current_app.config['db']
+
+    if request.method == 'POST':
+        try:
+            # Extract owner information
+            name = request.form.get('name')
+            owner_phone = request.form.get('owner_phone')
+            owner_email = request.form.get('owner_email')
+            coworking_name = request.form.get('coworking_name')
+
+            # Get space details
+            space_indices = request.form.getlist('space_indices[]')
+            cities = request.form.getlist('city[]')
+            micromarkets = request.form.getlist('micromarket[]')
+            total_seats_list = request.form.getlist('total_seats[]')
+            current_vacancies = request.form.getlist('current_vacancy[]')
+            center_manager_names = request.form.getlist('center_manager_name[]')
+            center_manager_contacts = request.form.getlist('center_manager_contact[]')
+
+            for idx, city, micromarket, total_seats, current_vacancy, manager_name, manager_contact in zip(
+                space_indices, cities, micromarkets, total_seats_list, current_vacancies, center_manager_names, center_manager_contacts
+            ):
+                inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
+                inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
+                price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
+
+                inventory = []
+                for i in range(len(inventory_types)):
+                    inventory.append({
+                        'type': inventory_types[i],
+                        'count': int(inventory_counts[i]),
+                        'price_per_seat': float(price_per_seats[i])
+                    })
+
+                # Handle file uploads
+                layout_images = request.files.getlist(f'layout_images_{idx}[]')
+                uploaded_images = process_and_upload_images(layout_images, {'name': name}, coworking_name)
+
+                # Prepare new space document
+                new_space = {
+                    'owner': {
+                        'name': name,
+                        'phone': owner_phone,
+                        'email': owner_email
+                    },
+                    'coworking_name': coworking_name,
+                    'city': city,
+                    'micromarket': micromarket,
+                    'total_seats': total_seats,
+                    'current_vacancy': current_vacancy,
+                    'center_manager': {
+                        'name': manager_name,
+                        'contact': manager_contact
+                    },
+                    'inventory': inventory,
+                    'layout_images': uploaded_images,
+                    'interactive_layout': False,
+                    'date': datetime.datetime.now()
+                }
+
+                db.fillurdetails.insert_one(new_space)
+
+            flash('Coworking space added successfully.', 'success')
+            return redirect(url_for('operators.inventory'))
+
+        except Exception as e:
+            flash(f'Error while adding coworking space: {str(e)}', 'error')
+
+    # Render the form for adding a new space
+    return render_template('FillUrDetails.html', space=None)
+
 @operators_bp.route('/edit_space/<space_id>', methods=['GET', 'POST'])
 def edit_space(space_id):
     if 'operator_phone' not in session:

@@ -101,6 +101,11 @@
         <div class="container">
             <h2 class="text-dark my-4">Edit Your Space Details</h2>
 
+            <!-- Add Coworking Space Button -->
+            <div class="text-end">
+                <a href="{{ url_for('operators.add_space') }}" class="add-space-button">+ Add Coworking Space</a>
+            </div>
+            
             {% for space in inventory %}
             <div class="property-card">
                 <!-- Coworking Name as Card Heading -->
