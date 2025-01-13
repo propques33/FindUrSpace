@@ -144,6 +144,7 @@ def add_space():
         return redirect(url_for('operators.inventory'))
 
     owner_details = operator['owner']
+    coworking_name = operator['coworking_name'] 
 
     if request.method == 'POST':
         try:
@@ -151,7 +152,6 @@ def add_space():
             name = request.form.get('name')
             owner_phone = request.form.get('owner_phone')
             owner_email = request.form.get('owner_email')
-            coworking_name = request.form.get('coworking_name')
 
             # Get space details
             space_indices = request.form.getlist('space_indices[]')
@@ -204,7 +204,7 @@ def add_space():
             flash(f'Error while adding coworking space: {str(e)}', 'error')
 
     # Render the form for adding a new space
-    return render_template('FillUrDetails.html', space=None, context='add_space', owner_details=owner_details)
+    return render_template('FillUrDetails.html', space=None, context='add_space', owner_details=owner_details, coworking_name=coworking_name)
 
 @operators_bp.route('/edit_space/<space_id>', methods=['GET', 'POST'])
 def edit_space(space_id):

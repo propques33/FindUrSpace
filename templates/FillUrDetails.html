@@ -319,6 +319,11 @@
         <input type="hidden" name="name" value="{{ owner_details['name'] }}">
         <input type="hidden" name="owner_phone" value="{{ owner_details['phone'] }}">
         <input type="hidden" name="owner_email" value="{{ owner_details['email'] }}">
+        <div class="mb-3 w-100">
+            <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" readonly
+                value="{{ coworking_name }}"
+                aria-label="Coworking Name">
+        </div>
         {% endif %}
 
         <!-- Stage 2: Coworking Space Details -->
