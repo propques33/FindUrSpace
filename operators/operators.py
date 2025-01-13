@@ -119,9 +119,10 @@ def inventory():
     inventory = []
     for space in inventory_cursor:
         space['_id'] = str(space['_id'])
-        # Ensure `center_manager_name` and `center_manager_contact` are included
-        space['center_manager_name'] = space.get('center_manager_name', 'N/A')
-        space['center_manager_contact'] = space.get('center_manager_contact', 'N/A')
+        # Extract `center_manager` details safely
+        center_manager = space.get('center_manager', {})
+        space['center_manager_name'] = center_manager.get('name', 'N/A')
+        space['center_manager_contact'] = center_manager.get('contact', 'N/A')
         inventory.append(space)
 
     # Pass operator's name and inventory to the template
