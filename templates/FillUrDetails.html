@@ -362,7 +362,7 @@
     var spaceData = {{ space | default(None) | tojson | safe }};
 
     // Function to add a coworking space section
-    function addSpaceDetails(spaceData = null) {
+    function addSpaceDetails() {
         spaceCount++;
 
         const spaceDetailsContainer = document.getElementById('spaceDetailsContainer');
@@ -458,7 +458,8 @@
             </div>
         `;
         spaceDetailsContainer.appendChild(spaceCard);
-        fetchLocations();
+        // Populate the location dropdown
+        populateLocationsDropdown(spaceCount);
 
         // Initialize the inventory section
         if (inventoryList.length > 0) {
@@ -512,6 +513,51 @@
         // Refresh Parsley to recognize new fields
         $('#listSpaceForm').parsley().refresh();
     }
+
+    // Function to fetch and populate locations in the dropdown
+function populateLocationsDropdown(spaceId) {
+    const locationDropdown = document.getElementById(`location_${spaceId}`);
+
+    fetch('/get_locations', { method: 'GET' })
+        .then(response => response.json())
+        .then(data => {
+            const locations = data.locations || [];
+            locations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location;
+                option.textContent = location;
+                locationDropdown.appendChild(option);
+            });
+
+            locationDropdown.addEventListener('change', function () {
+                const selectedCity = locationDropdown.value;
+                populateMicromarketDropdown(spaceId, selectedCity);
+            });
+        })
+        .catch(error => console.error('Error fetching locations:', error));
+}
+
+// Function to fetch and populate micromarkets for a selected location
+function populateMicromarketDropdown(spaceId, selectedCity) {
+    const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
+    micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket</option>';
+    micromarketDropdown.disabled = true;
+
+    fetch(`/get_micromarkets?city=${selectedCity}`, { method: 'GET' })
+        .then(response => response.json())
+        .then(data => {
+            const micromarkets = data.micromarkets || [];
+            micromarkets.forEach(micromarket => {
+                const option = document.createElement('option');
+                option.value = micromarket;
+                option.textContent = micromarket;
+                micromarketDropdown.appendChild(option);
+            });
+
+            micromarketDropdown.disabled = false;
+        })
+        .catch(error => console.error('Error fetching micromarkets:', error));
+}
 
     // Function to add an inventory item
     function addInventory(spaceId, inventoryData = null) {
@@ -903,8 +949,8 @@ document.addEventListener('click', function (event) {
 });
 
 document.addEventListener('DOMContentLoaded', function () {
+    addSpaceDetails(); // Add one coworking space by default
         $('#listSpaceForm').parsley();
-        addSpaceDetails(); // Add one coworking space by default
     });
 </script>
 
