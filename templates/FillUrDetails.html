@@ -276,6 +276,7 @@
 
     <!-- Form: Owner Information and Coworking Space Details -->
     <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') if not space else url_for('operators.edit_space', space_id=space['_id']) }}" method="post" enctype="multipart/form-data" data-parsley-validate>
+        {% if context != 'add_space' %}
         <div class="card">
             <div class="card-header">
                 Stage 1: Owner Information
@@ -313,6 +314,12 @@
                 </div>
             </div>
         </div>
+        {% else %}
+        <!-- Hidden Owner Information for Add Space -->
+        <input type="hidden" name="name" value="{{ owner_details['name'] }}">
+        <input type="hidden" name="owner_phone" value="{{ owner_details['phone'] }}">
+        <input type="hidden" name="owner_email" value="{{ owner_details['email'] }}">
+        {% endif %}
 
         <!-- Stage 2: Coworking Space Details -->
         <div id="spaceDetailsContainer">
@@ -894,6 +901,11 @@ document.addEventListener('click', function (event) {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+        $('#listSpaceForm').parsley();
+        addSpaceDetails(); // Add one coworking space by default
+    });
 </script>
 
 </body>

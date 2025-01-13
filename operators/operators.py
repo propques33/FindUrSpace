@@ -135,6 +135,15 @@ def add_space():
         return redirect(url_for('operators.operators_login'))
 
     db = current_app.config['db']
+    operator_phone = session['operator_phone']
+
+    # Fetch operator details
+    operator = db.fillurdetails.find_one({'owner.phone': operator_phone})
+    if not operator:
+        flash("Operator not found. Please contact support.", 'error')
+        return redirect(url_for('operators.inventory'))
+
+    owner_details = operator['owner']
 
     if request.method == 'POST':
         try:
@@ -172,26 +181,18 @@ def add_space():
                 layout_images = request.files.getlist(f'layout_images_{idx}[]')
                 uploaded_images = process_and_upload_images(layout_images, {'name': name}, coworking_name)
 
-                # Prepare new space document
                 new_space = {
-                    'owner': {
-                        'name': name,
-                        'phone': owner_phone,
-                        'email': owner_email
-                    },
+                    'owner': owner_details,
                     'coworking_name': coworking_name,
                     'city': city,
                     'micromarket': micromarket,
                     'total_seats': total_seats,
                     'current_vacancy': current_vacancy,
-                    'center_manager': {
-                        'name': manager_name,
-                        'contact': manager_contact
-                    },
+                    'center_manager': {'name': manager_name, 'contact': manager_contact},
                     'inventory': inventory,
                     'layout_images': uploaded_images,
                     'interactive_layout': False,
-                    'date': datetime.datetime.now()
+                    'date': datetime.datetime.now(),
                 }
 
                 db.fillurdetails.insert_one(new_space)
@@ -203,7 +204,7 @@ def add_space():
             flash(f'Error while adding coworking space: {str(e)}', 'error')
 
     # Render the form for adding a new space
-    return render_template('FillUrDetails.html', space=None)
+    return render_template('FillUrDetails.html', space=None, context='add_space', owner_details=owner_details)
 
 @operators_bp.route('/edit_space/<space_id>', methods=['GET', 'POST'])
 def edit_space(space_id):
