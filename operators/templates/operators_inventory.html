@@ -93,44 +93,45 @@
             height: auto;
         }
 
-        /* Add Space Button */
-        .add-space-button {
+        /* Add Space Button - Premium Look */
+        .button-common {
         display: inline-block;
-        background: linear-gradient(135deg, #007bff, #4facfe); /* Gradient with shades of blue */
         color: white;
         font-weight: bold;
-        font-size: 1.2rem;
-        padding: 10px 25px;
-        border-radius: 30px;
+        font-size: 1.1rem;
+        padding: 12px 30px;
+        border-radius: 50px;
         text-decoration: none;
         transition: all 0.3s ease-in-out;
-        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); /* Subtle blue shadow */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 2px solid transparent;
+    }
+
+    /* Add Coworking Space Button - Dark Blue */
+    .add-space-button {
+        background-color: #003366; /* Dark Blue */
+        border-color: #003366;
     }
 
     .add-space-button:hover {
-        background: linear-gradient(135deg, #0056b3, #007bff); /* Darker blue gradient on hover */
-        box-shadow: 0 6px 12px rgba(0, 123, 255, 0.3); /* Stronger shadow on hover */
-        text-decoration: none;
-        transform: scale(1.05); /* Slight zoom effect on hover */
+        background-color: #002244; /* Darker Blue on Hover */
+        border-color: #002244;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px); /* Lift effect */
     }
 
-    /* Edit Button */
+    /* Edit Button - Dark Blue */
     .btn-edit {
-        display: inline-block;
-        background: linear-gradient(135deg, #007bff, #0056b3); /* Gradient background */
-        color: white;
-        font-weight: bold;
+        background-color: #003366; /* Dark Blue */
+        border-color: #003366;
         font-size: 1rem;
-        padding: 8px 16px;
-        border-radius: 25px;
-        text-align: center;
-        transition: all 0.3s ease-in-out;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 10px 20px;
     }
 
     .btn-edit:hover {
-        background: linear-gradient(135deg, #0056b3, #007bff); /* Reverse gradient on hover */
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+        background-color: #002244; /* Darker Blue on Hover */
+        border-color: #002244;
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         transform: translateY(-2px); /* Lift effect */
     }
     </style>
@@ -144,7 +145,7 @@
 
             <!-- Add Coworking Space Button -->
             <div class="text-end">
-                <a href="{{ url_for('operators.add_space') }}" class="add-space-button">+ Add Coworking Space</a>
+                <a href="{{ url_for('operators.add_space') }}" class="add-space-button button-common">+ Add Coworking Space</a>
             </div>
             
             {% for space in inventory %}
@@ -233,7 +234,7 @@
 
                         <!-- Edit Button -->
                         <div class="text-right">
-                            <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit">Edit</a>
+                            <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit button-common">Edit</a>
                         </div>
                     </div>
                 </div>
