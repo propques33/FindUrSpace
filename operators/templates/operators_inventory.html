@@ -141,119 +141,126 @@
 
     <div id="page-content-wrapper">
         <div class="container">
-            <h2 class="text-dark my-4">Edit Your Space Details</h2>
+            <h2 class="text-dark my-4">Your Space Details</h2>
 
             <!-- Add Coworking Space Button -->
+            {% if role == 'owner' %}
             <div class="text-end">
-                <a href="{{ url_for('operators.add_space') }}" class="add-space-button button-common">+ Add Coworking Space</a>
+                <a href="{{ url_for('operators.add_space') }}" class="add-space-button">+ Add Coworking Space</a>
             </div>
+            {% endif %}
             
-            {% for space in inventory %}
-            <div class="property-card">
-                <!-- Coworking Name as Card Heading -->
-                <div class="property-header">
-                    {{ space['coworking_name'] }}
-                </div>
-
-                <!-- Card Content (Images on the left, Info on the right) -->
-                <div class="property-content">
-                    <!-- Image container with Bootstrap Carousel -->
-                    <div id="carousel-{{ loop.index }}" class="carousel slide image-container" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            {% for image in space['layout_images'] %}
-                            <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                <img src="{{ image }}" alt="Layout Image" data-bs-toggle="modal" data-bs-target="#imageModal-{{ loop.index }}-{{ loop.index0 }}">
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Indicators -->
-                        <div class="carousel-indicators">
-                            {% for image in space['layout_images'] %}
-                            <button type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-current="true"></button>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Controls -->
-                        <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
+            <!-- List of coworking spaces -->
+            {% if inventory %}
+                {% for space in inventory %}
+                <div class="property-card">
+                    <!-- Coworking Name as Card Heading -->
+                    <div class="property-header">
+                        {{ space['coworking_name'] }}
                     </div>
 
-                    <!-- Details container -->
-                    <div class="details-container">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Center Manager Name:</strong> {{ space['center_manager_name'] }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Center Manager Contact:</strong> {{ space['center_manager_contact'] }}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>City:</strong> {{ space['city'] }}</p>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
-                            </div>
-                        </div>
-
-                        <!-- Inventory Table -->
-                        <table class="table inventory-table">
-                            <thead>
-                                <tr>
-                                    <th>Type</th>
-                                    <th>Count</th>
-                                    <th>Price per Seat</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in space['inventory'] %}
-                                <tr>
-                                    <td>{{ item['type'] }}</td>
-                                    <td>{{ item['count'] }}</td>
-                                    <td>{{ item['price_per_seat'] }}</td>
-                                </tr>
+                    <!-- Card Content (Images on the left, Info on the right) -->
+                    <div class="property-content">
+                        <!-- Image container with Bootstrap Carousel -->
+                        <div id="carousel-{{ loop.index }}" class="carousel slide image-container" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                {% for image in space['layout_images'] %}
+                                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                    <img src="{{ image }}" alt="Layout Image" data-bs-toggle="modal" data-bs-target="#imageModal-{{ loop.index }}-{{ loop.index0 }}">
+                                </div>
                                 {% endfor %}
-                            </tbody>
-                        </table>
+                            </div>
 
-                        <!-- Edit Button -->
-                        <div class="text-right">
-                            <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit button-common">Edit</a>
+                            <!-- Indicators -->
+                            <div class="carousel-indicators">
+                                {% for image in space['layout_images'] %}
+                                <button type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-current="true"></button>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Controls -->
+                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+
+                        <!-- Details container -->
+                        <div class="details-container">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Center Manager Name:</strong> {{ space['center_manager_name'] }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Center Manager Contact:</strong> {{ space['center_manager_contact'] }}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>City:</strong> {{ space['city'] }}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Inventory Table -->
+                            <table class="table inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Count</th>
+                                        <th>Price per Seat</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in space['inventory'] %}
+                                    <tr>
+                                        <td>{{ item['type'] }}</td>
+                                        <td>{{ item['count'] }}</td>
+                                        <td>{{ item['price_per_seat'] }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <!-- Edit Button -->
+                            <div class="text-right">
+                                <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit">Edit</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Zoom Modal for each image -->
-            {% for image in space['layout_images'] %}
-            <div class="modal fade" id="imageModal-{{ loop.index }}-{{ loop.index0 }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <img src="{{ image }}" class="modal-img" alt="Zoomed Layout Image">
+                <!-- Zoom Modal for each image -->
+                {% for image in space['layout_images'] %}
+                <div class="modal fade" id="imageModal-{{ loop.index }}-{{ loop.index0 }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <img src="{{ image }}" class="modal-img" alt="Zoomed Layout Image">
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
 
-            {% endfor %}
+                {% endfor %}
+            {% else %}
+            <p class="text-muted">No coworking spaces available to display.</p>
+            {% endif %}
         </div>
     </div>
 

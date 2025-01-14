@@ -109,20 +109,20 @@ def inventory():
         return redirect(url_for('operators.operators_login'))
 
     db = current_app.config['db']
-
     operator_phone = session['operator_phone']
+    role = session.get('role', 'owner')  # Default to 'owner' if role is missing
 
-    # Fetch operator's name from one of the fillurdetails entries
-    operator = db.fillurdetails.find_one({'owner.phone': operator_phone})
-    if operator:
-        owner_name = operator['owner']['name']
+    # Fetch inventory based on role
+    if role == 'owner':
+        query_field = 'owner.phone'
+    elif role == 'center_manager':
+        query_field = 'center_manager.contact'
     else:
-        owner_name = 'Operator'
+        flash("Invalid role in session. Please log in again.", "error")
+        return redirect(url_for('operators.operators_login'))
 
-    # Fetch all fillurdetails entries for this operator
-    inventory_cursor = db.fillurdetails.find({
-        'owner.phone': operator_phone
-    })
+    # Fetch coworking spaces for the operator
+    inventory_cursor = db.fillurdetails.find({query_field: operator_phone})
 
     # Convert cursor to list and convert '_id' to string
     inventory = []
@@ -134,8 +134,12 @@ def inventory():
         space['center_manager_contact'] = center_manager.get('contact', 'N/A')
         inventory.append(space)
 
-    # Pass operator's name and inventory to the template
-    return render_template('operators_inventory.html', inventory=inventory, owner_name=owner_name)
+    # Pass operator's role and inventory to the template
+    return render_template(
+        'operators_inventory.html',
+        inventory=inventory,
+        role=role
+    )
 
 
 @operators_bp.route('/add_space', methods=['GET', 'POST'])
