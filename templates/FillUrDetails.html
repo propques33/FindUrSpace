@@ -277,43 +277,77 @@
     <!-- Form: Owner Information and Coworking Space Details -->
     <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') if not space else url_for('operators.edit_space', space_id=space['_id']) }}" method="post" enctype="multipart/form-data" data-parsley-validate>
         {% if context != 'add_space' %}
-        <div class="card">
-            <div class="card-header">
-                Stage 1: Owner Information
-            </div>
-            <div class="card-body">
-                <div class="form-group mb-3">
-                    <div class="mb-3 w-100">
-                        <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
-                            value="{{ space['coworking_name'] if space else '' }}"
-                            data-parsley-required-message="Please enter the coworking space name." data-parsley-trigger="change" aria-label="Coworking Name">
-                    </div>
-                    <div class="mb-3 w-100">
-                        <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required
-                            value="{{ space['owner']['name'] if space else '' }}"
-                            data-parsley-required-message="Please enter your name." data-parsley-trigger="change" aria-label="Your Name">
-                    </div>
+            {% if role == 'center_manager' %}
+            <div class="card">
+                <div class="card-header">
+                    Stage 1: Owner Information
                 </div>
-                <div class="form-group mb-3">
-                    <div class="mb-3 w-100">
-                        <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required
-                            value="{{ space['owner']['phone'] if space else '' }}"
-                            data-parsley-required-message="Please enter your phone number."
-                            data-parsley-pattern="^[0-9]{10}$"
-                            data-parsley-pattern-message="Please enter a valid 10-digit phone number."
-                            data-parsley-trigger="change" aria-label="Owner Phone Number">
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <div class="mb-3 w-100">
+                            <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
+                                value="{{ space['coworking_name'] if space else '' }}"
+                                readonly>
+                        </div>
+                        <div class="mb-3 w-100">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required
+                                value="{{ space['owner']['name'] if space else '' }}"
+                                readonly>
+                        </div>
                     </div>
-                    <div class="mb-3 w-100">
-                        <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required
-                            value="{{ space['owner']['email'] if space else '' }}"
-                            data-parsley-required-message="Please enter your email address."
-                            data-parsley-type="email"
-                            data-parsley-type-message="Please enter a valid email address."
-                            data-parsley-trigger="change" aria-label="Owner Email Address">
+                    <div class="form-group mb-3">
+                        <div class="mb-3 w-100">
+                            <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required
+                                value="{{ space['owner']['phone'] if space else '' }}"
+                                readonly>
+                        </div>
+                        <div class="mb-3 w-100">
+                            <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required
+                                value="{{ space['owner']['email'] if space else '' }}"
+                                readonly>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            {% else %}
+            <div class="card">
+                <div class="card-header">
+                    Stage 1: Owner Information
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <div class="mb-3 w-100">
+                            <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
+                                value="{{ space['coworking_name'] if space else '' }}"
+                                data-parsley-required-message="Please enter the coworking space name." data-parsley-trigger="change" aria-label="Coworking Name">
+                        </div>
+                        <div class="mb-3 w-100">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required
+                                value="{{ space['owner']['name'] if space else '' }}"
+                                data-parsley-required-message="Please enter your name." data-parsley-trigger="change" aria-label="Your Name">
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <div class="mb-3 w-100">
+                            <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required
+                                value="{{ space['owner']['phone'] if space else '' }}"
+                                data-parsley-required-message="Please enter your phone number."
+                                data-parsley-pattern="^[0-9]{10}$"
+                                data-parsley-pattern-message="Please enter a valid 10-digit phone number."
+                                data-parsley-trigger="change" aria-label="Owner Phone Number">
+                        </div>
+                        <div class="mb-3 w-100">
+                            <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required
+                                value="{{ space['owner']['email'] if space else '' }}"
+                                data-parsley-required-message="Please enter your email address."
+                                data-parsley-type="email"
+                                data-parsley-type-message="Please enter a valid email address."
+                                data-parsley-trigger="change" aria-label="Owner Email Address">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         {% else %}
         <!-- Hidden Owner Information for Add Space -->
         <input type="hidden" name="name" value="{{ owner_details['name'] }}">

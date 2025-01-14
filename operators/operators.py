@@ -218,7 +218,7 @@ def add_space():
             flash(f'Error while adding coworking space: {str(e)}', 'error')
 
     # Render the form for adding a new space
-    return render_template('FillUrDetails.html', space=None, context='add_space', owner_details=owner_details, coworking_name=coworking_name)
+    return render_template('FillUrDetails.html',space=None,role=session.get('role', 'owner'),context='add_space')
 
 @operators_bp.route('/edit_space/<space_id>', methods=['GET', 'POST'])
 def edit_space(space_id):
@@ -226,13 +226,16 @@ def edit_space(space_id):
         return redirect(url_for('operators.operators_login'))
 
     db = current_app.config['db']
-
     operator_phone = session['operator_phone']
+    role = session.get('role', 'owner')  # Get the role from the session
 
     # Fetch the space data based on space_id and ensure it belongs to the logged-in operator
     space = db.fillurdetails.find_one({
-        '_id': ObjectId(space_id),
-        'owner.phone': operator_phone  # Ensure the space belongs to the operator
+    '_id': ObjectId(space_id),
+    '$or': [
+        {'owner.phone': operator_phone},  # If logged-in user is the owner
+        {'center_manager.contact': operator_phone}  # If logged-in user is the center manager
+    ]
     })
 
     if not space:
@@ -344,7 +347,7 @@ def edit_space(space_id):
         space = convert_objectid_to_str(space)
 
         # Render the FillUrDetails.html with pre-filled data
-        return render_template('FillUrDetails.html', space=space)
+        return render_template('FillUrDetails.html', space=space,role=session.get('role', 'owner'),context='edit_space')
     
 @operators_bp.route('/leads', methods=['GET'])
 def leads():
