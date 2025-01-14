@@ -362,7 +362,17 @@
 
         <!-- Stage 2: Coworking Space Details -->
         <div id="spaceDetailsContainer">
-            <!-- Dynamic coworking space entries will be appended here -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    {% if space %}
+                        // Edit mode: Pre-fill with existing data
+                        addSpaceDetails({{ space | tojson | safe }});
+                    {% else %}
+                        // Add/Normal mode: Initialize with one empty section
+                        addSpaceDetails();
+                    {% endif %}
+                });
+            </script>
         </div>
 
         <!-- Button to add more coworking spaces (Hide when editing) -->
@@ -397,11 +407,12 @@
 <script>
     let spaceCount = 0;
 
-    // Pass the 'space' data from the backend to JavaScript
-    var spaceData = {{ space | default(None) | tojson | safe }};
-
     // Function to add a coworking space section
-    function addSpaceDetails() {
+    function addSpaceDetails(spaceData = null) {
+            // Prevent multiple sections in edit mode
+        if (spaceData && spaceCount > 0) {
+            return;
+        }
         spaceCount++;
 
         const spaceDetailsContainer = document.getElementById('spaceDetailsContainer');
