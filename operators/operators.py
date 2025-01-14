@@ -39,6 +39,7 @@ def operators_login():
                     # Store requestId and mobile in session
                     session['requestId'] = otp_response['requestId']
                     session['mobile'] = mobile
+                    session['role'] = 'owner' if operator_as_owner else 'center_manager'
                     # Render OTP form
                     return render_template('operators_login.html', otp_sent=True)
                 else:
