@@ -218,7 +218,7 @@ def add_space():
             flash(f'Error while adding coworking space: {str(e)}', 'error')
 
     # Render the form for adding a new space
-    return render_template('FillUrDetails.html',space=None,role=session.get('role', 'owner'),context='add_space')
+    return render_template('FillUrDetails.html',space=None,role=session.get('role', 'owner'),context='add_space',owner_details=owner_details)
 
 @operators_bp.route('/edit_space/<space_id>', methods=['GET', 'POST'])
 def edit_space(space_id):
