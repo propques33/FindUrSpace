@@ -433,6 +433,8 @@
         const micromarket = spaceData ? spaceData['micromarket'] || '' : '';
         const total_seats = spaceData ? spaceData['total_seats'] || '' : '';
         const current_vacancy = spaceData ? spaceData['current_vacancy'] || '' : '';
+        const center_manager_name = spaceData ? spaceData['center_manager_name'] || '' : '';
+        const center_manager_contact = spaceData ? spaceData['center_manager_contact'] || '' : '';
 
         const inventoryList = spaceData ? spaceData['inventory'] || [] : [];
 
@@ -450,14 +452,14 @@
                     <div class="mb-3 w-100">
                         <select id="location_${spaceCount}" class="form-control" name="city[]" placeholder="City" value="${city}"
                         data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
-                            <option value="" selected disabled>Select Location *</option>
+                            <option value="" disabled ${city ? '' : 'selected'}>Select Location *</option>
                         </select>
                     </div>
                     <div class="mb-3 w-100">
                         <select id="micromarket_${spaceCount}" class="form-control" name="micromarket[]" placeholder="Micromarket" required
                             value="${micromarket}"
                             data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
-                            <option value="" selected disabled>Select Micromarket *</option>
+                            <option value="" disabled ${micromarket ? '' : 'selected'}>Select Micromarket *</option>
                         </select>
                     </div>
                 </div>
@@ -466,13 +468,13 @@
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <input type="text" class="form-control" name="center_manager_name[]" placeholder="Center Manager Name" required
-                            value="${spaceData ? spaceData['center_manager_name'] || '' : ''}"
+                            value="${center_manager_name}"
                             data-parsley-required-message="Please enter the center manager name."
                             data-parsley-trigger="change" aria-label="Center Manager Name">
                     </div>
                     <div class="mb-3 w-100">
                         <input type="tel" class="form-control" name="center_manager_contact[]" placeholder="Center Manager Contact" required
-                            value="${spaceData ? spaceData['center_manager_contact'] || '' : ''}"
+                            value="${center_manager_contact}"
                             data-parsley-required-message="Please enter the center manager contact."
                             data-parsley-pattern="^[0-9]{10}$"
                             data-parsley-pattern-message="Please enter a valid 10-digit phone number."
@@ -517,7 +519,7 @@
         `;
         spaceDetailsContainer.appendChild(spaceCard);
         // Populate the location dropdown
-        populateLocationsDropdown(spaceCount);
+        populateLocationsDropdown(spaceCount, city, micromarket);
 
         // Initialize the inventory section
         if (inventoryList.length > 0) {
@@ -573,7 +575,7 @@
     }
 
     // Function to fetch and populate locations in the dropdown
-function populateLocationsDropdown(spaceId) {
+function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromarket = '') {
     const locationDropdown = document.getElementById(`location_${spaceId}`);
 
     fetch('/get_locations', { method: 'GET' })
@@ -584,8 +586,16 @@ function populateLocationsDropdown(spaceId) {
                 const option = document.createElement('option');
                 option.value = location;
                 option.textContent = location;
+                if (location === selectedCity) {
+                    option.selected = true;
+                }
                 locationDropdown.appendChild(option);
             });
+
+            // Trigger micromarket population if city is preselected
+            if (selectedCity) {
+                populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket);
+            }
 
             locationDropdown.addEventListener('change', function () {
                 const selectedCity = locationDropdown.value;
@@ -596,7 +606,7 @@ function populateLocationsDropdown(spaceId) {
 }
 
 // Function to fetch and populate micromarkets for a selected location
-function populateMicromarketDropdown(spaceId, selectedCity) {
+function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket = '') {
     const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
     micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket</option>';
     micromarketDropdown.disabled = true;
@@ -609,6 +619,9 @@ function populateMicromarketDropdown(spaceId, selectedCity) {
                 const option = document.createElement('option');
                 option.value = micromarket;
                 option.textContent = micromarket;
+                if (micromarket === selectedMicromarket) {
+                    option.selected = true;
+                }
                 micromarketDropdown.appendChild(option);
             });
 
