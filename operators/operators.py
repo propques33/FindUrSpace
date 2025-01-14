@@ -27,10 +27,11 @@ def operators_login():
 
         if mobile and not otp:
             # User submitted mobile number, check if operator exists
-            operator = db.fillurdetails.find_one({'owner.phone': mobile})
+            operator_as_owner = db.fillurdetails.find_one({'owner.phone': mobile})
+            operator_as_manager = db.fillurdetails.find_one({'center_manager.contact': mobile})
 
-            if operator:
-                # Operator found, send OTP
+            if operator_as_owner or operator_as_manager:
+                # Operator found (either owner or center manager), send OTP
                 mobile_with_country_code = '+91' + mobile  # Assuming India country code
 
                 otp_response = OtpLessAuth.send_otp(mobile_with_country_code)
@@ -50,8 +51,9 @@ def operators_login():
             # User submitted OTP, verify it
             requestId = session.get('requestId')
             mobile = session.get('mobile')
+            role = session.get('role')
 
-            if not requestId or not mobile:
+            if not requestId or not mobile or not role:
                 return render_template('operators_login.html', error="Session expired. Please try again.")
 
             otp_response = OtpLessAuth.verify_otp(requestId, otp)
@@ -60,20 +62,27 @@ def operators_login():
                 session['operator_phone'] = mobile
 
                 # Check if an agreement exists for this operator, if not create one
-                operator = db.fillurdetails.find_one({'owner.phone': mobile})
-                existing_agreement = db.agreement.find_one({'operator_mobile': mobile})
-                if not existing_agreement:
-                    new_agreement = {
-                        "operator_name": operator['owner']['name'],
-                        "operator_mobile": mobile,
-                        "operator_email": operator['owner']['email'],
-                        "coworking_name": operator['coworking_name'],
-                        "commission_rate": "10%",  # Fixed for now
-                        "signed": False,
-                        "sign_date": None,
-                        "signed_pdf_url": None
-                    }
-                    db.agreement.insert_one(new_agreement)
+                if role == 'owner':
+                    operator = db.fillurdetails.find_one({'owner.phone': mobile})
+                elif role == 'center_manager':
+                    operator = db.fillurdetails.find_one({'center_manager.contact': mobile})
+                else:
+                    return render_template('operators_login.html', error="Invalid role detected. Please try again.")
+
+                if role == 'owner':
+                    existing_agreement = db.agreement.find_one({'operator_mobile': mobile})
+                    if not existing_agreement:
+                        new_agreement = {
+                            "operator_name": operator['owner']['name'],
+                            "operator_mobile": mobile,
+                            "operator_email": operator['owner']['email'],
+                            "coworking_name": operator['coworking_name'],
+                            "commission_rate": "10%",  # Fixed for now
+                            "signed": False,
+                            "sign_date": None,
+                            "signed_pdf_url": None
+                        }
+                        db.agreement.insert_one(new_agreement)
 
                 # Clean up session
                 session.pop('requestId', None)

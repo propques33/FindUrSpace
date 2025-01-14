@@ -77,6 +77,8 @@
         {% if otp_sent %}
         <!-- OTP Form -->
         <form method="POST" action="{{ url_for('operators.operators_login') }}">
+            <input type="hidden" name="role" value="{{ role }}">
+            <input type="hidden" name="mobile" value="{{ mobile }}">
             <div class="form-group mb-3">
                 <label for="otp">Enter OTP</label>
                 <input type="text" class="form-control" name="otp" id="otp" required>
@@ -89,8 +91,16 @@
             {% endif %}
         </form>
         {% else %}
-        <!-- Mobile Number Form -->
+        <!-- Role Selection and Mobile Number Form -->
         <form method="POST" action="{{ url_for('operators.operators_login') }}">
+            <div class="form-group mb-3">
+                <label for="role">Select Role</label>
+                <select class="form-control" name="role" id="role" required>
+                    <option value="">Select</option>
+                    <option value="owner">Owner</option>
+                    <option value="center_manager">Center Manager</option>
+                </select>
+            </div>
             <div class="form-group mb-3">
                 <label for="mobile">Mobile Number</label>
                 <input type="text" class="form-control" name="mobile" id="mobile" required>
