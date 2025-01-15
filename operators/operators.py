@@ -357,16 +357,25 @@ def leads():
     db = current_app.config['db']
     operator_phone = session['operator_phone']
 
-    # Find properties associated with the operator's phone number
-    properties_query = {'operator_numbers': operator_phone}
-    selected_city = request.args.get('city')
-    if selected_city and selected_city != "All":
-        properties_query['city'] = selected_city
+    # Get filter parameters from the query string
+    selected_city = request.args.get('city', 'All')
+    selected_micromarket = request.args.get('micromarket', 'All')
 
+    # Build the query for filtering properties
+    properties_query = {'operator_numbers': operator_phone}
+    if selected_city != 'All':
+        properties_query['city'] = selected_city
+    if selected_micromarket != 'All':
+        properties_query['micromarket'] = selected_micromarket
+
+    # Fetch properties and prepare the leads data
     properties = db.properties.find(properties_query).sort('date', -1)
+
+
     
     leads = []
     cities_set = set()
+    micromarkets_set = set()
 
     for property_data in properties:
         user = db.users.find_one({'_id': property_data['user_id']})
@@ -390,10 +399,13 @@ def leads():
                 print(f"Error converting date: {e}")
                 date = 'N/A'
 
-            # Collect unique cities and micromarkets for filtering
+            # Collect unique cities and micromarkets
             city = property_data.get('city', 'N/A')
+            micromarket = property_data.get('micromarket', 'N/A')
             if city != 'N/A':
                 cities_set.add(city)
+            if micromarket != 'N/A' and (selected_city in ['All', city]):
+                micromarkets_set.add(micromarket)
 
             leads.append({
                 'lead_id': str(lead_status['user_id']),
@@ -403,7 +415,7 @@ def leads():
                 'user_email': user.get('email', 'N/A'),
                 'user_contact': user.get('contact', 'N/A'),
                 'city': city,
-                'micromarket': property_data.get('micromarket', 'N/A'),
+                'micromarket': micromarket,
                 'date': date,
                 'property_seats': property_data.get('seats', 'N/A'),
                 'property_budget': property_data.get('budget', 'N/A'),
@@ -411,10 +423,11 @@ def leads():
                 'opportunity_stage': lead_status.get('opportunity_stage', 'visit done')
             })
 
-    # Convert sets to sorted lists for filtering options in the template
-    cities = sorted(list(cities_set))
+    # Convert sets to sorted lists for dropdown options
+    cities = sorted(cities_set)
+    micromarkets = sorted(micromarkets_set)
 
-    return render_template('operators_leads.html', leads=leads, cities=cities, selected_city=selected_city)
+    return render_template('operators_leads.html', leads=leads, cities=cities,micromarkets=micromarkets, selected_city=selected_city,selected_micromarket=selected_micromarket)
 
 @operators_bp.route('/update_lead_status', methods=['POST'])
 def update_lead_status():
