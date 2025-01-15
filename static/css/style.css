@@ -1040,38 +1040,6 @@ h1.listur{
     font-family: 'Report School Regular', Arial, sans-serif;
 }
 
-.footer-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 1rem;
-    text-align: left;
-}
-
-.footer-links li {
-    margin-bottom: 10px;
-}
-
-.footer-links a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    font-family: 'Report School Bold', Arial, sans-serif;
-}
-
-.footer-links a:hover {
-    text-decoration: underline;
-}
-
-.social-icons {
-    display: flex;
-    gap: 15px;
-}
-
-.social-icons a img {
-    width: 32px;
-    height: 32px;
-}
 
 .text-end {
     text-align: right;
@@ -2474,4 +2442,239 @@ margin-bottom:20px;
     background-color: #151D31;
     color: #fff;
     border-color: #151D31;
+}
+
+/* Base styles for the footer */
+footer {
+    color: #333;
+    padding: 40px 0;
+    font-size: 14px;
+    border-top: 1px solid #eee;
+    background-color: #f9f9f9; /* Optional: Add background color */
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    flex-wrap: wrap; /* Enable wrapping for smaller screens */
+    gap: 20px; /* Add some gap between sections */
+}
+
+.footer-section {
+    flex: 1 1 23%; /* Ensures sections take up equal space */
+    min-width: 200px; /* Set a minimum width to prevent too much shrinking */
+    margin-bottom: 30px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
+
+.footer-logo {
+    width: 230px;
+    height: 50px;
+    margin-bottom: 15px;
+    position:relative;
+}
+
+.tu{
+    color:#000000;
+}
+
+.social-media a {
+    margin-right: 10px;
+}
+
+.social-media img {
+    width: 40px;
+    height: 40px;
+    margin-top: 20px;
+}
+
+.footer-section h4 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-section ul li {
+    margin-bottom: 14px;
+    display: flex;
+    column-gap: 4px;
+}
+
+.footer-section ul li img {
+    width: 40px;
+    height: 40px;
+}
+
+.footer-section ul li a {
+    text-decoration: none;
+    color: #333;
+    transition: color 0.3s;
+    font-size: 16px;
+}
+
+.footer-section ul li a:hover {
+    color: #007bff;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    margin: 0 160px;
+    padding-top: 10px;
+    color: #000000;
+}
+
+.fot-link{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:30px;
+    text-align: left;
+}
+
+/* Responsive Adjustments */
+
+/* Maintain row layout until 576px */
+@media screen and (max-width: 1024px) {
+    .footer-container {
+        gap: 10px; /* Reduce gap between sections for better fit */
+    }
+
+    .footer-section {
+        flex: 1 1 48%; /* Allow two sections per row on medium screens */
+    }
+
+    .footer-section p{
+        width:80%;
+    }
+
+    .footer-logo {
+        margin-left: 0; /* Reset any left margin for logo */
+    }
+
+    .footer-section h4 {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .footer-container {
+        justify-content: space-between;
+        gap: 20px; /* Add some space between items */
+    }
+
+    .footer-section {
+        flex: 1 1 48%; /* Two columns per row */
+        text-align: left;
+    }
+
+    .social-media img {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .footer-section h4 {
+        font-size: 15px;
+    }
+    
+    .footer-section ul li a {
+        font-size: 14px;
+    }
+}
+
+/* Switch to column layout only below 576px */
+@media screen and (max-width: 576px) {
+    .footer-container {
+        flex-direction: column; /* Switch to column layout */
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .footer-section {
+        flex: 1 1 100%;
+        max-width: 100%;
+        margin-bottom: 20px;
+        align-items: center;
+        justify-content: center;
+        text-align:center;
+    }
+    .footer-section .footer-logo{
+        position: relative;
+        top:0;
+        left:0;
+    }
+    .footer-section p{
+        text-align:center;
+        margin:0 auto;
+    }
+
+    .social-media img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .footer-section h4 {
+        font-size: 14px;
+    }
+
+    .footer-section ul li a {
+        font-size: 13px;
+    }
+
+    .footer-bottom {
+        margin: 0 20px;
+        padding-top: 10px;
+    }
+}
+
+
+#al{
+    width:100%;
+}
+
+
+.contact ul li{
+    display:flex;
+    flex-direction: row;
+    align-items:center;
+}
+
+.fnv{
+    width:100%;
+    background-color:#0B132B;
+    color:white;
+    padding:6px;
+    font-size:14px;
+    text-align:center;
+    position:sticky;
+    top:0;
+    z-index:10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 10px;
+    margin-top:-40px;
+}
+
+.arr{
+    color:black;
+    padding-top: 4px;
+}
+
+.per{
+    position:relative;
+    top:-12px;
 }

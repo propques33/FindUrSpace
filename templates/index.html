@@ -199,7 +199,7 @@
  
 
     <!-- How it Works Section -->
-    <section class="how-it-works-section">
+    <section class="how-it-works-section" id="2">
         <div class="container">
             <div class="row align-items-center">
                 <!-- Left Column: Steps Information -->
@@ -275,7 +275,7 @@
 </section>
 
     
-<section class="discover-coworking-section">
+<section class="discover-coworking-section" id="3">
   <div class="container text-center">
       <h2>Trending Cities</h2>
       <p>Explore dynamic coworking hubs in India’s trending cities, designed for freelancers, startups, and corporates.</p>
@@ -717,7 +717,7 @@
 
 
     <!-- Overall Presence section -->
-    <section class="presence-section">
+    <section class="presence-section" id="4">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
@@ -856,7 +856,7 @@
 </section>
 
     
-<section class="human-bot-section">
+<section class="human-bot-section" id="6">
     <div class="container">
         <div class="text-content">
             <h2>Ready to Find Your Space?</h2>
@@ -880,37 +880,63 @@
     </div>
 </section>
 
-
-<!-- Contact section -->
-<section class="contact-section">
-    <div class="container">
-        <div class="row">
-            <!-- Left Side: Company Info -->
-            <div class="col-md-6 d-flex align-items-center">
-                <div class="company-info text-start">
-                    <img src="../static/images/LogoAsset 1.svg" alt="Findurspace Logo" loading="lazy" class="logo">
-                    <p>Follow us on social media to stay updated with the <strong>latest coworking trends, special deals, & workspace tips.</strong></p>
-                    <a class="mailus" href="mailto:sales@findurspace.tech">
-                        <i class="fas fa-envelope"></i> sales@findurspace.tech
-                    </a>
-                </div>
-            </div>
-
-            <!-- Right Side: Social Links and Policies -->
-            <div class="col-md-6 text-end d-flex flex-column align-items-end justify-content-center">
-                <ul class="footer-links">
-                    <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">Findurspace FAQ's</a></li>
-                    <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
-                </ul>
-                <div class="social-icons">
-                    <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr"><img src="../static/images/Face BookAsset 27.svg" alt="Facebook" loading="lazy"></a>
-                    <a href="https://www.instagram.com/findur.space/"><img src="../static/images/InstagramAsset 28.svg" alt="Instagram" loading="lazy"></a>
-                    <!-- <a href="#"><img src="../static/images/LinkdinAsset 29.svg" alt="LinkedIn"></a> -->
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<footer>
+  <div class="footer-container">
+      <div class="footer-section logo-section">
+          <img src="../static/images/logo.webp" loading="lazy" alt="FindurSpace Logo" class="footer-logo">
+          <p class="tu">Follow us on social media to stay updated with the <strong>latest coworking trends, special deals, & workspace tips.</strong></p>
+          <div class="social-media">
+              <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr" target="_blank" alt="follow us on Facebook"><img src="../static/images/Face BookAsset 27.svg" loading="lazy" alt="Facebook"  width="" height=""></a>
+              <a href="https://www.instagram.com/findur.space/" target="_blank" alt="follow us on Instagram"><img src="../static/images/InstagramAsset 28.svg" loading="lazy" alt="instagram"  width="" height=""></a>
+          </div>
+      </div>
+      <div class="footer-section links">
+          <p class="fot-link">Useful Links</p>
+          <ul>
+              <li><a href="#">Home</a></li>
+              <li><a href="#2">How it Works</a></li>
+              <li><a href="#3">Our Presence</a></li>
+              <li><a href="#4">Features</a></li>
+              <li><a href="#6">Contact</a></li>
+          </ul>
+      </div>
+      <div class="footer-section product-help">
+          <p class="fot-link">Product Help</p>
+          <ul>
+              <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">FAQ</a></li>
+              <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
+              <li><a href="#">Support</a></li>
+              <li><a href="#">Terms & Conditions</a></li>
+              <li><a href="#6">Contact</a></li>
+          </ul>
+      </div>
+      <div class="footer-section contact">
+          <p class="fot-link">Contact US</p>
+          <ul>
+              <li style="align-items: flex-start;">
+                  <img src="../static/images/house.png" loading="lazy" alt="office Address" width="" height=""> 
+                  <span>Excel Coworks - Naagarabhaavi, Bangalore 3rd Floor, Tushar Arcade, Service Road, Naagarabhaavi, Bengaluru, Karnataka 560072</span>
+              </li>
+              <li style="display:flex; align-items:center;">
+                  <a href="tel:+917316981583">
+                      <img src="../static/images/phone-call.png" loading="lazy" alt="Contact Number" style="width:40px;height:40px;">
+                  </a>
+                  <a href="tel:+917316981583">+91-7316981583</a>
+              </li>
+              <li style="display:flex; align-items:center;">
+                  <a href="mailto:sales@findurspace.tech">
+                      <img src="../static/images/email.png" loading="lazy" alt="Email Address" style="width:40px;height:40px;">
+                  </a>
+                  <a href="mailto:sales@findurspace.tech">sales@findurspace.tech</a>
+              </li>
+          </ul>
+      </div>
+  </div>
+  <div class="footer-bottom">
+      <p>© Copyrights 2025 FindurSpace All rights reserved.</p>
+  </div>
+</footer>
+<a href="https://propques.com/" rel="noopener" alt="Propques Service Pvt Ltd" target="_blank" style="text-decoration-line: none;"><div class="fnv">Powered by Propques Services Pvt Ltd <span class="arr" ><img src="../static/images/arrow1.svg" alt="arrow"></span></div></a>
 <!-- OTP Modal -->
 <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
   <div class="modal-dialog">
