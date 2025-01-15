@@ -45,14 +45,14 @@ def parse_price(price_str):
         return 0.0
 
 # Helper function to get max budget with 20% buffer
-def get_max_budget(budget):
-    try:
-        # Remove any currency symbols and commas, convert to float
-        budget = float(str(budget).replace(',', '').replace('₹', ''))
-        # Allow for a 20% variance above the budget
-        return budget * 1.2  # 20% above budget
-    except (ValueError, TypeError):
-        return float('inf')
+# def get_max_budget(budget):
+#     try:
+#         # Remove any currency symbols and commas, convert to float
+#         budget = float(str(budget).replace(',', '').replace('₹', ''))
+#         # Allow for a 20% variance above the budget
+#         return budget * 1.2  # 20% above budget
+#     except (ValueError, TypeError):
+#         return float('inf')
 
 # Helper function to get lowest price from inventory
 def get_lowest_price(inventory):
@@ -161,7 +161,20 @@ def submit_preferences():
     budget = request.form.get('budget')
     inventory_type = request.form.get('inventory-type')  # New field
     hear_about = request.form.get('hear-about')  # New field
-
+    
+    # Parse budget range
+    try:
+        if budget == "0-5000":
+            min_budget, max_budget = 0, 5000
+        elif budget == "5000-10000":
+            min_budget, max_budget = 5000, 10000
+        elif budget == "10000+":
+            min_budget, max_budget = 10000, float('inf')
+        else:
+            raise ValueError("Invalid budget range selected")
+    except ValueError as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+    
     # Check if the session has a user_id
     user_id = session.get('user_id')
 
@@ -185,9 +198,6 @@ def submit_preferences():
     contact = user.get('contact')
     print(f"User details - Name: {name}, Email: {email}, Contact: {contact}")
 
-    # Get max budget
-    max_budget = get_max_budget(budget)
-   
     # Initial query for location and area
     query = {
         'city': {'$regex': f'^{location.strip()}$', '$options': 'i'},
@@ -203,7 +213,7 @@ def submit_preferences():
     for prop in all_properties:
         inventory = prop.get('inventory', [])
         lowest_price = get_lowest_price(inventory)
-        if max_budget:
+        if min_budget and max_budget:
             # Add the lowest price to the property object for reference
             prop['lowest_price'] = lowest_price
             filtered_properties.append(prop)

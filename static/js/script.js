@@ -91,14 +91,12 @@ function loadFormStep() {
                 </select>
             </div>
             <div class="form-group mb-3">
-                <input type="text" 
-                       id="budget" 
-                       class="form-select" 
-                       placeholder="Enter Budget Per Seat (₹) *" 
-                       required 
-                       onkeyup="validatePrice(this)" 
-                       onblur="validatePrice(this)"
-                       style="height: auto; padding: 0.375rem 0.75rem;">
+                <select id="budget" name="budget" class="form-select" required>
+                    <option value="" selected disabled>Enter Budget Per Seat (₹)  *</option>
+                    <option value="0-5000">Rs 0-5000</option>
+                    <option value="5000-10000">Rs 5000-10000</option>
+                    <option value="10000+">Rs 10000+</option>
+                </select>
             </div>
             <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
@@ -289,9 +287,10 @@ function submitUserPreferences() {
     }
 
     // Validate budget
-    if (!validatePrice(document.getElementById('budget'))) {
-        return;
-    }
+    // Static Budget
+    // if (!validatePrice(document.getElementById('budget'))) {
+    //     return;
+    // }
 
     fetch('/submit_preferences', {
         method: 'POST',
