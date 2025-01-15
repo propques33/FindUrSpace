@@ -92,15 +92,13 @@ function loadFormStep() {
             </div>
             <div class="form-group mb-3">
                 <select id="budget" name="budget" class="form-select" required>
-                    <option value="" selected disabled>Enter Budget Per Seat (₹)  *</option>
-                    <option value="0-5000">Rs 0-5000</option>
-                    <option value="5000-10000">Rs 5000-10000</option>
-                    <option value="10000+">Rs 10000+</option>
+                    <!-- Static options will be added dynamically -->
                 </select>
             </div>
             <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
         `;
         fetchLocations();
+        fetchPrices();
     }
 }
 
@@ -393,41 +391,62 @@ function fetchMicromarkets() {
 
 // Fetch unique prices for the selected city and micromarket
 // JavaScript function update:
+//dynamic budget
+// function fetchPrices() {
+//     const city = document.getElementById('location').value;
+//     const micromarket = document.getElementById('area').value;
+//     console.log('Fetching prices for city:', city, 'and micromarket:', micromarket);
+
+//     fetch(`/get_prices?city=${encodeURIComponent(city)}&micromarket=${encodeURIComponent(micromarket)}`, {
+//         method: 'GET'
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log('Prices data:', data); // Debugging info
+//         const budgetDropdown = document.getElementById('budget');
+//         budgetDropdown.innerHTML = '<option selected disabled>Select Budget</option>';
+        
+//         // Sort prices in ascending order
+//         const sortedPrices = data.prices.sort((a, b) => a - b);
+        
+//         sortedPrices.forEach(function(price) {
+//             let option = document.createElement("option");
+//             option.value = price;
+//             // Format the price with commas and add "₹" symbol
+//             option.text = `₹${price.toLocaleString('en-IN')} per seat`;
+//             budgetDropdown.appendChild(option);
+//         });
+
+//         budgetDropdown.addEventListener('focus', function () {
+//             budgetDropdown.size = 5;
+//         });
+
+//         budgetDropdown.addEventListener('change', function () {
+//             closeDropdown('budget');
+//         });
+//     })
+//     .catch(error => {
+//         console.error('Error fetching prices:', error);
+//     });
+// }
+
 function fetchPrices() {
-    const city = document.getElementById('location').value;
-    const micromarket = document.getElementById('area').value;
-    console.log('Fetching prices for city:', city, 'and micromarket:', micromarket);
+    console.log('Populating budget dropdown with static options...');
+    const budgetDropdown = document.getElementById('budget');
+    budgetDropdown.innerHTML = `
+        <option selected disabled>Select Budget</option>
+        <option value="0-5000">₹0 - ₹5000</option>
+        <option value="5000-10000">₹5000 - ₹10000</option>
+        <option value="10000+">₹10000+</option>
+    `;
 
-    fetch(`/get_prices?city=${encodeURIComponent(city)}&micromarket=${encodeURIComponent(micromarket)}`, {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Prices data:', data); // Debugging info
-        const budgetDropdown = document.getElementById('budget');
-        budgetDropdown.innerHTML = '<option selected disabled>Select Budget</option>';
-        
-        // Sort prices in ascending order
-        const sortedPrices = data.prices.sort((a, b) => a - b);
-        
-        sortedPrices.forEach(function(price) {
-            let option = document.createElement("option");
-            option.value = price;
-            // Format the price with commas and add "₹" symbol
-            option.text = `₹${price.toLocaleString('en-IN')} per seat`;
-            budgetDropdown.appendChild(option);
-        });
+    // Add focus and close dropdown behaviors
+    budgetDropdown.addEventListener('focus', function () {
+        budgetDropdown.size = 5;
+    });
 
-        budgetDropdown.addEventListener('focus', function () {
-            budgetDropdown.size = 5;
-        });
-
-        budgetDropdown.addEventListener('change', function () {
-            closeDropdown('budget');
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching prices:', error);
+    budgetDropdown.addEventListener('change', function () {
+        closeDropdown('budget');
     });
 }
 

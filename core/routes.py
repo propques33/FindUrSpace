@@ -163,6 +163,7 @@ def submit_preferences():
     hear_about = request.form.get('hear-about')  # New field
     
     # Parse budget range
+    min_budget, max_budget = 0, float('inf')  # Default range
     try:
         if budget == "0-5000":
             min_budget, max_budget = 0, 5000
@@ -170,8 +171,6 @@ def submit_preferences():
             min_budget, max_budget = 5000, 10000
         elif budget == "10000+":
             min_budget, max_budget = 10000, float('inf')
-        else:
-            raise ValueError("Invalid budget range selected")
     except ValueError as e:
         return jsonify({'status': 'error', 'message': str(e)})
     
@@ -288,34 +287,34 @@ def get_micromarkets():
 
 # Route to fetch unique prices based on selected city and micromarket
 
-@core_bp.route('/get_prices', methods=['GET'])
-def get_prices():
-    try:
-        db = current_app.config['db']
-        city = request.args.get('city')
-        micromarket = request.args.get('micromarket')
+# @core_bp.route('/get_prices', methods=['GET'])
+# def get_prices():
+#     try:
+#         db = current_app.config['db']
+#         city = request.args.get('city')
+#         micromarket = request.args.get('micromarket')
         
-        query = {
-            'city': {'$regex': f'^{city.strip()}$', '$options': 'i'},
-            'micromarket': {'$regex': f'^{micromarket.strip()}$', '$options': 'i'}
-        }
+#         query = {
+#             'city': {'$regex': f'^{city.strip()}$', '$options': 'i'},
+#             'micromarket': {'$regex': f'^{micromarket.strip()}$', '$options': 'i'}
+#         }
         
-        # Find all matching documents
-        documents = db.fillurdetails.find(query)
+#         # Find all matching documents
+#         documents = db.fillurdetails.find(query)
         
-        # Get lowest prices for each property
-        prices = set()
-        for doc in documents:
-            lowest_price = get_lowest_price(doc.get('inventory', []))
-            if lowest_price > 0:
-                prices.add(lowest_price)
+#         # Get lowest prices for each property
+#         prices = set()
+#         for doc in documents:
+#             lowest_price = get_lowest_price(doc.get('inventory', []))
+#             if lowest_price > 0:
+#                 prices.add(lowest_price)
         
-        prices_list = sorted(list(prices))
-        return jsonify({'prices': prices_list})
+#         prices_list = sorted(list(prices))
+#         return jsonify({'prices': prices_list})
         
-    except Exception as e:
-        current_app.logger.error(f"Error in get_prices: {str(e)}")
-        return jsonify({'prices': [], 'error': 'An error occurred while fetching prices'}), 500
+#     except Exception as e:
+#         current_app.logger.error(f"Error in get_prices: {str(e)}")
+#         return jsonify({'prices': [], 'error': 'An error occurred while fetching prices'}), 500
     
 @core_bp.route('/tc')
 def terms_and_conditions():
