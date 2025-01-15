@@ -48,6 +48,7 @@ def update_google_sheet(sheet, user_data, property_data):
             property_data.get('seats', 'N/A'),    # Number of seats
             property_data.get('city', 'N/A'),     # Location
             property_data.get('micromarket', 'N/A'),  # Micromarket
+            property_data.get('budget', 'N/A'),   # Budget (Newly Added)
             user_data.get('name', 'Unknown'),     # Primary Contact (First)
             user_data.get('mobile_number', 'N/A'),# Phone Number
             user_data.get('email', 'N/A'),        # Email Address
