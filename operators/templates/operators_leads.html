@@ -117,10 +117,10 @@
                             {% endfor %}
                         </select>
                     </div>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <!-- Reset Button -->
+                    <a href="{{ url_for('operators.leads') }}" class="btn btn-secondary">Reset Filters</a>
                 </form>
-                <button type="submit" class="btn btn-primary">Apply Filters</button>
-                <!-- Reset Button -->
-                <a href="{{ url_for('operators.leads') }}" class="btn btn-secondary">Reset Filters</a>
 
                 <div class="table-container">
                     <table class="table table-bordered table-hover leads-table">
