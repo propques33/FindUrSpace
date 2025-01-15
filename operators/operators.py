@@ -457,6 +457,24 @@ def update_lead_status():
         print("Error during database update:", e)  # Log exception for debugging
         return jsonify({'status': 'failure', 'message': 'Error during database update'}), 500
 
+@operators_bp.route('/get_micromarkets', methods=['GET'])
+def get_micromarkets():
+    if 'operator_phone' not in session:
+        return jsonify({'status': 'failure', 'message': 'Unauthorized access'}), 401
+
+    city = request.args.get('city')
+    if not city:
+        return jsonify({'status': 'failure', 'message': 'City is required'}), 400
+
+    db = current_app.config['db']
+    operator_phone = session['operator_phone']
+
+    # Fetch micromarkets for the selected city based on the operator's spaces
+    micromarkets = db.properties.distinct('micromarket', {'operator_numbers': operator_phone, 'city': city})
+    micromarkets = [mm for mm in micromarkets if mm]  # Filter out None or empty values
+
+    return jsonify({'status': 'success', 'micromarkets': sorted(micromarkets)})
+
 @operators_bp.route('/show_agreement', methods=['GET'])
 def show_agreement():
     if 'operator_phone' not in session:
