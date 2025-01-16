@@ -209,6 +209,7 @@ def submit_preferences():
     # Filter properties based on price only (using lowest price from inventory)
     filtered_properties = []
     operator_numbers=[]
+    center_manager_numbers = []  # List for center manager numbers
     for prop in all_properties:
         inventory = prop.get('inventory', [])
         lowest_price = get_lowest_price(inventory)
@@ -220,6 +221,11 @@ def submit_preferences():
             operator_phone= prop.get('owner',{}).get('phone')
             if operator_phone:
                 operator_numbers.append(operator_phone)
+            
+            # Add center manager phone number
+            center_manager_phone = prop.get('center_manager', {}).get('contact')
+            if center_manager_phone:
+                center_manager_numbers.append(center_manager_phone)
     
     
     # Sort properties by lowest price
@@ -239,6 +245,7 @@ def submit_preferences():
         'hear_about': hear_about,  # Save new field
         'property_names': property_names,
         'operator_numbers': operator_numbers,
+        'center_manager_numbers': center_manager_numbers, 
         'date': datetime.datetime.now()
     }
 
