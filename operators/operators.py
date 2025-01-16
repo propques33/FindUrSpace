@@ -356,13 +356,19 @@ def leads():
 
     db = current_app.config['db']
     operator_phone = session['operator_phone']
+    role = session.get('role', 'owner')  # Default to 'owner' if role is not set
 
+    # If the user is a center manager, fetch properties where they are the center manager
+    if role == 'center_manager':
+        properties_query = {'center_manager.contact': operator_phone}
+    else:
+        # If the user is an owner, fetch properties where they are the owner
+        properties_query = {'operator_numbers': operator_phone}
+        
     # Get filter parameters from the query string
     selected_city = request.args.get('city', 'All')
     selected_micromarket = request.args.get('micromarket', 'All')
 
-    # Build the query for filtering properties
-    properties_query = {'operator_numbers': operator_phone}
     if selected_city != 'All':
         properties_query['city'] = selected_city
     if selected_micromarket != 'All':
@@ -370,8 +376,6 @@ def leads():
 
     # Fetch properties and prepare the leads data
     properties = db.properties.find(properties_query).sort('date', -1)
-
-
     
     leads = []
     cities_set = set()
@@ -427,7 +431,7 @@ def leads():
     cities = sorted(cities_set)
     micromarkets = sorted(micromarkets_set)
 
-    return render_template('operators_leads.html', leads=leads, cities=cities,micromarkets=micromarkets, selected_city=selected_city,selected_micromarket=selected_micromarket)
+    return render_template('operators_leads.html', leads=leads, cities=cities,micromarkets=micromarkets, selected_city=selected_city,selected_micromarket=selected_micromarket,role=role)
 
 @operators_bp.route('/update_lead_status', methods=['POST'])
 def update_lead_status():
