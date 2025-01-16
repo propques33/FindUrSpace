@@ -435,9 +435,9 @@ function fetchPrices() {
     const budgetDropdown = document.getElementById('budget');
     budgetDropdown.innerHTML = `
         <option selected disabled>Select Budget</option>
-        <option value="0-5000">₹0 - ₹5000</option>
         <option value="5000-10000">₹5000 - ₹10000</option>
-        <option value="10000+">₹10000+</option>
+        <option value="0-5000">₹5000 - ₹10000</option>
+        <option value="10000+">₹15000+</option>
     `;
 
     // Add focus and close dropdown behaviors
