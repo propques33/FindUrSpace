@@ -299,6 +299,10 @@
             <p><span>Phone:</span> <span id="owner-info-phone"></span></p>
             <p><span>Email:</span> <span id="owner-info-email"></span></p>
 
+            <h3>Center Manager Information</h3>
+            <p><span>Name:</span> <span id="center-manager-name"></span></p>
+            <p><span>Contact:</span> <span id="center-manager-contact"></span></p>
+
             <h3>General Information</h3>
             <p><span>City:</span> <span id="city-info"></span></p>
             <p><span>Micromarket:</span> <span id="micromarket-info"></span></p>
@@ -501,6 +505,8 @@
                 document.getElementById('owner-info-name').textContent = space.owner.name;
                 document.getElementById('owner-info-phone').textContent = space.owner.phone;
                 document.getElementById('owner-info-email').textContent = space.owner.email;
+                document.getElementById('center-manager-name').textContent = space.center_manager.name;
+                document.getElementById('center-manager-contact').textContent = space.center_manager.contact;
                 document.getElementById('city-info').textContent = space.city;
                 document.getElementById('micromarket-info').textContent = space.micromarket;
                 document.getElementById('total-seats-info').textContent = space.total_seats;

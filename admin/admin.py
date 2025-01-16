@@ -896,6 +896,7 @@ def fetch_inventory():
     # Include stringified `_id`
     for coworking in coworking_list:
         coworking['_id'] = str(coworking['_id'])
+        coworking['center_manager'] = coworking.get('center_manager', {'name': 'N/A', 'contact': 'N/A'})
 
     return jsonify({
         'spaces': coworking_list
