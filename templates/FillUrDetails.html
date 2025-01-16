@@ -612,9 +612,11 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
         .then(response => response.json())
         .then(data => {
             const locations = data.locations || [];
-            locationDropdown.innerHTML = '<option value="" disabled>Select Location *</option>';
+            // Sort locations alphabetically and add "Other" as the last option
+            const sortedLocations = [...locations.sort((a, b) => a.localeCompare(b)), "Other"];
+            locationDropdown.innerHTML = '<option value="" disabled selected>Select Location *</option>';
 
-            locations.forEach(location => {
+            sortedLocations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location;
                 option.textContent = location;
@@ -624,15 +626,14 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
                 locationDropdown.appendChild(option);
             });
 
-            // Add "Other" option
-            const otherOption = document.createElement('option');
-            otherOption.value = "Other";
-            otherOption.textContent = "Other";
-            locationDropdown.appendChild(otherOption);
 
             locationDropdown.addEventListener('change', function () {
                 if (locationDropdown.value === "Other") {
                     showCustomInput('location', spaceId);
+                    // Automatically set micromarket to "Other" and show its input
+                    const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
+                    micromarketDropdown.value = "Other";
+                    showCustomInput('micromarket', spaceId);
                 } else {
                     hideCustomInput('location', spaceId);
                     populateMicromarketDropdown(spaceId, locationDropdown.value);
@@ -677,13 +678,21 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
     micromarketDropdown.innerHTML = '<option value="" disabled>Select Micromarket *</option>';
     micromarketDropdown.disabled = true;
 
+    if (selectedCity === "Other") {
+        // If city is "Other," set micromarket to "Other" and show its input
+        micromarketDropdown.innerHTML = '<option value="Other" selected>Other</option>';
+        showCustomInput('micromarket', spaceId);
+        return;
+    }
+
     fetch(`/get_micromarkets?city=${selectedCity}`)
         .then(response => response.json())
         .then(data => {
             const micromarkets = data.micromarkets || [];
-            micromarketDropdown.innerHTML = '<option value="" disabled>Select Micromarket *</option>';
+            // Sort micromarkets alphabetically and add "Other" as the last option
+            const sortedMicromarkets = [...micromarkets.sort((a, b) => a.localeCompare(b)), "Other"];
 
-            micromarkets.forEach(micromarket => {
+            sortedMicromarkets.forEach(micromarket => {
                 const option = document.createElement('option');
                 option.value = micromarket;
                 option.textContent = micromarket;
@@ -692,12 +701,6 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 }
                 micromarketDropdown.appendChild(option);
             });
-
-            // Add "Other" option
-            const otherOption = document.createElement('option');
-            otherOption.value = "Other";
-            otherOption.textContent = "Other";
-            micromarketDropdown.appendChild(otherOption);
 
             micromarketDropdown.disabled = false;
 
