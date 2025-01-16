@@ -675,7 +675,7 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
 // Populate micromarkets dropdown
 function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket = '') {
     const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
-    micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket *</option>';
+    micromarketDropdown.innerHTML = '<option value="" disabled >Select Micromarket *</option>';
 
     if (selectedCity === "Other") {
         // If city is "Other," set micromarket to "Other" and show its input
@@ -695,11 +695,20 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 const option = document.createElement('option');
                 option.value = micromarket;
                 option.textContent = micromarket;
+
+                // If a micromarket was already selected, pre-select it
                 if (micromarket === selectedMicromarket) {
                     option.selected = true;
                 }
                 micromarketDropdown.appendChild(option);
             });
+
+            // If no micromarket is selected, reset to the default "Select Micromarket"
+            if (!selectedMicromarket) {
+                micromarketDropdown.selectedIndex = 0; // Reset to the first default option
+            }
+
+            micromarketDropdown.disabled = false;
 
             micromarketDropdown.addEventListener('change', function () {
                 if (micromarketDropdown.value === "Other") {
