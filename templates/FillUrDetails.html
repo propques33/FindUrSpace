@@ -575,13 +575,45 @@
     }
 
     // Function to fetch and populate locations in the dropdown
+// function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromarket = '') {
+//     const locationDropdown = document.getElementById(`location_${spaceId}`);
+
+//     fetch('/get_locations', { method: 'GET' })
+//         .then(response => response.json())
+//         .then(data => {
+//             const locations = data.locations || [];
+//             locations.forEach(location => {
+//                 const option = document.createElement('option');
+//                 option.value = location;
+//                 option.textContent = location;
+//                 if (location === selectedCity) {
+//                     option.selected = true;
+//                 }
+//                 locationDropdown.appendChild(option);
+//             });
+
+//             // Trigger micromarket population if city is preselected
+//             if (selectedCity) {
+//                 populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket);
+//             }
+
+//             locationDropdown.addEventListener('change', function () {
+//                 const selectedCity = locationDropdown.value;
+//                 populateMicromarketDropdown(spaceId, selectedCity);
+//             });
+//         })
+//         .catch(error => console.error('Error fetching locations:', error));
+// }
+
+// Populate locations dropdown
 function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromarket = '') {
     const locationDropdown = document.getElementById(`location_${spaceId}`);
-
-    fetch('/get_locations', { method: 'GET' })
+    fetch('/get_locations')
         .then(response => response.json())
         .then(data => {
             const locations = data.locations || [];
+            locationDropdown.innerHTML = '<option value="" disabled>Select Location *</option>';
+
             locations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location;
@@ -592,29 +624,65 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
                 locationDropdown.appendChild(option);
             });
 
-            // Trigger micromarket population if city is preselected
+            // Add "Other" option
+            const otherOption = document.createElement('option');
+            otherOption.value = "Other";
+            otherOption.textContent = "Other";
+            locationDropdown.appendChild(otherOption);
+
+            locationDropdown.addEventListener('change', function () {
+                if (locationDropdown.value === "Other") {
+                    showCustomInput('location', spaceId);
+                } else {
+                    hideCustomInput('location', spaceId);
+                    populateMicromarketDropdown(spaceId, locationDropdown.value);
+                }
+            });
+
             if (selectedCity) {
                 populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket);
             }
-
-            locationDropdown.addEventListener('change', function () {
-                const selectedCity = locationDropdown.value;
-                populateMicromarketDropdown(spaceId, selectedCity);
-            });
         })
         .catch(error => console.error('Error fetching locations:', error));
 }
 
 // Function to fetch and populate micromarkets for a selected location
+// function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket = '') {
+//     const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
+//     micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket</option>';
+//     micromarketDropdown.disabled = true;
+
+//     fetch(`/get_micromarkets?city=${selectedCity}`, { method: 'GET' })
+//         .then(response => response.json())
+//         .then(data => {
+//             const micromarkets = data.micromarkets || [];
+//             micromarkets.forEach(micromarket => {
+//                 const option = document.createElement('option');
+//                 option.value = micromarket;
+//                 option.textContent = micromarket;
+//                 if (micromarket === selectedMicromarket) {
+//                     option.selected = true;
+//                 }
+//                 micromarketDropdown.appendChild(option);
+//             });
+
+//             micromarketDropdown.disabled = false;
+//         })
+//         .catch(error => console.error('Error fetching micromarkets:', error));
+// }
+
+// Populate micromarkets dropdown
 function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket = '') {
     const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
-    micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket</option>';
+    micromarketDropdown.innerHTML = '<option value="" disabled>Select Micromarket *</option>';
     micromarketDropdown.disabled = true;
 
-    fetch(`/get_micromarkets?city=${selectedCity}`, { method: 'GET' })
+    fetch(`/get_micromarkets?city=${selectedCity}`)
         .then(response => response.json())
         .then(data => {
             const micromarkets = data.micromarkets || [];
+            micromarketDropdown.innerHTML = '<option value="" disabled>Select Micromarket *</option>';
+
             micromarkets.forEach(micromarket => {
                 const option = document.createElement('option');
                 option.value = micromarket;
@@ -625,7 +693,21 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 micromarketDropdown.appendChild(option);
             });
 
+            // Add "Other" option
+            const otherOption = document.createElement('option');
+            otherOption.value = "Other";
+            otherOption.textContent = "Other";
+            micromarketDropdown.appendChild(otherOption);
+
             micromarketDropdown.disabled = false;
+
+            micromarketDropdown.addEventListener('change', function () {
+                if (micromarketDropdown.value === "Other") {
+                    showCustomInput('micromarket', spaceId);
+                } else {
+                    hideCustomInput('micromarket', spaceId);
+                }
+            });
         })
         .catch(error => console.error('Error fetching micromarkets:', error));
 }
@@ -977,28 +1059,64 @@ function fetchMicromarkets() {
 }
 
 // Show custom input field when "Other" is selected
-function showCustomInput(type, spaceCount) {
-    const dropdown = document.getElementById(`${type}_${spaceCount}`);
-    const customInputId = `${type}_custom_input_${spaceCount}`; // Unique ID for the custom input field
-    const existingInput = document.getElementById(customInputId);
+// function showCustomInput(type, spaceCount) {
+//     const dropdown = document.getElementById(`${type}_${spaceCount}`);
+//     const customInputId = `${type}_custom_input_${spaceCount}`; // Unique ID for the custom input field
+//     const existingInput = document.getElementById(customInputId);
 
-    // Check if the custom input field already exists
-    if (!existingInput) {
-        const container = document.createElement("div");
-        container.classList.add("custom-input-container");
-        container.setAttribute("id", customInputId); // Set unique ID for the input container
+//     // Check if the custom input field already exists
+//     if (!existingInput) {
+//         const container = document.createElement("div");
+//         container.classList.add("custom-input-container");
+//         container.setAttribute("id", customInputId); // Set unique ID for the input container
 
-        container.innerHTML = `
-            <input type="text" class="form-control mt-2" placeholder="Enter ${type}" name="${type}_custom_${spaceCount}" 
+//         container.innerHTML = `
+//             <input type="text" class="form-control mt-2" placeholder="Enter ${type}" name="${type}_custom_${spaceCount}" 
+//                 required data-parsley-required-message="Please enter your ${type}." 
+//                 data-parsley-trigger="change" aria-label="Custom ${type}" />
+//         `;
+
+//         dropdown.parentNode.appendChild(container);
+
+//         // Disable dropdown when custom input is active
+//         dropdown.disabled = true;
+//     }
+// }
+
+// Function to show a custom input field when "Other" is selected
+function showCustomInput(type, spaceId) {
+    const dropdown = document.getElementById(`${type}_${spaceId}`);
+    const customInputId = `${type}_custom_input_${spaceId}`;
+    let customInputContainer = document.getElementById(customInputId);
+
+    if (!customInputContainer) {
+        customInputContainer = document.createElement("div");
+        customInputContainer.id = customInputId;
+        customInputContainer.classList.add("mt-2");
+
+        customInputContainer.innerHTML = `
+            <input type="text" class="form-control" placeholder="Enter ${type}" name="${type}_custom_${spaceId}" 
                 required data-parsley-required-message="Please enter your ${type}." 
-                data-parsley-trigger="change" aria-label="Custom ${type}" />
+                data-parsley-trigger="change" aria-label="Custom ${type}">
         `;
 
-        dropdown.parentNode.appendChild(container);
-
-        // Disable dropdown when custom input is active
-        dropdown.disabled = true;
+        dropdown.parentNode.appendChild(customInputContainer);
     }
+
+    dropdown.disabled = true; // Disable the dropdown
+}
+
+// Function to hide custom input and re-enable dropdown
+function hideCustomInput(type, spaceId) {
+    const dropdown = document.getElementById(`${type}_${spaceId}`);
+    const customInputId = `${type}_custom_input_${spaceId}`;
+    const customInputContainer = document.getElementById(customInputId);
+
+    if (customInputContainer) {
+        customInputContainer.remove();
+    }
+
+    dropdown.disabled = false; // Enable the dropdown
 }
 
 
