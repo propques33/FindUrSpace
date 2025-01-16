@@ -636,7 +636,7 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
                     showCustomInput('micromarket', spaceId);
                 } else {
                     hideCustomInput('location', spaceId);
-                    populateMicromarketDropdown(spaceId, locationDropdown.value);
+                    populateMicromarketDropdown(spaceId, locationDropdown.value,selectedMicromarket);
                 }
             });
 
@@ -676,7 +676,6 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
 function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket = '') {
     const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
     micromarketDropdown.innerHTML = '<option value="" disabled>Select Micromarket *</option>';
-    micromarketDropdown.disabled = true;
 
     if (selectedCity === "Other") {
         // If city is "Other," set micromarket to "Other" and show its input
@@ -701,8 +700,6 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 }
                 micromarketDropdown.appendChild(option);
             });
-
-            micromarketDropdown.disabled = false;
 
             micromarketDropdown.addEventListener('change', function () {
                 if (micromarketDropdown.value === "Other") {
@@ -1105,13 +1102,10 @@ function showCustomInput(type, spaceId) {
 
         dropdown.parentNode.appendChild(customInputContainer);
     }
-
-    dropdown.disabled = true; // Disable the dropdown
 }
 
 // Function to hide custom input and re-enable dropdown
 function hideCustomInput(type, spaceId) {
-    const dropdown = document.getElementById(`${type}_${spaceId}`);
     const customInputId = `${type}_custom_input_${spaceId}`;
     const customInputContainer = document.getElementById(customInputId);
 
@@ -1119,7 +1113,6 @@ function hideCustomInput(type, spaceId) {
         customInputContainer.remove();
     }
 
-    dropdown.disabled = false; // Enable the dropdown
 }
 
 
