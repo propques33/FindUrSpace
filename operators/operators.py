@@ -358,21 +358,24 @@ def leads():
     operator_phone = session['operator_phone']
     role = session.get('role', 'owner')  # Default to 'owner' if role is not set
 
-    # If the user is a center manager, fetch properties where they are the center manager
+    # Build the query for fetching properties based on role
     if role == 'center_manager':
-        properties_query = {'center_manager.contact': operator_phone}
+        # Fetch leads where the center manager's contact is in the center_manager_numbers array
+        properties_query = {'center_manager_numbers': operator_phone}
     else:
-        # If the user is an owner, fetch properties where they are the owner
+        # Fetch leads where the operator is an owner
         properties_query = {'operator_numbers': operator_phone}
         
     # Get filter parameters from the query string
     selected_city = request.args.get('city', 'All')
     selected_micromarket = request.args.get('micromarket', 'All')
 
-    if selected_city != 'All':
-        properties_query['city'] = selected_city
-    if selected_micromarket != 'All':
-        properties_query['micromarket'] = selected_micromarket
+    # Apply city and micromarket filters for owners
+    if role == 'owner':
+        if selected_city != 'All':
+            properties_query['city'] = selected_city
+        if selected_micromarket != 'All':
+            properties_query['micromarket'] = selected_micromarket
 
     # Fetch properties and prepare the leads data
     properties = db.properties.find(properties_query).sort('date', -1)
@@ -403,13 +406,14 @@ def leads():
                 print(f"Error converting date: {e}")
                 date = 'N/A'
 
-            # Collect unique cities and micromarkets
+            # Collect unique cities and micromarkets (for owner filtering)
             city = property_data.get('city', 'N/A')
             micromarket = property_data.get('micromarket', 'N/A')
-            if city != 'N/A':
-                cities_set.add(city)
-            if micromarket != 'N/A' and (selected_city in ['All', city]):
-                micromarkets_set.add(micromarket)
+            if role == 'owner':
+                if city != 'N/A':
+                    cities_set.add(city)
+                if micromarket != 'N/A' and (selected_city in ['All', city]):
+                    micromarkets_set.add(micromarket)
 
             leads.append({
                 'lead_id': str(lead_status['user_id']),
