@@ -359,21 +359,24 @@ def list_your_space():
             center_manager_names = request.form.getlist('center_manager_name[]')
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
 
-            # Process custom inputs
-            custom_cities = request.form.to_dict(flat=False).get('location_custom_1', [])
-            custom_micromarkets = request.form.to_dict(flat=False).get('micromarket_custom_1', [])
+            # Handle custom inputs for "Other"
+            custom_cities = request.form.getlist('location_custom_1')  # Custom city inputs
+            custom_micromarkets = request.form.getlist('micromarket_custom_1')  # Custom micromarket inputs
 
-            print(f"Received cities: {cities}, micromarkets: {micromarkets}")
+            print(f"Received cities: {cities}")
+            print(f"Received micromarkets: {micromarkets}")
+            print(f"Custom cities: {custom_cities}")
+            print(f"Custom micromarkets: {custom_micromarkets}")
 
             # Process each space
             for idx, city, micromarket, total_seats, current_vacancy,center_manager_name, center_manager_contact in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts):
                 idx_str = str(idx)  # Convert idx to string in case it's not
 
-                # Use custom input if "Other" is selected
+                # Handle "Other" case for city and micromarket
                 if city == "Other" and custom_cities:
-                    city = custom_cities.pop(0)
+                    city = custom_cities.pop(0).strip()
                 if micromarket == "Other" and custom_micromarkets:
-                    micromarket = custom_micromarkets.pop(0)
+                    micromarket = custom_micromarkets.pop(0).strip()
 
                 print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
 
@@ -386,11 +389,11 @@ def list_your_space():
                 for i in range(len(inventory_types)):
                     inventory.append({
                         'type': inventory_types[i],
-                        'count': inventory_counts[i],
-                        'price_per_seat': price_per_seats[i]
+                        'count': int(inventory_counts[i]),
+                        'price_per_seat': float(price_per_seats[i])
                     })
 
-                print(f"Inventory: {inventory}")
+                print(f"Inventory for space {idx}: {inventory}")
 
                 # Handle file uploads (Images for Layouts)
                 layout_images = request.files.getlist(f'layout_images_{idx}[]')
@@ -398,7 +401,7 @@ def list_your_space():
                 # Call the process and upload images function (handles compression & DigitalOcean upload)
                 layout_image_links = process_and_upload_images(layout_images, {'name': name}, coworking_name)
 
-                print(f"Uploaded image links: {layout_image_links}")
+                print(f"Uploaded image links for space {idx}: {layout_image_links}")
 
                 # Create a document for each coworking space with owner info
                 property_details = {
@@ -410,8 +413,8 @@ def list_your_space():
                     'coworking_name': coworking_name,
                     'city': city,
                     'micromarket': micromarket,
-                    'total_seats': total_seats,
-                    'current_vacancy': current_vacancy,
+                    'total_seats': int(total_seats),
+                    'current_vacancy': int(current_vacancy),
                     'center_manager': {
                         'name': center_manager_name,
                         'contact': center_manager_contact
@@ -424,10 +427,10 @@ def list_your_space():
                 }
 
                 # Insert into MongoDB
+                print(f"Inserting property details into MongoDB: {property_details}")
                 db.fillurdetails.insert_one(property_details)
 
             flash("Property details submitted successfully.", 'success')
-            
             return redirect(url_for('core_bp.thank_you'))
 
         except Exception as e:
