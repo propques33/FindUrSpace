@@ -359,11 +359,21 @@ def list_your_space():
             center_manager_names = request.form.getlist('center_manager_name[]')
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
 
+            # Process custom inputs
+            custom_cities = request.form.getlist('city_custom[]')
+            custom_micromarkets = request.form.getlist('micromarket_custom[]')
+
             print(f"Received cities: {cities}, micromarkets: {micromarkets}")
 
             # Process each space
             for idx, city, micromarket, total_seats, current_vacancy,center_manager_name, center_manager_contact in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts):
                 idx_str = str(idx)  # Convert idx to string in case it's not
+
+                # Use custom input if "Other" is selected
+                if city == "Other" and custom_cities:
+                    city = custom_cities.pop(0)
+                if micromarket == "Other" and custom_micromarkets:
+                    micromarket = custom_micromarkets.pop(0)
 
                 print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
 

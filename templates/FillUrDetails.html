@@ -1124,6 +1124,18 @@ function hideCustomInput(type, spaceId) {
 
 }
 
+// Handle dropdown changes for city and micromarket
+function handleDropdownChange(type, spaceId) {
+        const dropdown = document.getElementById(`${type}_${spaceId}`);
+        dropdown.addEventListener('change', function () {
+            if (dropdown.value === "Other") {
+                showCustomInput(type, spaceId);
+            } else {
+                hideCustomInput(type, spaceId);
+            }
+        });
+    }
+
 
 
 // Close dropdown after selection
@@ -1133,14 +1145,14 @@ function closeDropdown(dropdownId) {
 }
 
 // Handle dropdown close when clicked outside
-document.addEventListener('click', function (event) {
-    var dropdowns = document.querySelectorAll('.form-select');
-    dropdowns.forEach(function (dropdown) {
-        if (!dropdown.contains(event.target)) {
-            dropdown.size = 1; // Close dropdown when clicked outside
-        }
+document.addEventListener('DOMContentLoaded', function () {
+        // Initialize event listeners for dropdown changes
+        document.querySelectorAll('[id^="location_"], [id^="micromarket_"]').forEach(dropdown => {
+            const type = dropdown.id.startsWith('location') ? 'location' : 'micromarket';
+            const spaceId = dropdown.id.split('_')[1];
+            handleDropdownChange(type, spaceId);
+        });
     });
-});
 
 document.addEventListener('DOMContentLoaded', function () {
     addSpaceDetails(); // Add one coworking space by default
