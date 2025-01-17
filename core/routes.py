@@ -360,8 +360,8 @@ def list_your_space():
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
 
             # Process custom inputs
-            custom_cities = request.form.getlist('city_custom[]')
-            custom_micromarkets = request.form.getlist('micromarket_custom[]')
+            custom_cities = request.form.to_dict(flat=False).get('location_custom_1', [])
+            custom_micromarkets = request.form.to_dict(flat=False).get('micromarket_custom_1', [])
 
             print(f"Received cities: {cities}, micromarkets: {micromarkets}")
 
