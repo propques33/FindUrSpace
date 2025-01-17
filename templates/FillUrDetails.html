@@ -630,13 +630,11 @@ function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromark
             locationDropdown.addEventListener('change', function () {
                 if (locationDropdown.value === "Other") {
                     showCustomInput('location', spaceId);
-                    // Automatically set micromarket to "Other" and show its input
-                    const micromarketDropdown = document.getElementById(`micromarket_${spaceId}`);
-                    micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket *</option>';
-                    micromarketDropdown.disabled = false;
+                    // Set micromarket dropdown to only have "Other"
+                    populateMicromarketDropdown(spaceId, "Other");
                 } else {
                     hideCustomInput('location', spaceId);
-                    populateMicromarketDropdown(spaceId, locationDropdown.value,selectedMicromarket);
+                    populateMicromarketDropdown(spaceId, locationDropdown.value);
                 }
             });
 
@@ -678,10 +676,21 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
     micromarketDropdown.innerHTML = '<option value="" disabled selected>Select Micromarket *</option>';
 
     if (selectedCity === "Other") {
-        // Keep micromarket dropdown functional unless "Other" is selected explicitly
-        micromarketDropdown.innerHTML = '<option value="" disabled>Select Micromarket *</option>';
+        // Directly add the "Other" option when city is "Other"
+        micromarketDropdown.innerHTML += `
+            <option value="Other">Other</option>
+        `;
         micromarketDropdown.disabled = false;
-        return;
+
+        // Handle "Other" selection
+        micromarketDropdown.addEventListener('change', function () {
+            if (micromarketDropdown.value === "Other") {
+                showCustomInput('micromarket', spaceId);
+            } else {
+                hideCustomInput('micromarket', spaceId);
+            }
+        });
+        return; 
     }
 
     fetch(`/get_micromarkets?city=${selectedCity}`)
@@ -703,11 +712,6 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 micromarketDropdown.appendChild(option);
             });
 
-
-            // If no micromarket is selected, reset to the default "Select Micromarket"
-            if (!selectedMicromarket) {
-                micromarketDropdown.selectedIndex = 0; // Reset to the first default option
-            }
 
             micromarketDropdown.disabled = false;
 
