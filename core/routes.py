@@ -360,8 +360,17 @@ def list_your_space():
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
 
             # Handle custom inputs for "Other"
-            custom_cities = request.form.getlist('location_custom_1')  # Custom city inputs
-            custom_micromarkets = request.form.getlist('micromarket_custom_1')  # Custom micromarket inputs
+            custom_cities = request.form.getlist('location_custom_1[]')  # Custom city inputs
+            custom_micromarkets = request.form.getlist('micromarket_custom_1[]')  # Custom micromarket inputs
+
+             # Validation: Ensure "Other" selections have corresponding custom inputs
+            if "Other" in cities and len(custom_cities) < cities.count("Other"):
+                flash("Please provide custom city names for all 'Other' selections.", 'error')
+                return redirect(url_for('core_bp.list_your_space'))
+
+            if "Other" in micromarkets and len(custom_micromarkets) < micromarkets.count("Other"):
+                flash("Please provide custom micromarkets for all 'Other' selections.", 'error')
+                return redirect(url_for('core_bp.list_your_space'))
 
             print(f"Received cities: {cities}")
             print(f"Received micromarkets: {micromarkets}")
@@ -377,6 +386,11 @@ def list_your_space():
                     city = custom_cities.pop(0).strip()
                 if micromarket == "Other" and custom_micromarkets:
                     micromarket = custom_micromarkets.pop(0).strip()
+
+                # Validate city and micromarket
+                if not city or not micromarket:
+                    flash(f"City or Micromarket is missing for space {idx_str}.", 'error')
+                    continue
 
                 print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
 
@@ -427,8 +441,13 @@ def list_your_space():
                 }
 
                 # Insert into MongoDB
-                print(f"Inserting property details into MongoDB: {property_details}")
-                db.fillurdetails.insert_one(property_details)
+                # Insert into MongoDB
+                try:
+                    print(f"Inserting property details into MongoDB: {property_details}")
+                    db.fillurdetails.insert_one(property_details)
+                except Exception as db_error:
+                    flash(f"Failed to insert property: {db_error}", 'error')
+                    print(f"Error inserting property into MongoDB: {db_error}")
 
             flash("Property details submitted successfully.", 'success')
             return redirect(url_for('core_bp.thank_you'))

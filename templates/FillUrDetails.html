@@ -1095,7 +1095,7 @@ function fetchMicromarkets() {
 // Function to show a custom input field when "Other" is selected
 function showCustomInput(type, spaceId) {
     const dropdown = document.getElementById(`${type}_${spaceId}`);
-    const customInputId = `${type}_custom_input_${spaceId}`;
+    const customInputId = `${type}_custom_${spaceId}`;
     let customInputContainer = document.getElementById(customInputId);
 
     if (!customInputContainer) {
@@ -1104,7 +1104,7 @@ function showCustomInput(type, spaceId) {
         customInputContainer.classList.add("mt-2");
 
         customInputContainer.innerHTML = `
-            <input type="text" class="form-control" placeholder="Enter ${type}" name="${type}_custom_${spaceId}" 
+            <input type="text" class="form-control" placeholder="Enter ${type}" name="${type}_custom_1[]" 
                 required data-parsley-required-message="Please enter your ${type}." 
                 data-parsley-trigger="change" aria-label="Custom ${type}">
         `;
@@ -1115,7 +1115,7 @@ function showCustomInput(type, spaceId) {
 
 // Function to hide custom input and re-enable dropdown
 function hideCustomInput(type, spaceId) {
-    const customInputId = `${type}_custom_input_${spaceId}`;
+    const customInputId = `${type}_custom_${spaceId}`;
     const customInputContainer = document.getElementById(customInputId);
 
     if (customInputContainer) {
