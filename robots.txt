@@ -1,5 +1,11 @@
 User-agent: *
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.jpg$
+Allow: /*.png$
+Allow: /*.jpeg$
 Disallow: /operators/
 Disallow: /admin/
+
 
 Sitemap: https://findurspace.tech/sitemap.xml
