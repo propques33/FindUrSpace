@@ -458,13 +458,17 @@ def list_your_space():
 
     return render_template('FillUrDetails.html')
 
+# @core_bp.route('/robots.txt')
+# def robots():
+#     return send_from_directory(directory=current_app.root_path, path='robots.txt', mimetype='text/plain')
+
+# @core_bp.route('/sitemap.xml')
+# def sitemap():
+#     return send_from_directory(directory=current_app.root_path, path='sitemap.xml', mimetype='application/xml')
+
 @core_bp.route('/robots.txt')
 def robots():
-    return send_from_directory(directory=current_app.root_path, path='robots.txt', mimetype='text/plain')
-
-@core_bp.route('/sitemap.xml')
-def sitemap():
-    return send_from_directory(directory=current_app.root_path, path='sitemap.xml', mimetype='application/xml')
+    return send_from_directory(directory='/',path='robots.txt')
 
 @core_bp.route('/thank-you')
 def thank_you():
