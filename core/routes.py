@@ -101,7 +101,7 @@ def verify_otp():
                        
 @core_bp.route('/sitemap.xml')
 def sitemap():
-    return send_from_directory(directory='/', path='sitemap.xml')
+    return send_from_directory(directory=current_app.root_path, path='sitemap.xml', mimetype='application/xml')
 
 # Route to render index.html
 @core_bp.route('/')
@@ -468,7 +468,7 @@ def list_your_space():
 
 @core_bp.route('/robots.txt')
 def robots():
-    return send_from_directory(directory='/',path='robots.txt')
+    return send_from_directory(directory=current_app.root_path, path='robots.txt', mimetype='text/plain')
 
 @core_bp.route('/thank-you')
 def thank_you():
