@@ -7,6 +7,7 @@ from core.database import get_db
 from core.routes import core_bp  # Importing routes from core/routes.py
 from admin.admin import admin_bp
 from operators.operators import operators_bp
+from admin import admin_bp
 
 # Load environment variables
 load_dotenv()

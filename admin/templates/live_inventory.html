@@ -264,6 +264,7 @@
                         <th id="sort-city">City &#x25B2;&#x25BC;</th> <!-- Arrow icons indicate sorting -->
                         <th>Total Seats</th>
                         <th>Available Seats</th>
+                        <th>Actions</th> <!-- New column for actions -->
                     </tr>
                 </thead>
                 <tbody>
@@ -285,6 +286,17 @@
             <label for="mobile">Mobile:</label>
             <input type="text" id="mobile" name="mobile" required>
             <button type="submit" class="send-btn">Send</button>
+        </form>
+    </div>
+
+    <!-- Modal for File Upload -->
+    <div id="upload-modal" class="modal1">
+        <button class="close-btn">&times;</button>
+        <h3>Upload File</h3>
+        <form id="upload-form">
+            <input type="file" id="file-input" name="file" accept="image/*" required>
+            <input type="hidden" id="property-id" name="property_id">
+            <button type="submit" class="send-btn">Upload</button>
         </form>
     </div>
 
@@ -329,7 +341,52 @@
             const coworkingModalClose = document.getElementById('modal-close');
             const emailModal = document.getElementById('modal');
             const closeModalButton = document.querySelector('#modal .close-btn');
-            
+            const uploadModal = document.getElementById('upload-modal');
+            const uploadForm = document.getElementById('upload-form');
+            const fileInput = document.getElementById('file-input');
+            const propertyIdInput = document.getElementById('property-id');
+            const closeUploadModalBtn = uploadModal.querySelector('.close-btn');
+                    
+            // Open modal on upload button click
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('upload-btn')) {
+                    const propertyId = e.target.dataset.propertyId;
+                    propertyIdInput.value = propertyId; // Set property ID
+                    uploadModal.classList.add('show');
+                }
+            });
+
+            // Close modal
+            closeUploadModalBtn.addEventListener('click', () => {
+                uploadModal.classList.remove('show');
+            });
+
+            // Handle file upload form submission
+            uploadForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData();
+                formData.append('file', fileInput.files[0]);
+                formData.append('property_id', propertyIdInput.value);
+
+                fetch('/admin/upload_file', {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Failed to upload file');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('File uploaded successfully!');
+                        uploadModal.classList.remove('show');
+                        fetchInventory(); // Refresh table data
+                    } else {
+                        alert('File upload failed. Please try again.');
+                    }
+                })
+                .catch(error => console.error('Error uploading file:', error));
+            });
 
             // Function to close the modal when clicking outside
             window.onclick = function(event) {
@@ -339,13 +396,13 @@
                 }
             };
 
-    // Close coworking modal
-    coworkingModalClose.onclick = function () {
-        coworkingModal.classList.remove('show');
-    };
+            // Close coworking modal
+            coworkingModalClose.onclick = function () {
+                coworkingModal.classList.remove('show');
+            };
 
-    // Close email modal
-    closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
+            // Close email modal
+            closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
             let isAsc = true; // Track sorting order
 
@@ -381,13 +438,14 @@
                             <input type="checkbox" class="select-property" data-property-id="${space._id || ''}">
                         </td>
                         <td>${formattedDate || 'N/A'}</td>
-            <td>${space.owner?.name || 'N/A'}</td>
-            <td>${space.coworking_name || 'N/A'}</td>
-            <td>${space.micromarket || 'N/A'}</td>
-            <td>${space.city || 'N/A'}</td>
-            <td>${space.total_seats || 'N/A'}</td>
-            <td>${space.current_vacancy || 'N/A'}</td>
+                        <td>${space.owner?.name || 'N/A'}</td>
+                        <td>${space.coworking_name || 'N/A'}</td>
+                        <td>${space.micromarket || 'N/A'}</td>
+                        <td>${space.city || 'N/A'}</td>
+                        <td>${space.total_seats || 'N/A'}</td>
+                        <td>${space.current_vacancy || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
+                        <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
                     `;
                     // Prevent checkbox click from triggering row click
                 // Add event listener for "Show Details" button
@@ -474,7 +532,7 @@
                 sendForm.addEventListener('submit', function (e) {
                     e.preventDefault();
                     const email = document.getElementById('email').value;
-        const mobile = document.getElementById('mobile').value;
+                    const mobile = document.getElementById('mobile').value;
                     fetch('/admin/send_selected_properties_live', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },

@@ -8,7 +8,11 @@ from core.email_handler_listing import send_email_and_whatsapp_with_pdf
 from core.email_handler import send_email_and_whatsapp_with_pdf1
 from datetime import datetime
 from bson.errors import InvalidId
-
+import boto3
+from werkzeug.utils import secure_filename
+import os
+from bson.objectid import ObjectId
+from .image_upload1 import process_and_upload_image
 
 # Blueprint definition
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates')
@@ -42,6 +46,13 @@ def send_email_and_whatsapp_background1(app, email, mobile, selected_properties)
                 print(f"Failed to send: {error}")
         except Exception as e:
             print(f"Error in sending email and WhatsApp: {e}")
+
+# Add your routes here
+@admin_bp.route('/')
+def admin_home():
+    from main import db  # Lazy import to avoid circular dependency
+    return "Admin Home"
+
 
 @admin_bp.route('/send_selected_properties', methods=['POST'])
 def send_selected_properties():
@@ -435,7 +446,30 @@ def leads_dashboard():
         city_bar_fig=city_bar_fig.to_html(full_html=False)
     )
 
+@admin_bp.route('/upload_file', methods=['POST'])
+def upload_file():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
 
+    file = request.files.get('file')
+    property_id = request.form.get('property_id')
+
+    if not file or not property_id:
+        return jsonify({'status': 'error', 'message': 'File and Property ID are required'}), 400
+
+    # Upload to DigitalOcean Spaces
+    try:
+        # Use the process_and_upload_image function
+        uploaded_url = process_and_upload_image(file, property_id)
+        if not uploaded_url:
+            return jsonify({'status': 'error', 'message': 'File upload failed'}), 500
+
+        return jsonify({'status': 'success', 'file_url': uploaded_url}), 200
+
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        return jsonify({'status': 'error', 'message': f'File upload failed: {str(e)}'}), 500
+    
 # Fetching listings
 @admin_bp.route('/listings', methods=['GET'])
 def listings():
