@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from datetime import datetime
 import uuid  # For unique filename generation
 from werkzeug.utils import secure_filename  # For sanitizing filenames
+from bson import ObjectId
 
 # Load environment variables
 load_dotenv()
@@ -96,17 +97,21 @@ def process_and_upload_image(image_file, property_id):
         if not image_url:
             print(f"Failed to upload {image_file.filename}")
             return None
+        
+        # Debug: Check generated image URL
+        print(f"Generated Image URL: {image_url}")
 
-        # Update the corresponding MongoDB record with the image URL
+        # Update MongoDB with the uploaded image URL
         result = db.fillurdetails.update_one(
-            {'_id': property_id},  # Match by property ID
-            {'$push': {'uploaded_images': image_url}}  # Append the image URL to 'uploaded_images' field
+            {'_id': ObjectId(property_id)},  # Match by property ID
+            {'$push': {'uploaded_images': image_url}}  # Create or append to the new field
         )
 
+        # Debug: Check MongoDB update result
         if result.modified_count > 0:
-            print(f"Successfully updated record for property_id {property_id}")
+            print(f"MongoDB Update Successful for property_id {property_id}")
         else:
-            print(f"No record updated for property_id {property_id}")
+            print(f"No MongoDB document updated for property_id {property_id}")
         return image_url
 
     except Exception as e:
