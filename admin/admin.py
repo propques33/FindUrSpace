@@ -465,6 +465,10 @@ def upload_file():
         if not uploaded_url:
             return jsonify({'status': 'error', 'message': 'File upload failed'}), 500
         
+        # Ensure the URL includes 'findurspace/'
+        if 'findurspace/' not in uploaded_url:
+            uploaded_url = f"https://findurspace.blr1.digitaloceanspaces.com/findurspace/{uploaded_url.split('/')[-1]}"
+
         # Update MongoDB with the uploaded image URL
         db = current_app.config['db']
         result = db.fillurdetails.update_one(
