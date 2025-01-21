@@ -460,11 +460,25 @@ def upload_file():
     # Upload to DigitalOcean Spaces
     try:
         # Use the process_and_upload_image function
-        uploaded_url = process_and_upload_image(file, property_id)
+        from .image_upload1 import process_and_upload_image 
+        uploaded_url = process_and_upload_image(file)
         if not uploaded_url:
             return jsonify({'status': 'error', 'message': 'File upload failed'}), 500
+        
+        # Update MongoDB with the uploaded image URL
+        db = current_app.config['db']
+        result = db.fillurdetails.update_one(
+            {'_id': ObjectId(property_id)},  # Match by property ID
+            {'$push': {'uploaded_images': uploaded_url}}  # Append the URL to the 'uploaded_images' field
+        )
 
-        return jsonify({'status': 'success', 'file_url': uploaded_url}), 200
+        # Check the result of the MongoDB update
+        if result.modified_count > 0:
+            print(f"MongoDB Update Successful for property_id {property_id}")
+            return jsonify({'status': 'success', 'file_url': uploaded_url}), 200
+        else:
+            print(f"No MongoDB document updated for property_id {property_id}")
+            return jsonify({'status': 'error', 'message': 'Failed to update the database'}), 500
 
     except Exception as e:
         print(f"Error uploading file: {e}")

@@ -79,9 +79,7 @@ def upload_image_to_space(image_buffer, file_name):
         return None
 
 # Process and upload images
-def process_and_upload_image(image_file, property_id):
-    db = get_db()
-
+def process_and_upload_image(image_file):
     try:
         print(f"Processing file: {image_file.filename}")
         # Compress the image
@@ -90,7 +88,7 @@ def process_and_upload_image(image_file, property_id):
         # Create a unique file name using UUID
         unique_id = uuid.uuid4().hex
         original_filename = secure_filename(image_file.filename)  # Sanitize filename
-        file_name = f"{property_id}_{unique_id}_{original_filename}"
+        file_name = f"{unique_id}_{original_filename}"
 
         # Upload the compressed image to DigitalOcean Space
         image_url = upload_image_to_space(compressed_image, file_name)
@@ -100,18 +98,6 @@ def process_and_upload_image(image_file, property_id):
         
         # Debug: Check generated image URL
         print(f"Generated Image URL: {image_url}")
-
-        # Update MongoDB with the uploaded image URL
-        result = db.fillurdetails.update_one(
-            {'_id': ObjectId(property_id)},  # Match by property ID
-            {'$push': {'uploaded_images': image_url}}  # Create or append to the new field
-        )
-
-        # Debug: Check MongoDB update result
-        if result.modified_count > 0:
-            print(f"MongoDB Update Successful for property_id {property_id}")
-        else:
-            print(f"No MongoDB document updated for property_id {property_id}")
         return image_url
 
     except Exception as e:
