@@ -63,7 +63,7 @@ def compress_image(image_file, max_size_kb=512, max_dimensions=(1024, 1024)):
 def upload_image_to_space(image_buffer, file_name):
     try:
         # Upload the image to the correct folder within the DigitalOcean space
-        file_key = f"findurspace/{file_name}"  # Folder structure in DigitalOcean Space
+        file_key = f"{file_name}"  # Folder structure in DigitalOcean Space
         s3_client.upload_fileobj(
             image_buffer,
             DO_SPACE_NAME,
