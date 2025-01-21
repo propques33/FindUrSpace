@@ -292,11 +292,12 @@
     <!-- Modal for File Upload -->
     <div id="upload-modal" class="modal1">
         <button class="close-btn">&times;</button>
-        <h3>Upload File</h3>
+        <h3>Upload PDF</h3>
         <form id="upload-form">
-            <input type="file" id="file-input" name="file" accept="image/*" required>
+            <label for="file-input">Select PDF:</label>
+            <input type="file" id="file-input" name="file" accept="application/pdf" required>
             <input type="hidden" id="property-id" name="property_id">
-            <button type="submit" class="send-btn">Upload</button>
+            <button type="submit" class="send-btn">Upload PDF</button>
         </form>
     </div>
 

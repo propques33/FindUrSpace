@@ -507,16 +507,16 @@ def show_agreement():
     # Fetch all entries where the owner.phone matches the logged-in user's phone number
     records = db.fillurdetails.find({'owner.phone': operator_phone})
 
-    # Check if any record has uploaded images
-    uploaded_images = []
+    # Check if any record has uploaded PDFs
+    uploaded_pdfs = []
     for record in records:
-        if 'uploaded_images' in record and record['uploaded_images']:
-            uploaded_images.extend(record['uploaded_images'])
+        if 'uploaded_pdfs' in record and record['uploaded_pdfs']:
+            uploaded_pdfs.extend(record['uploaded_pdfs'])
 
-    if uploaded_images:
+    if uploaded_pdfs:
         # If any uploaded images are found, pass them to the template
-        return render_template('show_agreement.html', uploaded_images=uploaded_images)
+        return render_template('show_agreement.html', uploaded_pdfs=uploaded_pdfs)
     else:
         # No uploaded images found, display a fallback message
-        return render_template('show_agreement.html', uploaded_images=None)
+        return render_template('show_agreement.html', uploaded_pdfs=None)
 

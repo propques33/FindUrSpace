@@ -36,70 +36,45 @@ def get_db():
     db = client['FindYourSpace']
     return db
 
-# Compress image and convert to WebP at 80% quality
-def compress_image(image_file, max_size_kb=512, max_dimensions=(1024, 1024)):
-    try:
-        img = Image.open(image_file)
-
-        # Resize image if larger than the specified dimensions
-        img.thumbnail(max_dimensions)
-
-        # Buffer to hold the compressed image in memory
-        buffer = BytesIO()
-
-        # Convert the image to WebP format and save with 80% quality
-        img.save(buffer, format="WEBP", quality=80)
-
-        size_kb = buffer.tell() / 1024
-        print(f"Compressed WebP image size: {size_kb:.2f} KB")
-        
-        buffer.seek(0)
-        return buffer, "WEBP"
-    except Exception as e:
-        print(f"Error compressing image: {e}")
-        raise
-
 # Upload compressed image to DigitalOcean Space
-def upload_image_to_space(image_buffer, file_name):
+def upload_pdf_to_space(pdf_file, file_name):
     try:
         # Upload the image to the correct folder within the DigitalOcean space
         file_key = f"{file_name}"  # Folder structure in DigitalOcean Space
         s3_client.upload_fileobj(
-            image_buffer,
+            pdf_file,
             DO_SPACE_NAME,
             file_key,
-            ExtraArgs={'ACL': 'public-read', 'ContentType': 'image/webp'}
+            ExtraArgs={'ACL': 'public-read', 'ContentType': 'application/pdf'}
         )
 
-        print(f"Image uploaded to {file_key}")
+        print(f"PDF uploaded to {file_key}")
         # Return the publicly accessible URL
         return f"{DO_ENDPOINT}/{file_key}"
     except Exception as e:
-        print(f"Failed to upload image: {e}")
+        print(f"Failed to upload PDF: {e}")
         return None
 
 # Process and upload images
-def process_and_upload_image(image_file):
+def process_and_upload_pdf(pdf_file):
     try:
-        print(f"Processing file: {image_file.filename}")
-        # Compress the image
-        compressed_image, img_format = compress_image(image_file)
+        print(f"Processing PDF: {pdf_file.filename}")
 
         # Create a unique file name using UUID
         unique_id = uuid.uuid4().hex
-        original_filename = secure_filename(image_file.filename)  # Sanitize filename
+        original_filename = secure_filename(pdf_file.filename)  # Sanitize filename
         file_name = f"{unique_id}_{original_filename}"
 
-        # Upload the compressed image to DigitalOcean Space
-        image_url = upload_image_to_space(compressed_image, file_name)
-        if not image_url:
-            print(f"Failed to upload {image_file.filename}")
+        # Upload the PDF to DigitalOcean Space
+        pdf_url = upload_pdf_to_space(pdf_file, file_name)
+        if not pdf_url:
+            print(f"Failed to upload {pdf_file.filename}")
             return None
         
         # Debug: Check generated image URL
-        print(f"Generated Image URL: {image_url}")
-        return image_url
+        print(f"Generated Image URL: {pdf_url}")
+        return pdf_url
 
     except Exception as e:
-        print(f"Error processing file {image_file.filename}: {e}")
+        print(f"Error processing PDF {pdf_file.filename}: {e}")
         return None

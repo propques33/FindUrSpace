@@ -12,7 +12,7 @@ import boto3
 from werkzeug.utils import secure_filename
 import os
 from bson.objectid import ObjectId
-from .image_upload1 import process_and_upload_image
+from .image_upload1 import process_and_upload_pdf
 
 # Blueprint definition
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates')
@@ -457,11 +457,15 @@ def upload_file():
     if not file or not property_id:
         return jsonify({'status': 'error', 'message': 'File and Property ID are required'}), 400
 
+    # Validate file type (PDF)
+    if file.content_type != 'application/pdf':
+        return jsonify({'status': 'error', 'message': 'Only PDF files are allowed'}), 400
+
     # Upload to DigitalOcean Spaces
     try:
         # Use the process_and_upload_image function
-        from .image_upload1 import process_and_upload_image 
-        uploaded_url = process_and_upload_image(file)
+        from .image_upload1 import process_and_upload_pdf 
+        uploaded_url = process_and_upload_pdf(file)
         if not uploaded_url:
             return jsonify({'status': 'error', 'message': 'File upload failed'}), 500
         
@@ -473,15 +477,13 @@ def upload_file():
         db = current_app.config['db']
         result = db.fillurdetails.update_one(
             {'_id': ObjectId(property_id)},  # Match by property ID
-            {'$push': {'uploaded_images': uploaded_url}}  # Append the URL to the 'uploaded_images' field
+            {'$push': {'uploaded_pdfs': uploaded_url}}  # Append the URL to the 'uploaded_images' field
         )
 
         # Check the result of the MongoDB update
         if result.modified_count > 0:
-            print(f"MongoDB Update Successful for property_id {property_id}")
             return jsonify({'status': 'success', 'file_url': uploaded_url}), 200
         else:
-            print(f"No MongoDB document updated for property_id {property_id}")
             return jsonify({'status': 'error', 'message': 'Failed to update the database'}), 500
 
     except Exception as e:

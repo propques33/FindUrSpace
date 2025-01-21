@@ -28,31 +28,48 @@
             margin-bottom: 20px;
         }
 
-        .agreement-image-container {
+        .pdf-list-container {
+            margin-top: 20px;
+        }
+
+        .pdf-item {
             display: flex;
-            justify-content: center;
             align-items: center;
-            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            border: 1px solid #0056b3;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background-color: #f4f9fc;
         }
 
-        .agreement-image {
-            max-width: 100%;
-            max-height: 500px;
-            border: 2px solid #0056b3;
-            border-radius: 10px;
-            margin: 20px 0;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .agreement-image:hover {
-            transform: scale(1.02);
-        }
-
-        .no-agreement-message {
-            text-align: center;
-            font-size: 1.2rem;
+        .pdf-item a {
             color: #0056b3;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .pdf-item a:hover {
+            color: #003a75;
+        }
+
+        .download-btn {
+            background-color: #003a75;
+            border-color: #003a75;
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+            text-decoration: none;
+            color: #ffffff;
         }
 
         .btn-container {
@@ -70,27 +87,10 @@
             border-color: #002a55;
         }
 
-        .download-btn {
-            background-color: #003a75;
-            border-color: #003a75;
-            color: #ffffff;
-            padding: 10px 20px;
-            font-size: 1rem;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-
-        .download-btn:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-            text-decoration: none;
-            color: #ffffff;
-        }
-
-        .download-btn:focus {
-            outline: none;
-            box-shadow: 0px 0px 10px rgba(0, 86, 179, 0.5);
+        .no-agreement-message {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #0056b3;
         }
     </style>
 </head>
@@ -102,35 +102,24 @@
     <div class="container">
         <h1 class="header">Operator Agreement</h1>
 
-        {% if uploaded_images %}
-            <div class="agreement-image-container">
-                <!-- Image that opens the modal -->
-                <img src="{{ uploaded_images[0] }}" alt="Agreement" class="agreement-image" data-bs-toggle="modal" data-bs-target="#imageModal">
-                
-                <!-- Download Button -->
-                <a href="{{ uploaded_images[0] }}" class="download-btn" download="AgreementImage.jpg">Download Agreement</a>
+        {% if uploaded_pdfs %}
+            <div class="pdf-list-container">
+                <h5>Uploaded Agreements:</h5>
+                <ul>
+                    {% for pdf_url in uploaded_pdfs %}
+                        <li class="pdf-item">
+                            <a href="{{ pdf_url }}" target="_blank">View Agreement</a>
+                            <a href="{{ pdf_url }}" class="download-btn" download>Download</a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
         {% else %}
-            <p class="no-agreement-message">No agreement has been signed yet. Please contact support for assistance.</p>
+            <p class="no-agreement-message">No agreement has been uploaded yet. Please contact support for assistance.</p>
         {% endif %}
 
         <div class="btn-container">
             <a href="{{ url_for('operators.inventory') }}" class="btn btn-primary">Back to Inventory</a>
-        </div>
-    </div>
-
-    <!-- Modal for Full Image -->
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="imageModalLabel">Agreement Image</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <img src="{{ uploaded_images[0] }}" alt="Full Agreement Image" class="img-fluid">
-                </div>
-            </div>
         </div>
     </div>
 
