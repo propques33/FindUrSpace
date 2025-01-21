@@ -7,22 +7,32 @@
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4; /* Optional for better visuals */
-        }
+         body {
+        display: flex;
+        margin: 0;
+        height: 100vh;
+        background-color: #f4f4f4;
+    }
 
-        .container {
-            width: 80%; /* Adjust based on your needs */
-            max-width: 1200px; /* Prevents it from stretching too much */
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center; /* Centers the text content */
-        }
+    .container {
+    flex-grow: 1; /* Allows the container to fill the remaining space */
+    padding: 20px;
+    margin-left: auto; /* Pushes the container to the right */
+    border-radius: 8px;
+    text-align: center;
+    background-color: #ffffff; /* Optional for better visuals */
+}
+
+@media (max-width: 768px) {
+    body {
+        flex-direction: column; /* Stacks the navigation and container vertically */
+    }
+
+    .container {
+        margin: 0 auto; /* Centers the container horizontally */
+        width: 90%; /* Adjusts the width for smaller screens */
+    }
+}
 
         .header {
             color: #0056b3;
@@ -49,19 +59,19 @@
         }
 
         .pdf-preview-container {
-            width: 100%;
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px;
-        }
+    width: 100%;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 15px;
+}
 
-        .pdf-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
+.pdf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
 
         .pdf-header .title {
             font-size: 1.2rem;
@@ -70,11 +80,11 @@
         }
 
         iframe {
-            width: 100%;
-            height: 500px;
-            border: none;
-            border-radius: 10px;
-        }
+    width: 100%;
+    height: 500px;
+    border: none;
+    border-radius: 10px;
+}
 
         .download-btn {
             background-color: #0056b3;
@@ -98,7 +108,7 @@
     </style>
 </head>
 <body>
-    {% include 'operators_navigation.html' %} 
+
     <div class="container">
         <h1 class="header">Operator Agreement</h1>
 
@@ -118,8 +128,5 @@
             <p class="no-agreement-message">No agreement has been uploaded yet. Please contact support for assistance.</p>
         {% endif %}
     </div>
-
-    <!-- Bootstrap 5.3 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
