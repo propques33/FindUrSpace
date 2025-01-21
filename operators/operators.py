@@ -504,11 +504,19 @@ def show_agreement():
     db = current_app.config['db']
     operator_phone = session['operator_phone']
     
-    # Fetch the agreement based on the operator's phone number
-    agreement = db.agreement.find_one({'operator_mobile': operator_phone})
+    # Fetch all entries where the owner.phone matches the logged-in user's phone number
+    records = db.fillurdetails.find({'owner.phone': operator_phone})
 
-    if agreement:
-        return render_template('show_agreement.html', agreement=agreement)
+    # Check if any record has uploaded images
+    uploaded_images = []
+    for record in records:
+        if 'uploaded_images' in record and record['uploaded_images']:
+            uploaded_images.extend(record['uploaded_images'])
+
+    if uploaded_images:
+        # If any uploaded images are found, pass them to the template
+        return render_template('show_agreement.html', uploaded_images=uploaded_images)
     else:
-        flash("No agreement found for this operator.")
-        return redirect(url_for('operators.inventory'))
+        # No uploaded images found, display a fallback message
+        return render_template('show_agreement.html', uploaded_images=None)
+
