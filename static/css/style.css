@@ -2237,134 +2237,94 @@ margin-bottom:15px;
 .view{
     margin-top:4px;
 }
-.content-section{
-    width:55%;
-    margin:0 auto;
-    color: rgba(0, 0, 0, 0.90);
-font-size: 24px;
-font-style: normal;
-font-weight: 400;
-line-height: 34px; /* 161.111% */
-letter-spacing: 0.2px;
-text-align: left;
+.content-section {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+    color: #333333;
+    font-size: 1.2rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.9;
+    text-align: justify;
 }
 
-.subyhead{
-    color: #000000;
-font-size: 28px;
-font-style: normal;
-font-weight: 800;
-line-height: 28px; /* 100% */
-letter-spacing: -0.05px;
-margin-top:40px;
-margin-bottom:20px;
-}
-
-/* Heading Styles */
+/* Headings */
 .level-1, h1 {
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 800;
-    margin: 1.5rem 0;
-    color: #222;
+    margin: 2rem 0 1rem;
+    line-height: 1.4;
+    color: #212529;
+    border-bottom: 2px solid #eeeeee;
+    padding-bottom: 0.5rem;
 }
 
 .level-2, h2 {
-    font-size: 2.4rem;
+    font-size: 2.6rem;
     font-weight: 700;
-    margin: 1.2rem 0;
-    color: #333;
+    margin: 1.8rem 0 1rem;
+    line-height: 1.5;
+    color: #333333;
+    border-bottom: 1px solid #eeeeee;
+    padding-bottom: 0.3rem;
 }
 
 .level-3, h3 {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 600;
-    margin: 1rem 0;
-    color: #444;
+    margin: 1.5rem 0 0.8rem;
+    line-height: 1.6;
+    color: #444444;
 }
 
 .level-4, h4 {
     font-size: 1.8rem;
     font-weight: 600;
-    margin: 0.8rem 0;
-    color: #555;
+    margin: 1.3rem 0 0.6rem;
+    line-height: 1.7;
+    color: #555555;
 }
 
 .level-5, h5 {
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     font-weight: 500;
-    margin: 0.6rem 0;
-    color: #666;
+    margin: 1rem 0 0.4rem;
+    line-height: 1.7;
+    color: #666666;
 }
 
 .level-6, h6 {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 500;
-    margin: 0.4rem 0;
-    color: #777;
+    margin: 0.8rem 0;
+    line-height: 1.7;
+    color: #777777;
 }
 
 /* Paragraph Styling */
-p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: #333;
-    margin-bottom: 1rem;
+.blog-paragraph {
+    font-size: 1.2rem;
+    line-height: 1.9;
+    margin-bottom: 1.5rem;
+    color: #2b2b2b;
 }
-
-/* Bold, Italic, Underline */
-strong { font-weight: bold; }
-em { font-style: italic; }
-u { text-decoration: underline; }
 
 /* Links */
 a {
     color: #007bff;
     text-decoration: none;
+    font-weight: 500;
 }
 a:hover {
+    color: #0056b3;
     text-decoration: underline;
-}
-
-/* Quote Styling */
-.quote {
-    font-size: 1.2rem;
-    font-style: italic;
-    color: #555;
-    border-left: 4px solid #007bff;
-    padding-left: 15px;
-    margin: 20px 0;
-}
-
-/* Lists */
-ol, ul {
-    margin: 20px 0;
-    padding-left: 40px;
-}
-li {
-    margin-bottom: 10px;
-    line-height: 1.5;
-}
-
-/* Images */
-.content-image {
-    width: 100%;
-    max-width: 800px;
-    border-radius: 8px;
-    margin: 20px 0;
-}
-
-/* Paragraphs */
-.blog-paragraph {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: 1rem;
-    color: #333;
 }
 
 /* Lists */
 .blog-list {
     margin: 1.5rem 0;
-    padding-left: 2rem;
+    padding-left: 1.8rem;
 }
 
 .blog-list.ordered {
@@ -2376,119 +2336,169 @@ li {
 }
 
 .blog-list li {
-    margin-bottom: 0.8rem;
-    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #2b2b2b;
 }
 
 /* Quotes */
 .quote {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     font-style: italic;
-    color: #555;
-    border-left: 4px solid #007bff;
-    padding-left: 1rem;
-    margin: 1.5rem 0;
+    color: #555555;
+    border-left: 5px solid #007bff;
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    background-color: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-radius: 5px;
 }
 
 /* Images */
 .content-image {
     width: 100%;
-    max-width: 800px;
+    max-width: 100%;
     margin: 2rem 0;
     border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Media Queries */
-@media (max-width: 1440px) {
-    .subblog_cont {
-        width: 70%;
-        left: 15%;
-        padding: 50px;
-    }
-    .subblog_head {
-        font-size: 48px;
-    }
+/* Table of Contents */
+.table-of-contents {
+    margin: 2rem 0;
+    padding: 1rem 1.5rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-of-contents h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333333;
+}
+
+.table-of-contents ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.table-of-contents ul li {
+    margin-bottom: 0.8rem;
+}
+
+.table-of-contents ul li a {
+    text-decoration: none;
+    color: #007bff;
+    font-size: 1.2rem;
+}
+
+.table-of-contents ul li a:hover {
+    color: #0056b3;
+}
+
+/* Author Section */
+.subblog_cont {
+    margin-bottom: 3rem;
+    text-align: center;
+}
+.subblog_head {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #222;
+}
+
+.time {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
     .content-section {
-        width: 65%;
-    }
-}
-
-@media (max-width: 1120px) {
-    .subblog_cont {
-        width: 80%;
-        left: 10%;
-        padding: 40px;
-    }
-    .subblog_head {
-        font-size: 40px;
-    }
-    .content-section {
-        width: 75%;
-        font-size: 22px;
-    }
-}
-
-@media (max-width: 968px) {
-    .subblog_cont {
         width: 90%;
-        left: 5%;
-        padding: 30px;
+        padding: 1.5rem;
     }
-    .subblog_head {
-        font-size: 36px;
-    }
-    .content-section {
-        width: 85%;
-        font-size: 20px;
-    }
-}
 
-@media (max-width: 756px) {
-    .subblog_cont {
-        width: 100%;
-        left: 0;
-        padding: 20px;
+    h1, .level-1 {
+        font-size: 2.4rem;
     }
+
+    h2, .level-2 {
+        font-size: 2.2rem;
+    }
+
+    h3, .level-3 {
+        font-size: 2rem;
+    }
+
+    h4, .level-4 {
+        font-size: 1.6rem;
+    }
+
+    .blog-paragraph {
+        font-size: 1.1rem;
+        line-height: 1.8;
+    }
+
+    .blog-list li {
+        font-size: 1.1rem;
+        line-height: 1.7;
+    }
+
+    .quote {
+        font-size: 1.2rem;
+    }
+
     .subblog_head {
-        font-size: 32px;
-    }
-    .content-section {
-        width: 90%;
-        font-size: 18px;
-    }
-    .authimg {
-        width: 40px;
-        height: 40px;
-    }
-    .nam {
-        font-size: 16px;
+        font-size: 2.4rem;
+        line-height: 1.4;
     }
 }
 
 @media (max-width: 576px) {
-    .subblog_cont {
-        width: 100%;
-        left: 0;
-        padding: 15px;
-    }
-    .subblog_head {
-        font-size: 28px;
-        line-height: 32px;
-    }
-    .time {
-        font-size: 18px;
-    }
     .content-section {
         width: 100%;
-        font-size: 16px;
-        padding:0px 10px;
+        padding: 1.2rem;
     }
-    .author {
-        flex-direction: column;
-        align-items: flex-start;
+
+    h1, .level-1 {
+        font-size: 2rem;
     }
-    .asp {
-        column-gap: 20px;
+
+    h2, .level-2 {
+        font-size: 1.8rem;
+    }
+
+    h3, .level-3 {
+        font-size: 1.6rem;
+    }
+
+    .blog-paragraph {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .quote {
+        font-size: 1.1rem;
+    }
+
+    .subblog_head {
+        font-size: 2rem;
+    }
+
+    .blog-list {
+        padding-left: 1.2rem;
+    }
+
+    .blog-list li {
+        font-size: 1rem;
     }
 }
 
