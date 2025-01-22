@@ -165,12 +165,12 @@ def submit_preferences():
     # Parse budget range
     min_budget, max_budget = 0, float('inf')  # Default range
     try:
-        if budget == "0-5000":
-            min_budget, max_budget = 0, 5000
-        elif budget == "5000-10000":
+        if budget == "5000-10000":
             min_budget, max_budget = 5000, 10000
-        elif budget == "10000+":
-            min_budget, max_budget = 10000, float('inf')
+        elif budget == "10000-15000":
+            min_budget, max_budget = 10000, 15000
+        elif budget == "15000+":
+            min_budget, max_budget = 15000, float('inf')
     except ValueError as e:
         return jsonify({'status': 'error', 'message': str(e)})
     
