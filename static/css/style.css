@@ -2372,6 +2372,69 @@ a:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Static Author Section */
+.static-author-section {
+    margin: 3rem auto;
+    padding: 1.5rem 0;
+    max-width: 800px;
+    text-align: left;
+    font-family: 'Sentiment', sans-serif;
+}
+
+.separator {
+    border: none;
+    border-top: 1px solid #dddddd;
+    margin: 1.5rem 0;
+}
+
+.author-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.author-header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #28a745; /* Green for "WRITTEN BY" */
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.author-label {
+    font-weight: 600;
+}
+
+.author-name {
+    font-weight: 700;
+    color: #333333;
+}
+
+.author-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+}
+
+.author-image .author-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #cccccc;
+}
+
+.author-bio p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #555555;
+    font-style: italic;
+    margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .subblog_cont {
