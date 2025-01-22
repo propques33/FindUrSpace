@@ -2168,11 +2168,13 @@ text-decoration-line: none;
 flex-direction: column;
 justify-content: center;
     color: #373737;
-font-size: 54px;
+font-size: 2.8rem;
 font-style: normal;
-font-weight: 500;
-line-height: 54px; /* 120% */
+font-weight: 700;
+line-height: 1.5; /* 120% */
 letter-spacing: -1px;
+margin-bottom: 1rem;
+text-align: left;
 }
 .time{
     color: #2A7961;
@@ -2470,7 +2472,7 @@ a:hover {
     }
 
     .subblog_head {
-        font-size: 2.2rem;
+        font-size: 2rem;
         line-height: 1.4;
         text-align: left; /* Ensure left alignment */
     }
