@@ -543,13 +543,27 @@ def blog_detail(slug):
         headers = {
             'Authorization': f'Bearer {api_key}',
         }
+        # Make the API request
         response = requests.get(api_url, headers=headers)
-        blog_post_data = response.json().get('data')
+        response_data = response.json()
+
+        # Extract the blog post data
+        blog_post_data = response_data.get('data')
         if blog_post_data and len(blog_post_data) > 0:
             blog_post = blog_post_data[0]  # Fetch the first post
+            
+            # Extract and clean up fields for easier use in the template
+            blog_post = {
+                'Title': blog_post['attributes']['title'],
+                'Author': blog_post['attributes'].get('author', 'Unknown Author'),
+                'Published': blog_post['attributes']['publishedAt'],  # Ensure ISO 8601 format
+                'Content': blog_post['attributes']['content'],
+                'Image': blog_post['attributes'].get('cover', []),
+            }
         else:
             return "Blog post not found", 404
         
+        # Render the blog_detail template with the processed blog data
         return render_template('blog_detail.html', blog=blog_post)
     except Exception as e:
         return str(e)
