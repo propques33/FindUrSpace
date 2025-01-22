@@ -532,10 +532,14 @@ def blog():
         
 
 
+
 @core_bp.route('/blog/<slug>')
 def blog_detail(slug):
     try:
+        # Construct API URL
         api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}&populate=*'
+        
+        # Fetch API key from environment
         api_key = os.getenv('STRAPI_API_KEY')
         if not api_key:
             return "API key not found in environment variables", 500
@@ -543,13 +547,25 @@ def blog_detail(slug):
         headers = {
             'Authorization': f'Bearer {api_key}',
         }
+
+        # Fetch blog data
         response = requests.get(api_url, headers=headers)
-        blog_post_data = response.json().get('data')
-        if blog_post_data and len(blog_post_data) > 0:
-            blog_post = blog_post_data[0]  # Fetch the first post
-        else:
-            return "Blog post not found", 404
+        if response.status_code != 200:
+            return f"Failed to fetch blog post: {response.status_code}", response.status_code
         
+        blog_post_data = response.json().get('data')
+        if not blog_post_data or len(blog_post_data) == 0:
+            return "Blog post not found", 404
+
+        # Extract the first blog post
+        blog_post = blog_post_data[0]
+
+        # Pass blog data to template
         return render_template('blog_detail.html', blog=blog_post)
+
+    except requests.exceptions.RequestException as e:
+        return f"An error occurred while connecting to the API: {e}", 500
+    except KeyError as e:
+        return f"Unexpected response structure: Missing key {e}", 500
     except Exception as e:
-        return str(e)
+        return f"An unexpected error occurred: {e}", 500

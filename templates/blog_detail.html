@@ -12,7 +12,6 @@
     <!-- Navbar Section -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
-            <!-- Add an icon before FindUrSpace -->
             <a class="navbar-brand" href="#">
                 <img src="../static/images/logo.png" alt="Icon" loading="lazy" width="70" height="60" class="d-inline-block align-text-top">
                 <span style="font-size: 1.5rem; font-weight: bold;">FindUrSpace</span>
@@ -22,41 +21,40 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <!-- Only ListUrSpace on the right -->
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('core_bp.list_your_space') }}"><h1 class="listur">ListUrSpace</h1></a>
                     </li>
-                                    <!-- Operators Login Button -->
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url_for('operators.operators_login') }}">
-                      <h1 class="listur">Operators Login</h1>
-                  </a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('core_bp.blog') }}">
-                        <h1 class="listur">Blogs</h1>
-                    </a>
-                  </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('operators.operators_login') }}"><h1 class="listur">Operators Login</h1></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('core_bp.blog') }}"><h1 class="listur">Blogs</h1></a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!--Image-->
-    <!-- Display Blog Image -->
+    <!-- Blog Cover Image -->
     {% if blog['Image'] and blog['Image'][0] %}
         <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['url'] }}" 
              alt="{{ blog['Title'] }}" 
              class="imgsub">
     {% endif %}
+
+    <!-- Blog Title and Meta -->
     <div class="subblog_cont">
         <h1 class="subblog_head">{{ blog['Title'] }}</h1>
         <div class="time">
             <span class="textdate" data-timestamp="{{ blog['Published'] }}"></span>
         </div>        
         <div class="author">
-            <!-- Author Section (unchanged) -->
+            <div class="cont_write">
+                <img src="../static/images/logo.png" alt="Author" class="authimg">
+                <div class="authname">
+                    <div class="nam">FindUrSpace</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -64,7 +62,7 @@
     <div class="content-section">
         {% for block in blog['Content'] %}
             {% if block['type'] == 'heading' %}
-                <h{{ block['level'] }} class="subyhead">
+                <h{{ block['level'] }} class="subyhead level-{{ block['level'] }}">
                     {% for child in block['children'] %}
                         {{ child['text'] }}
                     {% endfor %}
@@ -91,7 +89,15 @@
                         {% for item in block['children'] %}
                             <li>
                                 {% for child in item['children'] %}
-                                    {{ child['text'] }}
+                                    {% if child['bold'] %}
+                                        <strong>{{ child['text'] }}</strong>
+                                    {% elif child['italic'] %}
+                                        <em>{{ child['text'] }}</em>
+                                    {% elif child['underline'] %}
+                                        <u>{{ child['text'] }}</u>
+                                    {% else %}
+                                        {{ child['text'] }}
+                                    {% endif %}
                                 {% endfor %}
                             </li>
                         {% endfor %}
@@ -101,7 +107,15 @@
                         {% for item in block['children'] %}
                             <li>
                                 {% for child in item['children'] %}
-                                    {{ child['text'] }}
+                                    {% if child['bold'] %}
+                                        <strong>{{ child['text'] }}</strong>
+                                    {% elif child['italic'] %}
+                                        <em>{{ child['text'] }}</em>
+                                    {% elif child['underline'] %}
+                                        <u>{{ child['text'] }}</u>
+                                    {% else %}
+                                        {{ child['text'] }}
+                                    {% endif %}
                                 {% endfor %}
                             </li>
                         {% endfor %}
