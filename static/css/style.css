@@ -2375,7 +2375,7 @@ a:hover {
 /* Static Author Section */
 .static-author-section {
     margin: 3rem auto;
-    padding: 1.5rem 0;
+    padding: 1.5rem 20px;
     max-width: 800px;
     text-align: left;
     font-family: 'Sentiment', sans-serif;
@@ -2397,7 +2397,7 @@ a:hover {
 .author-header {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #28a745; /* Green for "WRITTEN BY" */
+    color: #151d31; /* Green for "WRITTEN BY" */
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -2419,16 +2419,17 @@ a:hover {
     gap: 1.5rem;
 }
 
-.author-image .author-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
+.author-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 999px;
     object-fit: cover;
     border: 1px solid #cccccc;
+    margin-top: 30px;
 }
 
 .author-bio p {
-    font-size: 1rem;
+    font-size: 1.2rem;
     line-height: 1.6;
     color: #555555;
     font-style: italic;
@@ -2449,14 +2450,14 @@ a:hover {
         gap: 1rem;
     }
 
-    .author-image .author-img {
-        width: 70px;
-        height: 70px;
+    .author-img {
+        margin:0 auto;
     }
 
     .author-header {
         font-size: 1.1rem;
         text-align: center;
+        margin: 0 auto;
     }
 
     .author-bio p {
