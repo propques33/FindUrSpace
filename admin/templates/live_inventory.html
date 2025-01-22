@@ -264,7 +264,9 @@
                         <th id="sort-city">City &#x25B2;&#x25BC;</th> <!-- Arrow icons indicate sorting -->
                         <th>Total Seats</th>
                         <th>Available Seats</th>
+                        <th>Details</th>
                         <th>Actions</th> <!-- New column for actions -->
+                        <th>Agreement Status</th> <!-- New Column -->
                     </tr>
                 </thead>
                 <tbody>
@@ -433,6 +435,10 @@
                         year: 'numeric'
                     });
 
+                    const agreementStatus = space.agreement_status === 'Completed'
+                        ? '<span style="color: green;">Completed</span>'
+                        : '<span style="color: red;">Pending</span>';
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>
@@ -447,6 +453,7 @@
                         <td>${space.current_vacancy || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
                         <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
+                        <td>${agreementStatus}</td>
                     `;
                     // Prevent checkbox click from triggering row click
                 // Add event listener for "Show Details" button

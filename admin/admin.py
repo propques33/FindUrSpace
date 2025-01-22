@@ -952,6 +952,16 @@ def fetch_inventory():
         coworking['_id'] = str(coworking['_id'])
         coworking['center_manager'] = coworking.get('center_manager', {'name': 'N/A', 'contact': 'N/A'})
 
+        # Determine agreement status
+        owner_phone = coworking.get('owner', {}).get('phone')
+        if owner_phone:
+            # Find all records with the same owner phone number
+            related_entries = list(fillurdetails_collection.find({'owner.phone': owner_phone}, {'uploaded_pdfs': 1}))
+            # Check if any of the related entries have the `uploaded_pdfs` field
+            coworking['agreement_status'] = 'Completed' if any(entry.get('uploaded_pdfs') for entry in related_entries) else 'Pending'
+        else:
+            coworking['agreement_status'] = 'Pending'
+
     return jsonify({
         'spaces': coworking_list
     })
