@@ -2242,23 +2242,23 @@ margin-bottom:15px;
     margin: 3rem auto;
     padding: 0 1.5rem;
     color: #333333;
-    font-size: 1.3rem; /* Increased font size for larger screens */
+    font-size: 1.3rem; /* Slightly larger font size for readability */
     font-style: normal;
     font-weight: 400;
-    line-height: 1.8; /* Reduced line spacing */
-    text-align: left; /* Ensure left alignment */
+    line-height: 1.8;
+    text-align: left; /* Ensures text is left-aligned on all screens */
 }
 
 /* Headings */
 .level-1, h1 {
-    font-size: 3.2rem; /* Slightly larger for larger screens */
+    font-size: 3.2rem;
     font-weight: 800;
     margin: 2rem 0 1rem;
     line-height: 1.4;
     color: #212529;
     border-bottom: 2px solid #eeeeee;
     padding-bottom: 0.5rem;
-    text-align: left; /* Ensure left alignment */
+    text-align: left; /* Left-aligned on all screens */
 }
 
 .level-2, h2 {
@@ -2269,7 +2269,7 @@ margin-bottom:15px;
     color: #333333;
     border-bottom: 1px solid #eeeeee;
     padding-bottom: 0.3rem;
-    text-align: left; /* Ensure left alignment */
+    text-align: left; /* Left-aligned */
 }
 
 .level-3, h3 {
@@ -2278,7 +2278,7 @@ margin-bottom:15px;
     margin: 1.5rem 0 0.8rem;
     line-height: 1.5;
     color: #444444;
-    text-align: left; /* Ensure left alignment */
+    text-align: left;
 }
 
 .level-4, h4 {
@@ -2287,7 +2287,7 @@ margin-bottom:15px;
     margin: 1.3rem 0 0.6rem;
     line-height: 1.6;
     color: #555555;
-    text-align: left; /* Ensure left alignment */
+    text-align: left;
 }
 
 .level-5, h5 {
@@ -2296,7 +2296,7 @@ margin-bottom:15px;
     margin: 1rem 0 0.4rem;
     line-height: 1.6;
     color: #666666;
-    text-align: left; /* Ensure left alignment */
+    text-align: left;
 }
 
 .level-6, h6 {
@@ -2305,16 +2305,16 @@ margin-bottom:15px;
     margin: 0.8rem 0;
     line-height: 1.6;
     color: #777777;
-    text-align: left; /* Ensure left alignment */
+    text-align: left;
 }
 
 /* Paragraph Styling */
 .blog-paragraph {
     font-size: 1.3rem; /* Slightly larger font size */
-    line-height: 1.8; /* Improved readability */
+    line-height: 1.8; /* Better readability */
     margin-bottom: 1.5rem;
     color: #2b2b2b;
-    text-align: left; /* Ensure left alignment */
+    text-align: left; /* Left-aligned on all screens */
 }
 
 /* Links */
@@ -2344,10 +2344,10 @@ a:hover {
 
 .blog-list li {
     margin-bottom: 1rem;
-    font-size: 1.3rem; /* Slightly larger font size */
+    font-size: 1.3rem;
     line-height: 1.8;
     color: #2b2b2b;
-    text-align: left; /* Ensure left alignment */
+    text-align: left; /* Left-aligned */
 }
 
 /* Quotes */
@@ -2361,7 +2361,7 @@ a:hover {
     background-color: #f8f9fa;
     padding: 1rem 1.5rem;
     border-radius: 5px;
-    text-align: left; /* Ensure left alignment */
+    text-align: left; /* Left-aligned */
 }
 
 /* Images */
@@ -2376,14 +2376,16 @@ a:hover {
 /* Responsive Design */
 @media (max-width: 768px) {
     .subblog_cont {
-        width: 80%; /* Adjusted width */
+        width: 80%;
+        text-align: left; /* Ensure content remains left-aligned */
     }
 
     .content-section {
-        width: 95%; /* Adjust for smaller screens */
-        font-size: 1.2rem; /* Slightly larger for readability */
+        width: 95%;
+        font-size: 1.25rem; /* Adjusted for readability on smaller screens */
         line-height: 1.8;
         padding: 1.5rem;
+        text-align: left; /* Left-aligned */
     }
 
     h1, .level-1 {
@@ -2418,7 +2420,7 @@ a:hover {
     .subblog_head {
         font-size: 2.4rem;
         line-height: 1.4;
-        text-align: left;
+        text-align: left; /* Ensure left alignment */
     }
 }
 
@@ -2426,49 +2428,51 @@ a:hover {
     .subblog_cont {
         width: 95%;
         left:3%;
+        text-align: left; /* Ensure content remains left-aligned */
     }
 
     .content-section {
         width: 100%;
-        font-size: 1.15rem; /* Slightly larger for readability */
+        font-size: 1.2rem; /* Slightly larger for readability on small screens */
         padding: 1.2rem;
         line-height: 1.8;
+        text-align: left; /* Left-aligned */
     }
 
     h1, .level-1 {
-        font-size: 2.2rem;
+        font-size: 2.4rem;
     }
 
     h2, .level-2 {
-        font-size: 2rem;
+        font-size: 2.2rem;
     }
 
     h3, .level-3 {
-        font-size: 1.8rem;
+        font-size: 2rem;
     }
 
     h4, .level-4 {
-        font-size: 1.6rem;
+        font-size: 1.8rem;
     }
 
     .blog-paragraph {
-        font-size: 1.15rem;
+        font-size: 1.2rem;
         line-height: 1.8;
     }
 
     .quote {
-        font-size: 1.15rem;
+        font-size: 1.2rem;
     }
 
     .blog-list li {
-        font-size: 1.15rem;
-        line-height: 1.7;
+        font-size: 1.2rem;
+        line-height: 1.8;
     }
 
     .subblog_head {
         font-size: 2.2rem;
         line-height: 1.4;
-        text-align: left;
+        text-align: left; /* Ensure left alignment */
     }
 }
 
