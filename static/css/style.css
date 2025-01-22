@@ -2397,7 +2397,7 @@ a:hover {
 .author-header {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #28a745; /* Green for "WRITTEN BY" */
+    color: #151d31; /* Green for "WRITTEN BY" */
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -2419,16 +2419,16 @@ a:hover {
     gap: 1.5rem;
 }
 
-.author-image .author-img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
+ .author-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 999px;
     border: 1px solid #cccccc;
+    margin-top: 30px;
 }
 
 .author-bio p {
-    font-size: 1rem;
+    font-size: 1.2rem;
     line-height: 1.6;
     color: #555555;
     font-style: italic;
