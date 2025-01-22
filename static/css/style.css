@@ -2260,6 +2260,45 @@ margin-top:40px;
 margin-bottom:20px;
 }
 
+/* Heading Styles */
+h1 { font-size: 2.5rem; font-weight: bold; margin: 20px 0; }
+h2 { font-size: 2.2rem; font-weight: bold; margin: 20px 0; }
+h3 { font-size: 2rem; font-weight: bold; margin: 18px 0; }
+h4 { font-size: 1.8rem; font-weight: bold; margin: 16px 0; }
+h5 { font-size: 1.5rem; font-weight: bold; margin: 14px 0; }
+h6 { font-size: 1.2rem; font-weight: bold; margin: 12px 0; }
+
+/* Text Formatting */
+strong { font-weight: bold; }
+em { font-style: italic; }
+u { text-decoration: underline; }
+a { color: #2A7961; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* List Styles */
+ol, ul {
+    margin: 20px 0;
+    padding-left: 40px;
+}
+li { margin-bottom: 10px; }
+
+/* Quote Styles */
+blockquote {
+    font-size: 1.5rem;
+    font-style: italic;
+    color: #555;
+    border-left: 4px solid #2A7961;
+    padding-left: 20px;
+    margin: 20px 0;
+}
+
+.content-image {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px 0;
+    border-radius: 8px;
+}
+
 /* Media Queries */
 @media (max-width: 1440px) {
     .subblog_cont {

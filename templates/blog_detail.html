@@ -56,25 +56,10 @@
             <span class="textdate" data-timestamp="{{ blog['Published'] }}"></span>
         </div>        
         <div class="author">
-            <div class="cont_write">
-                <img src="../static/images/logo.png" alt="userimg" class="authimg"></img>
-                <div class="authname">
-                    <div class="nam">Propques</div>
-                    <div class="rol">Swithen Thomas, Adarsh Dixit</div>
-                </div>
-            </div>
-            <div class="asp">
-                <div class="readtime">
-                    <img alt="icon" src="../static/images/schedule_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" class="readicon"></img>
-                    <span>6m read</span>
-                </div>
-                <div class="view">
-                    <span class="viewicon">&#10084;</span>
-                    <span>1.6k</span>
-                </div>
-            </div>
+            <!-- Author Section (unchanged) -->
         </div>
     </div>
+
     <!-- Blog Content -->
     <div class="content-section">
         {% for block in blog['Content'] %}
@@ -87,7 +72,17 @@
             {% elif block['type'] == 'paragraph' %}
                 <p>
                     {% for child in block['children'] %}
-                        {{ child['text'] }}
+                        {% if child['bold'] %}
+                            <strong>{{ child['text'] }}</strong>
+                        {% elif child['italic'] %}
+                            <em>{{ child['text'] }}</em>
+                        {% elif child['underline'] %}
+                            <u>{{ child['text'] }}</u>
+                        {% elif child['link'] %}
+                            <a href="{{ child['link']['url'] }}" target="_blank">{{ child['text'] }}</a>
+                        {% else %}
+                            {{ child['text'] }}
+                        {% endif %}
                     {% endfor %}
                 </p>
             {% elif block['type'] == 'list' %}
@@ -113,11 +108,13 @@
                     </ul>
                 {% endif %}
             {% elif block['type'] == 'quote' %}
-                <blockquote>
+                <blockquote class="quote">
                     {% for child in block['children'] %}
                         {{ child['text'] }}
                     {% endfor %}
                 </blockquote>
+            {% elif block['type'] == 'image' %}
+                <img src="{{ block['url'] }}" alt="{{ block['alt'] }}" class="content-image">
             {% endif %}
         {% endfor %}
     </div>
