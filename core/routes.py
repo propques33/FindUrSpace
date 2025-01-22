@@ -535,30 +535,34 @@ def blog():
 @core_bp.route('/blog/<slug>')
 def blog_detail(slug):
     try:
+        # Define API URL with the provided slug
         api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}&populate=*'
         api_key = os.getenv('STRAPI_API_KEY')
+        
         if not api_key:
             return "API key not found in environment variables", 500
         
         headers = {
             'Authorization': f'Bearer {api_key}',
         }
+        
         # Make the API request
         response = requests.get(api_url, headers=headers)
         response_data = response.json()
-
+        
         # Extract the blog post data
         blog_post_data = response_data.get('data')
         if blog_post_data and len(blog_post_data) > 0:
-            blog_post = blog_post_data[0]  # Fetch the first post
+            # Fetch the first post
+            blog_post_raw = blog_post_data[0]
             
-            # Extract and clean up fields for easier use in the template
+            # Map fields directly from the API response
             blog_post = {
-                'Title': blog_post['attributes']['title'],
-                'Author': blog_post['attributes'].get('author', 'Unknown Author'),
-                'Published': blog_post['attributes']['publishedAt'],  # Ensure ISO 8601 format
-                'Content': blog_post['attributes']['content'],
-                'Image': blog_post['attributes'].get('cover', []),
+                'Title': blog_post_raw.get('title', 'Untitled'),
+                'Author': blog_post_raw.get('author', 'Unknown Author'),
+                'Published': blog_post_raw.get('publishedAt', ''),  # Ensure ISO 8601 format
+                'Content': blog_post_raw.get('content', []),
+                'Image': blog_post_raw.get('cover', []),
             }
         else:
             return "Blog post not found", 404
@@ -566,4 +570,4 @@ def blog_detail(slug):
         # Render the blog_detail template with the processed blog data
         return render_template('blog_detail.html', blog=blog_post)
     except Exception as e:
-        return str(e)
+        return str(e), 500
