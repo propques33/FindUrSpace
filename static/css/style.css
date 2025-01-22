@@ -2376,8 +2376,7 @@ a:hover {
 /* Responsive Design */
 @media (max-width: 768px) {
     .subblog_cont {
-        width: 90%; /* Adjusted width */
-        margin: 0 auto;
+        width: 80%; /* Adjusted width */
     }
 
     .content-section {
@@ -2426,7 +2425,7 @@ a:hover {
 @media (max-width: 576px) {
     .subblog_cont {
         width: 95%;
-        margin: 0 auto;
+        left:3%;
     }
 
     .content-section {
