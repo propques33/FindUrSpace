@@ -2157,7 +2157,7 @@ text-decoration-line: none;
     background-color: white;
     position: absolute;
     top:55vh;
-    margin:0 auto;
+    left:15%;
     border-radius: 5px;
     padding:60px;
     display:flex;

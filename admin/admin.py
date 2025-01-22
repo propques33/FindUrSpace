@@ -510,7 +510,6 @@ def listings():
         filters['city'] = city
     if micromarket:
         filters['micromarket'] = micromarket
-    
     if price:
         try:
             filters['price'] = {'$lte': int(price)}  # Convert to integer safely
