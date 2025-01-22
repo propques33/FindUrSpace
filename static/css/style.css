@@ -2156,7 +2156,7 @@ text-decoration-line: none;
     height:400px;
     background-color: white;
     position: absolute;
-    top:45vh;
+    top:50vh;
     left:10%;
     border-radius: 5px;
     padding:50px;
@@ -2380,6 +2380,7 @@ a:hover {
     .subblog_cont {
         width: 80%;
         text-align: left; /* Ensure content remains left-aligned */
+        padding:40px;
     }
 
     .content-section {
