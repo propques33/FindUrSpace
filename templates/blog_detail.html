@@ -1,94 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ blog['Title'] }}</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.4/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ blog['Title'] }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.4/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/output.css') }}">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <!-- Navbar Section -->
-    <nav class="bg-white shadow-lg">
-        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="#" class="flex items-center">
-                <img src="../static/images/logo.png" alt="Logo" class="w-12 h-12 mr-3">
-                <span class="text-xl font-bold">FindUrSpace</span>
-            </a>
-            <div>
-                <a href="{{ url_for('core_bp.list_your_space') }}" class="text-gray-700 hover:text-blue-500 px-4">ListUrSpace</a>
-                <a href="{{ url_for('operators.operators_login') }}" class="text-gray-700 hover:text-blue-500 px-4">Operators Login</a>
-                <a href="{{ url_for('core_bp.blog') }}" class="text-gray-700 hover:text-blue-500 px-4">Blogs</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Blog Cover Image -->
-    {% if blog['Image'] and blog['Image'][0] %}
-    <div class="relative w-full h-96 bg-gray-800">
-        <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['url'] }}"
-             alt="{{ blog['Title'] }}"
-             class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-        <h1 class="absolute bottom-4 left-4 text-4xl font-bold text-white">
-            {{ blog['Title'] }}
-        </h1>
+<body class="bg-gray-100">
+  <!-- Navbar -->
+  <nav class="bg-white shadow-lg">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="/" class="flex items-center">
+        <img src="../static/images/logo.png" alt="Logo" class="w-10 h-10 mr-3">
+        <span class="text-xl font-bold">FindUrSpace</span>
+      </a>
+      <div>
+        <a href="{{ url_for('core_bp.list_your_space') }}" class="text-gray-700 hover:text-blue-500 px-4">ListUrSpace</a>
+        <a href="{{ url_for('operators.operators_login') }}" class="text-gray-700 hover:text-blue-500 px-4">Operators Login</a>
+        <a href="{{ url_for('core_bp.blog') }}" class="text-gray-700 hover:text-blue-500 px-4">Blogs</a>
+      </div>
     </div>
-    {% endif %}
+  </nav>
 
-    <!-- Blog Content -->
-    <div class="container mx-auto px-4 py-8">
-        <!-- Metadata -->
-        <div class="flex items-center text-gray-500 text-sm mb-6">
-            <span class="flex items-center mr-4">
-                <img src="../static/images/logo.png" alt="Author" class="w-8 h-8 rounded-full mr-2">
-                <span>Propques - {{ blog['Author'] }}</span>
-            </span>
-            <span class="flex items-center">
-                <svg class="w-5 h-5 text-gray-400 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M5 11h14V9H5v2zm-3 6h20v-2H2v2zm3-8h14V7H5v2zm-3 6h20v-2H2v2z"/>
-                </svg>
-                {{ blog['Published'] }}
-            </span>
-        </div>
+  <!-- Blog Cover Image -->
+  {% if blog['Image'] and blog['Image'][0] %}
+  <div class="relative w-full h-[450px] bg-slate-950">
+    <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['url'] }}" 
+         alt="{{ blog['Title'] }}" 
+         class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+    <h1 class="absolute bottom-4 left-4 text-3xl lg:text-5xl font-bold text-white shadow-lg">
+      {{ blog['Title'] }}
+    </h1>
+  </div>
+  {% endif %}
 
-        <!-- Content -->
+  <!-- Blog Content -->
+  <div class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-10">
+    <!-- Main Blog Content -->
+    <div class="flex-1 bg-white rounded-lg shadow-lg p-6">
+      <!-- Blog Metadata -->
+      <div class="flex items-center text-gray-600 text-sm mb-6">
+        <img src="../static/images/logo.png" alt="Author" class="w-10 h-10 rounded-full mr-4">
+        <span class="font-medium">{{ blog['Author'] or "Unknown Author" }}</span>
+        <span class="mx-4">|</span>
+        <span>
+          {{ blog['Published'] | date('F d, Y') }}
+        </span>
+        <span class="ml-4 flex items-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1 4v4h-1m1 0v-4h-1m4 0h1v4h-1m0 0v-4h1m0 0v-4h-1m4 0v4h1m0 0h-1v-4h1" />
+          </svg>
+          6m read
+        </span>
+      </div>
+
+      <!-- Blog Description -->
+      <div class="leading-relaxed space-y-6 text-lg text-gray-800">
         {% for block in blog['Content'] %}
-            {% if block['type'] == 'heading' %}
-                <h{{ block['level'] }} class="text-gray-800 font-semibold mb-4 text-lg">
-                    {% for child in block['children'] %}
-                        {{ child['text'] }}
-                    {% endfor %}
-                </h{{ block['level'] }}>
-            {% elif block['type'] == 'paragraph' %}
-                <p class="text-gray-700 leading-relaxed mb-6">
-                    {% for child in block['children'] %}
-                        {{ child['text'] }}
-                    {% endfor %}
-                </p>
-            {% elif block['type'] == 'list' %}
-                {% if block['format'] == 'ordered' %}
-                    <ol class="list-decimal ml-6 mb-6">
-                        {% for item in block['children'] %}
-                            <li>
-                                {% for child in item['children'] %}
-                                    {{ child['text'] }}
-                                {% endfor %}
-                            </li>
-                        {% endfor %}
-                    </ol>
-                {% else %}
-                    <ul class="list-disc ml-6 mb-6">
-                        {% for item in block['children'] %}
-                            <li>
-                                {% for child in item['children'] %}
-                                    {{ child['text'] }}
-                                {% endfor %}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
+          {% if block['type'] == 'heading' %}
+            <h{{ block['level'] }} class="text-gray-800 {{ 'text-4xl font-bold' if block['level'] == 1 else 'text-2xl font-semibold' }}">
+              {% for child in block['children'] %}
+                {{ child['text'] }}
+              {% endfor %}
+            </h{{ block['level'] }}>
+          {% elif block['type'] == 'paragraph' %}
+            <p>
+              {% for child in block['children'] %}
+                <span class="{{ 'font-bold' if child['bold'] else '' }} {{ 'italic' if child['italic'] else '' }} {{ 'underline' if child['underline'] else '' }}">
+                  {{ child['text'] }}
+                </span>
+              {% endfor %}
+            </p>
+          {% elif block['type'] == 'list' %}
+            {% if block['format'] == 'ordered' %}
+            <ol class="list-decimal pl-6">
+              {% for item in block['children'] %}
+                <li>{{ item['text'] }}</li>
+              {% endfor %}
+            </ol>
+            {% else %}
+            <ul class="list-disc pl-6">
+              {% for item in block['children'] %}
+                <li>{{ item['text'] }}</li>
+              {% endfor %}
+            </ul>
             {% endif %}
+          {% elif block['type'] == 'image' %}
+            <div class="my-4">
+              <img src="{{ block['url'] }}" alt="{{ block['alt'] }}" class="w-full rounded-lg">
+              {% if block['caption'] %}
+              <p class="text-sm text-gray-500 text-center">{{ block['caption'] }}</p>
+              {% endif %}
+            </div>
+          {% endif %}
         {% endfor %}
+      </div>
     </div>
+  </div>
 </body>
 </html>
