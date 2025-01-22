@@ -2397,7 +2397,7 @@ a:hover {
 .author-header {
     font-size: 1.2rem;
     font-weight: 600;
-    color: #151d31; /* Green for "WRITTEN BY" */
+    color: #28a745; /* Green for "WRITTEN BY" */
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -2419,20 +2419,78 @@ a:hover {
     gap: 1.5rem;
 }
 
- .author-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 999px;
+.author-image .author-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
     border: 1px solid #cccccc;
-    margin-top: 30px;
 }
 
 .author-bio p {
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1.6;
     color: #555555;
     font-style: italic;
     margin: 0;
+}
+
+/* Responsive Design */
+
+/* Adjust layout for medium screens (max-width: 768px) */
+@media (max-width: 768px) {
+    .static-author-section {
+        padding: 1rem;
+    }
+
+    .author-content {
+        flex-direction: column; /* Stack image and bio vertically */
+        align-items: center; /* Center-align content */
+        gap: 1rem;
+    }
+
+    .author-image .author-img {
+        width: 70px;
+        height: 70px;
+    }
+
+    .author-header {
+        font-size: 1.1rem;
+        text-align: center;
+    }
+
+    .author-bio p {
+        font-size: 0.95rem; /* Slightly smaller font for bio */
+        text-align: center; /* Center-align text for smaller viewports */
+    }
+}
+
+/* Adjust layout for small screens (max-width: 576px) */
+@media (max-width: 576px) {
+    .static-author-section {
+        padding: 0.8rem;
+    }
+
+    .author-header {
+        font-size: 1rem; /* Smaller font size for the header */
+        text-align: center;
+    }
+
+    .author-content {
+        flex-direction: column; /* Stack content vertically */
+        gap: 0.8rem;
+    }
+
+    .author-image .author-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .author-bio p {
+        font-size: 0.9rem; /* Further reduce font size for bio */
+        line-height: 1.5;
+        text-align: center;
+    }
 }
 
 /* Responsive Design */
