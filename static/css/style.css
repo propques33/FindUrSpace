@@ -2430,6 +2430,7 @@ a:hover {
     .subblog_cont {
         width: 95%;
         left:3%;
+        padding: 30px;
         text-align: left; /* Ensure content remains left-aligned */
     }
 
