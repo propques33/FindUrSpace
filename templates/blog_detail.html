@@ -144,6 +144,9 @@
                     {% endfor %}
                 </blockquote>
             {% elif block['type'] == 'image' %}
+                <script>
+                    console.log("Image URL: {{ block['url'] }}");
+                </script>
                 <img src="{{ block['url'] }}" alt="{{ block['alt'] }}" class="content-image">
             {% endif %}
         {% endfor %}
