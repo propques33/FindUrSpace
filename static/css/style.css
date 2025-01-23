@@ -2381,9 +2381,9 @@ a:hover {
     font-family: 'Sentiment', sans-serif;
 }
 
-.separator {
-    border: none;
-    border-top: 1px solid #dddddd;
+.separator1 {
+    
+    border: 2px solid #151D31;
     margin: 1.5rem 0;
 }
 
