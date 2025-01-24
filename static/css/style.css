@@ -2144,45 +2144,60 @@ text-decoration-line: none;
 
 .imgsub{
     width:100%;
-    height:80vh;
+    height:100vh;
     object-fit: cover;
     margin-bottom:100px;
 }
 .subblog_cont{
-    width:80%;
-    height:400px;
+    width:60%;
+    height:auto;
     background-color: white;
     position: absolute;
-    top:50vh;
-    left:10%;
+    top:60vh;
+    left:20%;
     border-radius: 5px;
     padding:50px;
     display:flex;
     flex-direction:column;
 }
+
+@media (max-width: 1240px) {
+    .subblog_cont {
+        width: 70%;
+        left: 15%;
+    }
+}
+@media (max-width: 1024px) {
+    .subblog_cont {
+        width: 80%;
+        left: 10%;
+    }
+}
+
 .subblog_head{
     display: flex;
-flex-direction: column;
-justify-content: center;
+    flex-direction: column;
+    justify-content: center;
     color: #373737;
-font-size: 2.8rem;
-font-style: normal;
-font-weight: 700;
-line-height: 1.2; /* 120% */
-letter-spacing: -1px;
-margin-bottom: 1rem;
-text-align: left;
+    font-size: 2.8rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.2; /* 120% */
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+    text-align: left;
 }
+
 .time{
     color: #2A7961;
-font-size: 24px;
-font-style: normal;
-font-weight: 700;
-line-height: 20px; 
-text-transform: uppercase;
-letter-spacing: 2px;
-margin-top:20px;
-margin-bottom:15px;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 20px; 
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top:20px;
+    margin-bottom:15px;
 }
 
 .author{
@@ -2500,7 +2515,7 @@ a:hover {
         width: 95%;
         left:3%;
         text-align: left; /* Ensure content remains left-aligned */
-        padding:30px;
+        padding:40px;
     }
 
     .content-section {
@@ -2551,10 +2566,14 @@ a:hover {
     .subblog_cont {
         width: 95%;
         left:3%;
+        top:70vh;
         padding: 30px;
         text-align: left; /* Ensure content remains left-aligned */
     }
 
+    .asp{
+        display:none;
+    }
     .content-section {
         width: 100%;
         font-size: 1.2rem; /* Slightly larger for readability on small screens */
