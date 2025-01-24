@@ -41,6 +41,23 @@
     font-style: italic;
 }
 
+@font-face {
+    font-family: 'Sentient'; /* The name you'll use in CSS */
+    src: url('../fonts/Sentient-Regular.woff2') format('woff2'),
+         url('../fonts/Sentient-Regular.woff') format('woff'),
+         url('../fonts/Sentient-Regular.ttf') format('truetype'); /* Add formats available */
+    font-weight: normal; /* Adjust if it's a specific weight (e.g., bold) */
+    font-style: normal;  /* Use italic if applicable */
+}
+
+@font-face {
+    font-family: 'Sentient';
+    src: url('../fonts/Sentient-Bold.woff2') format('woff2'),
+         url('../fonts/Sentient-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
 body {
     font-family: 'Report School Regular', Arial, sans-serif;
 }
