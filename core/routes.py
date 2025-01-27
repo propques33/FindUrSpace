@@ -527,14 +527,15 @@ def blog():
          # Calculate read time for each blog
         reading_speed = 200  # Words per minute
         for blog in blogs:
-            content_blocks = blog['Content']
+            content_blocks = blog.get('Content', [])
             word_count = 0
             for block in content_blocks:
-                if block['type'] in ['paragraph', 'heading', 'quote']:
-                    for child in block['children']:
-                        word_count += len(child['text'].split())
+                if block.get('type') in ['paragraph', 'heading', 'quote']:
+                    for child in block.get('children', []):
+                        word_count += len(child.get('text', '').split())
             blog['read_time'] = max(1, round(word_count / reading_speed))  # Add read time to blog
-            
+
+
         return render_template(
             'blog.html', blogs=blogs, page=page, total_pages=total_pages
         )
