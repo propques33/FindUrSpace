@@ -2994,7 +2994,13 @@ footer {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     justify-content: center;
-    padding:0px 100px;
+    padding:0px 150px;
+}
+
+@media (max-width: 768px) {
+    .other-blogs-grid {
+        padding:0px 80px;
+    }
 }
 
 @media (max-width: 768px) {
