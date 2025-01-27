@@ -2974,3 +2974,28 @@ footer {
     margin: 10px 0;
     line-height: 1.5;
 }
+
+.similar-blogs-section {
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+}
+
+.similar-blogs-container {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.similar-blog-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.similar-blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

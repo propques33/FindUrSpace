@@ -192,6 +192,31 @@
         <hr class="separator1">
     </div>
 
+    <div class="similar-blogs-section mt-5">
+        <h2 class="text-center">Other Similar Blogs</h2>
+        <div class="similar-blogs-container d-flex flex-wrap justify-content-center">
+            {% for blog in other_blogs %}
+            <div class="similar-blog-card card m-2" style="width: 18rem;">
+                {% if blog['Image'] and blog['Image'][0] %}
+                <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['formats']['thumbnail']['url'] }}"
+                     class="card-img-top"
+                     alt="{{ blog['Title'] }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ blog['Title'] }}</h5>
+                    <p class="card-text">
+                        {% if blog['Content'] and blog['Content'][0]['children'] %}
+                            {{ blog['Content'][0]['children'][0]['text'][:100] }}...
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="btn btn-primary">Read More</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+
     <section class="human-bot-section">
         <div class="container">
             <div class="text-content">

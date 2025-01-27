@@ -561,7 +561,7 @@ def blog_detail(slug):
         }
 
         # Fetch blog data
-        response = requests.get(api_url, headers=headers)
+        response = requests.get(f"{api_url}&filters[slug][$eq]={slug}", headers=headers)
         if response.status_code != 200:
             return f"Failed to fetch blog post: {response.status_code}", response.status_code
         
@@ -571,6 +571,13 @@ def blog_detail(slug):
 
         # Extract the first blog post
         blog_post = blog_post_data[0]
+
+        # Fetch all blogs to show in "Other Similar Blogs"
+        response_all_blogs = requests.get(api_url, headers=headers)
+        all_blogs_data = response_all_blogs.json().get('data', [])
+
+        # Exclude the current blog
+        other_blogs = [blog for blog in all_blogs_data if blog.get('slug') != slug]
 
         # Parse the content blocks for rendering
         content_blocks = blog_post.get('Content', [])
@@ -609,7 +616,7 @@ def blog_detail(slug):
 
         # Pass parsed content to the template
         read_time = max(1, round(sum(len(c.get('text', '').split()) for c in parsed_content if c.get('text')) / 200))
-        return render_template('blog_detail.html', blog=blog_post, content=parsed_content, read_time=read_time)
+        return render_template('blog_detail.html', blog=blog_post, content=parsed_content, read_time=read_time,other_blogs=other_blogs)
 
 
     except requests.exceptions.RequestException as e:
