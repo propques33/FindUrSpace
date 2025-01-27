@@ -591,3 +591,39 @@ def blog_detail(slug):
         return f"Unexpected response structure: Missing key {e}", 500
     except Exception as e:
         return f"An unexpected error occurred: {e}", 500
+    
+
+@core_bp.route('/blog/like/<slug>', methods=['GET', 'POST'])
+def manage_blog_likes(slug):
+    db = current_app.config['db']  # Access MongoDB from Flask app config
+
+    if request.method == 'GET':
+        # Fetch current likes and check if the user has already liked
+        like_entry = db.blog_likes.find_one({"slug": slug})
+        user_liked = session.get(f"liked_{slug}", False)
+        return jsonify({
+            "success": True,
+            "likes": like_entry["likes"] if like_entry else 0,
+            "userLiked": user_liked
+        })
+
+    elif request.method == 'POST':
+        # Check if the user has already liked this post
+        if session.get(f"liked_{slug}", False):
+            return jsonify({"success": False, "message": "You have already liked this post."}), 400
+
+        try:
+            # Increment the likes count in MongoDB
+            updated_entry = db.blog_likes.find_one_and_update(
+                {"slug": slug},
+                {"$inc": {"likes": 1}},  # Increment the likes field by 1
+                upsert=True,  # Create the document if it doesn't exist
+                return_document=True  # Return the updated document
+            )
+
+            # Mark as liked in the session
+            session[f"liked_{slug}"] = True
+
+            return jsonify({"success": True, "likes": updated_entry["likes"]})
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 500

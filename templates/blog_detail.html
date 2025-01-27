@@ -11,6 +11,19 @@
         body {
             font-family: 'Sentient', sans-serif; /* Add a fallback font */
         }
+        .heart-icon {
+    font-size: 24px;
+    color: red;
+    transition: transform 0.2s ease;
+}
+
+.heart-icon:hover {
+    transform: scale(1.2);
+}
+
+.heart-icon[data-liked="true"] {
+    content: '\2665'; /* Filled heart */
+}
     </style>
 </head>
 <body>
@@ -57,8 +70,8 @@
             <div class="cont_write">
                 <img src="../static/images/logo.png" alt="userimg" class="authimg"></img>
                 <div class="authname">
-                    <div class="nam">Propques</div>
-                    <div class="rol">Swithen Thomas</div>
+                    <div class="nam">Swithen Thomas</div>
+                    <div class="rol">Contributing Writer</div>
                 </div>
             </div>
             <div class="asp">
@@ -277,6 +290,67 @@
                 dateElement.textContent = formattedDate;
             }
         });
+        document.addEventListener("DOMContentLoaded", function () {
+            const likeCountElement = document.getElementById("like-count");
+            const likeIconElement = document.getElementById("like-icon");
+            const blogSlug = likeCountElement.getAttribute("data-slug");
+
+            // Fetch current likes and whether the user has liked
+            fetch(/blog/like/${blogSlug}, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        likeCountElement.textContent = data.likes;
+
+                        // Check if the user has already liked (stored in session cookie)
+                        if (data.userLiked) {
+                            likeIconElement.setAttribute("data-liked", "true");
+                        }
+                    } else {
+                        console.error("Failed to fetch likes:", data.message);
+                    }
+                })
+                .catch(err => console.error("Error fetching likes:", err));
+
+            // Handle like action
+            window.handleLike = function () {
+                const hasLiked = likeIconElement.getAttribute("data-liked") === "true";
+                if (hasLiked) {
+                    alert("You have already liked this post!");
+                    return;
+                }
+
+                // Send POST request to like the blog
+                fetch(/blog/like/${blogSlug}, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            likeCountElement.textContent = data.likes;
+                            likeIconElement.setAttribute("data-liked", "true"); // Mark as liked
+                        } else {
+                            alert("Failed to update likes: " + data.message);
+                        }
+                    })
+                    .catch(err => console.error("Error liking blog:", err));
+            };
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+        const contentElement = document.querySelector(".content-section");
+        const readTimeElement = document.getElementById("dynamic-read-time");
+
+        if (contentElement && readTimeElement) {
+            // Calculate word count from the content
+            const text = contentElement.textContent || contentElement.innerText;
+            const wordCount = text.split(/\s+/).length;
+
+            // Average reading speed is ~200 words per minute
+            const readingSpeed = 200; // words per minute
+            const readTime = Math.ceil(wordCount / readingSpeed);
+
+            // Update the read time display
+            readTimeElement.textContent = ${readTime} min read;
+        }
+    });
     </script>
 </body>
 </html>
