@@ -561,7 +561,7 @@ def blog_detail(slug):
         }
 
         # Fetch blog data
-        response = requests.get(f"{api_url}&filters[slug][$eq]={slug}", headers=headers)
+        response = requests.get(api_url, headers=headers)
         if response.status_code != 200:
             return f"Failed to fetch blog post: {response.status_code}", response.status_code
         
@@ -572,12 +572,14 @@ def blog_detail(slug):
         # Extract the first blog post
         blog_post = blog_post_data[0]
 
-        # Fetch all blogs to show in "Other Similar Blogs"
-        response_all_blogs = requests.get(api_url, headers=headers)
-        all_blogs_data = response_all_blogs.json().get('data', [])
+        # Fetch other blogs
+        other_blogs_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?populate=*'
+        response_other = requests.get(other_blogs_url, headers=headers)
+        if response_other.status_code != 200:
+            return f"Failed to fetch other blogs: {response_other.status_code}", response_other.status_code
 
-        # Exclude the current blog
-        other_blogs = [blog for blog in all_blogs_data if blog.get('slug') != slug]
+        all_blogs = response_other.json().get('data', [])
+        other_blogs = [blog for blog in all_blogs if blog['slug'] != slug]
 
         # Parse the content blocks for rendering
         content_blocks = blog_post.get('Content', [])
