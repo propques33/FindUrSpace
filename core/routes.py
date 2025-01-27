@@ -589,15 +589,28 @@ def blog_detail(slug):
                     if child['type'] == 'text':
                         paragraph_content.append({'type': 'text', 'text': child.get('text', '')})
                     elif child['type'] == 'link':
-                        link_text = ''.join(
-                            [link_child.get('text', '') for link_child in child.get('children', [])]
-                        )  # Extract text from children
+                        link_text = ''.join([link_child.get('text', '') for link_child in child.get('children', [])])
                         paragraph_content.append({'type': 'link', 'url': child.get('url', ''), 'text': link_text})
-                parsed_content.append({'type': 'paragraph', 'children': paragraph_content})
+            elif block['type'] == 'image':
+                parsed_content.append({
+                    'type': 'image',
+                    'url': block.get('image', {}).get('url', ''),
+                    'alt': block.get('image', {}).get('alternativeText', ''),
+                    'caption': block.get('image', {}).get('caption', '')
+                })
+            elif block['type'] == 'list':
+                list_items = []
+                for item in block.get('children', []):
+                    list_items.append({
+                        'type': 'list-item',
+                        'text': ''.join([child.get('text', '') for child in item.get('children', [])])
+                    })
+                parsed_content.append({'type': 'list', 'format': block.get('format', 'unordered'), 'items': list_items})
 
         # Pass parsed content to the template
         read_time = max(1, round(sum(len(c.get('text', '').split()) for c in parsed_content if c.get('text')) / 200))
         return render_template('blog_detail.html', blog=blog_post, content=parsed_content, read_time=read_time)
+
 
     except requests.exceptions.RequestException as e:
         return f"An error occurred while connecting to the API: {e}", 500

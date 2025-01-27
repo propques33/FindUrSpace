@@ -111,8 +111,10 @@
                             <em>{{ child['text'] }}</em>
                         {% elif child['underline'] %}
                             <u>{{ child['text'] }}</u>
-                        {% elif child['link'] %}
-                            <a href="{{ child.url }}" target="_blank">{{ child.text }}</a>
+                        {% elif child.type == 'link' %}
+                            <a href="{{ child.url }}" target="_blank" class="text-blue-500 underline">
+                                {{ child.text }}
+                            </a>
                         {% else %}
                             {{ child['text'] }}
                         {% endif %}
