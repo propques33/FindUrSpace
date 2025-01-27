@@ -2994,6 +2994,13 @@ footer {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     justify-content: center;
+    padding:0px 100px;
+}
+
+@media (max-width: 768px) {
+    .other-blogs-grid {
+        padding:0px 20px;
+    }
 }
 
 .other-blog-card {
@@ -3046,9 +3053,10 @@ footer {
     font-size: 0.9rem;
     font-weight: bold;
     color: #fff;
-    background-color: #0056b3;
+    background-color: #151d31;
     border: none;
     border-radius: 5px;
+    text-decoration-line: none;
     text-decoration: none;
     transition: background-color 0.3s;
     text-align: center;
@@ -3056,4 +3064,14 @@ footer {
 
 .read-more-button:hover {
     background-color: #003d80;
+}
+
+.other-blog-content a{
+    text-decoration:none;
+    color:white;
+}
+
+.other-blog-title a{
+    text-decoration:none;
+    color:black;
 }
