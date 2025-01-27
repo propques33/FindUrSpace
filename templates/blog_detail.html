@@ -63,12 +63,18 @@
             </div>
             <div class="asp">
                 <div class="readtime">
-                    <img alt="icon" src="../static/images/schedule_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" class="readicon"></img>
-                    <span>6m read</span>
+                    <img alt="icon" src="../static/images/schedule_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" class="readicon">
+                    <span>{{ read_time }} min read</span>
                 </div>
                 <div class="view">
-                    <span class="viewicon">&#10084;</span>
-                    <span>1.6k</span>
+                    <span
+                        id="like-icon"
+                        class="heart-icon"
+                        data-liked="false"
+                        onclick="handleLike()"
+                        style="cursor: pointer;"
+                    >&#9825;</span> <!-- Outlined heart -->
+                    <span id="like-count" data-slug="{{ blog['slug'] }}">0</span>
                 </div>
             </div>
         </div>

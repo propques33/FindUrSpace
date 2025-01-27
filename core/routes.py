@@ -572,8 +572,18 @@ def blog_detail(slug):
         # Extract the first blog post
         blog_post = blog_post_data[0]
 
+        content_blocks = blog_post.get('Content', [])
+        word_count = 0
+        for block in content_blocks:
+            if block.get('type') in ['paragraph', 'heading', 'quote']:
+                for child in block.get('children', []):
+                    word_count += len(child.get('text', '').split())
+
+        reading_speed = 200  # Words per minute
+        read_time = max(1, round(word_count / reading_speed))
+           
         # Pass blog data to template
-        return render_template('blog_detail.html', blog=blog_post)
+        return render_template('blog_detail.html', blog=blog_post, read_time=read_time)
 
     except requests.exceptions.RequestException as e:
         return f"An error occurred while connecting to the API: {e}", 500
