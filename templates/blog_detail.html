@@ -295,7 +295,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        likeCountElement.textContent = data.likes;
+                        likeCountElement.textContent = `${data.likes} likes`;
 
                         if (data.userLiked) {
                             likeIconElement.setAttribute("data-liked", "true");
@@ -317,7 +317,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            likeCountElement.textContent = data.likes;
+                            likeCountElement.textContent = `${data.likes} likes`;
                             likeIconElement.setAttribute("data-liked", "true");
                         } else {
                             alert("Failed to update likes: " + data.message);
@@ -339,8 +339,6 @@
             readTimeElement.textContent = `${readTime} min read`;
         }
     });
-
-
 
     </script>
 </body>
