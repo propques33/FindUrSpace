@@ -589,7 +589,9 @@ def blog_detail(slug):
                     if child['type'] == 'text':
                         paragraph_content.append({'type': 'text', 'text': child.get('text', '')})
                     elif child['type'] == 'link':
-                        link_text = child['children'][0].get('text', '') if child.get('children') else ''
+                        link_text = ''.join(
+                            [link_child.get('text', '') for link_child in child.get('children', [])]
+                        )  # Extract text from children
                         paragraph_content.append({'type': 'link', 'url': child.get('url', ''), 'text': link_text})
                 parsed_content.append({'type': 'paragraph', 'children': paragraph_content})
 
