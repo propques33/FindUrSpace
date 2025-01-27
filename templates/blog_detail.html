@@ -193,29 +193,34 @@
     </div>
 
     <!-- Other Similar Blogs Section -->
-<div class="similar-blogs-section mt-5">
-    <h2 class="text-center">Other Similar Blogs</h2>
-    <div class="similar-blogs-container d-flex flex-wrap justify-content-center">
-        {% for blog in other_blogs %}
-        <div class="similar-blog-card card m-2" style="width: 18rem;">
-            {% if blog['Image'] and blog['Image'][0] %}
-            <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['formats']['thumbnail']['url'] }}"
-                 class="card-img-top"
-                 alt="{{ blog['Title'] }}">
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ blog['Title'] }}</h5>
-                <p class="card-text">
-                    {% if blog['Content'] and blog['Content'][0]['children'] %}
+    <section class="other-blogs-container">
+        <h2 class="other-blogs-title">Other Similar Blogs</h2>
+        <div class="other-blogs-grid">
+            {% for blog in other_blogs %}
+            <div class="other-blog-card">
+                <img 
+                    src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['formats']['thumbnail']['url'] }}" 
+                    alt="{{ blog['Title'] }}" 
+                    class="other-blog-image"
+                />
+                <div class="other-blog-content">
+                    <h3 class="other-blog-title">
+                        <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}">
+                            {{ blog['Title'] }}
+                        </a>
+                    </h3>
+                    <p class="other-blog-description">
                         {{ blog['Content'][0]['children'][0]['text'][:100] }}...
-                    {% endif %}
-                </p>
-                <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="btn btn-primary">Read More</a>
+                    </p>
+                    <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="read-more-button">
+                        Read More
+                    </a>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-</div>
+    </section>
+    
     
 
     <section class="human-bot-section">
