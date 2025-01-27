@@ -524,6 +524,17 @@ def blog():
         total_count = data.get('meta', {}).get('pagination', {}).get('total', 0)
         total_pages = -(-total_count // limit)  # Calculate total pages
 
+         # Calculate read time for each blog
+        reading_speed = 200  # Words per minute
+        for blog in blogs:
+            content_blocks = blog['Content']
+            word_count = 0
+            for block in content_blocks:
+                if block['type'] in ['paragraph', 'heading', 'quote']:
+                    for child in block['children']:
+                        word_count += len(child['text'].split())
+            blog['read_time'] = max(1, round(word_count / reading_speed))  # Add read time to blog
+            
         return render_template(
             'blog.html', blogs=blogs, page=page, total_pages=total_pages
         )

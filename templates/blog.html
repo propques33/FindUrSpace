@@ -72,7 +72,10 @@
                     {% endif %}
                     <div class="date">
                         <span class="textdate" data-timestamp="{{ blog['Published'] }}">{{ blog['Published']}}</span>
-                        <ul class="textdate"><li>9 min to read</li></ul>
+                        <ul class="textdate">
+                            <!-- Display dynamically calculated read time -->
+                            <li>{{ blog['read_time'] }} min to read</li>
+                        </ul>
                     </div>
                     <div class="horline"></div>
                     <div class="bloghead"  data-url="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}">{{ blog['Title'] }}</div>
