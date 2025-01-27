@@ -87,7 +87,7 @@
                         onclick="handleLike()"
                         style="cursor: pointer;"
                     >&#9825;</span> <!-- Outlined heart -->
-                    <span id="like-count" data-slug="{{ blog['slug'] }}">0</span>
+                    <span id="like-count" data-slug="{{ blog['slug'] }}">0 likes</span>
                 </div>
             </div>
         </div>
@@ -270,39 +270,33 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
         // Format the date dynamically
-        document.addEventListener("DOMContentLoaded", function () {
-            // Select the element with the data-timestamp attribute
-            const dateElement = document.querySelector(".textdate[data-timestamp]");
-            if (dateElement) {
-                // Get the timestamp from the data-timestamp attribute
-                const timestamp = dateElement.getAttribute("data-timestamp");
-    
-                // Parse and format the date
-                const date = new Date(timestamp);
-                const formattedDate = date.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: '2-digit',
-                });
-    
-                // Update the text content of the element
-                dateElement.textContent = formattedDate;
-            }
-        });
-        document.addEventListener("DOMContentLoaded", function () {
-            const likeCountElement = document.getElementById("like-count");
-            const likeIconElement = document.getElementById("like-icon");
+        const dateElement = document.querySelector(".textdate[data-timestamp]");
+        if (dateElement) {
+            const timestamp = dateElement.getAttribute("data-timestamp");
+            const date = new Date(timestamp);
+            const formattedDate = date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+            });
+            dateElement.textContent = formattedDate;
+        }
+
+        // Fetch and update like count and status
+        const likeCountElement = document.getElementById("like-count");
+        const likeIconElement = document.getElementById("like-icon");
+
+        if (likeCountElement && likeIconElement) {
             const blogSlug = likeCountElement.getAttribute("data-slug");
 
-            // Fetch current likes and whether the user has liked
-            fetch(/blog/like/${blogSlug}, { method: 'GET' })
+            fetch(`/blog/like/${blogSlug}`, { method: 'GET' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         likeCountElement.textContent = data.likes;
 
-                        // Check if the user has already liked (stored in session cookie)
                         if (data.userLiked) {
                             likeIconElement.setAttribute("data-liked", "true");
                         }
@@ -312,7 +306,6 @@
                 })
                 .catch(err => console.error("Error fetching likes:", err));
 
-            // Handle like action
             window.handleLike = function () {
                 const hasLiked = likeIconElement.getAttribute("data-liked") === "true";
                 if (hasLiked) {
@@ -320,37 +313,35 @@
                     return;
                 }
 
-                // Send POST request to like the blog
-                fetch(/blog/like/${blogSlug}, { method: 'POST' })
+                fetch(`/blog/like/${blogSlug}`, { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             likeCountElement.textContent = data.likes;
-                            likeIconElement.setAttribute("data-liked", "true"); // Mark as liked
+                            likeIconElement.setAttribute("data-liked", "true");
                         } else {
                             alert("Failed to update likes: " + data.message);
                         }
                     })
                     .catch(err => console.error("Error liking blog:", err));
             };
-        });
-        document.addEventListener("DOMContentLoaded", function () {
+        }
+
+        // Calculate and update dynamic read time
         const contentElement = document.querySelector(".content-section");
         const readTimeElement = document.getElementById("dynamic-read-time");
 
         if (contentElement && readTimeElement) {
-            // Calculate word count from the content
             const text = contentElement.textContent || contentElement.innerText;
             const wordCount = text.split(/\s+/).length;
-
-            // Average reading speed is ~200 words per minute
             const readingSpeed = 200; // words per minute
             const readTime = Math.ceil(wordCount / readingSpeed);
-
-            // Update the read time display
-            readTimeElement.textContent = ${readTime} min read;
+            readTimeElement.textContent = `${readTime} min read`;
         }
     });
+
+
+
     </script>
 </body>
 </html>
