@@ -572,18 +572,30 @@ def blog_detail(slug):
         # Extract the first blog post
         blog_post = blog_post_data[0]
 
+        # Parse the content blocks for rendering
         content_blocks = blog_post.get('Content', [])
-        word_count = 0
-        for block in content_blocks:
-            if block.get('type') in ['paragraph', 'heading', 'quote']:
-                for child in block.get('children', []):
-                    word_count += len(child.get('text', '').split())
+        parsed_content = []
 
-        reading_speed = 200  # Words per minute
-        read_time = max(1, round(word_count / reading_speed))
-           
-        # Pass blog data to template
-        return render_template('blog_detail.html', blog=blog_post, read_time=read_time)
+        for block in content_blocks:
+            if block['type'] == 'heading':
+                parsed_content.append({
+                    'type': 'heading',
+                    'level': block.get('level', 2),
+                    'text': block['children'][0].get('text', '') if block['children'] else ''
+                })
+            elif block['type'] == 'paragraph':
+                paragraph_content = []
+                for child in block.get('children', []):
+                    if child['type'] == 'text':
+                        paragraph_content.append({'type': 'text', 'text': child.get('text', '')})
+                    elif child['type'] == 'link':
+                        link_text = child['children'][0].get('text', '') if child.get('children') else ''
+                        paragraph_content.append({'type': 'link', 'url': child.get('url', ''), 'text': link_text})
+                parsed_content.append({'type': 'paragraph', 'children': paragraph_content})
+
+        # Pass parsed content to the template
+        read_time = max(1, round(sum(len(c.get('text', '').split()) for c in parsed_content if c.get('text')) / 200))
+        return render_template('blog_detail.html', blog=blog_post, content=parsed_content, read_time=read_time)
 
     except requests.exceptions.RequestException as e:
         return f"An error occurred while connecting to the API: {e}", 500

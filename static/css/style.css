@@ -2960,3 +2960,17 @@ footer {
     position:relative;
     top:-12px;
 }
+
+.content-section a {
+    color: #007bff;
+    text-decoration: none;
+    margin: 0 5px;
+}
+.content-section a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+.content-section p {
+    margin: 10px 0;
+    line-height: 1.5;
+}
