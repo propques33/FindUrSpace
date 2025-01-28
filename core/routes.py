@@ -278,8 +278,8 @@ def get_locations():
     db = current_app.config['db']
     cities = db.fillurdetails.distinct('city')
     # Use a list comprehension to ensure unique, trimmed, and case-insensitive results
-    cities = list(set(city.strip().lower() for city in cities))
-    return jsonify({'locations': cities})
+    camel_case_cities = list(set(to_camel_case(city.strip().lower()) for city in cities))
+    return jsonify({'locations': sorted(camel_case_cities)})
     
 
 # Route to fetch unique micromarkets based on selected city
@@ -289,8 +289,9 @@ def get_micromarkets():
     city = request.args.get('city')
     query = {'city': format_query_param(city)}
     micromarkets = db.fillurdetails.distinct('micromarket', query)
-    micromarkets = list(set(micromarket.strip().lower() for micromarket in micromarkets))
-    return jsonify({'micromarkets': micromarkets})
+    # Convert all micromarket names to camel case
+    camel_case_micromarkets = list(set(to_camel_case(micromarket.strip().lower()) for micromarket in micromarkets))
+    return jsonify({'micromarkets': sorted(camel_case_micromarkets)})
 
 # Route to fetch unique prices based on selected city and micromarket
 
@@ -330,6 +331,9 @@ def terms_and_conditions():
 @core_bp.route('/faqs')
 def freq_asked_ques():
     return render_template('FAQs.html')
+
+def to_camel_case(input_str):
+    return ' '.join(word.capitalize() for word in input_str.split())
 
 @core_bp.route('/list-your-space', methods=['GET', 'POST'])
 def list_your_space():
@@ -383,9 +387,9 @@ def list_your_space():
 
                 # Handle "Other" case for city and micromarket
                 if city == "Other" and custom_cities:
-                    city = custom_cities.pop(0).strip()
+                    city = to_camel_case(custom_cities.pop(0).strip())
                 if micromarket == "Other" and custom_micromarkets:
-                    micromarket = custom_micromarkets.pop(0).strip()
+                    micromarket = to_camel_case(custom_micromarkets.pop(0).strip())
 
                 # Validate city and micromarket
                 if not city or not micromarket:
