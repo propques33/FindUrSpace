@@ -1830,6 +1830,10 @@ h1, h2, h3, p, span, a {
     width: 90%;
 }
 
+#featured-media-title{
+    color:white;
+}
+
 /* Flexbox container to align text and logos side by side */
 .media-container {
     display: flex;
