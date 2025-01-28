@@ -361,6 +361,64 @@
             const fileInput = document.getElementById('file-input');
             const propertyIdInput = document.getElementById('property-id');
             const closeUploadModalBtn = uploadModal.querySelector('.close-btn');
+            const deleteModal = document.getElementById('delete-modal');
+            const deleteForm = document.getElementById('delete-form');
+            const deleteConfirmationInput = document.getElementById('delete-confirmation');
+            const deletePropertyIdInput = document.getElementById('delete-property-id');
+            const closeDeleteModalButton = deleteModal.querySelector('.close-btn');
+
+            // Open delete modal function
+            function openDeleteModal(propertyId) {
+                deletePropertyIdInput.value = propertyId; // Set property ID in modal
+                deleteModal.classList.add('show'); // Show modal
+            }
+
+            // Close delete modal function
+            function closeDeleteModal() {
+                deleteModal.classList.remove('show');
+                deleteConfirmationInput.value = ''; // Clear the input
+            }
+
+            // Add event listener to close delete modal
+            closeDeleteModalButton.addEventListener('click', closeDeleteModal);
+
+            // Prevent closing delete modal on outside click
+            window.addEventListener('click', function (event) {
+                if (event.target === deleteModal) {
+                    closeDeleteModal();
+                }
+            });
+
+            // Handle delete form submission
+            deleteForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const confirmationText = deleteConfirmationInput.value;
+                const propertyId = deletePropertyIdInput.value;
+
+                if (confirmationText.toLowerCase() === 'delete') {
+                    // Call delete API
+                    fetch(`/admin/delete_property`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ property_id: propertyId }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Property deleted successfully!');
+                                closeDeleteModal();
+                                fetchInventory(); // Refresh table data
+                            } else {
+                                alert('Failed to delete property. Please try again.');
+                            }
+                        })
+                        .catch(error => console.error('Error deleting property:', error));
+                } else {
+                    alert("Please type 'delete' to confirm.");
+                }
+            });
                     
             // Open modal on upload button click
             document.addEventListener('click', function (e) {
@@ -466,87 +524,45 @@
                         <td><button class="show-details-btn">Show Details</button></td>
                         <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
                         <td>${agreementStatus}</td>
-                        <td><button class="delete-btn" data-property-id="{{ property_id }}">Delete</button></td>
+                        <td><button class="delete-btn" data-property-id="${space._id}">Delete</button></td>
                     `;
-                    // Prevent checkbox click from triggering row click
-                // Add event listener for "Show Details" button
-                row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
-                tableBody.appendChild(row);
-        });
-    }
+                    // Add event listener for "Show Details" button
+                    row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
+                    row.querySelector('.delete-btn').addEventListener('click', function () {
+                        const propertyId = this.dataset.propertyId;
+                        openDeleteModal(propertyId); // Open delete modal
+                    });
+                    tableBody.appendChild(row);
+                });
+            }
 
-            // function displayCoworkingModal(space) {
-            //     document.getElementById('coworking-name').textContent = space.coworking_name;
-            //     coworkingModal.classList.add('show');
-            // }
-
-            // coworkingModalClose.addEventListener('click', () => coworkingModal.classList.remove('show'));
 
             // Event listeners for dropdowns
-        cityDropdown.addEventListener('change', function () {
-            const selectedCity = cityDropdown.value;
-            micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
+            cityDropdown.addEventListener('change', function () {
+                const selectedCity = cityDropdown.value;
+                micromarketDropdown.innerHTML = '<option value="">Select Micromarket</option>';
 
-            if (selectedCity) {
-                fetch(`/admin/get_micromarkets_live/${encodeURIComponent(selectedCity)}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(market => {
-                            const option = document.createElement('option');
-                            option.value = market;
-                            option.text = market;
-                            micromarketDropdown.appendChild(option);
+                if (selectedCity) {
+                    fetch(`/admin/get_micromarkets_live/${encodeURIComponent(selectedCity)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            data.forEach(market => {
+                                const option = document.createElement('option');
+                                option.value = market;
+                                option.text = market;
+                                micromarketDropdown.appendChild(option);
+                            });
                         });
-                    });
-            }
-            fetchInventory(); // Fetch updated inventory
-        });
+                }
+                fetchInventory(); // Fetch updated inventory
+            });
 
-        // sendButton.addEventListener('click', function () {
-        //         const selectedProperties = Array.from(document.querySelectorAll('.select-property:checked'))
-        //             .map(checkbox => checkbox.dataset.propertyId);
+            sendButton.addEventListener('click', function () {
+                const selectedProperties = [...document.querySelectorAll('.select-property:checked')]
+                .map(cb => cb.dataset.propertyId)
+                .filter(id => id && id.trim() !== '');
 
-        //         if (selectedProperties.length === 0) {
-        //             alert('Please select at least one property.');
-        //             return;
-        //         }
-
-        //         emailModal.style.display = 'block';
-
-        //         sendForm.addEventListener('submit', function (event) {
-        //             event.preventDefault();
-        //             const email = document.getElementById('email').value;
-        //             const mobile = document.getElementById('mobile').value;
-        //             const thankYouUrl = this.dataset.thankYouUrl;
-
-        //             fetch('/admin/send_selected_properties_live', {
-        //                 method: 'POST',
-        //                 headers: {
-        //                     'Content-Type': 'application/json',
-        //                 },
-        //                 body: JSON.stringify({
-        //                     email: email,
-        //                     mobile: mobile,
-        //                     selectedProperties: selectedProperties
-        //                 })
-        //             })
-        //             .then(response => response.json())
-        //             .then(data => {
-        //                 if (data.status === 'success') {
-        //                     window.location.href = thankYouUrl;
-        //                 } else {
-        //                     alert('Error sending email.');
-        //                 }
-        //             })
-        //             .catch(error => console.error('Error:', error));
-        //         });
-        //     });
-        sendButton.addEventListener('click', function () {
-            const selectedProperties = [...document.querySelectorAll('.select-property:checked')]
-        .map(cb => cb.dataset.propertyId)
-        .filter(id => id && id.trim() !== '');
-
-        console.log('Selected Property IDs:', selectedProperties);
+                console.log('Selected Property IDs:', selectedProperties);
 
                 if (!selectedProperties.length) return alert('Select properties!');
                 emailModal.classList.add('show');
@@ -564,19 +580,18 @@
                         })
                     })
                     .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                window.location.href = sendForm.dataset.thankYouUrl;
-            } else {
-                alert('Failed to send data. Please try again.');
-            }
-        })
-        .catch(console.error);
-    });
-});
+                    .then(data => {
+                        if (data.status === 'success') {
+                            window.location.href = sendForm.dataset.thankYouUrl;
+                        } else {
+                            alert('Failed to send data. Please try again.');
+                        }
+                    })
+                    .catch(console.error);
+                });
+            });
 
             closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
-
 
             // Display Modal with Details
             function displayCoworkingModal(space) {
@@ -629,69 +644,6 @@
             // Initial fetch
             fetchInventory();
         });
-
-        document.addEventListener('DOMContentLoaded', function () {
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    const deleteModal = document.getElementById('delete-modal');
-    const deleteForm = document.getElementById('delete-form');
-    const deleteConfirmationInput = document.getElementById('delete-confirmation');
-    const deletePropertyIdInput = document.getElementById('delete-property-id');
-    const closeModalButton = deleteModal.querySelector('.close-btn');
-
-    // Open modal
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const propertyId = this.dataset.propertyId; // Get the property ID
-            deletePropertyIdInput.value = propertyId;   // Pass the property ID to the modal
-            deleteModal.classList.add('show');
-        });
-    });
-
-    // Close modal
-    closeModalButton.addEventListener('click', () => {
-        deleteModal.classList.remove('show');
-        deleteConfirmationInput.value = ''; // Clear the input
-    });
-
-    // Prevent closing modal on outside click
-    window.addEventListener('click', function (event) {
-        if (event.target === deleteModal) {
-            deleteModal.classList.remove('show');
-            deleteConfirmationInput.value = ''; // Clear the input
-        }
-    });
-
-    // Handle form submission
-    deleteForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const confirmationText = deleteConfirmationInput.value;
-        const propertyId = deletePropertyIdInput.value;
-
-        if (confirmationText.toLowerCase() === 'delete') {
-            // Call delete API
-            fetch(`/admin/delete_property`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ property_id: propertyId }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Property deleted successfully!');
-                    deleteModal.classList.remove('show');
-                    location.reload(); // Reload the page to refresh the table
-                } else {
-                    alert('Failed to delete property. Please try again.');
-                }
-            })
-            .catch(error => console.error('Error deleting property:', error));
-        } else {
-            alert("Please type 'delete' to confirm.");
-        }
-    });
-});
     </script>
 </body>
 </html>
