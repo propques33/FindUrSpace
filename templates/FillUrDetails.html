@@ -50,6 +50,12 @@
         margin-bottom: 20px;
     }
 
+    .btn-close{
+        color:black;
+        position:absolute;
+        top:0;
+        right:0;
+    }
     /* Centered Button */
     .centered-button {
         display: block; /* Center the button */
@@ -808,6 +814,8 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
             // Show error if the current vacancy exceeds total seats
             errorContainer.textContent = "Current vacancy cannot exceed total seats.";
             currentVacancyField.setCustomValidity("Invalid current vacancy.");
+            // Show styled alert box
+            showAlert("Error: Current vacancy cannot exceed total seats.");
         } else {
             // Clear the error if validation passes
             errorContainer.textContent = "";
@@ -815,12 +823,39 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
         }
     }
 
+    function showAlert(message) {
+        // Create the alert box
+        const alertBox = document.createElement("div");
+        alertBox.className = "alert alert-danger text-center fw-bold";
+        alertBox.style.position = "fixed";
+        alertBox.style.top = "20px";
+        alertBox.style.left = "50%";
+        alertBox.style.transform = "translateX(-50%)";
+        alertBox.style.zIndex = "1050";
+        alertBox.style.width = "50%";
+        
+        // Add the message to the alert box
+        alertBox.innerHTML = `
+            <span>${message}</span>
+            <button type="button" class="btn-close" aria-label="Close"></button>
+        `;
+
+        // Append to the body
+        document.body.appendChild(alertBox);
+
+        // Add click event to the close button
+        const closeButton = alertBox.querySelector(".btn-close");
+        closeButton.addEventListener("click", () => {
+            alertBox.remove();
+        });
+    }
+
     // Function to handle dynamic change for price input
     function handlePriceChange(selectElement, spaceId, inventoryCount) {
         const selectedValue = selectElement.value;
         const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
 
-        if (selectedValue === 'Conference rooms' || selectedValue === 'Discussion rooms') {
+        if (selectedValue === 'Conference rooms' || selectedValue === 'Discussion rooms' || selectedValue === 'Meeting rooms') {
             priceInput.placeholder = "Price per Hour";
             priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per hour.');
             priceInput.setAttribute('aria-label', 'Price per Hour');
