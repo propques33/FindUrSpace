@@ -489,12 +489,13 @@
                             value="${total_seats}"
                             data-parsley-required-message="Please enter the total number of seats."
                             data-parsley-type="number"
-                            data-parsley-trigger="change" aria-label="Total Seats">
+                            data-parsley-trigger="change" aria-label="Total Seats" onchange="updateCurrentVacancy(${spaceCount})">
                     </div>
                     <div class="mb-3 w-100">
                         <input type="number" class="form-control" name="current_vacancy[]" placeholder="This value is automatically calculated" min="0" readonly
                             value="0" id="current_vacancy_${spaceCount}" aria-label="Current Vacancy">
                         <small class="text-muted">This value will be automatically calculated based on the inventory.</small>
+                        <div id="vacancyError_${spaceCount}" class="text-danger mt-1"></div>
                     </div>
                 </div>
 
@@ -785,18 +786,34 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
         $('#listSpaceForm').parsley().refresh();
     }
 
+    // Update current vacancy and validate against total seats
     function updateCurrentVacancy(spaceId) {
-    const inventoryCounts = document.querySelectorAll(`#inventoryContainer_${spaceId} input[name^="inventory_count_${spaceId}"]`);
-    let totalVacancy = 0;
+        const inventoryCounts = document.querySelectorAll(`#inventoryContainer_${spaceId} input[name^="inventory_count_${spaceId}"]`);
+        const totalSeatsField = document.querySelector(`input[name="total_seats[]"][aria-label="Total Seats"]`);
+        const currentVacancyField = document.getElementById(`current_vacancy_${spaceId}`);
+        const totalSeats = parseInt(totalSeatsField.value) || 0;
+        let totalVacancy = 0;
 
-    inventoryCounts.forEach(input => {
-        totalVacancy += parseInt(input.value) || 0; // Sum up inventory counts
-    });
+        // Sum up all inventory counts
+        inventoryCounts.forEach(input => {
+            totalVacancy += parseInt(input.value) || 0;
+        });
 
-    // Update the Current Vacancy field
-    const currentVacancyField = document.getElementById(`current_vacancy_${spaceId}`);
-    currentVacancyField.value = totalVacancy; // Set calculated value
-}
+        // Update the current vacancy field
+        currentVacancyField.value = totalVacancy;
+
+        // Validation: Ensure totalVacancy <= totalSeats
+        const errorContainer = document.getElementById(`vacancyError_${spaceId}`);
+        if (totalVacancy > totalSeats) {
+            // Show error if the current vacancy exceeds total seats
+            errorContainer.textContent = "Current vacancy cannot exceed total seats.";
+            currentVacancyField.setCustomValidity("Invalid current vacancy.");
+        } else {
+            // Clear the error if validation passes
+            errorContainer.textContent = "";
+            currentVacancyField.setCustomValidity("");
+        }
+    }
 
     // Function to handle dynamic change for price input
     function handlePriceChange(selectElement, spaceId, inventoryCount) {
@@ -963,6 +980,27 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 // Prevent form submission if validation fails
                 e.preventDefault();
             }
+        });
+    });
+
+    // Function to handle form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#listSpaceForm').parsley();
+
+        document.getElementById('listSpaceForm').addEventListener('submit', function(e) {
+            const totalSeatsFields = document.querySelectorAll(`input[name="total_seats[]"]`);
+
+            // Validate current vacancy for all spaces
+            totalSeatsFields.forEach((field, index) => {
+                updateCurrentVacancy(index + 1);
+
+                // Check if any current vacancy is invalid
+                const currentVacancyField = document.getElementById(`current_vacancy_${index + 1}`);
+                if (!currentVacancyField.checkValidity()) {
+                    e.preventDefault();
+                    currentVacancyField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
         });
     });
 
