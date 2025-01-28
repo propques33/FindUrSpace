@@ -272,7 +272,6 @@
                 </thead>
                 <tbody>
                     <!-- Data will be inserted here dynamically -->
-                    <td><button class="delete-btn" data-property-id="{{ property_id }}">Delete</button></td>
                 </tbody>
             </table>
         </div>
@@ -467,6 +466,7 @@
                         <td><button class="show-details-btn">Show Details</button></td>
                         <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
                         <td>${agreementStatus}</td>
+                        <td><button class="delete-btn" data-property-id="{{ property_id }}">Delete</button></td>
                     `;
                     // Prevent checkbox click from triggering row click
                 // Add event listener for "Show Details" button
