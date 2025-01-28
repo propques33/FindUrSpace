@@ -267,10 +267,12 @@
                         <th>Details</th>
                         <th>Actions</th> <!-- New column for actions -->
                         <th>Agreement Status</th> <!-- New Column -->
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Data will be inserted here dynamically -->
+                    <td><button class="delete-btn" data-property-id="{{ property_id }}">Delete</button></td>
                 </tbody>
             </table>
         </div>
@@ -300,6 +302,17 @@
             <input type="file" id="file-input" name="file" accept="application/pdf" required>
             <input type="hidden" id="property-id" name="property_id">
             <button type="submit" class="send-btn">Upload PDF</button>
+        </form>
+    </div>
+
+    <div id="delete-modal" class="modal1">
+        <button class="close-btn">&times;</button>
+        <h3>Confirm Delete</h3>
+        <p>Type <strong>delete</strong> below to confirm:</p>
+        <form id="delete-form">
+            <input type="text" id="delete-confirmation" placeholder="Type 'delete' to confirm" required>
+            <input type="hidden" id="delete-property-id"> <!-- Hidden input to pass property ID -->
+            <button type="submit" class="send-btn">Delete</button>
         </form>
     </div>
 
@@ -616,6 +629,69 @@
             // Initial fetch
             fetchInventory();
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const deleteModal = document.getElementById('delete-modal');
+    const deleteForm = document.getElementById('delete-form');
+    const deleteConfirmationInput = document.getElementById('delete-confirmation');
+    const deletePropertyIdInput = document.getElementById('delete-property-id');
+    const closeModalButton = deleteModal.querySelector('.close-btn');
+
+    // Open modal
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const propertyId = this.dataset.propertyId; // Get the property ID
+            deletePropertyIdInput.value = propertyId;   // Pass the property ID to the modal
+            deleteModal.classList.add('show');
+        });
+    });
+
+    // Close modal
+    closeModalButton.addEventListener('click', () => {
+        deleteModal.classList.remove('show');
+        deleteConfirmationInput.value = ''; // Clear the input
+    });
+
+    // Prevent closing modal on outside click
+    window.addEventListener('click', function (event) {
+        if (event.target === deleteModal) {
+            deleteModal.classList.remove('show');
+            deleteConfirmationInput.value = ''; // Clear the input
+        }
+    });
+
+    // Handle form submission
+    deleteForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const confirmationText = deleteConfirmationInput.value;
+        const propertyId = deletePropertyIdInput.value;
+
+        if (confirmationText.toLowerCase() === 'delete') {
+            // Call delete API
+            fetch(`/admin/delete_property`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ property_id: propertyId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Property deleted successfully!');
+                    deleteModal.classList.remove('show');
+                    location.reload(); // Reload the page to refresh the table
+                } else {
+                    alert('Failed to delete property. Please try again.');
+                }
+            })
+            .catch(error => console.error('Error deleting property:', error));
+        } else {
+            alert("Please type 'delete' to confirm.");
+        }
+    });
+});
     </script>
 </body>
 </html>

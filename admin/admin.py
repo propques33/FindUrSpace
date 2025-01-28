@@ -1018,3 +1018,28 @@ def update_property():
             return jsonify({'status': 'error', 'message': 'No changes made or property not found'}), 200
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
+
+@admin_bp.route('/delete_property', methods=['POST'])
+def delete_property():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    data = request.get_json()
+    property_id = data.get('property_id')
+
+    if not property_id:
+        return jsonify({'status': 'error', 'message': 'Property ID is required'}), 400
+
+    db = current_app.config['db']
+
+    try:
+        result = db.fillurdetails.delete_one({'_id': ObjectId(property_id)})
+
+        if result.deleted_count > 0:
+            return jsonify({'status': 'success', 'message': 'Property deleted successfully'}), 200
+        else:
+            return jsonify({'status': 'error', 'message': 'Property not found'}), 404
+
+    except Exception as e:
+        print(f"Error deleting property: {e}")
+        return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
