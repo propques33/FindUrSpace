@@ -50,14 +50,14 @@ function loadFormStep() {
         <div class="form-group mb-3">
             <select id="inventory-type" name="inventory-type" class="form-select" required>
                 <option value="" selected disabled>Select Inventory Type</option>
-                <option value="coworking space">Coworking Space</option>
-                <option value="meeting room">Meeting Room</option>
-                <option value="virtual office">Virtual Office</option>
-                <option value="dedicated desk">Dedicated Desk</option>
-                <option value="private cabin">Private Cabin</option>
-                <option value="day pass">Day Pass</option>
-                <option value="serviced offices">Serviced Offices</option>
-                <option value="conference rooms">Conference Rooms</option>
+                <option value="Conference rooms">Conference rooms</option>
+                <option value="Coworking space">Coworking space</option>
+                <option value="Day pass">Day pass</option>
+                <option value="Dedicated desk">Dedicated desk</option>
+                <option value="Meeting rooms">Meeting rooms</option>
+                <option value="Private cabin">Private cabin</option>
+                <option value="Serviced offices">Serviced offices</option>
+                <option value="Virtual office">Virtual office</option>
             </select>
         </div>
         
