@@ -452,7 +452,6 @@ def list_your_space():
                 }
 
                 # Insert into MongoDB
-                # Insert into MongoDB
                 try:
                     print(f"Inserting property details into MongoDB: {property_details}")
                     db.fillurdetails.insert_one(property_details)
@@ -468,6 +467,36 @@ def list_your_space():
             print(f"Error: {e}")
 
     return render_template('FillUrDetails.html')
+
+@core_bp.route('/get_inventory_types', methods=['GET'])
+def get_inventory_types():
+    db = current_app.config['db']
+    city = request.args.get('city')
+    micromarket = request.args.get('micromarket')
+
+    if not city or not micromarket:
+        return jsonify({'inventory_types': []})
+
+    query = {
+        'city': {'$regex': f'^{city.strip()}$', '$options': 'i'},
+        'micromarket': {'$regex': f'^{micromarket.strip()}$', '$options': 'i'}
+    }
+
+    # Fetch properties matching city and micromarket
+    properties = list(db.fillurdetails.find(query))
+
+    if not properties:
+        print("No properties found for given city and micromarket.")
+        return jsonify({'inventory_types': []})
+
+    # Extract unique inventory types
+    inventory_types = set()
+    for prop in properties:
+        for inventory in prop.get('inventory', []):
+            inventory_types.add(inventory.get('type'))
+
+    return jsonify({'inventory_types': sorted(inventory_types)})
+
 
 # @core_bp.route('/robots.txt')
 # def robots():

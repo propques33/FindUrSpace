@@ -46,20 +46,6 @@ function loadFormStep() {
 
     if (currentStep === 2) {
         form.innerHTML = `
-            <!-- Inventory Type Dropdown -->
-        <div class="form-group mb-3">
-            <select id="inventory-type" name="inventory-type" class="form-select" required>
-                <option value="" selected disabled>Select Inventory Type</option>
-                <option value="Conference rooms">Conference rooms</option>
-                <option value="Coworking space">Coworking space</option>
-                <option value="Day pass">Day pass</option>
-                <option value="Dedicated desk">Dedicated desk</option>
-                <option value="Meeting rooms">Meeting rooms</option>
-                <option value="Private cabin">Private cabin</option>
-                <option value="Serviced offices">Serviced offices</option>
-                <option value="Virtual office">Virtual office</option>
-            </select>
-        </div>
         
         <!-- Hear About Us Dropdown -->
         <div class="form-group mb-3">
@@ -90,6 +76,14 @@ function loadFormStep() {
                     <option value="" selected disabled>Select Micromarket *</option>
                 </select>
             </div>
+
+            <!-- Dynamic Inventory Type Dropdown -->
+            <div class="form-group mb-3">
+                <select id="inventory-type" name="inventory-type" class="form-select" required>
+                    <option value="" selected disabled>Select Inventory Type</option>
+                </select>
+            </div>
+
             <div class="form-group mb-3">
                 <select id="budget" name="budget" class="form-select" required>
                     <!-- Static options will be added dynamically -->
@@ -381,6 +375,7 @@ function fetchMicromarkets() {
 
         areaDropdown.addEventListener('change', function () {
             closeDropdown('area');
+            fetchInventoryTypes();
             fetchPrices(); // Fetch prices when micromarket changes
         });
     })
@@ -429,6 +424,51 @@ function fetchMicromarkets() {
 //         console.error('Error fetching prices:', error);
 //     });
 // }
+
+function fetchInventoryTypes() {
+    const city = document.getElementById('location').value;
+    const micromarket = document.getElementById('area').value;
+
+    if (!city || !micromarket) {
+        return;
+    }
+
+    console.log(`Fetching inventory types for ${city}, ${micromarket}`);
+
+    fetch(`/get_inventory_types?city=${encodeURIComponent(city)}&micromarket=${encodeURIComponent(micromarket)}`, {
+        method: 'GET'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Fetched inventory types:", data);
+        const inventoryDropdown = document.getElementById('inventory-type');
+        inventoryDropdown.innerHTML = '<option value="" selected disabled>Select Inventory Type</option>';
+
+        if (data.inventory_types.length === 0) {
+            console.log("No inventory types found.");
+            return;
+        }
+        
+        data.inventory_types.forEach(type => {
+            let option = document.createElement("option");
+            option.value = type;
+            option.text = type;
+            inventoryDropdown.appendChild(option);
+        });
+
+        inventoryDropdown.addEventListener('focus', function () {
+            inventoryDropdown.size = 5;
+        });
+
+        inventoryDropdown.addEventListener('change', function () {
+            closeDropdown('inventory-type');
+        });
+
+    })
+    .catch(error => {
+        console.error('Error fetching inventory types:', error);
+    });
+}
 
 function fetchPrices() {
     console.log('Populating budget dropdown with static options...');
