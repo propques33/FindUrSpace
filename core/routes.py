@@ -358,6 +358,7 @@ def list_your_space():
             # Get lists of space data
             cities = request.form.getlist('city[]')
             micromarkets = request.form.getlist('micromarket[]')
+            addresses = request.form.getlist('address[]') 
             total_seats_list = request.form.getlist('total_seats[]')
             current_vacancies = request.form.getlist('current_vacancy[]')
             center_manager_names = request.form.getlist('center_manager_name[]')
@@ -382,8 +383,13 @@ def list_your_space():
             print(f"Custom micromarkets: {custom_micromarkets}")
 
             # Process each space
-            for idx, city, micromarket, total_seats, current_vacancy,center_manager_name, center_manager_contact in zip(space_indices, cities, micromarkets, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts):
+            for idx, city, micromarket,address, total_seats, current_vacancy,center_manager_name, center_manager_contact in zip(space_indices, cities, micromarkets,addresses, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts):
                 idx_str = str(idx)  # Convert idx to string in case it's not
+
+                # Validate the address
+                if not address:
+                    flash(f"Address is missing for space {idx}.", 'error')
+                    continue
 
                 # Handle "Other" case for city and micromarket
                 if city == "Other" and custom_cities:
@@ -431,6 +437,7 @@ def list_your_space():
                     'coworking_name': coworking_name,
                     'city': city,
                     'micromarket': micromarket,
+                    'address': address, 
                     'total_seats': int(total_seats),
                     'current_vacancy': int(current_vacancy),
                     'center_manager': {
