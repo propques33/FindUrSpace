@@ -3,7 +3,7 @@ from bson import ObjectId
 import datetime
 from bson.json_util import dumps
 import requests, os
-from integrations.otplessauth import OtpLessAuth  # Import OtpLessAuth for OTP handling
+
 
 # Define blueprint for operators
 operators_bp = Blueprint('operators', __name__, url_prefix='/operators', template_folder='templates')
@@ -22,80 +22,24 @@ def operators_login():
 
     if request.method == 'POST':
         mobile = request.form.get('mobile')
-        otp = request.form.get('otp')
+        role = request.form.get('role')
         db = current_app.config['db']
 
-        if mobile and not otp:
-            # User submitted mobile number, check if operator exists
+        if mobile:
+            # Check if the operator exists in the database
             operator_as_owner = db.fillurdetails.find_one({'owner.phone': mobile})
             operator_as_manager = db.fillurdetails.find_one({'center_manager.contact': mobile})
 
             if operator_as_owner or operator_as_manager:
-                # Operator found (either owner or center manager), send OTP
-                mobile_with_country_code = '+91' + mobile  # Assuming India country code
-
-                otp_response = OtpLessAuth.send_otp(mobile_with_country_code)
-                if otp_response['success']:
-                    # Store requestId and mobile in session
-                    session['requestId'] = otp_response['requestId']
-                    session['mobile'] = mobile
-                    session['role'] = 'owner' if operator_as_owner else 'center_manager'
-                    # Render OTP form
-                    return render_template('operators_login.html', otp_sent=True)
-                else:
-                    return render_template('operators_login.html', error=otp_response['message'])
-            else:
-                # Operator not found, redirect to "not found" page
-                return redirect(url_for('operators.operators_not_found'))
-
-        elif otp:
-            # User submitted OTP, verify it
-            requestId = session.get('requestId')
-            mobile = session.get('mobile')
-            role = session.get('role')
-
-            if not requestId or not mobile or not role:
-                return render_template('operators_login.html', error="Session expired. Please try again.")
-
-            otp_response = OtpLessAuth.verify_otp(requestId, otp)
-            if otp_response['success']:
-                # OTP verified, log in user
+                # User exists, log them in
                 session['operator_phone'] = mobile
-
-                # Check if an agreement exists for this operator, if not create one
-                if role == 'owner':
-                    operator = db.fillurdetails.find_one({'owner.phone': mobile})
-                elif role == 'center_manager':
-                    operator = db.fillurdetails.find_one({'center_manager.contact': mobile})
-                else:
-                    return render_template('operators_login.html', error="Invalid role detected. Please try again.")
-
-                if role == 'owner':
-                    existing_agreement = db.agreement.find_one({'operator_mobile': mobile})
-                    if not existing_agreement:
-                        new_agreement = {
-                            "operator_name": operator['owner']['name'],
-                            "operator_mobile": mobile,
-                            "operator_email": operator['owner']['email'],
-                            "coworking_name": operator['coworking_name'],
-                            "commission_rate": "10%",  # Fixed for now
-                            "signed": False,
-                            "sign_date": None,
-                            "signed_pdf_url": None
-                        }
-                        db.agreement.insert_one(new_agreement)
-
-                # Clean up session
-                session.pop('requestId', None)
-                session.pop('mobile', None)
-
+                session['role'] = 'owner' if operator_as_owner else 'center_manager'
                 return redirect(url_for('operators.inventory'))
             else:
-                return render_template('operators_login.html', error=otp_response['message'], otp_sent=True)
-        else:
-            return render_template('operators_login.html', error="Please enter your mobile number.")
+                # Redirect to list-your-space page if user is not found
+                return redirect(url_for('list_your_space'))
 
-    return render_template('operators_login.html')
+    return render_template('operators_login.html', error="Please enter your mobile number.")
 
 
 @operators_bp.route('/logout')

@@ -73,24 +73,6 @@
     <div class="login-container">
         <h2>FindUrSpace</h2>
         <h5>Manage your coworking spaces effortlessly</h5>
-
-        {% if otp_sent %}
-        <!-- OTP Form -->
-        <form method="POST" action="{{ url_for('operators.operators_login') }}">
-            <input type="hidden" name="role" value="{{ role }}">
-            <input type="hidden" name="mobile" value="{{ mobile }}">
-            <div class="form-group mb-3">
-                <label for="otp">Enter OTP</label>
-                <input type="text" class="form-control" name="otp" id="otp" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block w-100">Verify OTP</button>
-
-            {% if error %}
-            <p class="mt-3">{{ error }}</p>
-            {% endif %}
-        </form>
-        {% else %}
         <!-- Role Selection and Mobile Number Form -->
         <form method="POST" action="{{ url_for('operators.operators_login') }}">
             <div class="form-group mb-3">
@@ -106,13 +88,9 @@
                 <input type="text" class="form-control" name="mobile" id="mobile" required>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block w-100">Send OTP</button>
+            <button type="submit" class="btn btn-primary btn-block w-100">Login</button>
 
-            {% if error %}
-            <p class="mt-3">{{ error }}</p>
-            {% endif %}
         </form>
-        {% endif %}
     </div>
 
     <!-- Bootstrap JS and dependencies -->
