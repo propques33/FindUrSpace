@@ -87,20 +87,35 @@ def send_otp():
 
 @core_bp.route('/verify_otp', methods=['POST'])
 def verify_otp():
-    request_id = request.json.get('requestId')
+    mobile = session.get('contact')
     otp = request.json.get('otp')
 
-    if not request_id or not otp:
-        return jsonify({'success': False, 'message': 'Both requestId and OTP are required'})
+    if not mobile or not otp:
+        return jsonify({'success': False, 'message': 'Invalid request'})
 
     otp_service = OtpLessAuth()
-    response = otp_service.verify_otp(request_id, otp)
+    response = otp_service.verify_otp(mobile, otp)
 
     if response['success']:
-        session['otp_verified'] = True  # Mark OTP as verified in session
+        session['otp_verified'] = True
         return jsonify({'success': True, 'message': 'OTP verified successfully!'})
     else:
-        return jsonify({'success': False, 'message': response.get('message', 'Failed to verify OTP')})
+        return jsonify({'success': False, 'message': 'OTP verification failed'})
+# def verify_otp():
+#     request_id = request.json.get('requestId')
+#     otp = request.json.get('otp')
+
+#     if not request_id or not otp:
+#         return jsonify({'success': False, 'message': 'Both requestId and OTP are required'})
+
+#     otp_service = OtpLessAuth()
+#     response = otp_service.verify_otp(request_id, otp)
+
+#     if response['success']:
+#         session['otp_verified'] = True  # Mark OTP as verified in session
+#         return jsonify({'success': True, 'message': 'OTP verified successfully!'})
+#     else:
+#         return jsonify({'success': False, 'message': response.get('message', 'Failed to verify OTP')})
                        
 @core_bp.route('/sitemap.xml')
 def sitemap():

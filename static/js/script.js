@@ -1,6 +1,62 @@
+// Disable Sentry logging to prevent 403 Forbidden errors
+window.__SENTRY__ = { disable: true };
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
-let requestId = null; // Store the requestId for OTP verification
+let OTPlessSignin = null;
+
+// Load OTPless SDK
+async function OTPlessSdk() {
+    return new Promise((resolve) => {
+        if (document.getElementById("otpless-sdk") && OTPlessSignin) return resolve();
+
+        const script = document.createElement("script");
+        script.src = "https://otpless.com/v4/headless.js";
+        script.id = "otpless-sdk";
+        script.setAttribute("data-appid", "DMQXR10UUDL7DTU6326R");  // Replace with OTPless App ID
+
+        script.onload = function () {
+            const OTPless = Reflect.get(window, "OTPless");
+            OTPlessSignin = new OTPless(() => {}); // Fix for 'callback is not defined'
+            resolve();
+        };
+        document.head.appendChild(script);
+    });
+}
+
+async function initiateOtp() {
+    const contactField = document.getElementById('contact');
+    const contact = contactField.value.trim();
+
+    if (!/^\d{10}$/.test(contact)) {
+        alert('Please enter a valid 10-digit contact number.');
+        contactField.focus();
+        return;
+    }
+
+    await OTPlessSdk();
+
+    const request = {
+        channel: "PHONE",
+        phone: contact,
+        countryCode: "+91",
+        expiry: "60"
+    };
+
+    try {
+        const response = await OTPlessSignin.initiate(request);
+        console.log({ response });
+
+        if (response.success) {
+            document.getElementById('otp-section').style.display = 'block';
+            alert('OTP sent successfully.');
+        } else {
+            alert('Failed to send OTP. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+        alert('An error occurred while sending OTP.');
+    }
+}
 
 // Function to load the form based on the current step
 function loadFormStep() {
@@ -25,7 +81,7 @@ function loadFormStep() {
             <input type="text" id="name" name="name" class="form-control" placeholder="Your Name *" required>
             <div class="input-group mb-3 verifybt">
                 <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact *" required>
-                <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width: 80px; border-radius:8px; padding:4px 0px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="sendOtp()">Verify</button>
+                <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width: 80px; border-radius:8px; padding:4px 0px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="initiateOtp()">Verify</button>
             </div>
             <div class="form-group mt-3" id="otp-section" style="display:none; position:relative;">
                 <input type="text" id="otpInput" class="form-control mr-4"  placeholder="Enter OTP" required>
@@ -132,37 +188,72 @@ function sendOtp() {
     });
 }
 
-function verifyOtp() {
-    const otpInput = document.getElementById('otpInput');
-    const otp = otpInput.value.trim();
+// function verifyOtp() {
+//     const otpInput = document.getElementById('otpInput');
+//     const otp = otpInput.value.trim();
 
-    if (!/^\d{4,6}$/.test(otp)) { // Check for a valid 4-6 digit OTP
-        alert('Please enter a valid OTP.');
-        otpInput.focus();
+//     if (!/^\d{4,6}$/.test(otp)) { // Check for a valid 4-6 digit OTP
+//         alert('Please enter a valid OTP.');
+//         otpInput.focus();
+//         return;
+//     }
+
+//     // Verify OTP request
+//     fetch('/verify_otp', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ requestId, otp })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('OTP verified successfully!');
+//             document.getElementById('otp-section').style.display = 'none'; // Hide OTP input
+//             document.getElementById('contact').disabled = true; // Disable contact input
+//             document.getElementById('verify-btn').disabled = true; // Disable verify button
+//         } else {
+//             alert(data.message || 'Failed to verify OTP. Please try again.');
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error verifying OTP:', error);
+//         alert('An error occurred during OTP verification. Please try again.');
+//     });
+// }
+
+async function verifyOtp() {
+    const contact = document.getElementById('contact').value.trim();
+    const otp = document.getElementById('otpInput').value.trim();
+
+    if (!/^\d{6}$/.test(otp)) {
+        alert('Enter a valid 6-digit OTP.');
         return;
     }
 
-    // Verify OTP request
-    fetch('/verify_otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ requestId, otp })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('OTP verified successfully!');
-            document.getElementById('otp-section').style.display = 'none'; // Hide OTP input
-            document.getElementById('contact').disabled = true; // Disable contact input
-            document.getElementById('verify-btn').disabled = true; // Disable verify button
+    await OTPlessSdk();
+
+    try {
+        const response = await OTPlessSignin.verify({
+            channel: "PHONE",
+            phone: contact,
+            otp: otp,
+            countryCode: "+91"
+        });
+
+        console.log({ response });
+
+        if (response.success) {
+            alert('OTP Verified!');
+            document.getElementById('contact').disabled = true;
+            document.getElementById('verify-btn').disabled = true;
+            document.getElementById('otp-section').style.display = 'none';
         } else {
-            alert(data.message || 'Failed to verify OTP. Please try again.');
+            alert('OTP verification failed. Please try again.');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error verifying OTP:', error);
-        alert('An error occurred during OTP verification. Please try again.');
-    });
+        alert('An error occurred during OTP verification.');
+    }
 }
     
     // Update the validatePrice function to format the value with the ₹ symbol
@@ -508,6 +599,7 @@ document.addEventListener('click', function (event) {
 
 // Trigger the initial form loading when DOM is fully loaded
 document.addEventListener('DOMContentLoaded', function () {
+    OTPlessSdk();
     loadFormStep(); 
 });
 
