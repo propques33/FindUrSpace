@@ -8,12 +8,15 @@ from bson.regex import Regex
 import threading
 import io
 import os
+import pandas as pd
 import requests
 from dotenv import load_dotenv
 from integrations.gsheet_updater import handle_new_property_entry
 from integrations.google_drive_integration import authenticate_google_drive, upload_image_to_google_drive
 from core.image_upload import process_and_upload_images
 from integrations.otplessauth import OtpLessAuth
+from integrations.gsheet_updater import handle_new_user_entry
+
 
 # Function to handle Google Sheet updates in the background
 def update_gsheet_background(app, db, property_data):
@@ -109,6 +112,24 @@ def index():
     # Render the template with the dynamic city data
     return render_template('index.html')
 
+# Function to update users Excel sheet
+def update_users_excel(new_user):
+    file_path = os.path.join(current_app.root_path, 'Users.xlsx')
+
+    # Check if file exists
+    if os.path.exists(file_path):
+        df = pd.read_excel(file_path)
+    else:
+        df = pd.DataFrame(columns=['Name', 'Contact', 'Company', 'Email'])  # Create new file if not exists
+
+    # Append new user data
+    new_row = pd.DataFrame([new_user])
+    df = pd.concat([df, new_row], ignore_index=True)
+
+    # Save updated data back to Excel
+    df.to_excel(file_path, index=False)
+    print("User data updated in Users Excel Sheet")
+
 # Route to handle form submission (Your Info form)
 @core_bp.route('/submit_info', methods=['POST'])
 def submit_info():
@@ -126,23 +147,38 @@ def submit_info():
     # Check if the user exists in the database
     existing_user = db.users.find_one({'contact': contact})
 
+    # ✅ Prepare new user data using the latest form input (always use fresh data)
+    user_data = {
+        'name': name,
+        'contact': contact,
+        'company': company,
+        'email': email
+    }
+
     if existing_user:
         # If the user exists, fetch their user_id and save it in the session
         session['user_id'] = str(existing_user['_id'])
+        # ✅ Update Google Sheets with latest form submission
+        google_sheet_status = handle_new_user_entry(user_data)
         return jsonify({'status': 'exists', 'message': 'User exists', 'user_id': session['user_id']})
     else:
-        # If the user doesn't exist, store user data in the `users` collection
-        new_user = {
-            'name': name,
-            'contact': contact,
-            'company': company,
-            'email': email
-        }
-        result = db.users.insert_one(new_user)
+        
+        result = db.users.insert_one(user_data)
         session['user_id'] = str(result.inserted_id)  # Save new user_id in the session
         session['name'] = name
         session['email'] = email
         session['contact'] = contact
+
+        # Add user to Users Excel Sheet
+        update_users_excel(user_data)
+        # ✅ First, Try to Sync Google Sheet Immediately (synchronously)
+        google_sheet_status = handle_new_user_entry(user_data)
+
+        # ✅ Then, Run It in the Background (thread)
+        app = current_app._get_current_object()
+        gsheet_thread = threading.Thread(target=handle_new_user_entry, args=(user_data,))
+        gsheet_thread.start()
+
         return jsonify({'status': 'success', 'message': 'User added successfully', 'user_id': session['user_id']})
 
 @core_bp.route('/thankyou')

@@ -4,10 +4,11 @@ import os
 import base64
 import json
 from dotenv import load_dotenv
+import datetime
 
 load_dotenv()
 
-def init_google_sheet():
+def init_google_sheet(sheet_name="Opportunities"):
     # Define the scope for accessing Google Sheets and Drive
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
@@ -26,7 +27,7 @@ def init_google_sheet():
         
         # Open the sheet by its URL
         sheet = client.open_by_url("https://docs.google.com/spreadsheets/d/1oAqrCyUQKJHtzeEmfy-96tea9qkrgVQDhu5f_Oebtos/edit#gid=1458518171")
-        return sheet.worksheet("Opportunities")
+        return sheet.worksheet(sheet_name)
     
     except Exception as e:
         return None
@@ -92,3 +93,40 @@ def handle_new_property_entry(db, property_data):
             update_google_sheet(sheet, user_data, property_data)
     except Exception as e:
         pass
+
+def update_users_google_sheet(user_data):
+    """Updates the Users sheet with new user information."""
+    sheet = init_google_sheet(sheet_name="Users")  # Fetch the Users sheet
+
+    if sheet is None:
+        print("Failed to connect to Users Google Sheet.")
+        return
+
+    try:
+        # Convert datetime to string for the sheet
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Prepare the row data for the Users sheet
+        row = [
+            user_data.get('name', 'Unknown'),     # Name
+            user_data.get('contact', 'N/A'),      # Contact
+            user_data.get('company', 'N/A'),      # Company
+            user_data.get('email', 'N/A'),        # Email
+            timestamp                              # Timestamp
+        ]
+
+        # Append the row to the Users sheet
+        sheet.append_row(row)
+        print("User data successfully added to Users Google Sheet.")
+
+    except Exception as e:
+        print(f"Error updating Users Google Sheet: {e}")
+
+
+def handle_new_user_entry(user_data):
+    """Handles the process of updating the Users Google Sheet when a new user submits Step 1."""
+    try:
+        # Update the Google Sheet with user data
+        update_users_google_sheet(user_data)
+    except Exception as e:
+        print(f"Error handling new user entry: {e}")
