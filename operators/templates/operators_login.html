@@ -66,6 +66,24 @@
                 padding: 30px;
             }
         }
+
+        /* "List Your Space" Link Styling */
+        .register-link {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .register-link a {
+            color: #007bff;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+            color: #0056b3;
+        }
     </style>
 </head>
 
@@ -91,6 +109,10 @@
             <button type="submit" class="btn btn-primary btn-block w-100">Login</button>
 
         </form>
+        <!-- List Your Space Link -->
+        <div class="register-link">
+            <p>Is your space not registered? <a href="/list-your-space">List your space</a></p>
+        </div>
     </div>
 
     <!-- Bootstrap JS and dependencies -->

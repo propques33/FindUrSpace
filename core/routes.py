@@ -252,6 +252,7 @@ def submit_preferences():
     query = {
         'city': {'$regex': f'^{location.strip()}$', '$options': 'i'},
         'micromarket': {'$regex': f'^{area.strip()}$', '$options': 'i'},
+        'inventory.type': inventory_type  # Only properties with the selected inventory type
     }
 
     # Fetch properties
@@ -263,20 +264,26 @@ def submit_preferences():
     center_manager_numbers = []  # List for center manager numbers
     for prop in all_properties:
         inventory = prop.get('inventory', [])
-        lowest_price = get_lowest_price(inventory)
-        if min_budget and max_budget:
-            # Add the lowest price to the property object for reference
-            prop['lowest_price'] = lowest_price
-            filtered_properties.append(prop)
 
-            operator_phone= prop.get('owner',{}).get('phone')
-            if operator_phone:
-                operator_numbers.append(operator_phone)
-            
-            # Add center manager phone number
-            center_manager_phone = prop.get('center_manager', {}).get('contact')
-            if center_manager_phone:
-                center_manager_numbers.append(center_manager_phone)
+        # Filter inventory to only include the selected type
+        filtered_inventory = [item for item in inventory if item.get('type') == inventory_type]
+
+        if filtered_inventory:  # If property contains at least one matching inventory type
+            lowest_price = get_lowest_price(filtered_inventory)
+            if min_budget and max_budget:
+                # Add the lowest price to the property object for reference
+                prop['lowest_price'] = lowest_price
+                prop['inventory'] = filtered_inventory  # Update the property with only filtered inventory
+                filtered_properties.append(prop)
+
+                operator_phone= prop.get('owner',{}).get('phone')
+                if operator_phone:
+                    operator_numbers.append(operator_phone)
+                
+                # Add center manager phone number
+                center_manager_phone = prop.get('center_manager', {}).get('contact')
+                if center_manager_phone:
+                    center_manager_numbers.append(center_manager_phone)
     
     
     # Sort properties by lowest price
