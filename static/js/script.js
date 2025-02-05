@@ -246,6 +246,9 @@ async function verifyOtp() {
             document.getElementById('contact').disabled = true;
             document.getElementById('verify-btn').disabled = true;
             document.getElementById('otp-section').style.display = 'none';
+
+            // Store OTP verification status in sessionStorage
+            sessionStorage.setItem('otp_verified', 'true');
         } else {
             alert('OTP verification failed. Please try again.');
         }
@@ -306,6 +309,13 @@ function initializeIntlTelInput() {
 // Function to handle form submission for "Your Info"
 function submitUserInfo() {
     const contactField = document.getElementById('contact');
+
+    // Check if the contact number was actually verified
+    if (!sessionStorage.getItem('otp_verified')) {
+        alert('Please verify your contact number before proceeding.');
+        return;
+    }
+
     if (!contactField.disabled) {
         alert('Please verify your contact number before proceeding.');
         return;
@@ -336,6 +346,7 @@ function submitUserInfo() {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success' || data.status === 'exists') {
+            sessionStorage.setItem('user_id', data.user_id);
             currentStep++;
             loadFormStep(); 
         } else {
