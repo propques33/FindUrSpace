@@ -1,5 +1,4 @@
-// Disable Sentry logging to prevent 403 Forbidden errors
-window.__SENTRY__ = { disable: true };
+
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
 let OTPlessSignin = null;
