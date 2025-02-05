@@ -98,6 +98,8 @@ def verify_otp():
 
     if response['success']:
         session['otp_verified'] = True
+        session.modified = True  # Ensure session persists
+        print(f"Session after OTP verification: {session}")
         return jsonify({'success': True, 'message': 'OTP verified successfully!'})
     else:
         return jsonify({'success': False, 'message': 'OTP verification failed'})
@@ -148,8 +150,6 @@ def update_users_excel(new_user):
 # Route to handle form submission (Your Info form)
 @core_bp.route('/submit_info', methods=['POST'])
 def submit_info():
-    if not session.get('otp_verified'):
-        return jsonify({'status': 'error', 'message': 'Please verify your OTP before submitting the form.'})
     
     db = current_app.config['db']  # Get the db instance from the app config
 

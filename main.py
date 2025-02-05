@@ -14,7 +14,10 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY')
-
+# ✅ Use Server-Side Sessions Instead of Cookies
+app.config['SESSION_TYPE'] = 'filesystem'  # Stores session on server
+app.config['SESSION_PERMANENT'] = False  # Session expires after browser close
+app.config['SESSION_USE_SIGNER'] = True  # Signs session cookies for security
 # Flask-Mail configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587

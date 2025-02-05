@@ -80,7 +80,7 @@ function loadFormStep() {
             <input type="text" id="name" name="name" class="form-control" placeholder="Your Name *" required>
             <div class="input-group mb-3 verifybt">
                 <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact *" required>
-                <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width: 80px; border-radius:8px; padding:4px 0px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="initiateOtp()">Verify</button>
+                <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width: 80px; border-radius:8px; padding:4px 0px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="initiateOtp()">Click to Verify</button>
             </div>
             <div class="form-group mt-3" id="otp-section" style="display:none; position:relative;">
                 <input type="text" id="otpInput" class="form-control mr-4"  placeholder="Enter OTP" required>
@@ -249,6 +249,9 @@ async function verifyOtp() {
 
             // Store OTP verification status in sessionStorage
             sessionStorage.setItem('otp_verified', 'true');
+
+            // **DEBUG**
+            console.log("Session Storage OTP Verified:", sessionStorage.getItem('otp_verified'));
         } else {
             alert('OTP verification failed. Please try again.');
         }
@@ -310,11 +313,6 @@ function initializeIntlTelInput() {
 function submitUserInfo() {
     const contactField = document.getElementById('contact');
 
-    // Check if the contact number was actually verified
-    if (!sessionStorage.getItem('otp_verified')) {
-        alert('Please verify your contact number before proceeding.');
-        return;
-    }
 
     if (!contactField.disabled) {
         alert('Please verify your contact number before proceeding.');
