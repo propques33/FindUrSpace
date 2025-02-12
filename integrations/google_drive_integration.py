@@ -90,26 +90,32 @@ def send_pdf_via_cunnekt(shareable_link, recipient_number):
 
     # Prepare the payload
     data = {
-        "mobile": recipient_number,
-        "templateid": "1045960890870754",  
-        "overridebot": "yes",  # Set to yes or no based on your requirement
-        "template": {
-            "components": [
-                {
-                    "type": "header",
-                    "parameters": [
-                        {
-                            "type": "document",
-                            "document": {
-                                "link": shareable_link,
-                                "filename": "Your_Options.pdf"  # Filename of the uploaded PDF
-                            }
+    "mobile": recipient_number,
+    "templateid": "1844499816365738",
+    "overridebot": "yes/no",
+    "template": {
+        "components": [
+            {
+                "type": "header",
+                "parameters": [
+                    {
+                        "type": "document",
+                        "document": {
+                            "link": shareable_link,
+                            "filename": "Your_Options.pdf" 
                         }
+                    }
+                ]
+            },
+            {
+                "type": "body",
+                "parameters": [
+                        {"type": "text", "text": f"PDF Download Link: {shareable_link}"}
                     ]
-                }
-            ]
-        }
+            }
+        ]
     }
+}
 
     # Convert the payload to JSON string
     payload = json.dumps(data)
