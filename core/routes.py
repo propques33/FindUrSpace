@@ -158,6 +158,9 @@ def submit_info():
     contact = request.form.get('contact')
     company = request.form.get('company')
     email = request.form.get('email')
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
+    location = request.form.get('location')
 
     # Check if the user exists in the database
     existing_user = db.users.find_one({'contact': contact})
@@ -167,7 +170,10 @@ def submit_info():
         'name': name,
         'contact': contact,
         'company': company,
-        'email': email
+        'email': email,
+        'latitude': latitude,
+        'longitude': longitude,
+        'location': location
     }
 
     if existing_user:
@@ -175,9 +181,8 @@ def submit_info():
         session['user_id'] = str(existing_user['_id'])
         # ✅ Update Google Sheets with latest form submission
         google_sheet_status = handle_new_user_entry(user_data)
-        return jsonify({'status': 'exists', 'message': 'User exists', 'user_id': session['user_id']})
+        return jsonify({'status': 'exists', 'message': 'User exists', 'redirect': '/thankyou'})
     else:
-        
         result = db.users.insert_one(user_data)
         session['user_id'] = str(result.inserted_id)  # Save new user_id in the session
         session['name'] = name
@@ -194,7 +199,7 @@ def submit_info():
         gsheet_thread = threading.Thread(target=handle_new_user_entry, args=(user_data,))
         gsheet_thread.start()
 
-        return jsonify({'status': 'success', 'message': 'User added successfully', 'user_id': session['user_id']})
+        return jsonify({'status': 'success', 'user_id': session['user_id'], 'redirect': None})
 
 @core_bp.route('/thankyou')
 def thankyou():

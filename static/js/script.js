@@ -57,6 +57,18 @@ async function initiateOtp() {
     }
 }
 
+function showLoader() {
+    document.querySelector(".spinner").style.display = "flex";
+    document.querySelector(".loader-overlay").style.display = "block"; // Show overlay
+    document.body.style.overflow = "hidden"; // Disable scrolling
+}
+
+function hideLoader() {
+    document.querySelector(".spinner").style.display = "none";
+    document.querySelector(".loader-overlay").style.display = "none"; // Hide overlay
+    document.body.style.overflow = "auto"; // Re-enable scrolling
+}
+
 // Function to load the form based on the current step
 function loadFormStep() {
     const form = document.getElementById('dynamic-form');
@@ -92,7 +104,10 @@ function loadFormStep() {
                 <input type="checkbox" id="accept-terms" name="accept-terms" required>
                 <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions *</a></label>
             </div>
-            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserInfo()">Continue</button>
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+            <input type="hidden" id="location" name="location">
+            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-1" onclick="submitUserInfo()">Login</button>
         `;
         initializeIntlTelInput();
     } 
@@ -144,7 +159,7 @@ function loadFormStep() {
                     <!-- Static options will be added dynamically -->
                 </select>
             </div>
-            <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Submit</button>
+            <button type="button" id="submit-btn" class="btn btn-primary btn-block mt-3" onclick="submitUserPreferences()">Find Spaces</button>
         `;
         fetchLocations();
         fetchPrices();
@@ -323,6 +338,8 @@ function submitUserInfo() {
     let company = document.getElementById('company').value;
     let email = document.getElementById('email').value;
     let acceptTerms = document.getElementById('accept-terms').checked;
+    let continueBtn = document.getElementById('continue-btn');
+    let loader = document.querySelector(".spinner");
 
     if (!name || !company || !email || !acceptTerms) {
         alert('All fields and terms acceptance are required.');
@@ -335,26 +352,38 @@ function submitUserInfo() {
         return;
     }
 
+    // Get stored location data
+    let latitude = sessionStorage.getItem('latitude') || "";
+    let longitude = sessionStorage.getItem('longitude') || "";
+    let location = sessionStorage.getItem('location') || "Unknown Location";
+    // Hide Continue Button and Show Loader
+    showLoader();
+
     fetch('/submit_info', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ name, contact: contactField.value, company, email })
+        body: new URLSearchParams({ name, contact: contactField.value, company, email, latitude, longitude, location })
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status === 'success' || data.status === 'exists') {
-            sessionStorage.setItem('user_id', data.user_id);
+        hideLoader();
+        if (data.status === 'exists') {
+            window.location.href = data.redirect;
+        } else if (data.status === 'success') {
             currentStep++;
-            loadFormStep(); 
-        } else {
+            loadFormStep();
+        }  else {
             alert(data.message);
         }
     })
     .catch(error => {
         console.error('Error:', error);
+        hideLoader(); // Hide loader on error
+        alert('An error occurred while submitting your details. Please try again.');
     });
 }
+
 
 // Function to handle form submission for "Your Preference"
 function submitUserPreferences() {
@@ -392,6 +421,7 @@ function submitUserPreferences() {
     })
     .then(response => response.json())
     .then(data => {
+        hideLoader();
         if (data.status === 'success') {
             window.location.href = '/thankyou';
         } else {
@@ -400,6 +430,8 @@ function submitUserPreferences() {
     })
     .catch(error => {
         console.error('Error:', error);
+        hideLoader(); // Hide loader on error
+        alert('An error occurred while submitting your preferences. Please try again.');
     });
 }
 
@@ -605,11 +637,46 @@ document.addEventListener('click', function (event) {
     });
 });
 
-// Trigger the initial form loading when DOM is fully loaded
+
 document.addEventListener('DOMContentLoaded', function () {
     OTPlessSdk();
-    loadFormStep(); 
+    loadFormStep();
+    getUserLocation(); // Capture location on page load
 });
+
+function getUserLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                let latitude = position.coords.latitude;
+                let longitude = position.coords.longitude;
+
+                // Store in sessionStorage (not DB yet)
+                sessionStorage.setItem('latitude', latitude);
+                sessionStorage.setItem('longitude', longitude);
+
+                // Reverse Geocode to get location name
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let location = data.display_name || "Unknown Location";
+                        sessionStorage.setItem('location', location);
+                        console.log("User Location Fetched:", location);
+                    })
+                    .catch(error => console.error('Error fetching location:', error));
+            },
+            function (error) {
+                console.error('Location access denied or unavailable:', error);
+                sessionStorage.setItem('location', "Unknown Location");
+            }
+        );
+    } else {
+        console.warn('Geolocation not supported.');
+        sessionStorage.setItem('location', "Unknown Location");
+    }
+}
+
+
 
 // discover section
 window.onload = function() {
@@ -642,6 +709,10 @@ function scrollRightTrending() {
     });
 }
 
+// Ensure the loader is hidden by default when the page loads
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelector(".spinner").style.display = "none";
+});
 
 
 // Overall presence
