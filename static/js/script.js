@@ -89,7 +89,6 @@ function loadFormStep() {
     // Step 1: User Info
     if (currentStep === 1) {
         form.innerHTML = `
-            <input type="text" id="name" name="name" class="form-control" placeholder="Your Name *" required>
             <div class="input-group mb-3 verifybt">
                 <input type="tel" id="contact" name="contact" class="form-control" placeholder="Your Contact *" required>
                 <button type="button" id="verify-btn" class="btn btn-secondary" class="verify" style="width:auto; border-radius:8px; padding:4px 4px; position:absolute; right:10px; background-color:#0c1427; font-size:16px;" onclick="initiateOtp()">Click to Verify</button>
@@ -98,8 +97,11 @@ function loadFormStep() {
                 <input type="text" id="otpInput" class="form-control mr-4"  placeholder="Enter OTP" required>
                 <button type="button" class="btn btn-primary ml-2" style="position:absolute; right:10px; top:6px; width:100px; padding:6px 0px; font-size:16px;" onclick="verifyOtp()">Verify OTP</button>
             </div>
-            <input type="text" id="company" name="company" class="form-control" placeholder="Company Name *" required>
-            <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail *" required>
+            <div id="additional-fields" style="display:none;">
+                <input type="text" id="name" name="name" class="form-control" placeholder="Your Name *" required>
+                <input type="text" id="company" name="company" class="form-control" placeholder="Company Name *" required>
+                <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail *" required>
+            </div>
             <div class="form-group mb-3">
                 <input type="checkbox" id="accept-terms" name="accept-terms" required>
                 <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions *</a></label>
@@ -107,7 +109,7 @@ function loadFormStep() {
             <input type="hidden" id="latitude" name="latitude">
             <input type="hidden" id="longitude" name="longitude">
             <input type="hidden" id="location" name="location">
-            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-1" onclick="submitUserInfo()">Login</button>
+            <button type="button" id="continue-btn" class="btn btn-primary btn-block mt-1" style="display:none;" onclick="submitUserInfo()">Login</button>
         `;
         initializeIntlTelInput();
     } 
@@ -265,6 +267,8 @@ async function verifyOtp() {
             // Store OTP verification status in sessionStorage
             sessionStorage.setItem('otp_verified', 'true');
 
+            // Check if user exists in the database
+            checkUserExists(contact);
             // **DEBUG**
             console.log("Session Storage OTP Verified:", sessionStorage.getItem('otp_verified'));
         } else {
@@ -276,6 +280,43 @@ async function verifyOtp() {
     }
 }
     
+// Function to check if the user exists in the database
+function checkUserExists(contact) {
+    fetch('/check_user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contact })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const continueBtn = document.getElementById('continue-btn');
+        // Show the continue button
+        continueBtn.style.display = 'block';
+
+        if (data.exists) {
+             // If user exists, show Login button
+             continueBtn.innerText = 'Login';
+             continueBtn.onclick = function() {
+                 window.location.href = '/thankyou';
+             };
+ 
+             // Hide additional fields
+             document.getElementById('additional-fields').style.display = 'none';
+        } else {
+            // If user does not exist, show Sign Up button
+            continueBtn.innerText = 'Sign Up';
+            continueBtn.onclick = submitUserInfo;
+
+            // Show additional fields for user to enter details
+            document.getElementById('additional-fields').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error checking user existence:', error);
+        alert('An error occurred. Please try again.');
+    });
+}
+
     // Update the validatePrice function to format the value with the ₹ symbol
     function validatePrice(input) {
         // Remove any non-numeric characters except decimal point

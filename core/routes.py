@@ -147,6 +147,23 @@ def update_users_excel(new_user):
     df.to_excel(file_path, index=False)
     print("User data updated in Users Excel Sheet")
 
+@core_bp.route('/check_user', methods=['POST'])
+def check_user():
+    db = current_app.config['db']
+    contact = request.json.get('contact')
+
+    if not contact:
+        return jsonify({'exists': False})
+
+    # Check if user exists in MongoDB `users` collection
+    user = db.users.find_one({'contact': contact})
+
+    if user:
+        return jsonify({'exists': True, 'name': user.get('name'), 'email': user.get('email'), 'company': user.get('company')})
+    else:
+        return jsonify({'exists': False})
+
+
 # Route to handle form submission (Your Info form)
 @core_bp.route('/submit_info', methods=['POST'])
 def submit_info():
