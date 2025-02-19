@@ -243,6 +243,66 @@
         border: 1px solid #f5c6cb;
     }
 
+    /* Current Location Button Styling */
+    .current-location-btn {
+        background-color: #151d31;
+        color: white;
+        font-weight: bold;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Hover Effect - Scale, Color Change, and Icon Animation */
+    .current-location-btn:hover {
+        background-color: #1e2a4a;
+        color: white;
+        box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3);
+    }
+
+    /* Pin Icon Animation */
+    .current-location-btn:hover .pin-icon {
+        animation: bounce 0.5s infinite alternate;
+    }
+
+    /* Keyframe Animation for Pin Icon */
+    @keyframes bounce {
+        0% {
+            transform: translateY(0);
+        }
+        100% {
+            transform: translateY(-5px);
+        }
+    }
+
+    /* Modal Close Button - Matches Small Image Preview Close Button */
+.modal-close-button {
+    background: red;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    line-height: 22px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Hover Effect for Modal Close Button */
+.modal-close-button:hover {
+    background: white;
+    color: red;
+    border: 2px solid red;
+}
+
     </style>
 
     <!-- Facebook Pixel Code -->
@@ -287,11 +347,11 @@
             <!-- "Where did you hear from us?" Section -->
             <div class="card">
                 <div class="card-header">
-                    How Did You Hear About Us?
+                    General Information
                 </div>
                 <div class="card-body">
-                    <div class="form-group mb-3">
-                        <div class="mb-3 w-100">
+                    <div class="form-group mb-4">
+                        <div class="w-100">
                             <label for="hear_from" class="form-label">Where did you hear from us?</label>
                             <select class="form-select" id="hear_from" name="hear_from" required
                                 data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Where did you hear from us?">
@@ -302,6 +362,43 @@
                                 <option value="Instagram" {{ 'selected' if space and space.get('hear_from') == 'Instagram' else '' }}>Instagram</option>
                                 <option value="Calls" {{ 'selected' if space and space.get('hear_from') == 'Calls' else '' }}>Calls</option>
                                 <option value="Other" {{ 'selected' if space and space.get('hear_from') == 'Other' else '' }}>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="mb-3 w-100">
+                            <label for="workspace_tool" class="form-label">Which Workspace Management Tool are you using?</label>
+                            <select class="form-select" id="workspace_tool" name="workspace_tool" required
+                                data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Workspace Management Tool">
+                                <option value="" disabled selected>Select a tool</option>
+                                <option value="Briskly">Briskly</option>
+                                <option value="Cobot">Cobot</option>
+                                <option value="Coworkify">Coworkify</option>
+                                <option value="Digicuro">Digicuro</option>
+                                <option value="Engage">Engage</option>
+                                <option value="Nexudus">Nexudus</option>
+                                <option value="Optix">Optix</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Custom Input Field for 'Other' Selection -->
+                    <div class="form-group mb-3" id="workspace_tool_other_container" style="display: none;">
+                        <label for="workspace_tool_other" class="form-label">Please specify:</label>
+                        <input type="text" class="form-control" id="workspace_tool_other" name="workspace_tool_other"
+                            placeholder="Enter tool name" data-parsley-required-message="Please specify the tool name." 
+                            data-parsley-trigger="change">
+                    </div>
+                    <div class="form-group">
+                        <div class="mb-3 w-100">
+                            <label for="notification" class="form-label">Where shall we send notifications?</label>
+                            <select class="form-select" id="notification" name="notification_preference[]" required
+                                data-parsley-required-message="Please select the platform where we can connect."
+                                data-parsley-trigger="change" aria-label="Notification Preference">
+                                <option value="" disabled selected>Please select the platform where we can connect?</option>
+                                <option value="Whatsapp">WhatsApp</option>
+                                <option value="Dashboard">Dashboard</option>
+                                <option value="Email">Email</option>
                             </select>
                         </div>
                     </div>
@@ -319,25 +416,25 @@
                 <div class="card-body">
                     <div class="form-group mb-3">
                         <div class="mb-3 w-100">
-                            <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
-                                value="{{ space['coworking_name'] if space else '' }}"
-                                readonly>
-                        </div>
-                        <div class="mb-3 w-100">
                             <input type="text" class="form-control" id="name" name="name" placeholder="Your Name" required
                                 value="{{ space['owner']['name'] if space else '' }}"
                                 readonly>
                         </div>
-                    </div>
-                    <div class="form-group mb-3">
                         <div class="mb-3 w-100">
                             <input type="tel" class="form-control" id="owner_phone" name="owner_phone" placeholder="Owner Phone Number" required
                                 value="{{ space['owner']['phone'] if space else '' }}"
                                 readonly>
                         </div>
+                    </div>
+                    <div class="form-group mb-3">
                         <div class="mb-3 w-100">
                             <input type="email" class="form-control" id="owner_email" name="owner_email" placeholder="Owner Email Address" required
-                                value="{{ space['owner']['email'] if space else '' }}"
+                            value="{{ space['owner']['email'] if space else '' }}"
+                            readonly>
+                        </div>
+                        <div class="mb-3 w-100">
+                            <input type="text" class="form-control" id="coworking_name" name="coworking_name" placeholder="Coworking Name" required
+                                value="{{ space['coworking_name'] if space else '' }}"
                                 readonly>
                         </div>
                     </div>
@@ -440,6 +537,31 @@
 <!-- JavaScript to handle dynamic form sections and Parsley validation -->
 <script>
     let spaceCount = 0;
+    
+    function toggleWorkspaceTypeFields(spaceId) {
+    const workspaceTypeDropdown = document.getElementById(`workspace_type_${spaceId}`);
+    const coworkingFields = document.getElementById(`coworking_fields_${spaceId}`);
+    const managedOfficeFields = document.getElementById(`managed_office_fields_${spaceId}`);
+    const amenitiesSection = document.getElementById(`amenities_section_${spaceId}`);
+    const officeTimingsSection = document.getElementById(`office_timings_${spaceId}`);
+
+    if (workspaceTypeDropdown.value === "Coworking Spaces") {
+        coworkingFields.style.display = "block";
+        managedOfficeFields.style.display = "none";
+        amenitiesSection.style.display = "block";
+        officeTimingsSection.style.display = "block"; // ✅ Fix: Show Office Timings section
+    } else {
+        coworkingFields.style.display = "none";
+        managedOfficeFields.style.display = "block";
+        amenitiesSection.style.display = "none";
+        officeTimingsSection.style.display = "none"; // ✅ Fix: Hide Office Timings section
+    }
+}
+    
+
+    // Function to toggle Managed Offices fields based on workspace type selection
+    // Function to toggle fields based on workspace type selection
+    // Function to toggle fields based on workspace type selectio
 
     // Function to add a coworking space section
     function addSpaceDetails(spaceData = null) {
@@ -490,24 +612,42 @@
                     </div>
                 </div>
                 <!-- Add Full Address Field Below -->
-                <div class="form-group mb-3">
+                <div class="form-group mb-3 position-relative">
                     <div class="mb-3 w-100">
                         <label for="address_${spaceCount}" class="form-label">Coworking Address *</label>
-                        <input type="text" class="form-control" id="address_${spaceCount}" name="address[]" placeholder="Enter Space Address" required
-                            data-parsley-required-message="Please enter the coworking address." data-parsley-trigger="change" aria-label="Full Address">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="address_${spaceCount}" name="address[]" placeholder="Enter Your Address Manually..." required
+                                data-parsley-required-message="Please enter the coworking address." data-parsley-trigger="change" aria-label="Full Address">
+                            <button type="button" class="btn current-location-btn" onclick="getCurrentLocation(${spaceCount})">
+                                <span class="pin-icon">📍</span> Use Current Location
+                            </button>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Upload Layout or Property Images (Moved Below Address) -->
+                <!-- Upload Property Images (Min 5) -->
+                <h5>Upload Images of Your Property (Min 5)</h5>
+                <p class="file-format-note">Upload at least 5 images of your property (JPG, JPEG, PNG).</p>
+                <div class="mb-3">
+                    <input type="file" class="form-control" name="property_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
+                        required data-parsley-mincheck="5"
+                        data-parsley-required-message="Please upload at least 5 images of your property."
+                        onchange="previewPropertyImages(event, ${spaceCount})">
+                </div>
+                <div id="propertyImagePreview_${spaceCount}" class="d-flex flex-wrap"></div>
+                <!-- End of Property Images Upload -->
                 <!-- Center Manager Details -->
-                <h5>Center Manager Details</h5>
+                <h5>Who is in your Team?</h5>
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
-                        <input type="text" class="form-control" name="center_manager_name[]" placeholder="Center Manager Name" required
+                        <input type="text" class="form-control" name="center_manager_name[]" placeholder="Who manages this workspace?" required
                             value="${center_manager_name}"
                             data-parsley-required-message="Please enter the center manager name."
                             data-parsley-trigger="change" aria-label="Center Manager Name">
                     </div>
                     <div class="mb-3 w-100">
-                        <input type="tel" class="form-control" name="center_manager_contact[]" placeholder="Center Manager Contact" required
+                        <input type="tel" class="form-control" name="center_manager_contact[]" placeholder="Contact number" required
                             value="${center_manager_contact}"
                             data-parsley-required-message="Please enter the center manager contact."
                             data-parsley-pattern="^[0-9]{10}$"
@@ -517,38 +657,239 @@
                 </div>
                 <!-- About Space -->
                 <h5>About Space</h5>
+                <!-- Choose Workspace Type -->
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
-                        <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required
-                            value="${total_seats}"
-                            data-parsley-required-message="Please enter the total number of seats."
-                            data-parsley-type="number"
-                            data-parsley-trigger="change" aria-label="Total Seats" onchange="updateCurrentVacancy(${spaceCount})">
-                    </div>
-                    <div class="mb-3 w-100">
-                        <input type="number" class="form-control" name="current_vacancy[]" placeholder="This value is automatically calculated" min="0" readonly
-                            value="0" id="current_vacancy_${spaceCount}" aria-label="Current Vacancy">
-                        <small class="text-muted">This value will be automatically calculated based on the inventory.</small>
-                        <div id="vacancyError_${spaceCount}" class="text-danger mt-1"></div>
+                        <label for="workspace_type_${spaceCount}" class="form-label">Choose Workspace Type *</label>
+                        <select class="form-select" id="workspace_type_${spaceCount}" name="workspace_type[]" required
+                            data-parsley-required-message="Please select the workspace type."
+                            data-parsley-trigger="change" aria-label="Choose Workspace Type"
+                            onchange="toggleWorkspaceTypeFields(${spaceCount})">
+                            <option value="" disabled selected>Choose Workspace Type</option>
+                            <option value="Coworking Spaces">Coworking Spaces</option>
+                            <option value="Managed Offices">Managed Offices</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Inventory Breakup -->
-                <h5>Inventory Breakup</h5>
-                <div id="inventoryContainer_${spaceCount}">
-                    <!-- Inventory items will be added here -->
-                </div>
-                <button type="button" class="btn btn-secondary mb-3" onclick="addInventory(${spaceCount})">+ Add Inventory</button>
+                <!-- Coworking Space Fields (Hidden by Default) -->
+                <div id="coworking_fields_${spaceCount}" style="display: none;">
+                    <div class="form-group mb-3">
+                        <div class="mb-3 w-100">
+                            <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required
+                                data-parsley-required-message="Please enter the total number of seats."
+                                data-parsley-type="number" data-parsley-trigger="change"
+                                aria-label="Total Seats" onchange="updateCurrentVacancy(${spaceCount})">
+                        </div>
+                        <div class="mb-3 w-100">
+                            <input type="number" class="form-control" name="current_vacancy[]" placeholder="This value is automatically calculated" min="0" readonly
+                                value="0" id="current_vacancy_${spaceCount}" aria-label="Current Vacancy">
+                            <small class="text-muted">This value will be automatically calculated based on the inventory.</small>
+                            <div id="vacancyError_${spaceCount}" class="text-danger mt-1"></div>
+                        </div>
+                    </div>
 
-                <!-- Upload Layouts or Images -->
-                <h5>Upload Layouts or Images</h5>
-                <p class="file-format-note">Only JPG, JPEG, and PNG files are allowed. You can upload multiple images.</p>
-                <div class="mb-3">
-                    <input type="file" class="form-control" name="layout_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple onchange="previewImages(event, ${spaceCount})" ${spaceData ? '' : 'required'}
-                        data-parsley-required-message="Please upload at least one image." data-parsley-trigger="change" aria-label="Upload Layouts or Images">
+                    <!-- Inventory Breakup -->
+                    <h5>Inventory Breakup</h5>
+                    <div id="inventoryContainer_${spaceCount}">
+                        <!-- Inventory items will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-secondary mb-3" onclick="addInventory(${spaceCount})">+ Add Inventory</button>
+
+                    <!-- Amenities Section (Visible only for Coworking Spaces) -->
+                    <div id="amenities_section_${spaceCount}" class="mb-3" style="display: none;">
+                        <h5>Select Amenities Available in Your Space</h5>
+                        <div class="row">
+                            <!-- Amenities Checkboxes (3 per row) -->
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="High Speed Wifi" id="wifi_${spaceCount}">
+                                <label for="wifi_${spaceCount}" class="form-check-label">High Speed Wifi</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Printer" id="printer_${spaceCount}">
+                                <label for="printer_${spaceCount}" class="form-check-label">Printer</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Parking" id="parking_${spaceCount}">
+                                <label for="parking_${spaceCount}" class="form-check-label">Parking</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Meeting Rooms" id="meeting_${spaceCount}">
+                                <label for="meeting_${spaceCount}" class="form-check-label">Meeting Rooms</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Waiting & Lounge Area" id="lounge_${spaceCount}">
+                                <label for="lounge_${spaceCount}" class="form-check-label">Waiting & Lounge Area</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Vending Machine" id="vending_${spaceCount}">
+                                <label for="vending_${spaceCount}" class="form-check-label">Vending Machine</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="CCTV Surveillance" id="cctv_${spaceCount}">
+                                <label for="cctv_${spaceCount}" class="form-check-label">CCTV Surveillance</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Pet Friendly" id="pet_${spaceCount}">
+                                <label for="pet_${spaceCount}" class="form-check-label">Pet Friendly</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="ATM" id="atm_${spaceCount}">
+                                <label for="atm_${spaceCount}" class="form-check-label">ATM</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Ergonomic Seating" id="ergonomic_${spaceCount}">
+                                <label for="ergonomic_${spaceCount}" class="form-check-label">Ergonomic Seating</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Fitness Centers" id="fitness_${spaceCount}">
+                                <label for="fitness_${spaceCount}" class="form-check-label">Fitness Centers</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Nap Pods" id="nappods_${spaceCount}">
+                                <label for="nappods_${spaceCount}" class="form-check-label">Nap Pods</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Wellness Program" id="wellness_${spaceCount}">
+                                <label for="wellness_${spaceCount}" class="form-check-label">Wellness Program</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Event Spaces" id="event_${spaceCount}">
+                                <label for="event_${spaceCount}" class="form-check-label">Event Spaces</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Smoking Area" id="smoking_${spaceCount}">
+                                <label for="smoking_${spaceCount}" class="form-check-label">Smoking Area</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Conference Room" id="conference_${spaceCount}">
+                                <label for="conference_${spaceCount}" class="form-check-label">Conference Room</label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Office Timings Section -->
+                    <div id="office_timings_${spaceCount}" class="mb-3" style="display: none;">
+                        <h5>Office Timings</h5>
+                        
+                        <!-- Open From and Open To -->
+                        <div class="form-group mb-3">
+                            <div class="w-50">
+                                <label for="open_from_${spaceCount}" class="form-label">Open From *</label>
+                                <select class="form-select" id="open_from_${spaceCount}" name="open_from[]" required
+                                    data-parsley-required-message="Please select the opening day."
+                                    data-parsley-trigger="change">
+                                    <option value="" disabled selected>Select a day</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                    <option value="Sunday">Sunday</option>
+                                </select>
+                            </div>
+                            <div class="w-50">
+                                <label for="open_to_${spaceCount}" class="form-label">Open To *</label>
+                                <select class="form-select" id="open_to_${spaceCount}" name="open_to[]" required
+                                    data-parsley-required-message="Please select the closing day."
+                                    data-parsley-trigger="change">
+                                    <option value="" disabled selected>Select a day</option>
+                                    <option value="Monday">Monday</option>
+                                    <option value="Tuesday">Tuesday</option>
+                                    <option value="Wednesday">Wednesday</option>
+                                    <option value="Thursday">Thursday</option>
+                                    <option value="Friday">Friday</option>
+                                    <option value="Saturday">Saturday</option>
+                                    <option value="Sunday">Sunday</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Closed On (Multiple Selection) -->
+                        <div class="form-group mb-3">
+                            <label for="closed_on_${spaceCount}" class="form-label">Closed On (Multiple Selection Allowed)</label>
+                            <select class="form-select" id="closed_on_${spaceCount}" name="closed_on[]" multiple
+                                data-parsley-trigger="change">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Opening Timings -->
+                        <h5>Opening Hours</h5>
+                        <div class="form-group mb-3">
+                            <div class="w-50">
+                                <label for="opening_time_${spaceCount}" class="form-label">Opening Time *</label>
+                                <input type="time" class="form-control" id="opening_time_${spaceCount}" name="opening_time[]" required
+                                    data-parsley-required-message="Please enter the opening time." data-parsley-trigger="change">
+                            </div>
+                            <div class="w-50">
+                                <label for="closing_time_${spaceCount}" class="form-label">Closing Time *</label>
+                                <input type="time" class="form-control" id="closing_time_${spaceCount}" name="closing_time[]" required
+                                    data-parsley-required-message="Please enter the closing time." data-parsley-trigger="change">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="imagePreview_${spaceCount}" class="d-flex flex-wrap">
-                    <!-- Image previews will be displayed here -->
+
+                <!-- Managed Office Fields (Hidden by Default) -->
+                <div id="managed_office_fields_${spaceCount}" style="display: none;">
+                    <h5>Managed Office Details</h5>
+
+                    <!-- First Row: Rent or Own & Area -->
+                    <div class="form-group mb-3 d-flex gap-3">
+                        <div class="w-50">
+                            <label for="rent_or_own_${spaceCount}" class="form-label">Do you rent or own your space?</label>
+                            <select class="form-select" id="rent_or_own_${spaceCount}" name="rent_or_own_${spaceCount}" required
+                                data-parsley-required-message="Please select an option."
+                                data-parsley-trigger="change">
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="Rent">Rent</option>
+                                <option value="Own">Own</option>
+                            </select>
+                        </div>
+
+                        <div class="w-50">
+                            <label for="area_${spaceCount}" class="form-label">Area in sqft</label>
+                            <input type="number" class="form-control" id="area_${spaceCount}" name="area_${spaceCount}" placeholder="Enter total area in sqft"
+                                min="0" required data-parsley-required-message="Please enter the total area."
+                                data-parsley-type="number" data-parsley-trigger="change">
+                        </div>
+                    </div>
+
+                    <!-- Second Row: No. of Floors & No. of Floors Occupied -->
+                    <div class="form-group mb-3 d-flex gap-3">
+                        <div class="w-50">
+                            <label for="total_floors_${spaceCount}" class="form-label">No. of Floors</label>
+                            <input type="number" class="form-control" id="total_floors_${spaceCount}" name="total_floors_${spaceCount}"
+                                placeholder="Enter total number of floors" min="1" required
+                                data-parsley-required-message="Please enter the number of floors."
+                                data-parsley-type="number" data-parsley-trigger="change">
+                        </div>
+
+                        <div class="w-50">
+                            <label for="floors_occupied_${spaceCount}" class="form-label">No. of Floors Occupied</label>
+                            <input type="number" class="form-control" id="floors_occupied_${spaceCount}" name="floors_occupied_${spaceCount}"
+                                placeholder="Enter number of occupied floors" min="1" required
+                                data-parsley-required-message="Please enter the number of floors occupied."
+                                data-parsley-type="number" data-parsley-trigger="change">
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Common Section: Tell Us About Your Space -->
+                <h5>Tell us about your space and why it's so great</h5>
+                <div class="form-group mb-3">
+                    <textarea class="form-control" name="space_description_${spaceCount}" rows="4"
+                        placeholder="Describe your workspace, amenities, and why it's a great place to work" required
+                        data-parsley-required-message="Please describe your workspace."
+                        data-parsley-trigger="change"></textarea>
                 </div>
             </div>
         `;
@@ -564,6 +905,7 @@
         } else {
             addInventory(spaceCount);
         }
+
 
         // Display existing images if any
         if (spaceData && spaceData['layout_images'] && spaceData['layout_images'].length > 0) {
@@ -823,6 +1165,16 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 <!-- Placeholder div to maintain two per row layout -->
                 <div style="flex:1;"></div>
             </div>
+            <!-- Upload Inventory Images (Min 2 per Inventory Type) -->
+            <h6>Upload Images for this Inventory (Min 2)</h6>
+            <p class="file-format-note">Upload at least 2 images (JPG, JPEG, PNG).</p>
+            <div class="mb-3">
+                <input type="file" class="form-control" name="inventory_images_${spaceCount}_${inventoryCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
+                    required data-parsley-mincheck="2"
+                    data-parsley-required-message="Please upload at least 2 images for this inventory type."
+                    onchange="previewInventoryImages(event, ${spaceCount}, ${inventoryCount})">
+            </div>
+            <div id="inventoryImagePreview_${spaceCount}_${inventoryCount}" class="d-flex flex-wrap"></div>
         `;
         inventoryContainer.appendChild(inventoryRow);
 
@@ -1183,6 +1535,39 @@ function fetchMicromarkets() {
         });
 }
 
+// Function to get the user's current location
+function getCurrentLocation(spaceId) {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                // Use reverse geocoding API to get the address
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.display_name) {
+                            document.getElementById(`address_${spaceId}`).value = data.display_name;
+                        } else {
+                            alert("Unable to retrieve address. Please enter manually.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching address:", error);
+                        alert("Failed to fetch address. Please check your internet connection.");
+                    });
+            },
+            function (error) {
+                console.error("Geolocation error:", error);
+                alert("Failed to access location. Please enable location services.");
+            }
+        );
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
 // Show custom input field when "Other" is selected
 // function showCustomInput(type, spaceCount) {
 //     const dropdown = document.getElementById(`${type}_${spaceCount}`);
@@ -1265,6 +1650,131 @@ function closeDropdown(dropdownId) {
     dropdown.size = 1; // Close dropdown when an option is selected
 }
 
+// Function to preview property images with full-screen modal
+function previewPropertyImages(event, spaceId) {
+    const imagePreviewContainer = document.getElementById(`propertyImagePreview_${spaceId}`);
+    imagePreviewContainer.innerHTML = '';
+    const files = event.target.files;
+
+    if (files.length < 5) {
+        alert("Please upload at least 5 images of your property.");
+        event.target.value = "";
+        return;
+    }
+
+    Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('preview-img-container');
+            imgContainer.innerHTML = `
+                <img src="${e.target.result}" class="preview-img" data-bs-toggle="modal" data-bs-target="#propertyImageModal_${spaceId}_${index}" alt="Property Image Preview">
+                <button type="button" class="delete-button" onclick="removeImage(${index}, ${spaceId}, 'property')">&times;</button>
+            `;
+            imagePreviewContainer.appendChild(imgContainer);
+
+            // Create modal for full-screen preview
+            const modal = document.createElement('div');
+            modal.classList.add('modal', 'fade');
+            modal.id = `propertyImageModal_${spaceId}_${index}`;
+            modal.setAttribute('tabindex', '-1');
+            modal.setAttribute('aria-labelledby', `propertyImageModalLabel_${spaceId}_${index}`);
+            modal.setAttribute('aria-hidden', 'true');
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Property Image Preview</h5>
+                            <button type="button" class="delete-button modal-close-button" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${e.target.result}" class="img-fluid" alt="Full Image">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Function to preview inventory images with full-screen modal
+function previewInventoryImages(event, spaceId, inventoryId) {
+    const imagePreviewContainer = document.getElementById(`inventoryImagePreview_${spaceId}_${inventoryId}`);
+    imagePreviewContainer.innerHTML = '';
+    const files = event.target.files;
+
+    if (files.length < 2) {
+        alert("Please upload at least 2 images for this inventory type.");
+        event.target.value = "";
+        return;
+    }
+
+    Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('preview-img-container');
+            imgContainer.innerHTML = `
+                <img src="${e.target.result}" class="preview-img" data-bs-toggle="modal" data-bs-target="#inventoryImageModal_${spaceId}_${inventoryId}_${index}" alt="Inventory Image Preview">
+                <button type="button" class="delete-button" onclick="removeImage(${index}, ${spaceId}, 'inventory', ${inventoryId})">&times;</button>
+            `;
+            imagePreviewContainer.appendChild(imgContainer);
+
+            // Create modal for full-screen preview
+            const modal = document.createElement('div');
+            modal.classList.add('modal', 'fade');
+            modal.id = `inventoryImageModal_${spaceId}_${inventoryId}_${index}`;
+            modal.setAttribute('tabindex', '-1');
+            modal.setAttribute('aria-labelledby', `inventoryImageModalLabel_${spaceId}_${inventoryId}_${index}`);
+            modal.setAttribute('aria-hidden', 'true');
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Inventory Image Preview</h5>
+                            <button type="button" class="delete-button modal-close-button" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${e.target.result}" class="img-fluid" alt="Full Image">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Function to remove uploaded images
+function removeImage(index, spaceId, type, inventoryId = null) {
+    let imagePreviewContainer;
+    let modalId;
+
+    if (type === 'property') {
+        imagePreviewContainer = document.getElementById(`propertyImagePreview_${spaceId}`);
+        modalId = `propertyImageModal_${spaceId}_${index}`;
+    } else if (type === 'inventory') {
+        imagePreviewContainer = document.getElementById(`inventoryImagePreview_${spaceId}_${inventoryId}`);
+        modalId = `inventoryImageModal_${spaceId}_${inventoryId}_${index}`;
+    }
+
+    const imgToRemove = imagePreviewContainer.querySelectorAll('.preview-img-container')[index];
+    if (imgToRemove) {
+        imgToRemove.remove();
+    }
+
+    // Remove the corresponding modal
+    const modalToRemove = document.getElementById(modalId);
+    if (modalToRemove) {
+        modalToRemove.remove();
+    }
+}
+
 // Handle dropdown close when clicked outside
 document.addEventListener('DOMContentLoaded', function () {
         // Initialize event listeners for dropdown changes
@@ -1279,6 +1789,22 @@ document.addEventListener('DOMContentLoaded', function () {
     addSpaceDetails(); // Add one coworking space by default
         $('#listSpaceForm').parsley();
     });
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const workspaceToolDropdown = document.getElementById("workspace_tool");
+    const otherToolContainer = document.getElementById("workspace_tool_other_container");
+    const otherToolInput = document.getElementById("workspace_tool_other");
+
+    workspaceToolDropdown.addEventListener("change", function() {
+        if (this.value === "Other") {
+            otherToolContainer.style.display = "block";
+            otherToolInput.setAttribute("required", "true"); // Make input required
+        } else {
+            otherToolContainer.style.display = "none";
+            otherToolInput.removeAttribute("required"); // Remove requirement
+        }
+    });
+});
 </script>
 
 </body>
