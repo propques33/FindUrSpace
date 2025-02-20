@@ -35,6 +35,12 @@
     <!-- FontAwesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <!-- Optional: Include your own CSS for additional styling -->
     <style>
     /* General Body Styling */
@@ -551,6 +557,15 @@ h3 {
         flex-direction: column;
     }
 }
+    .map-container {
+        width: 100%;
+        height: 400px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border-radius: 10px;
+        display: none; /* Initially hidden */
+    }
+
     </style>
 
     <!-- Facebook Pixel Code -->
@@ -870,6 +885,8 @@ h3 {
                         </div>
                     </div>
                 </div>
+                <!-- Map Container -->
+                <div id="map_${spaceCount}" class="map-container"></div>
 
                 <!-- Upload Layout or Property Images (Moved Below Address) -->
                 <!-- Upload Property Images (Min 5) -->
@@ -1798,6 +1815,36 @@ function getCurrentLocation(spaceId) {
                         console.error("Error fetching address:", error);
                         alert("Failed to fetch address. Please check your internet connection.");
                     });
+                  // Display the map and initialize Leaflet
+                const mapContainer = document.getElementById(`map_${spaceId}`);
+                mapContainer.style.display = 'block';
+
+                // Initialize the map
+                const map = L.map(`map_${spaceId}`).setView([latitude, longitude], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap'
+                }).addTo(map);
+
+                // Add draggable marker
+                const marker = L.marker([latitude, longitude], { draggable: true }).addTo(map);
+
+                // Update address field when marker is dragged
+                marker.on('dragend', function (e) {
+                    const markerLatLng = marker.getLatLng();
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${markerLatLng.lat}&lon=${markerLatLng.lng}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.display_name) {
+                                document.getElementById(`address_${spaceId}`).value = data.display_name;
+                            } else {
+                                alert("Unable to retrieve address. Please enter manually.");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching address:", error);
+                        });
+                });
             },
             function (error) {
                 console.error("Geolocation error:", error);
