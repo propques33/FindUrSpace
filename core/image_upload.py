@@ -38,7 +38,7 @@ def get_db():
     return db
 
 # Compress image and convert to WebP at 80% quality
-def compress_image(image_file, max_size_kb=512, max_dimensions=(1024, 1024)):
+def compress_image(image_file, max_size_kb=300, max_dimensions=(1024, 1024)):
     img = Image.open(image_file)
 
     # Resize image if larger than the specified dimensions
@@ -75,7 +75,7 @@ def upload_image_to_space(image_buffer, file_name):
         return None
 
 # Process and upload images
-def process_and_upload_images(image_files, owner_info, coworking_name):
+def process_and_upload_images(image_files, owner_info, coworking_name,category="general", space_id=None, inventory_id=None):
     db = get_db()
     image_urls = []
 
@@ -89,7 +89,15 @@ def process_and_upload_images(image_files, owner_info, coworking_name):
             unique_id = uuid.uuid4().hex
             # Secure the original filename to prevent directory traversal attacks
             original_filename = secure_filename(image_file.filename)
-            file_name = f"{coworking_name}_{owner_info['name']}_{unique_id}_{original_filename}"
+
+            # Enhanced Naming Convention:
+            # /findurspace/<category>/<spaceId>/<inventoryId>/<filename>
+            if space_id and inventory_id:
+                file_name = f"{category}/{coworking_name}/{space_id}/{inventory_id}/{unique_id}_{original_filename}"
+            elif space_id:
+                file_name = f"{category}/{coworking_name}/{space_id}/{unique_id}_{original_filename}"
+            else:
+                file_name = f"{category}/{coworking_name}/{unique_id}_{original_filename}"
 
             # Upload image to DigitalOcean Space
             image_url = upload_image_to_space(compressed_image, file_name)

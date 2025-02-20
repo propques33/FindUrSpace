@@ -32,6 +32,9 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
     <!-- Optional: Include your own CSS for additional styling -->
     <style>
     /* General Body Styling */
@@ -46,8 +49,53 @@
         margin-bottom: 40px;
     }
 
+    .add-space-button{
+        background-color: #151d31;
+        color:white;
+        padding:8px 15px;
+        font-weight: 700;
+        border:2px solid #151d31;
+    }
+
+    .add-space-button:hover{
+        background-color: white;
+        color:#151d31;
+        border:2px solid #151d31;
+        padding:8px 15px;
+        font-weight: 700;
+    }
+
+    .add-space-button:active{
+        background-color: #151d31;
+        color:white;
+        padding:8px 15px;
+        font-weight: 700;
+        border:2px solid #151d31;
+    }
+
+    .submit-btn{
+        display:block;
+        width:100%;
+    }
+
     .card {
-        margin-bottom: 20px;
+        margin-bottom: 40px;
+        border:2px solid #151d31;
+        border-radius: 15px;
+    }
+    .card-header{
+        background-color: #151d31;
+        color:white;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 20px;
+        padding:10px 20px;
+    }
+
+    .card-body{
+        display:flex;
+        flex-direction: column;
+        gap: 0px;
     }
 
     .btn-close{
@@ -82,7 +130,7 @@
         border: none;
         color: white;
         background-color:red;
-        padding:5px 14px;
+        padding:5px 18px;
         border-radius: 1000px;
         font-size: 24px;
         margin-right: 10px;
@@ -216,8 +264,19 @@
     .file-format-note {
         font-size: 0.875rem;
         color: #6c757d;
+        margin-top:-10px;
+        font-weight: 600;
     }
 
+    .team{
+        margin-top: 10px;
+    }
+
+    .amen{
+        margin-top:10px;
+        font-size:22px;
+        font-weight: 600;
+    }
     /* Loading Spinner Styles */
     #loadingSpinner {
         display: none;
@@ -303,6 +362,195 @@
     border: 2px solid red;
 }
 
+.amenity-icon {
+    font-size: 1.2em;
+    margin-right: 8px;
+    vertical-align: middle;
+    color: #5A5A5A;
+}
+
+.form-check-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.rowamen {
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: flex-start;
+}
+
+.col-md-4-amen {
+    display: flex;
+}
+
+.off{
+    margin-top: 20px;
+    font-size:22px;
+    font-weight:600;
+}
+
+.hour{
+    font-size:18px;
+    font-weight:600;
+}
+
+.tell{
+    margin-top:20px;
+}
+
+.head{
+    color:#151d31;
+    display: block;
+    padding:6px 15px;
+    font-weight: 700;
+    border-radius: 8px;
+    text-align: center;
+    margin:0 auto;
+}
+
+/* General Body Styling */
+body {
+    background-color: #f4f7fc;
+    color: #333;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+/* Card Styling */
+.card {
+    margin-bottom: 40px;
+    border: 1px solid #e1e4e8;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card-header {
+    background-color: #151d31;
+    color: #fff;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 24px;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+/* Button Styles */
+.centered-button {
+    display: block;
+    width:100%;
+    border:2px solid #151d31;
+    border-radius: 5px;
+    font-size: 18px;
+    background-color: #151d31;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.centered-button:hover {
+    background-color: white;
+    color:#151d31;
+    border:2px solid #151d31;
+    font-weight: 600;;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Input Fields */
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Typography and Labels */
+label {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
+    display: block;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #151d31;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+h3 {
+    font-size: 24px;
+}
+
+/* Form Group and Input Layout */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group .form-control {
+    border-radius: 8px;
+}
+
+/* Checkbox and Radio Styling */
+.form-check-input {
+    accent-color: #007bff;
+    cursor: pointer;
+}
+
+.form-check-label {
+    font-weight: 500;
+    color: #333;
+    margin-left: 8px;
+}
+
+/* Responsive Design */
+@media (max-width: 576px) {
+    .form-group {
+        flex-direction: column;
+    }
+}
     </style>
 
     <!-- Facebook Pixel Code -->
@@ -342,31 +590,30 @@
         {% endif %}
     {% endwith %}
 
-    <h1 class="text-center mb-4">{{ 'Edit Your Space' if space else 'List Your Space' }}</h1>
-
+    <h1 class="text-center mb-4 head">{{ 'Edit Your Space' if space else 'List Your Space' }}</h1>
             <!-- "Where did you hear from us?" Section -->
             <div class="card">
                 <div class="card-header">
                     General Information
                 </div>
                 <div class="card-body">
-                    <div class="form-group mb-4">
+                    <div class="form-group">
                         <div class="w-100">
                             <label for="hear_from" class="form-label">Where did you hear from us?</label>
                             <select class="form-select" id="hear_from" name="hear_from" required
                                 data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Where did you hear from us?">
-                                <option value="" disabled {{ 'selected' if not space or not space.get('hear_from') else '' }}>Select an option</option>
-                                <option value="Email campaigns" {{ 'selected' if space and space.get('hear_from') == 'Email campaigns' else '' }}>Email campaigns</option>
-                                <option value="WhatsApp campaigns" {{ 'selected' if space and space.get('hear_from') == 'WhatsApp campaigns' else '' }}>WhatsApp campaigns</option>
-                                <option value="Facebook" {{ 'selected' if space and space.get('hear_from') == 'Facebook' else '' }}>Facebook</option>
-                                <option value="Instagram" {{ 'selected' if space and space.get('hear_from') == 'Instagram' else '' }}>Instagram</option>
-                                <option value="Calls" {{ 'selected' if space and space.get('hear_from') == 'Calls' else '' }}>Calls</option>
-                                <option value="Other" {{ 'selected' if space and space.get('hear_from') == 'Other' else '' }}>Other</option>
+                                <option value="" disabled selected>Select an option</option>
+                                <option value="Email campaigns">Email campaigns</option>
+                                <option value="WhatsApp campaigns">WhatsApp campaigns</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Calls">Calls</option>
+                                <option value="Other">Other</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class="mb-3 w-100">
+                        <div class="w-100">
                             <label for="workspace_tool" class="form-label">Which Workspace Management Tool are you using?</label>
                             <select class="form-select" id="workspace_tool" name="workspace_tool" required
                                 data-parsley-required-message="Please select an option." data-parsley-trigger="change" aria-label="Workspace Management Tool">
@@ -383,19 +630,18 @@
                         </div>
                     </div>
                     <!-- Custom Input Field for 'Other' Selection -->
-                    <div class="form-group mb-3" id="workspace_tool_other_container" style="display: none;">
+                    <div class="form-group" id="workspace_tool_other_container" style="display: none;">
                         <label for="workspace_tool_other" class="form-label">Please specify:</label>
                         <input type="text" class="form-control" id="workspace_tool_other" name="workspace_tool_other"
                             placeholder="Enter tool name" data-parsley-required-message="Please specify the tool name." 
                             data-parsley-trigger="change">
                     </div>
                     <div class="form-group">
-                        <div class="mb-3 w-100">
+                        <div class="w-100">
                             <label for="notification" class="form-label">Where shall we send notifications?</label>
-                            <select class="form-select" id="notification" name="notification_preference[]" required
+                            <select class="form-select" id="notification" name="notification_preference" multiple required
                                 data-parsley-required-message="Please select the platform where we can connect."
                                 data-parsley-trigger="change" aria-label="Notification Preference">
-                                <option value="" disabled selected>Please select the platform where we can connect?</option>
                                 <option value="Whatsapp">WhatsApp</option>
                                 <option value="Dashboard">Dashboard</option>
                                 <option value="Email">Email</option>
@@ -508,7 +754,7 @@
 
         <!-- Button to add more coworking spaces (Hide when editing) -->
         {% if not space %}
-        <button type="button" class="btn btn-primary mb-3" onclick="addSpaceDetails()"> Add Coworking Space</button>
+        <button type="button" class="btn btn-primary mb-3 add-space-button" onclick="addSpaceDetails()">+ Add Coworking Space</button>
         {% endif %}
 
         <!-- Loading Spinner -->
@@ -518,12 +764,12 @@
             </div>
             <p>Submitting your information...</p>
         </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn centered-button" id="submitButton">{{ 'Update Space' if space else 'Submit' }}</button>
+        
+        <button type="submit" class="btn centered-button submit-btn" id="submitButton">{{ 'Update Space' if space else 'Submit' }}</button>
 
     </form>
 </div>
+
 
 <!-- jQuery (Required for Parsley.js if using older versions; optional for newer setups) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -596,14 +842,14 @@
                 <input type="hidden" name="space_indices[]" value="${spaceCount}">
 
                 <!-- City and Micromarket -->
-                <div class="form-group mb-3">
-                    <div class="mb-3 w-100">
+                <div class="form-group">
+                    <div class=" w-100">
                         <select id="location_${spaceCount}" class="form-control" name="city[]" placeholder="City" value="${city}"
                         data-parsley-required-message="Please enter the city." data-parsley-trigger="change" aria-label="City" required onchange="fetchMicromarkets()">
                             <option value="" disabled ${city ? '' : 'selected'}>Select Location *</option>
                         </select>
                     </div>
-                    <div class="mb-3 w-100">
+                    <div class=" w-100">
                         <select id="micromarket_${spaceCount}" class="form-control" name="micromarket[]" placeholder="Micromarket" required
                             value="${micromarket}"
                             data-parsley-required-message="Please enter the micromarket." data-parsley-trigger="change" aria-label="Micromarket>
@@ -638,7 +884,7 @@
                 <div id="propertyImagePreview_${spaceCount}" class="d-flex flex-wrap"></div>
                 <!-- End of Property Images Upload -->
                 <!-- Center Manager Details -->
-                <h5>Who is in your Team?</h5>
+                <h5 class="team">Who is in your Team?</h5>
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
                         <input type="text" class="form-control" name="center_manager_name[]" placeholder="Who manages this workspace?" required
@@ -697,85 +943,95 @@
                     <button type="button" class="btn btn-secondary mb-3" onclick="addInventory(${spaceCount})">+ Add Inventory</button>
 
                     <!-- Amenities Section (Visible only for Coworking Spaces) -->
+                    <h5 class="amen">Amenities</h5>
                     <div id="amenities_section_${spaceCount}" class="mb-3" style="display: none;">
-                        <h5>Select Amenities Available in Your Space</h5>
-                        <div class="row">
+                        <p class="file-format-note">Select Amenities Available in your Space.</p>
+                        <div class="rowamen">
                             <!-- Amenities Checkboxes (3 per row) -->
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="High Speed Wifi" id="wifi_${spaceCount}">
-                                <label for="wifi_${spaceCount}" class="form-check-label">High Speed Wifi</label>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Air Conditioning" id="air_conditioning_${spaceCount}">
+                                <label for="air_conditioning_${spaceCount}" class="form-check-label">
+                                    Air Conditioning<span class="amenity-icon">🌬️</span> 
+                                </label>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Car / Bike Parking" id="parking_${spaceCount}">
+                                <label for="parking_${spaceCount}" class="form-check-label">
+                                    Car / Bike Parking<span class="amenity-icon">🚗</span>
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Ergo Workstations" id="ergo_workstations_${spaceCount}">
+                                <label for="ergo_workstations_${spaceCount}" class="form-check-label">
+                                    Ergo Workstations<span class="amenity-icon">🪑</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="High Speed WiFi" id="wifi_${spaceCount}">
+                                <label for="wifi_${spaceCount}" class="form-check-label">
+                                    High Speed WiFi<span class="amenity-icon">📶</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}">
+                                <label for="housekeeping_${spaceCount}" class="form-check-label">
+                                    Housekeeping<span class="amenity-icon">🧹</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Lounge" id="lounge_${spaceCount}">
+                                <label for="lounge_${spaceCount}" class="form-check-label">
+                                    Lounge<span class="amenity-icon">🍹</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Meeting Rooms" id="meeting_rooms_${spaceCount}">
+                                <label for="meeting_rooms_${spaceCount}" class="form-check-label">
+                                    Meeting Rooms<span class="amenity-icon">🪑</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}">
+                                <label for="pantry_${spaceCount}" class="form-check-label">
+                                    Pantry<span class="amenity-icon">🥤</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Phone Booth" id="phone_booth_${spaceCount}">
+                                <label for="phone_booth_${spaceCount}" class="form-check-label">
+                                    Phone Booth<span class="amenity-icon">📞</span> 
+                                </label>
+                            </div>
+                            <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Printer" id="printer_${spaceCount}">
-                                <label for="printer_${spaceCount}" class="form-check-label">Printer</label>
+                                <label for="printer_${spaceCount}" class="form-check-label">
+                                    Printer<span class="amenity-icon">🖨️</span> 
+                                </label>
                             </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Parking" id="parking_${spaceCount}">
-                                <label for="parking_${spaceCount}" class="form-check-label">Parking</label>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Reception" id="reception_${spaceCount}">
+                                <label for="reception_${spaceCount}" class="form-check-label">
+                                    Reception<span class="amenity-icon">👥</span> 
+                                </label>
                             </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Meeting Rooms" id="meeting_${spaceCount}">
-                                <label for="meeting_${spaceCount}" class="form-check-label">Meeting Rooms</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Waiting & Lounge Area" id="lounge_${spaceCount}">
-                                <label for="lounge_${spaceCount}" class="form-check-label">Waiting & Lounge Area</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Vending Machine" id="vending_${spaceCount}">
-                                <label for="vending_${spaceCount}" class="form-check-label">Vending Machine</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="CCTV Surveillance" id="cctv_${spaceCount}">
-                                <label for="cctv_${spaceCount}" class="form-check-label">CCTV Surveillance</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Pet Friendly" id="pet_${spaceCount}">
-                                <label for="pet_${spaceCount}" class="form-check-label">Pet Friendly</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="ATM" id="atm_${spaceCount}">
-                                <label for="atm_${spaceCount}" class="form-check-label">ATM</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Ergonomic Seating" id="ergonomic_${spaceCount}">
-                                <label for="ergonomic_${spaceCount}" class="form-check-label">Ergonomic Seating</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Fitness Centers" id="fitness_${spaceCount}">
-                                <label for="fitness_${spaceCount}" class="form-check-label">Fitness Centers</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Nap Pods" id="nappods_${spaceCount}">
-                                <label for="nappods_${spaceCount}" class="form-check-label">Nap Pods</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Wellness Program" id="wellness_${spaceCount}">
-                                <label for="wellness_${spaceCount}" class="form-check-label">Wellness Program</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Event Spaces" id="event_${spaceCount}">
-                                <label for="event_${spaceCount}" class="form-check-label">Event Spaces</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Smoking Area" id="smoking_${spaceCount}">
-                                <label for="smoking_${spaceCount}" class="form-check-label">Smoking Area</label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Conference Room" id="conference_${spaceCount}">
-                                <label for="conference_${spaceCount}" class="form-check-label">Conference Room</label>
+                            <div class="col-md-4-amen">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Tea/Coffee" id="tea_coffee_${spaceCount}">
+                                <label for="tea_coffee_${spaceCount}" class="form-check-label">
+                                    Tea/Coffee<span class="amenity-icon">☕</span> 
+                                </label>
                             </div>
                         </div>
                     </div>
+
                     <!-- Office Timings Section -->
                     <div id="office_timings_${spaceCount}" class="mb-3" style="display: none;">
-                        <h5>Office Timings</h5>
+                        <h5 class="off">Office Timings</h5>
                         
                         <!-- Open From and Open To -->
                         <div class="form-group mb-3">
                             <div class="w-50">
                                 <label for="open_from_${spaceCount}" class="form-label">Open From *</label>
-                                <select class="form-select" id="open_from_${spaceCount}" name="open_from[]" required
+                                <select class="form-select" id="open_from_${spaceCount}" name="open_from_${spaceCount}" required
                                     data-parsley-required-message="Please select the opening day."
                                     data-parsley-trigger="change">
                                     <option value="" disabled selected>Select a day</option>
@@ -790,7 +1046,7 @@
                             </div>
                             <div class="w-50">
                                 <label for="open_to_${spaceCount}" class="form-label">Open To *</label>
-                                <select class="form-select" id="open_to_${spaceCount}" name="open_to[]" required
+                                <select class="form-select" id="open_to_${spaceCount}" name="open_to_${spaceCount}" required
                                     data-parsley-required-message="Please select the closing day."
                                     data-parsley-trigger="change">
                                     <option value="" disabled selected>Select a day</option>
@@ -805,32 +1061,17 @@
                             </div>
                         </div>
                         
-                        <!-- Closed On (Multiple Selection) -->
-                        <div class="form-group mb-3">
-                            <label for="closed_on_${spaceCount}" class="form-label">Closed On (Multiple Selection Allowed)</label>
-                            <select class="form-select" id="closed_on_${spaceCount}" name="closed_on[]" multiple
-                                data-parsley-trigger="change">
-                                <option value="Monday">Monday</option>
-                                <option value="Tuesday">Tuesday</option>
-                                <option value="Wednesday">Wednesday</option>
-                                <option value="Thursday">Thursday</option>
-                                <option value="Friday">Friday</option>
-                                <option value="Saturday">Saturday</option>
-                                <option value="Sunday">Sunday</option>
-                            </select>
-                        </div>
-                        
                         <!-- Opening Timings -->
-                        <h5>Opening Hours</h5>
+                        <h5 class="hour">Opening Hours</h5>
                         <div class="form-group mb-3">
                             <div class="w-50">
                                 <label for="opening_time_${spaceCount}" class="form-label">Opening Time *</label>
-                                <input type="time" class="form-control" id="opening_time_${spaceCount}" name="opening_time[]" required
+                                <input type="time" class="form-control" id="opening_time_${spaceCount}" name="opening_time_${spaceCount}" required
                                     data-parsley-required-message="Please enter the opening time." data-parsley-trigger="change">
                             </div>
                             <div class="w-50">
                                 <label for="closing_time_${spaceCount}" class="form-label">Closing Time *</label>
-                                <input type="time" class="form-control" id="closing_time_${spaceCount}" name="closing_time[]" required
+                                <input type="time" class="form-control" id="closing_time_${spaceCount}" name="closing_time_${spaceCount}" required
                                     data-parsley-required-message="Please enter the closing time." data-parsley-trigger="change">
                             </div>
                         </div>
@@ -884,7 +1125,7 @@
 
 
                 <!-- Common Section: Tell Us About Your Space -->
-                <h5>Tell us about your space and why it's so great</h5>
+                <h5 class="tell">Tell us about your space and why it's so great</h5>
                 <div class="form-group mb-3">
                     <textarea class="form-control" name="space_description_${spaceCount}" rows="4"
                         placeholder="Describe your workspace, amenities, and why it's a great place to work" required
@@ -1169,12 +1410,12 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
             <h6>Upload Images for this Inventory (Min 2)</h6>
             <p class="file-format-note">Upload at least 2 images (JPG, JPEG, PNG).</p>
             <div class="mb-3">
-                <input type="file" class="form-control" name="inventory_images_${spaceCount}_${inventoryCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
+                <input type="file" class="form-control" name="inventory_images_${spaceId}_${inventoryCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
                     required data-parsley-mincheck="2"
                     data-parsley-required-message="Please upload at least 2 images for this inventory type."
-                    onchange="previewInventoryImages(event, ${spaceCount}, ${inventoryCount})">
+                    onchange="previewInventoryImages(event, ${spaceId}, ${inventoryCount})">
             </div>
-            <div id="inventoryImagePreview_${spaceCount}_${inventoryCount}" class="d-flex flex-wrap"></div>
+            <div id="inventoryImagePreview_${spaceId}_${inventoryCount}" class="d-flex flex-wrap"></div>
         `;
         inventoryContainer.appendChild(inventoryRow);
 

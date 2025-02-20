@@ -427,8 +427,10 @@ def list_your_space():
             owner_email = request.form.get('owner_email')
             coworking_name = request.form.get('coworking_name')
 
-            # Get where the user heard from us
+            # Extract General Information
             hear_from = request.form.get('hear_from')
+            workspace_tool = request.form.get('workspace_tool')
+            notification_preference = request.form.getlist('notification_preference')
 
             print(f"Owner Info - Name: {name}, Phone: {owner_phone}, Email: {owner_email}, Coworking Name: {coworking_name}")
 
@@ -443,6 +445,7 @@ def list_your_space():
             current_vacancies = request.form.getlist('current_vacancy[]')
             center_manager_names = request.form.getlist('center_manager_name[]')
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
+            workspace_types = request.form.getlist('workspace_type[]')
 
             # Handle custom inputs for "Other"
             custom_cities = request.form.getlist('location_custom_1[]')  # Custom city inputs
@@ -463,7 +466,7 @@ def list_your_space():
             print(f"Custom micromarkets: {custom_micromarkets}")
 
             # Process each space
-            for idx, city, micromarket,address, total_seats, current_vacancy,center_manager_name, center_manager_contact in zip(space_indices, cities, micromarkets,addresses, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts):
+            for idx, city, micromarket,address, total_seats, current_vacancy,center_manager_name, center_manager_contact, workspace_type in zip(space_indices, cities, micromarkets,addresses, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts, workspace_types):
                 idx_str = str(idx)  # Convert idx to string in case it's not
 
                 # Validate the address
@@ -477,37 +480,54 @@ def list_your_space():
                 if micromarket == "Other" and custom_micromarkets:
                     micromarket = to_camel_case(custom_micromarkets.pop(0).strip())
 
-                # Validate city and micromarket
-                if not city or not micromarket:
-                    flash(f"City or Micromarket is missing for space {idx_str}.", 'error')
-                    continue
+                 # Upload Property Images
+                property_images = request.files.getlist(f'property_images_{idx}[]')
+                property_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name,category="property")
 
-                print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
-
-                # Get inventories for this space
-                inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
-                inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
-                price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
-
+                # Get Workspace Type Details
                 inventory = []
-                for i in range(len(inventory_types)):
-                    inventory.append({
-                        'type': inventory_types[i],
-                        'count': int(inventory_counts[i]),
-                        'price_per_seat': float(price_per_seats[i])
-                    })
+                # Get Workspace Type Details
+                if workspace_type == "Coworking Spaces":
+                    inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
+                    inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
+                    price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
 
-                print(f"Inventory for space {idx}: {inventory}")
+                    for inv_idx in range(len(inventory_types)):
+                        # Get Inventory Images for the current inventory item
+                        inventory_image_field = f'inventory_images_{idx}_{inv_idx + 1}[]'
+                        inventory_images = request.files.getlist(inventory_image_field)
 
-                # Handle file uploads (Images for Layouts)
-                layout_images = request.files.getlist(f'layout_images_{idx}[]')
+                        # Upload Inventory Images
+                        inventory_image_links = process_and_upload_images(
+                            inventory_images, 
+                            {'name': name}, 
+                            coworking_name, 
+                            category="inventory",
+                            space_id=idx,
+                            inventory_id=inv_idx + 1
+                        )
+                        inventory.append({
+                            'type': inventory_types[inv_idx],
+                            'count': int(inventory_counts[inv_idx]),
+                            'price_per_seat': float(price_per_seats[inv_idx]),
+                            'images': inventory_image_links
+                        })
 
-                # Call the process and upload images function (handles compression & DigitalOcean upload)
-                layout_image_links = process_and_upload_images(layout_images, {'name': name}, coworking_name)
+                    amenities = request.form.getlist(f'amenities_{idx}[]')
+                    open_from = request.form.get(f'open_from_{idx}')
+                    open_to = request.form.get(f'open_to_{idx}')
+                    opening_time = request.form.get(f'opening_time_{idx}')
+                    closing_time = request.form.get(f'closing_time_{idx}')
+                else:
+                    rent_or_own = request.form.get(f'rent_or_own_{idx}')
+                    area = request.form.get(f'area_{idx}')
+                    total_floors = request.form.get(f'total_floors_{idx}')
+                    floors_occupied = request.form.get(f'floors_occupied_{idx}')
 
-                print(f"Uploaded image links for space {idx}: {layout_image_links}")
+                # Get Space Description
+                space_description = request.form.get(f'space_description_{idx}')
 
-                # Create a document for each coworking space with owner info
+                # Create Document for MongoDB
                 property_details = {
                     'owner': {
                         'name': name,
@@ -524,20 +544,37 @@ def list_your_space():
                         'name': center_manager_name,
                         'contact': center_manager_contact
                     },
-                    'inventory': inventory,
-                    'layout_images': layout_image_links,
-                    'interactive_layout': False,  # Set interactive_layout as False initially
+                    'property_images': property_image_links,
+                    'workspace_type': workspace_type,
                     'hear_from': hear_from,
+                    'workspace_tool': workspace_tool,
+                    'notification_preference': notification_preference,
+                    'space_description': space_description,
                     'date': datetime.datetime.now()
                 }
 
+                # Add Workspace Type Specific Details
+                if workspace_type == "Coworking Spaces":
+                    property_details.update({
+                        'inventory': inventory,
+                        'amenities': amenities,
+                        'office_timings': {
+                            'open_from': open_from,
+                            'open_to': open_to,
+                            'opening_time': opening_time,
+                            'closing_time': closing_time
+                        }
+                    })
+                else:
+                    property_details.update({
+                        'rent_or_own': rent_or_own,
+                        'area': area,
+                        'total_floors': total_floors,
+                        'floors_occupied': floors_occupied
+                    })
+
                 # Insert into MongoDB
-                try:
-                    print(f"Inserting property details into MongoDB: {property_details}")
-                    db.fillurdetails.insert_one(property_details)
-                except Exception as db_error:
-                    flash(f"Failed to insert property: {db_error}", 'error')
-                    print(f"Error inserting property into MongoDB: {db_error}")
+                db.fillurdetails.insert_one(property_details)
 
             flash("Property details submitted successfully.", 'success')
             return redirect(url_for('core_bp.thank_you'))
@@ -547,6 +584,77 @@ def list_your_space():
             print(f"Error: {e}")
 
     return render_template('FillUrDetails.html')
+
+    #             # Validate city and micromarket
+    #             if not city or not micromarket:
+    #                 flash(f"City or Micromarket is missing for space {idx_str}.", 'error')
+    #                 continue
+
+    #             print(f"Processing space {coworking_name} in {city} ({micromarket}) with {total_seats} seats")
+
+    #             # Get inventories for this space
+    #             inventory_types = request.form.getlist(f'inventory_type_{idx}[]')
+    #             inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
+    #             price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
+
+    #             inventory = []
+    #             for i in range(len(inventory_types)):
+    #                 inventory.append({
+    #                     'type': inventory_types[i],
+    #                     'count': int(inventory_counts[i]),
+    #                     'price_per_seat': float(price_per_seats[i])
+    #                 })
+
+    #             print(f"Inventory for space {idx}: {inventory}")
+
+    #             # Handle file uploads (Images for Layouts)
+    #             layout_images = request.files.getlist(f'layout_images_{idx}[]')
+
+    #             # Call the process and upload images function (handles compression & DigitalOcean upload)
+    #             layout_image_links = process_and_upload_images(layout_images, {'name': name}, coworking_name)
+
+    #             print(f"Uploaded image links for space {idx}: {layout_image_links}")
+
+    #             # Create a document for each coworking space with owner info
+    #             property_details = {
+    #                 'owner': {
+    #                     'name': name,
+    #                     'phone': owner_phone,
+    #                     'email': owner_email
+    #                 },
+    #                 'coworking_name': coworking_name,
+    #                 'city': city,
+    #                 'micromarket': micromarket,
+    #                 'address': address, 
+    #                 'total_seats': int(total_seats),
+    #                 'current_vacancy': int(current_vacancy),
+    #                 'center_manager': {
+    #                     'name': center_manager_name,
+    #                     'contact': center_manager_contact
+    #                 },
+    #                 'inventory': inventory,
+    #                 'layout_images': layout_image_links,
+    #                 'interactive_layout': False,  # Set interactive_layout as False initially
+    #                 'hear_from': hear_from,
+    #                 'date': datetime.datetime.now()
+    #             }
+
+    #             # Insert into MongoDB
+    #             try:
+    #                 print(f"Inserting property details into MongoDB: {property_details}")
+    #                 db.fillurdetails.insert_one(property_details)
+    #             except Exception as db_error:
+    #                 flash(f"Failed to insert property: {db_error}", 'error')
+    #                 print(f"Error inserting property into MongoDB: {db_error}")
+
+    #         flash("Property details submitted successfully.", 'success')
+    #         return redirect(url_for('core_bp.thank_you'))
+
+    #     except Exception as e:
+    #         flash(f"Failed to submit property details: {str(e)}", 'error')
+    #         print(f"Error: {e}")
+
+    # return render_template('FillUrDetails.html')
 
 @core_bp.route('/get_inventory_types', methods=['GET'])
 def get_inventory_types():
