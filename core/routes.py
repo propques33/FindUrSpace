@@ -85,6 +85,16 @@ def send_otp():
     else:
         return jsonify({'success': False, 'message': response.get('message', 'Failed to send OTP')})
 
+@core_bp.route('/outerpage')
+def outerpage():
+    db = current_app.config['db']  # Get the db instance from the app config
+    
+    # Fetch all records from fillurdetails
+    records = list(db.fillurdetails.find({}))
+    
+    # Pass the records to the template
+    return render_template('outerpage.html', records=records)
+
 @core_bp.route('/verify_otp', methods=['POST'])
 def verify_otp():
     mobile = session.get('contact')
@@ -520,9 +530,29 @@ def list_your_space():
                     closing_time = request.form.get(f'closing_time_{idx}')
                 else:
                     rent_or_own = request.form.get(f'rent_or_own_{idx}')
-                    area = request.form.get(f'area_{idx}')
-                    total_floors = request.form.get(f'total_floors_{idx}')
-                    floors_occupied = request.form.get(f'floors_occupied_{idx}')
+                    # Use a try-except block to catch any conversion errors
+                    try:
+                        total_building_area = int(request.form.get(f'total_building_area_{idx}') or '0')
+                    except ValueError:
+                        total_building_area = 0  # Default to 0 if conversion fails
+
+                    try:
+                        total_floors = int(request.form.get(f'total_floors_{idx}') or '0')
+                    except ValueError:
+                        total_floors = 0
+
+                    try:
+                        floors_occupied = int(request.form.get(f'floors_occupied_{idx}') or '0')
+                    except ValueError:
+                        floors_occupied = 0
+
+                    try:
+                        lockin_period = int(request.form.get(f'lockin_period_{idx}') or '0')
+                    except ValueError:
+                        lockin_period = 0
+                    seating_capacity = request.form.get(f'seating_capacity_{idx}') or 'N/A'
+                    furnishing_level = request.form.get(f'furnishing_level_{idx}') or 'N/A'
+                    custom_amenities = request.form.getlist(f'custom_amenities_{idx}[]')
 
                 # Get Space Description
                 space_description = request.form.get(f'space_description_{idx}')
@@ -566,11 +596,16 @@ def list_your_space():
                         }
                     })
                 else:
+                    # Add Managed Offices Details to Document
                     property_details.update({
                         'rent_or_own': rent_or_own,
-                        'area': area,
+                        'total_building_area': total_building_area,
                         'total_floors': total_floors,
-                        'floors_occupied': floors_occupied
+                        'floors_occupied': floors_occupied,
+                        'seating_capacity': seating_capacity,
+                        'furnishing_level': furnishing_level,
+                        'lockin_period': lockin_period,
+                        'custom_amenities': custom_amenities
                     })
 
                 # Insert into MongoDB

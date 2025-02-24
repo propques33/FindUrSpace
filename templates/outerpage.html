@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coworking Space Card</title>
+    <link rel="stylesheet" href="../static/css/outer.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=social_distance" />
+    <!-- Google Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=currency_rupee" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=real_estate_agent" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    />
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!-- intlTelInput CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css">
+
+    <!-- Link to FontAwesome for mail icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=menu" />
+  
+    <!-- Facebook Pixel Code -->
+      <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window,document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '3647529905577467'); 
+        fbq('track', 'PageView');
+        </script>
+        <noscript>
+        <img height="1" width="1" 
+        src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
+        &noscript=1"/>
+        </noscript>
+    <!-- End Facebook Pixel Code -->
+  </head>
+  <body>
+    <!-- Navbar Section -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <!-- Add an icon before FindUrSpace -->
+            <a class="navbar-brand" href="#">
+                <img src="../static/images/logo.png" alt="Icon" loading="lazy" width="70" height="60" class="d-inline-block align-text-top">
+                <span style="font-size: 1.5rem; font-weight: bold;">FindUrSpace</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <img src="../static/images/menu_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.png" alt="Menu" loading="lazy" width="40px" height="40px">          
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-4">
+
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('core_bp.blog') }}">
+                        <h1 class="listur">Blogs</h1>
+                    </a>
+                  </li>
+                <!-- Operators Login Button -->
+                <li class="nav-item inline-block">
+                  <a class="nav-link" href="{{ url_for('operators.operators_login') }}">
+                      <h1 class="listur">Operators Login</h1>
+                  </a>
+                </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="content-wrapper">
+    <div class="main">
+      <div class="cards">
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+
+          <div class="card-space-image-container">
+            <img
+              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
+              alt="Coworking Space"
+              class="card-space-image"
+            />
+          </div>
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price"><span class="material-symbols-outlined icon">
+                currency_rupee
+                </span>Price</h3>
+              <div class="rating rat">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">Inventory Type</p>
+              <div class="card-con2-1">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+                </span>Host who is providing the space<br /></p>
+            <div class="card-con4">
+              <p class="dis"><span class="material-symbols-outlined">
+                distance
+                </span>
+                Address of Coworking Space</p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
+        </div>
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+
+          <div class="card-space-image-container">
+            <img
+              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
+              alt="Coworking Space"
+              class="card-space-image"
+            />
+          </div>
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price"><span class="material-symbols-outlined icon">
+                currency_rupee
+                </span>Price</h3>
+              <div class="rating rat">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">Inventory Type</p>
+              <div class="card-con2-1">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+                </span>Host who is providing the space<br /></p>
+            <div class="card-con4">
+              <p class="dis"><span class="material-symbols-outlined">
+                distance
+                </span>
+                Address of Coworking Space</p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
+        </div>
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+
+          <div class="card-space-image-container">
+            <img
+              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
+              alt="Coworking Space"
+              class="card-space-image"
+            />
+          </div>
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price"><span class="material-symbols-outlined icon">
+                currency_rupee
+                </span>Price</h3>
+              <div class="rating rat">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">Inventory Type</p>
+              <div class="card-con2-1">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+                </span>Host who is providing the space<br /></p>
+            <div class="card-con4">
+              <p class="dis"><span class="material-symbols-outlined">
+                distance
+                </span>
+                Address of Coworking Space</p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
+        </div>
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+
+          <div class="card-space-image-container">
+            <img
+              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
+              alt="Coworking Space"
+              class="card-space-image"
+            />
+          </div>
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price"><span class="material-symbols-outlined icon">
+                currency_rupee
+                </span>Price</h3>
+              <div class="rating rat">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">Inventory Type</p>
+              <div class="card-con2-1">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+                </span>Host who is providing the space<br /></p>
+            <div class="card-con4">
+              <p class="dis"><span class="material-symbols-outlined">
+                distance
+                </span>
+                Address of Coworking Space</p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
+        </div>
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+
+          <div class="card-space-image-container">
+            <img
+              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
+              alt="Coworking Space"
+              class="card-space-image"
+            />
+          </div>
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price"><span class="material-symbols-outlined icon">
+                currency_rupee
+                </span>Price</h3>
+              <div class="rating rat">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">Inventory Type</p>
+              <div class="card-con2-1">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+                </span>Host who is providing the space<br /></p>
+            <div class="card-con4">
+              <p class="dis"><span class="material-symbols-outlined">
+                distance
+                </span>
+                Address of Coworking Space</p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
+        </div>
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+
+          <div class="card-space-image-container">
+            <img
+              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
+              alt="Coworking Space"
+              class="card-space-image"
+            />
+          </div>
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price"><span class="material-symbols-outlined icon">
+                currency_rupee
+                </span>Price</h3>
+              <div class="rating rat">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">Inventory Type</p>
+              <div class="card-con2-1">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+                </span>Host who is providing the space<br /></p>
+            <div class="card-con4">
+              <p class="dis"><span class="material-symbols-outlined">
+                distance
+                </span>
+                Address of Coworking Space</p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
+        </div>
+      </div>
+      <div class="maps">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.0730000000003!2d-73.9854286845949!3d40.74881797932847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2598f3f3b8b3b%3A0x1f3b3d1b3d3d!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1626823660006!5m2!1sen!2sus"
+          allowfullscreen=""
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+    <div class="pagination">
+      <a href="#" class="page active">1</a>
+      <a href="#" class="page">2</a>
+      <a href="#" class="page">3</a>
+      <a href="#" class="page">4</a>
+      <a href="#" class="page">5</a>
+      <a href="#" class="page">6</a>
+      <a href="#" class="page">7</a>
+      <span class="dots">...</span>
+      <a href="#" class="page">74</a>
+      <a href="#" class="next">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </a>
+    </div>
+  </div>
+    <div class="faq-container">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <h3>
+          What is FindUrSpace?
+          <span>+</span>
+        </h3>
+        <p>
+          FindUrSpace is your all-in-one solution for discovering affordable coworking spaces nearby. Our curated options not only provide workspace solutions but also offer opportunities to network with industry leaders and gain valuable insights.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3> How does FindUrSpace work? <span>+</span></h3>
+        <p>
+          Submit your workspace preferences.
+          Get AI-based space recommendations.
+          Schedule visits via AI bot over a call.
+          Post-visit, confirm with managers and finalize your booking
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          What types of workspaces can I find?
+          <span>+</span>
+        </h3>
+        <p>
+          In FindUrSpace you can find day passes, meeting rooms, hot desks, private offices, manager cabins, and fully furnished managed spaces tailored to your needs.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          How much does a coworking space typically cost?
+          <span>+</span>
+        </h3>
+        <p>
+          Costs vary based on the number of seats, location, amenities, and workspace type, ranging from budget-friendly to premium options.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          What is the price range for hot desks?
+          <span>+</span>
+        </h3>
+        <p>
+          Private desks start at ₹5,000 per month, with exclusive offers available.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>
+          What is the price range for dedicated desks?
+          <span>+</span>
+        </h3>
+        <p>
+          Dedicated desks typically range from ₹5,000 to ₹15,000 per month, depending on the location.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          Which are the best locations for coworking spaces?
+          <span>+</span>
+        </h3>
+        <p>
+          FindUrSpace is committed to providing top-rated, affordable coworking spaces near your location.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          Who can use coworking spaces?
+          <span>+</span>
+        </h3>
+        <p>
+          Coworking spaces are perfect for startups, freelancers, remote workers, small businesses, and large enterprises.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          What amenities are included in coworking spaces?
+          <span>+</span>
+        </h3>
+        <p>
+          High-speed Wi-Fi,
+          Conference and meeting rooms,
+          Printing and scanning facilities,
+          Pantry services with tea/coffee,
+          24/7 access with security,
+          Lounge and networking areas.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3>
+          What documents are required to book a coworking space?
+          <span>+</span>
+        </h3>
+        <p>
+          Government-issued ID proof,
+          Address proof,
+          Company registration certificate (for businesses),
+          PAN card (for businesses).
+        </p>
+      </div>
+    </div>
+
+    <div class="reviews-section">
+      <div class="reviews-header">
+        <div>
+          <span>What customers says</span>
+          <h2>Recent Reviews</h2>
+        </div>
+
+        <div class="review-navigation-buttons but1">
+          <button class="nav-button left" onclick="moveLeft()">&#8592;</button>
+          <button class="nav-button right" onclick="moveRight()">
+            &#8594;
+          </button>
+        </div>
+      </div>
+
+      <div class="reviews-container">
+        <div class="review-card">
+          <p>⭐⭐⭐⭐⭐</p>
+          <p>FindUrSpace made it super easy for me to find a coworking space. I loved the AI recommendations!
+          </p>
+          <div class="user-info">
+            <img
+              src="../static/images/logo.png"
+              alt="User"
+            />
+            <div class="info">
+              <h4>Ravi Sharma</h4>
+              <p>Jun 27, 2024 - 6 min read</p>
+            </div>
+          </div>
+        </div>
+        <div class="review-card">
+          <p>⭐⭐⭐⭐⭐</p>
+          <p>The variety of spaces offered by FindUrSpace is unparalleled. Found the perfect spot in no time!</p>
+          <div class="user-info">
+            <img
+              src="../static/images/logo.png"
+              alt="User"
+            />
+            <div class="info">
+              <h4>Anita Desai</h4>
+              <p>Jul 15, 2024 - 4 min read</p>
+            </div>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="stars">⭐⭐⭐⭐⭐</p>
+          <p>Customer service was top-notch, and the booking process was a breeze. Highly recommend!</p>
+          <div class="user-info">
+            <img
+              src="../static/images/logo.png"
+              alt="User"
+            />
+            <div class="info">
+              <h4>Mohit Verma</h4>
+              <p>Sep 12, 2024 - 5 min read</p>
+            </div>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="stars">⭐⭐⭐⭐⭐</p>
+          <p>Loved the AI recommendations! It suggested spaces I wouldn't have considered but turned out perfect.</p>
+          <div class="user-info">
+            <img
+              src="../static/images/logo.png"
+              alt="User"
+            />
+            <div class="info">
+              <h4>Sahil Bhardwaj</h4>
+              <p>Dec 18, 2024 - 5 min read</p>
+            </div>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="stars">⭐⭐⭐⭐⭐</p>
+          <p>FindUrSpace is a game-changer for freelancers like me. Flexible and affordable options everywhere.</p>
+          <div class="user-info">
+            <img
+              src="../static/images/logo.png"
+              alt="User"
+            />
+            <div class="info">
+              <h4>Nishant Deswal</h4>
+              <p>Jan 10, 2025 - 5 min read</p>
+            </div>
+          </div>
+        </div>
+        <div class="review-card">
+          <p class="stars">⭐⭐⭐⭐⭐</p>
+          <p>The platform is very user-friendly, and I found exactly what I needed in less than a day!</p>
+          <div class="user-info">
+            <img
+              src="../static/images/logo.png"
+              alt="User"
+            />
+            <div class="info">
+              <h4>Divya Gupta</h4>
+              <p>Jan 25, 2025 - 5 min read</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="review-navigation-buttons but">
+        <button class="nav-button left" onclick="moveLeft()">&#8592;</button>
+        <button class="nav-button right" onclick="moveRight()">
+          &#8594;
+        </button>
+      </div>
+
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section logo-section">
+                <img src="../static/images/logo.webp" loading="lazy" alt="FindurSpace Logo" class="footer-logo">
+                <p class="tu">Follow us on social media to stay updated with the <strong>latest coworking trends, special deals, & workspace tips.</strong></p>
+                <div class="social-media">
+                    <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr" target="_blank" alt="follow us on Facebook"><img src="../static/images/Face BookAsset 27.svg" loading="lazy" alt="Facebook"  width="" height=""></a>
+                    <a href="https://www.instagram.com/findur.space/" target="_blank" alt="follow us on Instagram"><img src="../static/images/InstagramAsset 28.svg" loading="lazy" alt="instagram"  width="" height=""></a>
+                </div>
+            </div>
+            <div class="footer-section links">
+                <p class="fot-link">Useful Links</p>
+                <ul>
+                    <li><a href="{{ url_for('core_bp.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">How it Works</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Our Presence</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Features</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section product-help">
+                <p class="fot-link">Product Help</p>
+                <ul>
+                    <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">FAQ</a></li>
+                    <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section contact">
+                <p class="fot-link">Contact US</p>
+                <ul>
+                    <li style="align-items: flex-start;">
+                        <img src="../static/images/house.png" loading="lazy" alt="office Address" width="" height=""> 
+                        <span>Excel Coworks - Naagarabhaavi, Bangalore 3rd Floor, Tushar Arcade, Service Road, Naagarabhaavi, Bengaluru, Karnataka 560072</span>
+                    </li>
+                    <li style="display:flex; align-items:center;">
+                        <a href="tel:+918069328922">
+                            <img src="../static/images/phone-call.png" loading="lazy" alt="Contact Number" style="width:40px;height:40px;">
+                        </a>
+                        <a href="tel:+918069328922">+91-8069328922</a>
+                    </li>
+                    <li style="display:flex; align-items:center;">
+                        <a href="mailto:sales@findurspace.tech">
+                            <img src="../static/images/email.png" loading="lazy" alt="Email Address" style="width:40px;height:40px;">
+                        </a>
+                        <a href="mailto:sales@findurspace.tech">sales@findurspace.tech</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© Copyrights 2025 FindurSpace All rights reserved.</p>
+        </div>
+      </footer>
+      <a href="https://propques.com/" rel="noopener" alt="Propques Service Pvt Ltd" target="_blank" style="text-decoration-line: none;"><div class="fnv">Powered by Propques Services Pvt Ltd <span class="arr" ><img src="../static/images/arrow1.svg" alt="arrow"></span></div></a>
+
+  
+
+    <script>
+      // JavaScript to toggle bookmark (heart) color
+      document.querySelectorAll(".bookmark-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          btn.classList.toggle("bookmarked");
+        });
+      });
+
+      // FAQ
+
+      const faqItems = document.querySelectorAll(".faq-item h3");
+      faqItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const parent = item.parentElement;
+          parent.classList.toggle("active");
+          const symbol = item.querySelector("span");
+          symbol.textContent = parent.classList.contains("active") ? "-" : "+";
+        });
+      });
+
+      // Review
+      let currentIndex = 0;
+      const reviewsContainer = document.querySelector(".reviews-container");
+      const cards = document.querySelectorAll(".review-card");
+      const cardWidth = cards[0].offsetWidth + 20;
+
+      function moveRight() {
+        if (currentIndex < cards.length - 1) {
+          currentIndex++;
+          reviewsContainer.style.transform = `translateX(-${
+            cardWidth * currentIndex
+          }px)`;
+        }
+      }
+
+      function moveLeft() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          reviewsContainer.style.transform = `translateX(-${
+            cardWidth * currentIndex
+          }px)`;
+        }
+      }
+
+      // Navbar Toggle Functionality (Bootstrap)
+// This is handled automatically by Bootstrap's JS through data attributes
+// But needs Bootstrap JS to be included
+
+// Footer "Powered by" link interaction
+document.querySelector('.fnv').addEventListener('click', function(e) {
+    // Track click event if needed
+    console.log('Powered by link clicked');
+});
+
+// Mobile Menu Close on Click (for responsive behavior)
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        if(navbarCollapse.classList.contains('show')) {
+            new bootstrap.Collapse(navbarCollapse).hide();
+        }
+    });
+});
+
+// Social Media Link Tracking
+document.querySelectorAll('.social-media a').forEach(link => {
+    link.addEventListener('click', function(e) {
+        const platform = this.querySelector('img').alt;
+        console.log(`Social media link clicked: ${platform}`);
+        // Add analytics tracking here
+    });
+});
+
+// Phone Number Click Tracking
+document.querySelector('a[href^="tel:"]').addEventListener('click', function() {
+    console.log('Phone number clicked');
+    // Add call tracking here
+});
+
+// Email Click Tracking
+document.querySelector('a[href^="mailto:"]').addEventListener('click', function() {
+    console.log('Email address clicked');
+    // Add email interaction tracking here
+});
+
+
+
+// Bootstrap Initialization (required for navbar toggle)
+var navToggler = document.querySelector('.navbar-toggler');
+var navCollapse = document.querySelector('.navbar-collapse');
+
+navToggler.addEventListener('click', function() {
+    navCollapse.classList.toggle('show');
+});
+
+// Footer Copyright Year Update
+document.querySelector('.footer-bottom p').innerHTML = 
+    `© Copyrights ${new Date().getFullYear()} FindurSpace All rights reserved.`;
+    </script>
+  </body>
+</html>

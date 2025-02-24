@@ -1099,7 +1099,8 @@ h3 {
                 <div id="managed_office_fields_${spaceCount}" style="display: none;">
                     <h5>Managed Office Details</h5>
 
-                    <!-- First Row: Rent or Own & Area -->
+                    <!-- First Row: Rent or Own & Total Building Area -->
+                    <!-- Rent or Own & Total Building Area -->
                     <div class="form-group mb-3 d-flex gap-3">
                         <div class="w-50">
                             <label for="rent_or_own_${spaceCount}" class="form-label">Do you rent or own your space?</label>
@@ -1113,29 +1114,93 @@ h3 {
                         </div>
 
                         <div class="w-50">
-                            <label for="area_${spaceCount}" class="form-label">Area in sqft</label>
-                            <input type="number" class="form-control" id="area_${spaceCount}" name="area_${spaceCount}" placeholder="Enter total area in sqft"
-                                min="0" required data-parsley-required-message="Please enter the total area."
-                                data-parsley-type="number" data-parsley-trigger="change">
+                            <label for="total_building_area_${spaceCount}" class="form-label">Total Building Area (sqft)</label>
+                            <input type="number" class="form-control" id="total_building_area_${spaceCount}" name="total_building_area_${spaceCount}" 
+                                placeholder="Enter total building area" min="0" value="0" required
+                                data-parsley-required-message="Please enter the total building area."
+                                data-parsley-type="digits" data-parsley-trigger="change focusout">
                         </div>
                     </div>
 
-                    <!-- Second Row: No. of Floors & No. of Floors Occupied -->
+                    <!-- Number of Floors & Occupied Floors -->
                     <div class="form-group mb-3 d-flex gap-3">
                         <div class="w-50">
-                            <label for="total_floors_${spaceCount}" class="form-label">No. of Floors</label>
+                            <label for="total_floors_${spaceCount}" class="form-label">Number of Floors</label>
                             <input type="number" class="form-control" id="total_floors_${spaceCount}" name="total_floors_${spaceCount}"
-                                placeholder="Enter total number of floors" min="1" required
+                                placeholder="Enter total number of floors" min="1" value="0" required
                                 data-parsley-required-message="Please enter the number of floors."
-                                data-parsley-type="number" data-parsley-trigger="change">
+                                data-parsley-type="digits" data-parsley-trigger="change focusout">
                         </div>
 
                         <div class="w-50">
-                            <label for="floors_occupied_${spaceCount}" class="form-label">No. of Floors Occupied</label>
+                            <label for="floors_occupied_${spaceCount}" class="form-label">Number of Floors Occupied</label>
                             <input type="number" class="form-control" id="floors_occupied_${spaceCount}" name="floors_occupied_${spaceCount}"
-                                placeholder="Enter number of occupied floors" min="1" required
+                                placeholder="Enter number of occupied floors" min="1" value="0" required
                                 data-parsley-required-message="Please enter the number of floors occupied."
-                                data-parsley-type="number" data-parsley-trigger="change">
+                                data-parsley-type="digits" data-parsley-trigger="change focusout">
+                        </div>
+                    </div>
+
+                    <!-- Seating Capacity & Furnishing Level -->
+                    <div class="form-group mb-3 d-flex gap-3">
+                        <div class="w-50">
+                            <label for="seating_capacity_${spaceCount}" class="form-label">Total Seating Capacity</label>
+                            <select class="form-select" id="seating_capacity_${spaceCount}" name="seating_capacity_${spaceCount}" required
+                                data-parsley-required-message="Please select the seating capacity."
+                                data-parsley-trigger="change">
+                                <option value="" disabled selected>Select Seating Capacity</option>
+                                <option value="<25">Less than 25</option>
+                                <option value="25-50">25-50</option>
+                                <option value="50+">More than 50</option>
+                            </select>
+                        </div>
+
+                        <div class="w-50">
+                            <label for="furnishing_level_${spaceCount}" class="form-label">Furnishing Level</label>
+                            <select class="form-select" id="furnishing_level_${spaceCount}" name="furnishing_level_${spaceCount}" required
+                                data-parsley-required-message="Please select the furnishing level."
+                                data-parsley-trigger="change">
+                                <option value="" disabled selected>Select Furnishing Level</option>
+                                <option value="Ready to move in">Ready to move in</option>
+                                <option value="Fully furnished">Fully furnished</option>
+                                <option value="Partially furnished">Partially furnished</option>
+                                <option value="Bare shell">Bare shell</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="lockin_period_${spaceCount}" class="form-label">Expected Lock-in Period (Months)</label>
+                        <select class="form-select" id="lockin_period_${spaceCount}" name="lockin_period_${spaceCount}" required
+                            data-parsley-required-message="Please select the lock-in period."
+                            data-parsley-trigger="change">
+                            <option value="0" selected>No Lock-in Period</option>
+                            ${[...Array(12).keys()].map(i => `<option value="${i+1}">${i+1} Month${i > 0 ? 's' : ''}</option>`).join('')}
+                        </select>
+                    </div>
+
+                    <!-- Fifth Row: Amenities -->
+                    <h5 class="amen">Custom Infrastructure</h5>
+                    <div class="rowamen">
+                        <div class="col-md-4-amen">
+                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Meeting Room" id="meeting_room_${spaceCount}">
+                            <label for="meeting_room_${spaceCount}" class="form-check-label">Meeting Room</label>
+                        </div>
+                        <div class="col-md-4-amen">
+                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Private Cabins" id="private_cabins_${spaceCount}">
+                            <label for="private_cabins_${spaceCount}" class="form-check-label">Private Cabins</label>
+                        </div>
+                        <div class="col-md-4-amen">
+                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Reception Area" id="reception_area_${spaceCount}">
+                            <label for="reception_area_${spaceCount}" class="form-check-label">Reception Area</label>
+                        </div>
+                        <div class="col-md-4-amen">
+                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}">
+                            <label for="pantry_${spaceCount}" class="form-check-label">Pantry</label>
+                        </div>
+                        <div class="col-md-4-amen">
+                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Recreation Area" id="recreation_area_${spaceCount}">
+                            <label for="recreation_area_${spaceCount}" class="form-check-label">Recreation Area</label>
                         </div>
                     </div>
                 </div>
@@ -1247,6 +1312,14 @@ function toCamelCase(input) {
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
 }
+
+document.querySelectorAll('input[type="number"]').forEach((input) => {
+    if (input.value === '') {
+        input.value = '0';
+    }
+});
+
+
 
 // Populate locations dropdown
 function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromarket = '') {
