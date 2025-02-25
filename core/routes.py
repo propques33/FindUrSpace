@@ -87,12 +87,14 @@ def send_otp():
 
 @core_bp.route('/outerpage')
 def outerpage():
-    db = current_app.config['db']  # Get the db instance from the app config
-    
-    # Fetch all records from fillurdetails
-    records = list(db.fillurdetails.find({}))
-    
-    # Pass the records to the template
+    db = current_app.config['db']  # Access the MongoDB instance
+
+    # Fetch records with 'new' field set to True
+    records = list(db.fillurdetails.find({"new": True}))
+
+    # Debugging line (optional): Print fetched records in console
+    print("Fetched Records:", records)
+
     return render_template('outerpage.html', records=records)
 
 @core_bp.route('/verify_otp', methods=['POST'])
@@ -208,7 +210,7 @@ def submit_info():
         session['user_id'] = str(existing_user['_id'])
         # ✅ Update Google Sheets with latest form submission
         google_sheet_status = handle_new_user_entry(user_data)
-        return jsonify({'status': 'exists', 'message': 'User exists', 'redirect': '/thankyou'})
+        return jsonify({'status': 'exists', 'message': 'User exists', 'redirect': '/outerpage'})
     else:
         result = db.users.insert_one(user_data)
         session['user_id'] = str(result.inserted_id)  # Save new user_id in the session
@@ -502,7 +504,7 @@ def list_your_space():
                     inventory_counts = request.form.getlist(f'inventory_count_{idx}[]')
                     price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
 
-                    for inv_idx in range(len(inventory_types)):
+                    for inv_idx, inv_type in enumerate(inventory_types):
                         # Get Inventory Images for the current inventory item
                         inventory_image_field = f'inventory_images_{idx}_{inv_idx + 1}[]'
                         inventory_images = request.files.getlist(inventory_image_field)
@@ -516,12 +518,59 @@ def list_your_space():
                             space_id=idx,
                             inventory_id=inv_idx + 1
                         )
-                        inventory.append({
-                            'type': inventory_types[inv_idx],
-                            'count': int(inventory_counts[inv_idx]),
-                            'price_per_seat': float(price_per_seats[inv_idx]),
-                            'images': inventory_image_links
-                        })
+
+                        #e Meeting Rooms and Private Cabins separately
+                        if inv_type in ["Meeting rooms", "Private cabin"]:
+                            room_count = request.form.get(f'number_of_rooms_{idx}_{inv_idx + 1}')
+                            print(f"Room Count Raw: {room_count}")
+                            if room_count:
+                                room_count = int(room_count[0])
+                            else:
+                                room_count = 0
+                            print(f"Room Count Received: {room_count}")  # Debug: Check received value
+
+                            # Convert room_count to int safely
+                            try:
+                                room_count = int(room_count or 0)
+                            except (ValueError, TypeError):
+                                room_count = 0                            
+                            room_details = []
+
+                            for room_number in range(1, int(room_count) + 1):
+                                try:
+                                    seating_capacity = int(request.form.get(f'seating_capacity_{idx}_{inv_idx + 1}_{room_number}') or 0)
+                                except (ValueError, TypeError):
+                                    seating_capacity = 0
+                                try:
+                                    price = float(request.form.get(f'price_{idx}_{inv_idx + 1}_{room_number}') or 0.0)
+                                except (ValueError, TypeError):
+                                    price = 0.0
+
+                                print(f"Room Number: {room_number}")  # Debug: Room number loop
+                                print(f"Seating Capacity Received: {seating_capacity}")  # Debug
+                                print(f"Price Received: {price}")  # Debug
+                                if seating_capacity and price:
+                                    room_details.append({
+                                        'room_number': room_number,
+                                        'seating_capacity': int(seating_capacity),
+                                        'price': float(price)
+                                    })
+
+                            print(f"Final Room Details: {room_details}") 
+
+                            inventory.append({
+                                'type': inv_type,
+                                'room_count': room_count,
+                                'room_details': room_details,
+                                'images': inventory_image_links
+                            })
+                        else:
+                            inventory.append({
+                                'type': inv_type,
+                                'count': int(inventory_counts[inv_idx] or 0),
+                                'price_per_seat': float(price_per_seats[inv_idx] or 0.0),
+                                'images': inventory_image_links
+                            })
 
                     amenities = request.form.getlist(f'amenities_{idx}[]')
                     open_from = request.form.get(f'open_from_{idx}')
@@ -530,25 +579,50 @@ def list_your_space():
                     closing_time = request.form.get(f'closing_time_{idx}')
                 else:
                     rent_or_own = request.form.get(f'rent_or_own_{idx}')
+                    print("Debug Info: total_building_area =", request.form.get(f'total_building_area_{idx}'))
+                    print("Debug Info: floorplate_area =", request.form.get(f'floorplate_area_{idx}'))
+                    print("Debug Info: min_inventory_unit =", request.form.get(f'min_inventory_unit_{idx}'))
+                    print("Debug Info: total_rental =", request.form.get(f'total_rental_{idx}'))
+                    print("Debug Info: total_floors =", request.form.get(f'total_floors_{idx}'))
+                    print("Debug Info: floors_occupied =", request.form.get(f'floors_occupied_{idx}'))
+                    print("Debug Info: lockin_period =", request.form.get(f'lockin_period_{idx}'))
+
                     # Use a try-except block to catch any conversion errors
                     try:
                         total_building_area = int(request.form.get(f'total_building_area_{idx}') or '0')
-                    except ValueError:
+                    except (ValueError, TypeError):
                         total_building_area = 0  # Default to 0 if conversion fails
 
                     try:
+                        floorplate_area = int(request.form.get(f'floorplate_area_{idx}') or 0)
+                    except (ValueError, TypeError):
+                        floorplate_area = 0  # Default to 0 if conversion fails
+
+                    try:
+                        min_inventory_unit = int(request.form.get(f'min_inventory_unit_{idx}') or 0)
+                    except (ValueError, TypeError):
+                        min_inventory_unit = 0  # Default to 0 if conversion fails
+
+                    try:
+                        total_rental = int(request.form.get(f'total_rental_{idx}') or 0)
+                    except (ValueError, TypeError):
+                        total_rental = 0  # Default to 0 if conversion fails
+
+                    space_type = request.form.get(f'space_type_{idx}')
+
+                    try:
                         total_floors = int(request.form.get(f'total_floors_{idx}') or '0')
-                    except ValueError:
+                    except (ValueError, TypeError):
                         total_floors = 0
 
                     try:
                         floors_occupied = int(request.form.get(f'floors_occupied_{idx}') or '0')
-                    except ValueError:
+                    except (ValueError, TypeError):
                         floors_occupied = 0
 
                     try:
                         lockin_period = int(request.form.get(f'lockin_period_{idx}') or '0')
-                    except ValueError:
+                    except (ValueError, TypeError):
                         lockin_period = 0
                     seating_capacity = request.form.get(f'seating_capacity_{idx}') or 'N/A'
                     furnishing_level = request.form.get(f'furnishing_level_{idx}') or 'N/A'
@@ -568,8 +642,8 @@ def list_your_space():
                     'city': city,
                     'micromarket': micromarket,
                     'address': address, 
-                    'total_seats': int(total_seats),
-                    'current_vacancy': int(current_vacancy),
+                    'total_seats': int(total_seats or 0),
+                    'current_vacancy': int(current_vacancy or 0),
                     'center_manager': {
                         'name': center_manager_name,
                         'contact': center_manager_contact
@@ -580,6 +654,7 @@ def list_your_space():
                     'workspace_tool': workspace_tool,
                     'notification_preference': notification_preference,
                     'space_description': space_description,
+                    'status':'new',
                     'date': datetime.datetime.now()
                 }
 
@@ -601,6 +676,10 @@ def list_your_space():
                         'rent_or_own': rent_or_own,
                         'total_building_area': total_building_area,
                         'total_floors': total_floors,
+                        'floorplate_area': floorplate_area,
+                        'min_inventory_unit': min_inventory_unit,
+                        'total_rental': total_rental,
+                        'space_type': space_type,
                         'floors_occupied': floors_occupied,
                         'seating_capacity': seating_capacity,
                         'furnishing_level': furnishing_level,

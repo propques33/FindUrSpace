@@ -81,273 +81,65 @@
         </div>
     </nav>
     <div class="content-wrapper">
-    <div class="main">
-      <div class="cards">
-        <div class="card">
-          <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+      <div class="main">
+        <div class="cards">
+        <!-- Loop through all records -->
+        {% for record in records %}
+          <!-- Loop through each inventory type in the record -->
+          {% for inventory in record.inventory %}
+          <div class="card">
+            <!-- Bookmark Button -->
+            <span class="bookmark-btn material-symbols-outlined"> favorite </span>
 
-          <div class="card-space-image-container">
-            <img
-              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
-              alt="Coworking Space"
-              class="card-space-image"
-            />
-          </div>
-          <div class="card-content">
-            <div class="card-con1">
-              <h3 class="price"><span class="material-symbols-outlined icon">
-                currency_rupee
-                </span>Price</h3>
-              <div class="rating rat">
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
-              </div>
+            <div class="card-space-image-container">
+              <img
+                src="{{ record.property_images[0] }}"
+                alt="{{ record.coworking_name }}"
+                class="card-space-image"
+              />
             </div>
-            <div class="card-con2">
-              <p class="inv">Inventory Type</p>
-              <div class="card-con2-1">
+            <div class="card-content">
+              <div class="card-con1">
+                <h3 class="price"><span class="material-symbols-outlined icon">
+                  currency_rupee
+                  </span>{{ inventory.price_per_seat }}</h3>
+                <div class="rating rat">
+                  <span class="star">⭐ 4.4 </span>
+                  <span class="review"> (100 Reviews)</span>
+                </div>
+              </div>
+              <div class="card-con2">
+                <p class="inv">{{ inventory.type }}</p>
+                <div class="card-con2-1">
+                  <span class="material-symbols-outlined">
+                    social_distance
+                  </span>
+                  <span>0.3 km Away</span>
+                </div>
+              </div>
+              <p class="card-con3">
                 <span class="material-symbols-outlined">
-                  social_distance
-                </span>
-                <span>0.3 km Away</span>
+                  real_estate_agent
+                  </span>{{ record.coworking_name }}<br /></p>
+              <div class="card-con4">
+                <p class="dis"><span class="material-symbols-outlined">
+                  distance
+                  </span>
+                  {{ record.micromarket }}, {{ record.city }}</p>
               </div>
+              <a href="#" class="btn">View Details</a>
             </div>
-            <p class="card-con3">
-              <span class="material-symbols-outlined">
-                real_estate_agent
-                </span>Host who is providing the space<br /></p>
-            <div class="card-con4">
-              <p class="dis"><span class="material-symbols-outlined">
-                distance
-                </span>
-                Address of Coworking Space</p>
-            </div>
-            <a href="#" class="btn">View Details</a>
           </div>
+          {% endfor %}
+        {% endfor %}
         </div>
-        <div class="card">
-          <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
-
-          <div class="card-space-image-container">
-            <img
-              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
-              alt="Coworking Space"
-              class="card-space-image"
-            />
-          </div>
-          <div class="card-content">
-            <div class="card-con1">
-              <h3 class="price"><span class="material-symbols-outlined icon">
-                currency_rupee
-                </span>Price</h3>
-              <div class="rating rat">
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
-              </div>
-            </div>
-            <div class="card-con2">
-              <p class="inv">Inventory Type</p>
-              <div class="card-con2-1">
-                <span class="material-symbols-outlined">
-                  social_distance
-                </span>
-                <span>0.3 km Away</span>
-              </div>
-            </div>
-            <p class="card-con3">
-              <span class="material-symbols-outlined">
-                real_estate_agent
-                </span>Host who is providing the space<br /></p>
-            <div class="card-con4">
-              <p class="dis"><span class="material-symbols-outlined">
-                distance
-                </span>
-                Address of Coworking Space</p>
-            </div>
-            <a href="#" class="btn">View Details</a>
-          </div>
+        <div class="maps">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.0730000000003!2d-73.9854286845949!3d40.74881797932847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2598f3f3b8b3b%3A0x1f3b3d1b3d3d!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1626823660006!5m2!1sen!2sus"
+            allowfullscreen=""
+            loading="lazy"
+          ></iframe>
         </div>
-        <div class="card">
-          <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
-
-          <div class="card-space-image-container">
-            <img
-              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
-              alt="Coworking Space"
-              class="card-space-image"
-            />
-          </div>
-          <div class="card-content">
-            <div class="card-con1">
-              <h3 class="price"><span class="material-symbols-outlined icon">
-                currency_rupee
-                </span>Price</h3>
-              <div class="rating rat">
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
-              </div>
-            </div>
-            <div class="card-con2">
-              <p class="inv">Inventory Type</p>
-              <div class="card-con2-1">
-                <span class="material-symbols-outlined">
-                  social_distance
-                </span>
-                <span>0.3 km Away</span>
-              </div>
-            </div>
-            <p class="card-con3">
-              <span class="material-symbols-outlined">
-                real_estate_agent
-                </span>Host who is providing the space<br /></p>
-            <div class="card-con4">
-              <p class="dis"><span class="material-symbols-outlined">
-                distance
-                </span>
-                Address of Coworking Space</p>
-            </div>
-            <a href="#" class="btn">View Details</a>
-          </div>
-        </div>
-        <div class="card">
-          <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
-
-          <div class="card-space-image-container">
-            <img
-              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
-              alt="Coworking Space"
-              class="card-space-image"
-            />
-          </div>
-          <div class="card-content">
-            <div class="card-con1">
-              <h3 class="price"><span class="material-symbols-outlined icon">
-                currency_rupee
-                </span>Price</h3>
-              <div class="rating rat">
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
-              </div>
-            </div>
-            <div class="card-con2">
-              <p class="inv">Inventory Type</p>
-              <div class="card-con2-1">
-                <span class="material-symbols-outlined">
-                  social_distance
-                </span>
-                <span>0.3 km Away</span>
-              </div>
-            </div>
-            <p class="card-con3">
-              <span class="material-symbols-outlined">
-                real_estate_agent
-                </span>Host who is providing the space<br /></p>
-            <div class="card-con4">
-              <p class="dis"><span class="material-symbols-outlined">
-                distance
-                </span>
-                Address of Coworking Space</p>
-            </div>
-            <a href="#" class="btn">View Details</a>
-          </div>
-        </div>
-        <div class="card">
-          <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
-
-          <div class="card-space-image-container">
-            <img
-              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
-              alt="Coworking Space"
-              class="card-space-image"
-            />
-          </div>
-          <div class="card-content">
-            <div class="card-con1">
-              <h3 class="price"><span class="material-symbols-outlined icon">
-                currency_rupee
-                </span>Price</h3>
-              <div class="rating rat">
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
-              </div>
-            </div>
-            <div class="card-con2">
-              <p class="inv">Inventory Type</p>
-              <div class="card-con2-1">
-                <span class="material-symbols-outlined">
-                  social_distance
-                </span>
-                <span>0.3 km Away</span>
-              </div>
-            </div>
-            <p class="card-con3">
-              <span class="material-symbols-outlined">
-                real_estate_agent
-                </span>Host who is providing the space<br /></p>
-            <div class="card-con4">
-              <p class="dis"><span class="material-symbols-outlined">
-                distance
-                </span>
-                Address of Coworking Space</p>
-            </div>
-            <a href="#" class="btn">View Details</a>
-          </div>
-        </div>
-        <div class="card">
-          <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
-
-          <div class="card-space-image-container">
-            <img
-              src="https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg"
-              alt="Coworking Space"
-              class="card-space-image"
-            />
-          </div>
-          <div class="card-content">
-            <div class="card-con1">
-              <h3 class="price"><span class="material-symbols-outlined icon">
-                currency_rupee
-                </span>Price</h3>
-              <div class="rating rat">
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
-              </div>
-            </div>
-            <div class="card-con2">
-              <p class="inv">Inventory Type</p>
-              <div class="card-con2-1">
-                <span class="material-symbols-outlined">
-                  social_distance
-                </span>
-                <span>0.3 km Away</span>
-              </div>
-            </div>
-            <p class="card-con3">
-              <span class="material-symbols-outlined">
-                real_estate_agent
-                </span>Host who is providing the space<br /></p>
-            <div class="card-con4">
-              <p class="dis"><span class="material-symbols-outlined">
-                distance
-                </span>
-                Address of Coworking Space</p>
-            </div>
-            <a href="#" class="btn">View Details</a>
-          </div>
-        </div>
-      </div>
-      <div class="maps">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.0730000000003!2d-73.9854286845949!3d40.74881797932847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2598f3f3b8b3b%3A0x1f3b3d1b3d3d!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1626823660006!5m2!1sen!2sus"
-          allowfullscreen=""
-          loading="lazy"
-        ></iframe>
       </div>
     </div>
     <div class="pagination">

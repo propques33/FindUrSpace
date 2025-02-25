@@ -297,7 +297,7 @@ function checkUserExists(contact) {
              // If user exists, show Login button
              continueBtn.innerText = 'Login';
              continueBtn.onclick = function() {
-                 window.location.href = '/thankyou';
+                 window.location.href = '/outerpage';
              };
  
              // Hide additional fields
@@ -410,7 +410,7 @@ function submitUserInfo() {
     .then(data => {
         hideLoader();
         if (data.status === 'exists') {
-            window.location.href = data.redirect;
+            window.location.href = '/outerpage';
         } else if (data.status === 'success') {
             currentStep++;
             loadFormStep();
@@ -464,7 +464,7 @@ function submitUserPreferences() {
     .then(data => {
         hideLoader();
         if (data.status === 'success') {
-            window.location.href = '/thankyou';
+            window.location.href = '/outerpage';
         } else {
             alert(data.message);
         }
