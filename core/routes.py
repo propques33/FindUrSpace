@@ -85,17 +85,74 @@ def send_otp():
     else:
         return jsonify({'success': False, 'message': response.get('message', 'Failed to send OTP')})
 
+# @core_bp.route('/outerpage')
+# def outerpage():
+#     db = current_app.config['db']  # Access the MongoDB instance
+
+#     # Fetch records with 'new' field set to True
+#     records = list(db.fillurdetails.find({"status": 'new'}))
+
+#     # Debugging line (optional): Print fetched records in console
+#     print("Fetched Records:", records)
+
+#     return render_template('outerpage.html', records=records)
+
+from flask import render_template, request, current_app
+
 @core_bp.route('/outerpage')
 def outerpage():
     db = current_app.config['db']  # Access the MongoDB instance
 
+    # Pagination Variables
+    cards_per_page = 6
+    page = request.args.get('page', 1, type=int)
+
     # Fetch records with 'new' field set to True
-    records = list(db.fillurdetails.find({"new": True}))
+    records = list(db.fillurdetails.find({"status": 'new'}))
+    
+    # Flatten records into individual cards
+    all_cards = []
+    for record in records:
+        for inventory in record['inventory']:
+            # Day Pass, Dedicated Desk, and Virtual Office as single cards
+            if inventory['type'] in ["Day pass", "Dedicated desk", "Virtual office"]:
+                all_cards.append({
+                    'record': record,
+                    'inventory': inventory,
+                    'type': inventory['type'],
+                    'price': inventory.get('price_per_seat', 0)
+                })
+            # Meeting Rooms as separate cards for each room
+            elif inventory['type'] == "Meeting rooms":
+                for room in inventory['room_details']:
+                    all_cards.append({
+                        'record': record,
+                        'inventory': inventory,
+                        'type': f"{room['seating_capacity']} Seater Meeting Room",
+                        'price': room.get('price', 0)
+                    })
+            # Private Cabins as separate cards for each cabin
+            elif inventory['type'] == "Private cabin":
+                for cabin in inventory['room_details']:
+                    all_cards.append({
+                        'record': record,
+                        'inventory': inventory,
+                        'type': f"{cabin['seating_capacity']} Seater Private Cabin",
+                        'price': cabin.get('price', 0)
+                    })
 
-    # Debugging line (optional): Print fetched records in console
-    print("Fetched Records:", records)
+    # Pagination Logic
+    total_cards = len(all_cards)
+    total_pages = (total_cards + cards_per_page - 1) // cards_per_page
+    start = (page - 1) * cards_per_page
+    end = start + cards_per_page
+    paginated_cards = all_cards[start:end]
 
-    return render_template('outerpage.html', records=records)
+    # Debugging line (optional): Check the cards being sent to template
+    print("Paginated Cards:", paginated_cards)
+
+    return render_template('outerpage.html', cards=paginated_cards, page=page, total_pages=total_pages)
+
 
 @core_bp.route('/verify_otp', methods=['POST'])
 def verify_otp():

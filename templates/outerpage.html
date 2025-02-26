@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=menu" />
-  
+    
     <!-- Facebook Pixel Code -->
       <script>
         !function(f,b,e,v,n,t,s)
@@ -81,81 +81,91 @@
         </div>
     </nav>
     <div class="content-wrapper">
-      <div class="main">
-        <div class="cards">
-        <!-- Loop through all records -->
-        {% for record in records %}
-          <!-- Loop through each inventory type in the record -->
-          {% for inventory in record.inventory %}
-          <div class="card">
-            <!-- Bookmark Button -->
-            <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+  <div class="main">
+    <div class="cards">
+      <!-- Loop through all cards -->
+      {% for card in cards %}
+        <div class="card">
+          <!-- Bookmark Button -->
+          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
 
-            <div class="card-space-image-container">
-              <img
-                src="{{ record.property_images[0] }}"
-                alt="{{ record.coworking_name }}"
-                class="card-space-image"
-              />
-            </div>
-            <div class="card-content">
-              <div class="card-con1">
-                <h3 class="price"><span class="material-symbols-outlined icon">
-                  currency_rupee
-                  </span>{{ inventory.price_per_seat }}</h3>
-                <div class="rating rat">
-                  <span class="star">⭐ 4.4 </span>
-                  <span class="review"> (100 Reviews)</span>
-                </div>
-              </div>
-              <div class="card-con2">
-                <p class="inv">{{ inventory.type }}</p>
-                <div class="card-con2-1">
-                  <span class="material-symbols-outlined">
-                    social_distance
-                  </span>
-                  <span>0.3 km Away</span>
-                </div>
-              </div>
-              <p class="card-con3">
-                <span class="material-symbols-outlined">
-                  real_estate_agent
-                  </span>{{ record.coworking_name }}<br /></p>
-              <div class="card-con4">
-                <p class="dis"><span class="material-symbols-outlined">
-                  distance
-                  </span>
-                  {{ record.micromarket }}, {{ record.city }}</p>
-              </div>
-              <a href="#" class="btn">View Details</a>
-            </div>
+          <div class="card-space-image-container">
+            <img
+              src="{{ card.inventory.images[0] }}"
+              alt="{{ card.record.coworking_name }}"
+              class="card-space-image"
+            />
           </div>
-          {% endfor %}
-        {% endfor %}
+          <div class="card-content">
+            <div class="card-con1">
+              <h3 class="price">
+                <span class="material-symbols-outlined icon">currency_rupee</span>
+                {{ card.price|int }}
+                {% if card.type == "Day pass" %} / Day
+                {% elif card.type == "Dedicated desk" %} / Month
+                {% elif card.type == "Virtual office" %} / Year
+                {% elif "Meeting Room" in card.type %} / Hour
+                {% elif "Private Cabin" in card.type %} / Month
+                {% endif %}
+              </h3>
+              <div class="rating rat" style="display: none;">
+                <span class="star">⭐ 4.4 </span>
+                <span class="review"> (100 Reviews)</span>
+              </div>
+            </div>
+            <div class="card-con2">
+              <p class="inv">{{ card.type }}</p>
+              <div class="card-con2-1" style="display: none;">
+                <span class="material-symbols-outlined">
+                  social_distance
+                </span>
+                <span>0.3 km Away</span>
+              </div>
+            </div>
+            <p class="card-con3">
+              <span class="material-symbols-outlined">
+                real_estate_agent
+              </span>{{ card.record.coworking_name }}<br />
+            </p>
+            <div class="card-con4">
+              <p class="dis">
+                <span class="material-symbols-outlined"> distance </span>
+                {{ card.record.micromarket }}, {{ card.record.city }}
+              </p>
+            </div>
+            <a href="#" class="btn">View Details</a>
+          </div>
         </div>
-        <div class="maps">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.0730000000003!2d-73.9854286845949!3d40.74881797932847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2598f3f3b8b3b%3A0x1f3b3d1b3d3d!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1626823660006!5m2!1sen!2sus"
-            allowfullscreen=""
-            loading="lazy"
-          ></iframe>
-        </div>
-      </div>
+      {% endfor %}
     </div>
-    <div class="pagination">
-      <a href="#" class="page active">1</a>
-      <a href="#" class="page">2</a>
-      <a href="#" class="page">3</a>
-      <a href="#" class="page">4</a>
-      <a href="#" class="page">5</a>
-      <a href="#" class="page">6</a>
-      <a href="#" class="page">7</a>
-      <span class="dots">...</span>
-      <a href="#" class="page">74</a>
-      <a href="#" class="next">
-        <span class="material-symbols-outlined">chevron_right</span>
-      </a>
+    <div class="maps">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.0730000000003!2d-73.9854286845949!3d40.74881797932847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c2598f3f3b8b3b%3A0x1f3b3d1b3d3d!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1626823660006!5m2!1sen!2sus"
+        allowfullscreen=""
+        loading="lazy"
+      ></iframe>
     </div>
+  </div>
+</div>
+
+<!-- Dynamic Pagination -->
+<div class="pagination">
+  {% if page > 1 %}
+    <a href="{{ url_for('core_bp.outerpage', page=page-1) }}" class="page prev">
+      <span class="material-symbols-outlined">chevron_left</span>
+    </a>
+  {% endif %}
+  {% for p in range(1, total_pages + 1) %}
+    <a href="{{ url_for('core_bp.outerpage', page=p) }}" class="page {% if p == page %} active {% endif %}">
+      {{ p }}
+    </a>
+  {% endfor %}
+  {% if page < total_pages %}
+    <a href="{{ url_for('core_bp.outerpage', page=page+1) }}" class="page next">
+      <span class="material-symbols-outlined">chevron_right</span>
+    </a>
+  {% endif %}
+</div>
   </div>
     <div class="faq-container">
       <h2>Frequently Asked Questions</h2>
