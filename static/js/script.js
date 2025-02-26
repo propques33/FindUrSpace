@@ -297,7 +297,7 @@ function checkUserExists(contact) {
              // If user exists, show Login button
              continueBtn.innerText = 'Login';
              continueBtn.onclick = function() {
-                 window.location.href = '/outerpage';
+                 window.location.href = `/outerpage?contact=${encodeURIComponent(contact)}`;
              };
  
              // Hide additional fields
@@ -464,7 +464,9 @@ function submitUserPreferences() {
     .then(data => {
         hideLoader();
         if (data.status === 'success') {
-            window.location.href = '/outerpage';
+            // Redirect with query parameters for filtering
+            const redirectUrl = `/outerpage?location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(inventoryType)}`;
+            window.location.href = redirectUrl;
         } else {
             alert(data.message);
         }

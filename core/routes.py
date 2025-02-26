@@ -102,18 +102,48 @@ from flask import render_template, request, current_app
 @core_bp.route('/outerpage')
 def outerpage():
     db = current_app.config['db']  # Access the MongoDB instance
+    contact = request.args.get('contact', None)  # Get contact from URL param
+    filter_city = request.args.get('location', None)
+    filter_micromarket = request.args.get('area', None)
+    filter_inventory_type = request.args.get('inventoryType', None)
+
+    # If contact is provided, fetch User ID
+    user_id = None
+    user_preferences = None
+    if contact:
+        user = db.users.find_one({'contact': contact})
+        if user:
+            user_id = str(user['_id'])
+            # Get user preferences using user_id
+            user_preferences = db.properties.find_one({'user_id': ObjectId(user_id)})
+    
+    if user_preferences:
+        filter_city = user_preferences.get('city')
+        filter_micromarket = user_preferences.get('micromarket')
+        filter_inventory_type = user_preferences.get('inventory_type')
 
     # Pagination Variables
     cards_per_page = 6
     page = request.args.get('page', 1, type=int)
 
-    # Fetch records with 'new' field set to True
-    records = list(db.fillurdetails.find({"status": 'new'}))
+    # Fetch records from fillurdetails based on filters
+    if filter_city and filter_micromarket:
+        records = list(db.fillurdetails.find({
+            "city": {'$regex': f'^{filter_city}$', '$options': 'i'},
+            "micromarket": {'$regex': f'^{filter_micromarket}$', '$options': 'i'},
+            "status": 'new'
+        }))
+    else:
+        # If no filters, fallback to showing all records with status 'new'
+        records = list(db.fillurdetails.find({"status": 'new'}))
     
     # Flatten records into individual cards
     all_cards = []
     for record in records:
         for inventory in record['inventory']:
+            if filter_inventory_type and inventory['type'] != filter_inventory_type:
+                continue  # Skip inventories that don't match the preferred type
+                
             # Day Pass, Dedicated Desk, and Virtual Office as single cards
             if inventory['type'] in ["Day pass", "Dedicated desk", "Virtual office"]:
                 all_cards.append({
@@ -151,7 +181,7 @@ def outerpage():
     # Debugging line (optional): Check the cards being sent to template
     print("Paginated Cards:", paginated_cards)
 
-    return render_template('outerpage.html', cards=paginated_cards, page=page, total_pages=total_pages)
+    return render_template('outerpage.html', cards=paginated_cards, page=page, total_pages=total_pages,contact=contact)
 
 
 @core_bp.route('/verify_otp', methods=['POST'])
@@ -267,6 +297,7 @@ def submit_info():
         session['user_id'] = str(existing_user['_id'])
         # ✅ Update Google Sheets with latest form submission
         google_sheet_status = handle_new_user_entry(user_data)
+        
         return jsonify({'status': 'exists', 'message': 'User exists', 'redirect': '/outerpage'})
     else:
         result = db.users.insert_one(user_data)

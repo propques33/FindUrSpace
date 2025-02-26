@@ -76,6 +76,13 @@
                       <h1 class="listur">Operators Login</h1>
                   </a>
                 </li>
+
+                <!-- Display Contact Number -->
+                {% if contact %}
+                <li class="nav-item">
+                    <span class="nav-link">Contact: {{ contact }}</span>
+                </li>
+                {% endif %}
                 </ul>
             </div>
         </div>
@@ -526,6 +533,16 @@ document.querySelector('a[href^="mailto:"]').addEventListener('click', function(
     // Add email interaction tracking here
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+        // Read contact from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const contact = urlParams.get('contact');
+        
+        if (contact) {
+            console.log('User Contact:', contact);
+            // You can use this contact variable wherever necessary in the frontend
+        }
+    });
 
 
 // Bootstrap Initialization (required for navbar toggle)
@@ -540,5 +557,6 @@ navToggler.addEventListener('click', function() {
 document.querySelector('.footer-bottom p').innerHTML = 
     `© Copyrights ${new Date().getFullYear()} FindurSpace All rights reserved.`;
     </script>
+    
   </body>
 </html>
