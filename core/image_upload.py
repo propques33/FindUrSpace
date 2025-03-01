@@ -75,11 +75,14 @@ def upload_image_to_space(image_buffer, file_name):
         return None
 
 # Process and upload images
-def process_and_upload_images(image_files, owner_info, coworking_name,category="general", space_id=None, inventory_id=None):
+def process_and_upload_images(image_files, owner_info, coworking_name,category="general", space_id=None, inventory_id=None, room_id=None):
     db = get_db()
     image_urls = []
 
     for image_file in image_files:
+        if not image_file or image_file.filename == '':
+            continue  # Skip empty files
+
         try:
             print(f"Processing file: {image_file.filename}")
             # Compress image
@@ -89,16 +92,32 @@ def process_and_upload_images(image_files, owner_info, coworking_name,category="
             unique_id = uuid.uuid4().hex
             # Secure the original filename to prevent directory traversal attacks
             original_filename = secure_filename(image_file.filename)
-
+            file_extension = ".webp"
             # Enhanced Naming Convention:
             # /findurspace/<category>/<spaceId>/<inventoryId>/<filename>
-            if space_id and inventory_id:
-                file_name = f"{category}/{coworking_name}/{space_id}/{inventory_id}/{unique_id}_{original_filename}"
-            elif space_id:
-                file_name = f"{category}/{coworking_name}/{space_id}/{unique_id}_{original_filename}"
-            else:
-                file_name = f"{category}/{coworking_name}/{unique_id}_{original_filename}"
+            # /findurspace/<category>/<spaceId>/<inventoryId>/<roomId>/<filename>
+            # if space_id and inventory_id and room_id:  # ✅ Room images
+            #     file_name = f"{category}/{coworking_name}/{space_id}/{inventory_id}/room_{room_id}/{unique_id}_{original_filename}"
+            # elif space_id and inventory_id:  # ✅ Inventory images
+            #     file_name = f"{category}/{coworking_name}/{space_id}/{inventory_id}/{unique_id}_{original_filename}"
+            # elif space_id:  # ✅ Property images
+            #     file_name = f"{category}/{coworking_name}/{space_id}/{unique_id}_{original_filename}"
+            # else:  # ✅ General images
+            #     file_name = f"{category}/{coworking_name}/{unique_id}_{original_filename}"
 
+            # Construct folder path based on provided IDs
+            file_path = f"findurspace/{category}/{coworking_name}"  # Base path
+
+            if space_id:
+                file_path += f"/{space_id}"
+            if inventory_id:
+                file_path += f"/inventory_{inventory_id}"
+            if room_id:
+                file_path += f"/room_{room_id}"
+
+            # Final file path including filename
+            file_name = f"{file_path}/{unique_id}_{original_filename}{file_extension}"
+            
             # Upload image to DigitalOcean Space
             image_url = upload_image_to_space(compressed_image, file_name)
             if image_url:

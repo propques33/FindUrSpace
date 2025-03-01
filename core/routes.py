@@ -582,7 +582,7 @@ def list_your_space():
 
                  # Upload Property Images
                 property_images = request.files.getlist(f'property_images_{idx}[]')
-                property_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name,category="property")
+                property_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name,category="property",space_id=idx)
 
                 # Get Workspace Type Details
                 inventory = []
@@ -593,6 +593,9 @@ def list_your_space():
                     price_per_seats = request.form.getlist(f'price_per_seat_{idx}[]')
 
                     for inv_idx, inv_type in enumerate(inventory_types):
+                        room_number = None 
+                        opening_time = request.form.get(f'opening_time_{idx}_{inv_idx + 1}')
+                        closing_time = request.form.get(f'closing_time_{idx}_{inv_idx + 1}')
                         # Get Inventory Images for the current inventory item
                         inventory_image_field = f'inventory_images_{idx}_{inv_idx + 1}[]'
                         inventory_images = request.files.getlist(inventory_image_field)
@@ -608,7 +611,13 @@ def list_your_space():
                         )
 
                         #e Meeting Rooms and Private Cabins separately
+                        room_details = []
                         if inv_type in ["Meeting rooms", "Private cabin"]:
+                            room_number = request.form.get(f'number_of_rooms_{idx}_{inv_idx + 1}')
+                            try:
+                                room_number = int(room_number) if room_number else 0
+                            except (ValueError, TypeError):
+                                room_number = 0
                             room_count = request.form.get(f'number_of_rooms_{idx}_{inv_idx + 1}')
                             print(f"Room Count Raw: {room_count}")
                             if room_count:
@@ -622,33 +631,57 @@ def list_your_space():
                                 room_count = int(room_count or 0)
                             except (ValueError, TypeError):
                                 room_count = 0                            
-                            room_details = []
 
-                            for room_number in range(1, int(room_count) + 1):
+                            for room_idx in range(1, room_number + 1):
                                 try:
-                                    seating_capacity = int(request.form.get(f'seating_capacity_{idx}_{inv_idx + 1}_{room_number}') or 0)
+                                    seating_capacity = int(request.form.get(f'seating_capacity_{idx}_{inv_idx + 1}_{room_idx}') or 0)
                                 except (ValueError, TypeError):
                                     seating_capacity = 0
                                 try:
-                                    price = float(request.form.get(f'price_{idx}_{inv_idx + 1}_{room_number}') or 0.0)
+                                    price = float(request.form.get(f'price_{idx}_{inv_idx + 1}_{room_idx}') or 0.0)
                                 except (ValueError, TypeError):
                                     price = 0.0
 
-                                print(f"Room Number: {room_number}")  # Debug: Room number loop
+                                # ✅ Correcting the room_images_field
+                                if inv_type == "Meeting rooms":
+                                    room_images_field = f'meeting_room_images_{idx}_{inv_idx + 1}_{room_idx}[]'
+                                elif inv_type == "Private cabin":
+                                    room_images_field = f'private_cabin_images_{idx}_{inv_idx + 1}_{room_idx}[]'
+
+                                room_images = request.files.getlist(room_images_field)
+
+                                # Debugging to verify if files are being fetched correctly
+                                print(f"Uploading Room Images for {inv_type} - Space {idx}, Inventory {inv_idx + 1}, Room {room_idx}")
+                                print(f"Files Received: {[img.filename for img in room_images if img.filename]}")
+                                # Upload images only if there are valid files
+                                if room_images:
+                                    room_image_links = process_and_upload_images(
+                                        room_images, {'name': name}, coworking_name, 
+                                        category=inv_type.lower().replace(" ", "_"),
+                                        space_id=idx, inventory_id=inv_idx + 1, room_id=room_idx
+                                    )
+                                else:
+                                    room_image_links = []
+                                
+                                print(f"Room Number: {room_idx}")  # Debug: Room number loop
                                 print(f"Seating Capacity Received: {seating_capacity}")  # Debug
-                                print(f"Price Received: {price}")  # Debug
-                                if seating_capacity and price:
+                                print(f"Price Received: {price_per_seats}")  # Debug
+                                if seating_capacity:
                                     room_details.append({
-                                        'room_number': room_number,
+                                        'room_number': room_idx,
                                         'seating_capacity': int(seating_capacity),
-                                        'price': float(price)
+                                        'price': float(price_per_seats[inv_idx] or 0.0),
+                                        'images': room_image_links
                                     })
 
                             print(f"Final Room Details: {room_details}") 
 
                             inventory.append({
                                 'type': inv_type,
-                                'room_count': room_count,
+                                'room_count': room_number,
+                                'price_per_seat': float(price_per_seats[inv_idx] or 0.0),
+                                'opening_time': opening_time,
+                                'closing_time': closing_time,
                                 'room_details': room_details,
                                 'images': inventory_image_links
                             })
@@ -712,9 +745,16 @@ def list_your_space():
                         lockin_period = int(request.form.get(f'lockin_period_{idx}') or '0')
                     except (ValueError, TypeError):
                         lockin_period = 0
+
+                    try:
+                        security_deposit = int(request.form.get(f'security_deposit_{idx}') or '0')
+                    except (ValueError, TypeError):
+                        security_deposit = 0
+                    
+                    lease_term = request.form.get(f'lease_term_{idx}')
                     seating_capacity = request.form.get(f'seating_capacity_{idx}') or 'N/A'
                     furnishing_level = request.form.get(f'furnishing_level_{idx}') or 'N/A'
-                    custom_amenities = request.form.getlist(f'custom_amenities_{idx}[]')
+                    managed_office_amenities = request.form.getlist(f'managed_amenities_{idx}[]')
 
                 # Get Space Description
                 space_description = request.form.get(f'space_description_{idx}')
@@ -767,12 +807,14 @@ def list_your_space():
                         'floorplate_area': floorplate_area,
                         'min_inventory_unit': min_inventory_unit,
                         'total_rental': total_rental,
+                        'security_deposit': security_deposit,
+                        'lease_term': lease_term,
                         'space_type': space_type,
                         'floors_occupied': floors_occupied,
                         'seating_capacity': seating_capacity,
                         'furnishing_level': furnishing_level,
                         'lockin_period': lockin_period,
-                        'custom_amenities': custom_amenities
+                        'managed_office_amenities': managed_office_amenities
                     })
 
                 # Insert into MongoDB

@@ -245,6 +245,7 @@
 
     .form-group .form-control {
         flex: 1;
+        margin-top:4px;
     }
 
     /* Inventory Item Layout */
@@ -630,7 +631,6 @@ h3 {
     /* Flex container for Meeting Room and Private Cabin inputs */
 .d-flex {
     display: flex !important;
-    flex-wrap: wrap !important;
     gap: 15px;
     align-items: center;
 }
@@ -678,9 +678,10 @@ h3 {
 }
 
 /* Two columns on larger screens, full width on smaller screens */
-@media (min-width: 576px) {
+@media (max-width: 576px) {
     .form-group.d-flex {
         display: flex;
+        flex-wrap: wrap !important;
         gap: 15px;
         align-items: center;
     }
@@ -929,7 +930,7 @@ h3 {
             <p>Submitting your information...</p>
         </div>
         
-        <button type="submit" class="btn centered-button submit-btn" id="submitButton">{{ 'Update Space' if space else 'Submit' }}</button>
+        <button type="submit" class="btn centered-button submit-btn" id="submitButton">{{ 'Update Space' if space else 'Submit for Approval' }}</button>
 
     </form>
 </div>
@@ -1344,6 +1345,27 @@ function updateSpaceDetails(spaceCount) {
                         </div>
                     </div>
 
+                    <!-- Security Deposit & Lease Term -->
+    <div class="form-group mb-3 d-flex gap-3">
+        <div class="w-50">
+            <label for="security_deposit_${spaceCount}" class="form-label">Security Deposit (in INR)</label>
+            <input type="number" class="form-control" id="security_deposit_${spaceCount}" name="security_deposit_${spaceCount}" 
+                placeholder="Enter security deposit amount" min="0" required
+                data-parsley-required-message="Please enter the security deposit amount."
+                data-parsley-type="digits" data-parsley-trigger="change focusout">
+        </div>
+
+        <div class="w-50">
+            <label for="lease_term_${spaceCount}" class="form-label">Lease Term</label>
+            <select class="form-select" id="lease_term_${spaceCount}" name="lease_term_${spaceCount}" required
+                data-parsley-required-message="Please select the lease term."
+                data-parsley-trigger="change">
+                <option value="" disabled selected>Select Lease Term</option>
+                ${[...Array(11).keys()].map(i => `<option value="${(i+1) * 11}">${(i+1) * 11} months</option>`).join('')}
+            </select>
+        </div>
+    </div>
+
                     <!-- Number of Floors & Occupied Floors -->
                     <div class="form-group mb-3 d-flex gap-3" id="no">
                         <div class="w-50">
@@ -1431,30 +1453,101 @@ function updateSpaceDetails(spaceCount) {
                         <!-- This section will be dynamically updated with JS -->
                     </div>
 
-                    <!-- Fifth Row: Amenities -->
-                    <h5 class="amen">Custom Infrastructure</h5>
-                    <div class="rowamen">
-                        <div class="col-md-4-amen">
-                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Meeting Room" id="meeting_room_${spaceCount}">
-                            <label for="meeting_room_${spaceCount}" class="form-check-label">Meeting Room</label>
-                        </div>
-                        <div class="col-md-4-amen">
-                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Private Cabins" id="private_cabins_${spaceCount}">
-                            <label for="private_cabins_${spaceCount}" class="form-check-label">Private Cabins</label>
-                        </div>
-                        <div class="col-md-4-amen">
-                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Reception Area" id="reception_area_${spaceCount}">
-                            <label for="reception_area_${spaceCount}" class="form-check-label">Reception Area</label>
-                        </div>
-                        <div class="col-md-4-amen">
-                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}">
-                            <label for="pantry_${spaceCount}" class="form-check-label">Pantry</label>
-                        </div>
-                        <div class="col-md-4-amen">
-                            <input type="checkbox" class="form-check-input" name="custom_amenities_${spaceCount}[]" value="Recreation Area" id="recreation_area_${spaceCount}">
-                            <label for="recreation_area_${spaceCount}" class="form-check-label">Recreation Area</label>
-                        </div>
-                    </div>
+                    <!-- Managed Office Amenities -->
+<h5 class="amen">Managed Office Amenities</h5>
+<div id="managed_amenities_section_${spaceCount}" class="mb-3">
+    <p class="file-format-note">Select Amenities Available in your Managed Office.</p>
+    <div class="rowamen">
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Conference Room" id="conference_room_${spaceCount}">
+            <label for="conference_room_${spaceCount}" class="form-check-label">Conference Room</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Meeting Room" id="meeting_room_${spaceCount}">
+            <label for="meeting_room_${spaceCount}" class="form-check-label">Meeting Room</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Private Cabins" id="private_cabins_${spaceCount}">
+            <label for="private_cabins_${spaceCount}" class="form-check-label">Private Cabins</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Hot Desks" id="hot_desks_${spaceCount}">
+            <label for="hot_desks_${spaceCount}" class="form-check-label">Hot Desks</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Lounge Area" id="lounge_${spaceCount}">
+            <label for="lounge_${spaceCount}" class="form-check-label">Lounge Area</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Reception Area" id="reception_${spaceCount}">
+            <label for="reception_${spaceCount}" class="form-check-label">Reception Area</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="High-Speed WiFi" id="wifi_${spaceCount}">
+            <label for="wifi_${spaceCount}" class="form-check-label">High-Speed WiFi</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="24x7 Security" id="security_${spaceCount}">
+            <label for="security_${spaceCount}" class="form-check-label">24x7 Security</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="CCTV Surveillance" id="cctv_${spaceCount}">
+            <label for="cctv_${spaceCount}" class="form-check-label">CCTV Surveillance</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Car / Bike Parking" id="parking_${spaceCount}">
+            <label for="parking_${spaceCount}" class="form-check-label">Car / Bike Parking</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Air Conditioning" id="air_conditioning_${spaceCount}">
+            <label for="air_conditioning_${spaceCount}" class="form-check-label">Air Conditioning</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}">
+            <label for="housekeeping_${spaceCount}" class="form-check-label">Housekeeping</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Printing / Scanning" id="printing_${spaceCount}">
+            <label for="printing_${spaceCount}" class="form-check-label">Printing / Scanning</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Power Backup" id="power_backup_${spaceCount}">
+            <label for="power_backup_${spaceCount}" class="form-check-label">Power Backup</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}">
+            <label for="pantry_${spaceCount}" class="form-check-label">Pantry</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Tea / Coffee" id="tea_coffee_${spaceCount}">
+            <label for="tea_coffee_${spaceCount}" class="form-check-label">Tea / Coffee</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Vending Machine" id="vending_machine_${spaceCount}">
+            <label for="vending_machine_${spaceCount}" class="form-check-label">Vending Machine</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Locker Storage" id="locker_${spaceCount}">
+            <label for="locker_${spaceCount}" class="form-check-label">Locker Storage</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Smoking Zone" id="smoking_zone_${spaceCount}">
+            <label for="smoking_zone_${spaceCount}" class="form-check-label">Smoking Zone</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Recreation Area" id="recreation_area_${spaceCount}">
+            <label for="recreation_area_${spaceCount}" class="form-check-label">Recreation Area</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Gym & Fitness" id="gym_${spaceCount}">
+            <label for="gym_${spaceCount}" class="form-check-label">Gym & Fitness</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Event Space" id="event_space_${spaceCount}">
+            <label for="event_space_${spaceCount}" class="form-check-label">Event Space</label>
+        </div>
+    </div>
+</div>
                 </div>
 
 
@@ -1733,7 +1826,6 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                         data-parsley-trigger="change" aria-label="Price per Seat">
                 </div>
             </div>
-            <div id="additionalFields_${spaceId}_${inventoryCount}" class="mt-3"></div>
             <div class="form-group mb-3">
                 <div class="mb-3 w-100">
                     <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Vacant Inventory" min="0" required
@@ -1746,16 +1838,37 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 <!-- Placeholder div to maintain two per row layout -->
                 <div style="flex:1;"></div>
             </div>
-            <!-- Upload Inventory Images (Min 2 per Inventory Type) -->
-            <h6>Upload Images for this Inventory (Min 2)</h6>
-            <p class="file-format-note">Upload at least 2 images (JPG, JPEG, PNG).</p>
-            <div class="mb-3">
-                <input type="file" class="form-control" name="inventory_images_${spaceId}_${inventoryCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
-                    required data-parsley-mincheck="2"
-                    data-parsley-required-message="Please upload at least 2 images for this inventory type."
-                    onchange="previewInventoryImages(event, ${spaceId}, ${inventoryCount})">
+            <div id="additionalFields_${spaceId}_${inventoryCount}" class="mt-3 mb-2"></div>
+            <!-- Meeting Room/Private Cabin Timings Section (Hidden by Default) -->
+        <div id="meetingRoomTimings_${spaceId}_${inventoryCount}" class="meeting-room-timings" style="display: none;">
+            <h6 id="timingsHeading_${spaceId}_${inventoryCount}"></h6>
+            <div class="form-group mb-3 d-flex flex-row gap-3 align-items-center">
+                <div class="w-50">
+                    <label for="opening_time_${spaceId}_${inventoryCount}" class="form-label">Opening Time *</label>
+                    <input type="time" class="form-control" id="opening_time_${spaceId}_${inventoryCount}" name="opening_time_${spaceId}_${inventoryCount}" required
+                        data-parsley-required-message="Please enter the opening time."
+                        data-parsley-trigger="change">
+                </div>
+                <div class="w-50">
+                    <label for="closing_time_${spaceId}_${inventoryCount}" class="form-label">Closing Time *</label>
+                    <input type="time" class="form-control" id="closing_time_${spaceId}_${inventoryCount}" name="closing_time_${spaceId}_${inventoryCount}" required
+                        data-parsley-required-message="Please enter the closing time."
+                        data-parsley-trigger="change">
+                </div>
             </div>
-            <div id="inventoryImagePreview_${spaceId}_${inventoryCount}" class="d-flex flex-wrap"></div>
+        </div>
+            <!-- Upload Inventory Images (Min 2 per Inventory Type) -->
+            <div id="inventoryImageSection_${spaceId}_${inventoryCount}" class="inventory-image-section">
+    <h6>Upload Images for this Inventory (Min 2)</h6>
+    <p class="file-format-note">Upload at least 2 images (JPG, JPEG, PNG).</p>
+    <div class="mb-3">
+        <input type="file" class="form-control" name="inventory_images_${spaceId}_${inventoryCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
+            required data-parsley-mincheck="2"
+            data-parsley-required-message="Please upload at least 2 images for this inventory type."
+            onchange="previewInventoryImages(event, ${spaceId}, ${inventoryCount})">
+    </div>
+    <div id="inventoryImagePreview_${spaceId}_${inventoryCount}" class="d-flex flex-wrap"></div>
+</div>
         `;
         inventoryContainer.appendChild(inventoryRow);
 
@@ -1877,22 +1990,35 @@ function generateRoomDetails(spaceId, inventoryCount, roomType,numberOfRooms) {
 
             console.log(`Seating Capacity Field Created: seating_capacity_${spaceId}_${inventoryCount}_${i}`); // Debug
 
-            // Price
-            const priceInput = document.createElement('input');
-            priceInput.type = 'number';
-            priceInput.className = 'form-control';
-            priceInput.name = `price_${spaceId}_${inventoryCount}_${i}`;
-            priceInput.placeholder = roomType === 'Meeting rooms' ? `Price per Hour` : `Price per Month`;
-            priceInput.min = '1';
-            priceInput.required = true;
-            priceInput.setAttribute('data-parsley-required-message', 'Please enter the price.');
-            priceInput.setAttribute('data-parsley-type', 'number');
-            inputContainer.appendChild(priceInput);
-
-            console.log(`Price Field Created: price_${spaceId}_${inventoryCount}_${i}`); // Debug
-
-            // Append the input container to the fields container
             additionalFieldsContainer.appendChild(inputContainer);
+            // Price
+            // const priceInput = document.createElement('input');
+            // priceInput.type = 'number';
+            // priceInput.className = 'form-control';
+            // priceInput.name = `price_${spaceId}_${inventoryCount}_${i}`;
+            // priceInput.placeholder = roomType === 'Meeting rooms' ? `Price per Hour` : `Price per Seat per Month`;
+            // priceInput.min = '1';
+            // priceInput.required = true;
+            // priceInput.setAttribute('data-parsley-required-message', 'Please enter the price.');
+            // priceInput.setAttribute('data-parsley-type', 'number');
+            // inputContainer.appendChild(priceInput);
+
+            // console.log(`Price Field Created: price_${spaceId}_${inventoryCount}_${i}`); // Debug
+
+            // Separate Image Upload for each Room/Cabin
+            const imageUploadContainer = document.createElement('div');
+            imageUploadContainer.innerHTML = `
+                <h6>Upload Images for ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i} (Min 2)</h6>
+                <div class="mb-3">
+                    <input type="file" class="form-control" name="${roomType === 'Meeting rooms' ? 'meeting_room_images' : 'private_cabin_images'}_${spaceId}_${inventoryCount}_${i}[]" accept="image/png, image/jpeg, image/jpg" multiple
+                        required data-parsley-mincheck="2"
+                        data-parsley-required-message="Please upload at least 2 images for this ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'}."
+                        onchange="previewRoomImages(event, ${spaceId}, ${inventoryCount}, ${i}, '${roomType}')">
+                </div>
+                <div id="roomImagePreview_${spaceId}_${inventoryCount}_${i}" class="d-flex flex-wrap"></div>
+            `;
+            // Append the input container to the fields container
+            additionalFieldsContainer.appendChild(imageUploadContainer);
         }
     }
 
@@ -1901,22 +2027,84 @@ function generateRoomDetails(spaceId, inventoryCount, roomType,numberOfRooms) {
 }
 
 
+function previewRoomImages(event, spaceId, inventoryId, roomId, roomType) {
+    const imagePreviewContainer = document.getElementById(`roomImagePreview_${spaceId}_${inventoryId}_${roomId}`);
+    imagePreviewContainer.innerHTML = '';
+    const files = event.target.files;
 
+    if (files.length < 2) {
+        alert("Please upload at least 2 images for this " + (roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin') + ".");
+        event.target.value = "";
+        return;
+    }
+
+    Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgContainer = document.createElement('div');
+            imgContainer.classList.add('preview-img-container');
+            imgContainer.innerHTML = `<img src="${e.target.result}" class="preview-img" alt="Room Image Preview">`;
+            imagePreviewContainer.appendChild(imgContainer);
+        };
+        reader.readAsDataURL(file);
+    });
+}
     // Function to handle dynamic change for price input
     function handlePriceChange(selectElement, spaceId, inventoryCount) {
         const selectedValue = selectElement.value;
         const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
         const inventoryCountInput = document.querySelector(`input[name="inventory_count_${spaceId}[]"]`);
         const additionalFieldsContainer = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
+        const inventoryImageUpload = document.querySelector(`input[name="inventory_images_${spaceId}_${inventoryCount}[]"]`);
+        const inventoryImageSection = document.getElementById(`inventoryImageSection_${spaceId}_${inventoryCount}`);
+        const meetingRoomTimings = document.getElementById(`meetingRoomTimings_${spaceId}_${inventoryCount}`);
+        const timingsHeading = document.getElementById(`timingsHeading_${spaceId}_${inventoryCount}`);
+
+        // Reset the additional fields container
+    additionalFieldsContainer.innerHTML = '';
+    // Hide fields initially
+    meetingRoomTimings.style.display = 'none';
+    inventoryImageSection.style.display = 'block'; // Show image section by default
+    inventoryCountInput.style.display = 'block'; // Show vacant inventory field by default
+        // Hide common inventory image upload section for Meeting Rooms or Private Cabin
+    // Hide common inventory image upload section for Meeting Rooms or Private Cabin
+    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
+        inventoryImageSection.style.display = 'none';
+        inventoryCountInput.style.display = 'block';
+        meetingRoomTimings.style.display = 'block'; // ✅ Show Timings Section
+        timingsHeading.textContent = selectedValue === 'Meeting rooms' ? 'Meeting Room Timings' : 'Private Cabin Timings';
+    } else {
+        inventoryImageSection.style.display = 'block';
+        inventoryCountInput.style.display = 'block';
+        meetingRoomTimings.style.display = 'none'; // ✅ Hide Timings Section
+    }
+    
+    // ✅ Hide the upload section for Meeting Rooms & Private Cabins
+    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
+        inventoryImageSection.style.display = 'none';
+    } else {
+        inventoryImageSection.style.display = 'block';
+    }
+    // Hide the "Number of Vacant Inventory" field
+    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
+        inventoryCountInput.style.display = 'block';
+    } else {
+        inventoryCountInput.style.display = 'block';
+    }
 
         // Clear previous additional fields
         additionalFieldsContainer.innerHTML = '';
 
+        priceInput.style.display = 'block';
+        inventoryCountInput.style.display = 'block';
+
+
         // If Meeting Room or Private Cabin is selected
     if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
         // Hide the number of vacant inventory and price per seat fields
-        priceInput.style.display = 'none';
-        inventoryCountInput.style.display = 'none';
+
+
+        inventoryCountInput.style.display = 'block';
 
         // Add input for number of rooms/cabins
         // Add input for number of rooms/cabins
@@ -1974,7 +2162,7 @@ function generateRoomDetails(spaceId, inventoryCount, roomType,numberOfRooms) {
                 priceInput.setAttribute('aria-label', 'Price per Seat per Day');
                 break;
             case 'Virtual office':
-                priceInput.placeholder = "Price per Seat per Year";
+                priceInput.placeholder = "Price per Year";
                 priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat per year.');
                 priceInput.setAttribute('aria-label', 'Price per Seat per Year');
                 break;
@@ -1988,6 +2176,27 @@ function generateRoomDetails(spaceId, inventoryCount, roomType,numberOfRooms) {
                 priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat.');
                 priceInput.setAttribute('aria-label', 'Price per Seat');
         }
+    }
+
+    // Set placeholders based on selection
+    switch (selectedValue) {
+        case 'Day pass':
+            priceInput.placeholder = "Price per Seat per Day";
+            break;
+        case 'Virtual office':
+            priceInput.placeholder = "Price per Year";
+            break;
+        case 'Dedicated desk':
+            priceInput.placeholder = "Price per Seat per Month";
+            break;
+        case 'Private cabin':
+            priceInput.placeholder = "Price per Seat per Month"; // ✅ Updated
+            break;
+        case 'Meeting rooms':
+            priceInput.placeholder = "Price per Hour"; // ✅ Updated
+            break;
+        default:
+            priceInput.placeholder = "Price per Seat";
     }
 
     // Refresh Parsley validation after changes
