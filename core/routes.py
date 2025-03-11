@@ -926,11 +926,18 @@ def list_your_space():
             cities = request.form.getlist('city[]')
             micromarkets = request.form.getlist('micromarket[]')
             addresses = request.form.getlist('address[]') 
+
             total_seats_list = request.form.getlist('total_seats[]')
             current_vacancies = request.form.getlist('current_vacancy[]')
             center_manager_names = request.form.getlist('center_manager_name[]')
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
             workspace_types = request.form.getlist('workspace_type[]')
+
+            # Distance Fields - Extracted Correctly
+            distances_metro = request.form.getlist('distance_metro[]')
+            distances_airport = request.form.getlist('distance_airport[]')
+            distances_bus = request.form.getlist('distance_bus[]')
+            distances_railway = request.form.getlist('distance_railway[]')
 
             # Handle custom inputs for "Other"
             custom_cities = request.form.getlist('location_custom_1[]')  # Custom city inputs
@@ -951,7 +958,8 @@ def list_your_space():
             print(f"Custom micromarkets: {custom_micromarkets}")
 
             # Process each space
-            for idx, city, micromarket,address, total_seats, current_vacancy,center_manager_name, center_manager_contact, workspace_type in zip(space_indices, cities, micromarkets,addresses, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts, workspace_types):
+            for idx, city, micromarket,address, total_seats, current_vacancy,center_manager_name, center_manager_contact, workspace_type, metro_dist, airport_dist, bus_dist, railway_dist in zip(space_indices, cities, micromarkets,addresses, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts, workspace_types,
+                    distances_metro, distances_airport, distances_bus, distances_railway):
                 idx_str = str(idx)  # Convert idx to string in case it's not
 
                 # Validate the address
@@ -964,6 +972,14 @@ def list_your_space():
                     city = to_camel_case(custom_cities.pop(0).strip())
                 if micromarket == "Other" and custom_micromarkets:
                     micromarket = to_camel_case(custom_micromarkets.pop(0).strip())
+
+                # Convert Distances to Float Safely
+                distance_data = {
+                    'metro': float(metro_dist) if metro_dist else 0.0,
+                    'airport': float(airport_dist) if airport_dist else 0.0,
+                    'bus': float(bus_dist) if bus_dist else 0.0,
+                    'railway': float(railway_dist) if railway_dist else 0.0
+                }
 
                  # Upload Property Images
                 property_images = request.files.getlist(f'property_images_{idx}[]')
@@ -1155,6 +1171,7 @@ def list_your_space():
                     'city': city,
                     'micromarket': micromarket,
                     'address': address, 
+                    'distance': distance_data,
                     'total_seats': int(total_seats or 0),
                     'current_vacancy': int(current_vacancy or 0),
                     'center_manager': {
@@ -1167,7 +1184,7 @@ def list_your_space():
                     'workspace_tool': workspace_tool,
                     'notification_preference': notification_preference,
                     'space_description': space_description,
-                    'date': datetime.datetime.now()
+                    'date': datetime.now()
                 }
 
                 # Add Workspace Type Specific Details
