@@ -103,7 +103,7 @@ function loadFormStep() {
                 <input type="email" id="email" name="email" class="form-control" placeholder="Work E-mail *" required>
             </div>
             <div class="form-group mb-3">
-                <input type="checkbox" id="accept-terms" name="accept-terms" required>
+                <input type="checkbox" id="accept-terms" name="accept-terms" required checked disabled>
                 <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions *</a></label>
             </div>
             <input type="hidden" id="latitude" name="latitude">
@@ -290,25 +290,44 @@ function checkUserExists(contact) {
     .then(response => response.json())
     .then(data => {
         const continueBtn = document.getElementById('continue-btn');
+        const additionalFields = document.getElementById('additional-fields');
+        
         // Show the continue button
         continueBtn.style.display = 'block';
 
         if (data.exists) {
+             // If user exists, pre-fill details
+            document.getElementById('name').value = data.name || '';
+            document.getElementById('company').value = data.company || '';
+            document.getElementById('email').value = data.email || '';
+
+            // Make fields read-only
+            document.getElementById('name').readOnly = true;
+            document.getElementById('company').readOnly = true;
+            document.getElementById('email').readOnly = true;
+
+            // Show additional fields
+            additionalFields.style.display = 'block';
+
              // If user exists, show Login button
              continueBtn.innerText = 'Login';
              continueBtn.onclick = function() {
-                 window.location.href = `/outerpage?contact=${encodeURIComponent(contact)}`;
+                 //  window.location.href = `/outerpage?contact=${encodeURIComponent(contact)}`;
+                 currentStep = 2; // Move to step 2
+                loadFormStep();
              };
- 
-             // Hide additional fields
-             document.getElementById('additional-fields').style.display = 'none';
         } else {
             // If user does not exist, show Sign Up button
             continueBtn.innerText = 'Sign Up';
             continueBtn.onclick = submitUserInfo;
 
-            // Show additional fields for user to enter details
-            document.getElementById('additional-fields').style.display = 'block';
+            // Show additional fields for user input
+            additionalFields.style.display = 'block';
+
+            // Make fields editable
+            document.getElementById('name').readOnly = false;
+            document.getElementById('company').readOnly = false;
+            document.getElementById('email').readOnly = false;
         }
     })
     .catch(error => {
@@ -369,7 +388,6 @@ function initializeIntlTelInput() {
 function submitUserInfo() {
     const contactField = document.getElementById('contact');
 
-
     if (!contactField.disabled) {
         alert('Please verify your contact number before proceeding.');
         return;
@@ -410,7 +428,9 @@ function submitUserInfo() {
     .then(data => {
         hideLoader();
         if (data.status === 'exists') {
-            window.location.href = '/outerpage';
+            currentStep++; // Move to step 2 instead of redirecting
+            loadFormStep();
+            // window.location.href = '/outerpage';
         } else if (data.status === 'success') {
             currentStep++;
             loadFormStep();
