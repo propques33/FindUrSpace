@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/user.css" />
+</head>
+
+<body>
+
+  <!-- Navbar Section -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="#">
+                <img src="../static/images/logo.png" alt="Icon" width="70" height="60">
+                <span>FindUrSpace</span>
+            </a>
+
+            <!-- Menu Toggle Button -->
+            <button class="navbar-toggler" id="menuToggle">
+                <img src="../static/images/menu_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.png" alt="Menu" width="40px" height="40px">
+            </button>
+
+            <!-- Navigation Links -->
+            <div class="navbar-links" id="navbarMenu">
+                <ul class="nav-list">
+                    <li><a href="{{ url_for('core_bp.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('core_bp.blog') }}">Blogs</a></li>
+                    {% if contact %}
+                    <li class="contact-number">Contact: {{ contact }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+  <div class="dashboard-container">
+
+
+    <!-- Sidebar -->
+    <aside class="sidebar-mobile">
+      <div class="user-profile">
+        <div class="profile-pic">
+          <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+            alt="User Profile" />
+        </div>
+        <div class="user-details">
+          <p>Hi!👋 {{ user.name }}</p>
+          <p>{{user.company}}</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li onclick="showPage('dashboard')" class="active">Dashboard</li>
+          <!-- <li onclick="showPage('invoice')">Invoice</li> -->
+          <!-- <li onclick="showPage('reviews')">Reviews</li> -->
+          <!-- <li onclick="showPage('workspaces')">Workspaces</li> -->
+          <li onclick="showPage('logout')">Logout</li>
+        </ul>
+      </nav>
+    </aside>
+    <aside class="sidebar">
+      <div class="user-profile">
+        <div class="profile-pic">
+          <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+            alt="User Profile" />
+        </div>
+        <div>
+          <p>Hi!👋 {{ user.name }}</p>
+          <p>{{user.company}}</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li onclick="showPage('dashboard')" class="active">Dashboard</li>
+          <li onclick="showPage('bookings')">Bookings</li>
+          <li onclick="showPage('visits')">Visits</li>
+          <!-- <li onclick="showPage('invoice')">Invoice</li> -->
+          <!-- <li onclick="showPage('reviews')">Reviews</li> -->
+          <!-- <li onclick="showPage('workspaces')">Workspaces</li> -->
+          <li onclick="showPage('logout')">Logout</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard -->
+      <section id="dashboard" class="page active">
+        <div class="dashboard-container-inner">
+          <div class="timeline-header">
+            <h2>Coworking Space Name
+
+              <span>Booked For</span>
+            </h2>
+         
+       
+            <span>
+              <p><span>Location:</span>  Bangalore, Karnataka</p>
+              <p><span> Date:</span> 27th February 2025</p>
+            </span>
+            
+          </div>
+              
+
+          <div class="timeline">
+            <div class="timeline-item">
+              <div class="timeline-image"></div>
+              <div class="timeline-icon">
+                <i class="ri-mail-open-line"></i>
+              </div>
+              <p>Booking Received</p>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-image"></div>
+              <div class="timeline-icon"><i class="ri-time-line"></i></div>
+              <p>Approval Pending</p>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-image"></div>
+              <div class="timeline-icon"><i class="ri-wallet-line"></i></div>
+              <p>Payment</p>
+            </div>
+
+            <div class="timeline-item">
+              <div class="timeline-image"></div>
+              <div class="timeline-icon">
+                <i class="ri-check-double-line"></i>
+              </div>
+              <p>Booking Confirmed</p>
+            </div>
+          </div>
+          <div class="line"></div>
+
+          <div class="button-container">
+            <button class="download-btn">
+              <i class="ri-download-2-line"></i> Download Invoice
+            </button>
+            <button class="pay-now-btn">
+              <i class="ri-money-dollar-circle-line"></i> Pay Now
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Invoice -->
+      <section id="invoice" class="page">
+        <div class="invoice-header">
+          <button class="toggle-btn active" onclick="toggleInvoice('short')">
+            Short Term Pass
+          </button>
+          <button class="toggle-btn" onclick="toggleInvoice('long')">
+            Long Term Pass
+          </button>
+        </div>
+        <div class="invoice-content" id="short-invoices">
+          <div>
+            <h3>Short-Term Invoices</h3>
+            <div class="invoice-card">
+              <h4>Invoice 1</h4>
+              <p>Coworking Name</p>
+              <p>26/09/2025</p>
+              <p>₹ 10000</p>
+              <p class="download-btn-2">Download</p>
+            </div>
+          </div>
+        </div>
+        <div class="invoice-content" id="long-invoices" style="display: none">
+          <div>
+            <h3>Long-Term Invoices</h3>
+            <div class="invoice-card">
+              <h4>Invoice 1</h4>
+              <p>Coworking Name</p>
+              <p>26/09/2025</p>
+              <p>₹ 10000</p>
+              <p class="download-btn-2">Download</p>
+            </div>
+          </div>
+        </div>
+  </div>
+  </section>
+
+  <!-- Reviews -->
+  <section id="reviews" class="page">
+    <div class="reviews-container">
+      <h1>Hi, Pranjal! Welcome to Your Reviews.</h1>
+      <p>No reviews yet. Find your space now.</p>
+      <button class="cta-button">Find Your Space</button>
+    </div>
+  </section>
+
+  <!-- Workspaces -->
+  <section id="workspaces" class="page">
+    <h2>Workspaces</h2>
+    <p>Browse and manage your workspaces.</p>
+  </section>
+  </main>
+  </div>
+
+
+
+  <script>document.addEventListener("DOMContentLoaded", () => {
+      showPage("dashboard");
+
+      // Sidebar Toggle
+      document.querySelector(".hamburger-menu").addEventListener("click", toggleSidebar);
+      document.querySelector(".overlay").addEventListener("click", closeSidebar);
+    });
+
+    function toggleSidebar() {
+      document.querySelector(".sidebar").classList.toggle("show");
+      document.querySelector(".overlay").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.querySelector(".sidebar").classList.remove("show");
+      document.querySelector(".overlay").classList.remove("show");
+    }
+
+  </script>
+</body>
+
+</html>

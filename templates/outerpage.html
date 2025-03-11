@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=menu" />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
     
     <!-- Facebook Pixel Code -->
       <script>
@@ -64,16 +66,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto gap-4">
+                
 
-                  <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('core_bp.blog') }}">
-                        <h1 class="listur">Blogs</h1>
-                    </a>
-                  </li>
-                <!-- Operators Login Button -->
                 <li class="nav-item inline-block">
-                  <a class="nav-link" href="{{ url_for('operators.operators_login') }}">
-                      <h1 class="listur">Operators Login</h1>
+                  <a class="nav-link" href="{{ url_for('core_bp.user', contact=contact) }}">
+                      <h1 class="listur bs"><span class="material-symbols-outlined circle">account_circle</span>User Panel</h1>
                   </a>
                 </li>
 
@@ -94,11 +91,11 @@
       {% for card in cards %}
         <div class="card">
           <!-- Bookmark Button -->
-          <span class="bookmark-btn material-symbols-outlined"> favorite </span>
+          <span class="bookmark-btn material-symbols-outlined" onclick="toggleBookmark(this)"> <i class="fa-regular fa-heart"></i> <!-- Default empty heart --> </span>
 
           <div class="card-space-image-container">
             <img
-              src="{{ card.inventory.images[0] }}"
+              src="{{ card.images[0] }}"
               alt="{{ card.record.coworking_name }}"
               class="card-space-image"
             />
@@ -116,8 +113,8 @@
                 {% endif %}
               </h3>
               <div class="rating rat" >
-                <span class="star">⭐ 4.4 </span>
-                <span class="review"> (100 Reviews)</span>
+                <span class="star">⭐ {{ card.star_rating }} </span>
+                <span class="review"> ({{ card.review_count }} Reviews)</span>
               </div>
             </div>
             <div class="card-con2">
@@ -140,7 +137,7 @@
                 {{ card.record.micromarket }}, {{ card.record.city }}
               </p>
             </div>
-            <a href="#" class="btn">View Details</a>
+            <a href="{{ url_for('core_bp.innerpage', property_id=card.record._id, inventoryType=card.inventory.type, contact=contact) }}" class="btn">View Details</a>
           </div>
         </div>
       {% endfor %}
@@ -158,17 +155,17 @@
 <!-- Dynamic Pagination -->
 <div class="pagination">
   {% if page > 1 %}
-    <a href="{{ url_for('core_bp.outerpage', page=page-1) }}" class="page prev">
+    <a href="{{ url_for('core_bp.outerpage', page=page-1, location=location, area=area, inventoryType=inventoryType) }}" class="page prev">
       <span class="material-symbols-outlined">chevron_left</span>
     </a>
   {% endif %}
   {% for p in range(1, total_pages + 1) %}
-    <a href="{{ url_for('core_bp.outerpage', page=p) }}" class="page {% if p == page %} active {% endif %}">
+    <a href="{{ url_for('core_bp.outerpage', page=p, location=location, area=area, inventoryType=inventoryType) }}" class="page {% if p == page %} active {% endif %}">
       {{ p }}
     </a>
   {% endfor %}
   {% if page < total_pages %}
-    <a href="{{ url_for('core_bp.outerpage', page=page+1) }}" class="page next">
+    <a href="{{ url_for('core_bp.outerpage', page=page+1, location=location, area=area, inventoryType=inventoryType) }}" class="page next">
       <span class="material-symbols-outlined">chevron_right</span>
     </a>
   {% endif %}
@@ -556,6 +553,15 @@ navToggler.addEventListener('click', function() {
 // Footer Copyright Year Update
 document.querySelector('.footer-bottom p').innerHTML = 
     `© Copyrights ${new Date().getFullYear()} FindurSpace All rights reserved.`;
+
+    function toggleBookmark(element) {
+    // Toggle between filled and unfilled heart
+    if (element.innerHTML.includes('fa-regular fa-heart')) {
+      element.innerHTML = '<i class="fa-solid fa-heart" style="color: #e61433;"></i>'; // Filled heart
+    } else {
+      element.innerHTML = '<i class="fa-regular fa-heart"></i>'; // Empty heart
+    }
+  }
     </script>
     
   </body>

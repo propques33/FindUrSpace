@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Bookings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .btn-container {
+            display: flex;
+            gap: 10px; /* Adds space between buttons */
+            justify-content: center; /* Center align buttons */
+        }
+        .table th, .table td {
+            vertical-align: middle; /* Align content in the center */
+            text-align: center;
+        }
+        .badge {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+        .bt{
+            display:flex;
+            flex-direction: row;
+            column-gap: 10px;   
+            justify-content: center;
+            align-items: center;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navigation.html' %}
+
+    <div class="container mt-5">
+        <h2>Bookings</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>User Name</th>
+                        <th>Company</th>
+                        <th>Contact</th>
+                        <th>Inventory Type</th>
+                        <th>Quantity</th>
+                        <th>Total Price</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Coworking Name</th>
+                        <th>City</th>
+                        <th>Micromarket</th>
+                        <th>Owner Name</th>
+                        <th>Owner Contact</th>
+                        <th>Owner Email</th>
+                        <th>Center Manager Name</th>
+                        <th>Center Manager Contact</th>
+                        <th>Action</th>
+                        <th>Payment Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking._id }}</td>
+                        <td>{{ booking.fullName }}</td>
+                        <td>{{ booking.company }}</td>
+                        <td>{{ booking.phone }}</td>
+                        <td>{{ booking.inventoryType }}</td>
+                        <td>{{ booking.quantity }}</td>
+                        <td>₹{{ booking.totalPrice }}</td>
+                        <td>{{ booking.date }}</td>
+                        <td>{{ booking.time }}</td>
+                        <td>{{ booking.coworking_name }}</td>
+                        <td>{{ booking.city }}</td>
+                        <td>{{ booking.micromarket }}</td>
+                        <td>{{ booking.owner_name }}</td>
+                        <td>{{ booking.owner_phone }}</td>
+                        <td>{{ booking.owner_email }}</td>
+                        <td>{{ booking.center_manager_name }}</td>
+                        <td>{{ booking.center_manager_contact }}</td>
+                         <td id="action-{{ booking._id }}">
+                            <div class="btn-container">
+                                {% if booking.status == "pending" %}
+                                    <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking._id }}', 'approved')">Approve</button>
+                                    <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking._id }}', 'declined')">Decline</button>
+                                {% elif booking.status == "approved" %}
+                                    <button class="btn btn-primary btn-sm" onclick="updatePaymentStatus('{{ booking._id }}')">Pay Now</button>
+                                {% elif booking.status == "paid" %}
+                                    <span class="badge bg-primary">Paid</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td id="status-{{ booking._id }}">
+                            <span class="badge {% if booking.status == 'approved' %} bg-success 
+                                              {% elif booking.status == 'paid' %} bg-primary 
+                                              {% elif booking.status == 'declined' %} bg-danger 
+                                              {% else %} bg-warning {% endif %}">
+                                {{ booking.status.capitalize() }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function updateBookingStatus(bookingId, status) {
+            fetch('/admin/update_booking_status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    let statusCell = document.getElementById(`status-${bookingId}`);
+                    let actionCell = document.getElementById(`action-${bookingId}`);
+
+                    statusCell.innerHTML = `<span class="badge ${status === 'approved' ? 'bg-success' : 'bg-danger'}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+                    
+                    // Remove Approve/Decline buttons and show "Pay Now" if approved
+                    if (status === 'approved') {
+                        actionCell.innerHTML = `<button class="btn btn-primary btn-sm" onclick="updatePaymentStatus('${bookingId}')">Pay Now</button>`;
+                    } else {
+                        actionCell.innerHTML = ''; // Remove buttons if declined
+                    }
+                } else {
+                    alert("Failed to update status.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function updatePaymentStatus(bookingId) {
+            fetch('/admin/update_payment_status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    let statusCell = document.getElementById(`status-${bookingId}`);
+                    let actionCell = document.getElementById(`action-${bookingId}`);
+
+                    statusCell.innerHTML = `<span class="badge bg-primary">Paid</span>`;
+                    actionCell.innerHTML = `<span class="badge bg-primary">Paid</span>`; // Replaces Pay Now button with badge
+                } else {
+                    alert("Failed to update payment status.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

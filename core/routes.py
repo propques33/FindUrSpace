@@ -1,7 +1,6 @@
 # current routes.py
 from flask import Blueprint, render_template, request, jsonify, flash, session, current_app, send_from_directory, redirect, url_for,make_response
 from collections import defaultdict
-import datetime
 from core.email_handler import send_email_and_whatsapp_with_pdf1
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 from bson.regex import Regex
@@ -16,6 +15,8 @@ from integrations.google_drive_integration import authenticate_google_drive, upl
 from core.image_upload import process_and_upload_images
 from integrations.otplessauth import OtpLessAuth
 from integrations.gsheet_updater import handle_new_user_entry
+import random  # Import random module at the top
+from datetime import datetime, timedelta
 
 
 # Function to handle Google Sheet updates in the background
@@ -106,6 +107,7 @@ def outerpage():
     filter_city = request.args.get('location', None)
     filter_micromarket = request.args.get('area', None)
     filter_inventory_type = request.args.get('inventoryType', None)
+    page = request.args.get('page', 1, type=int)
 
     # If contact is provided, fetch User ID
     user_id = None
@@ -117,14 +119,14 @@ def outerpage():
             # Get user preferences using user_id
             user_preferences = db.properties.find_one({'user_id': ObjectId(user_id)})
     
-    if user_preferences:
+    if user_preferences and not filter_city and not filter_micromarket and not filter_inventory_type:
         filter_city = user_preferences.get('city')
         filter_micromarket = user_preferences.get('micromarket')
         filter_inventory_type = user_preferences.get('inventory_type')
 
     # Pagination Variables
     cards_per_page = 6
-    page = request.args.get('page', 1, type=int)
+    # page = request.args.get('page', 1, type=int)
 
     # Fetch records from fillurdetails based on filters
     if filter_city and filter_micromarket:
@@ -140,9 +142,16 @@ def outerpage():
     # Flatten records into individual cards
     all_cards = []
     for record in records:
+        if 'inventory' not in record:
+            continue  # Skip records without an inventory field
+
         for inventory in record['inventory']:
             if filter_inventory_type and inventory['type'] != filter_inventory_type:
                 continue  # Skip inventories that don't match the preferred type
+
+            #Generate random star rating and reviews count
+            star_rating = round(random.uniform(3.5, 5.0), 1)  # Between 3.5 and 5.0
+            review_count = random.randint(10, 500)  # Between 10 and 500
                 
             # Day Pass, Dedicated Desk, and Virtual Office as single cards
             if inventory['type'] in ["Day pass", "Dedicated desk", "Virtual office"]:
@@ -150,26 +159,53 @@ def outerpage():
                     'record': record,
                     'inventory': inventory,
                     'type': inventory['type'],
-                    'price': inventory.get('price_per_seat', 0)
+                    'price': inventory.get('price_per_seat', 0),
+                    'star_rating': star_rating,  # Pass random rating
+                    'review_count': review_count,
+                    'images': inventory.get('images', [])   # Pass random reviews count
                 })
             # Meeting Rooms as separate cards for each room
-            elif inventory['type'] == "Meeting rooms":
-                for room in inventory['room_details']:
-                    all_cards.append({
-                        'record': record,
-                        'inventory': inventory,
-                        'type': f"{room['seating_capacity']} Seater Meeting Room",
-                        'price': room.get('price', 0)
-                    })
+            elif inventory['type'] == "Meeting rooms" and 'room_details' in inventory:
+                seating_capacities = []
+                first_room_price = None
+                first_room_images = []
+
+                for index, room in enumerate(inventory['room_details']):
+                    seating_capacities.append(str(room['seating_capacity']))
+                    if index == 0:  # Take price & images from the first room
+                        first_room_price = room.get('price', 0)
+                        first_room_images = room.get('images', [])
+
+                all_cards.append({
+                    'record': record,
+                    'inventory': inventory,
+                    'type': ", ".join(seating_capacities) + " Seater Meeting Room",
+                    'price': first_room_price,
+                    'images': first_room_images,
+                    'star_rating': star_rating,  # Pass random rating
+                    'review_count': review_count  # Pass random reviews count
+                })
             # Private Cabins as separate cards for each cabin
-            elif inventory['type'] == "Private cabin":
-                for cabin in inventory['room_details']:
-                    all_cards.append({
+            elif inventory['type'] == "Private cabin"  and 'room_details' in inventory:
+                seating_capacities = []
+                first_cabin_price = None
+                first_cabin_images = []
+
+                for index, cabin in enumerate(inventory['room_details']):
+                    seating_capacities.append(str(cabin['seating_capacity']))
+                    if index == 0:  # Take price & images from the first cabin
+                        first_cabin_price = cabin.get('price', 0)
+                        first_cabin_images = cabin.get('images', [])
+
+                all_cards.append({
                         'record': record,
                         'inventory': inventory,
-                        'type': f"{cabin['seating_capacity']} Seater Private Cabin",
-                        'price': cabin.get('price', 0)
-                    })
+                        'type': ", ".join(seating_capacities) + " Seater Private Cabin",
+                        'price': first_cabin_price,
+                        'images': first_cabin_images,
+                        'star_rating': star_rating,  # Pass random rating
+                        'review_count': review_count  # Pass random reviews count
+                    })    
 
     # Pagination Logic
     total_cards = len(all_cards)
@@ -181,7 +217,266 @@ def outerpage():
     # Debugging line (optional): Check the cards being sent to template
     print("Paginated Cards:", paginated_cards)
 
-    return render_template('outerpage.html', cards=paginated_cards, page=page, total_pages=total_pages,contact=contact)
+    return render_template('outerpage.html', cards=paginated_cards, page=page, total_pages=total_pages,contact=contact,
+        location=filter_city,
+        area=filter_micromarket,
+        inventoryType=filter_inventory_type)
+
+@core_bp.route('/innerpage/<property_id>')
+def innerpage(property_id):
+    db = current_app.config['db']
+    inventory_type = request.args.get('inventoryType', None)  # Capture inventoryType from the URL
+    contact = request.args.get('contact', None)  # Capture contact from the URL
+
+    # Fetch the property details from the database
+    property_data = db.fillurdetails.find_one({"_id": ObjectId(property_id)})
+    if not property_data:
+        return "Property not found", 404
+
+    # Fetch user details if contact is provided
+    user_data = None
+    property_details = None  # To store seats and budget
+
+    if contact:
+        user_data = db.users.find_one({'contact': contact}, {"_id": 1, "name": 1, "contact": 1, "company": 1, "email": 1})
+
+        if user_data:
+            user_data["_id"] = str(user_data["_id"])  # Convert ObjectId to string
+            user_id = user_data["_id"]  # Get the user ID safely
+
+            # Fetch property details using user_id
+            property_details = db.properties.find_one({'user_id': ObjectId(user_id)}, {"_id": 0, "seats": 1, "budget": 1})
+
+    # Set default values if no data found
+    seats = property_details.get("seats", "Not Specified") if property_details else "Not Specified"
+    budget = property_details.get("budget", "Not Specified") if property_details else "Not Specified"
+
+    # Extract amenities
+    amenities = property_data.get("amenities", [])
+
+    # Extract office timings
+    office_timings = property_data.get("office_timings", {})
+
+    # Extract opening and closing times
+    opening_time_str = office_timings.get("opening_time", "09:00")  # Default to 09:00 if not found
+    closing_time_str = office_timings.get("closing_time", "21:30")  # Default to 21:30 if not found
+
+    # Convert string time to datetime objects
+    opening_time = datetime.strptime(opening_time_str, "%H:%M")
+    closing_time = datetime.strptime(closing_time_str, "%H:%M")
+
+    # Generate time slots (1-hour interval)
+    time_slots = []
+    current_time = opening_time
+    while current_time < closing_time:
+        time_slots.append(current_time.strftime("%I:%M %p"))  # Format as AM/PM
+        current_time += timedelta(hours=1)
+
+
+    # Extract the relevant inventory based on inventoryType
+    selected_inventory = None
+    inventory_images = []  # Store images from inventory
+    if inventory_type:
+        for inventory in property_data.get('inventory', []):
+            if inventory.get('type') == inventory_type:
+                selected_inventory = inventory
+                # If inventory has images directly
+                if 'images' in inventory and inventory['images']:
+                    inventory_images.extend(inventory['images'])
+
+                # If meeting rooms or private cabins, fetch images from room_details
+                if 'room_details' in inventory:
+                    for room in inventory['room_details']:
+                        inventory_images.extend(room.get('images', []))
+
+                break  # Stop searching once inventory is found
+
+    # Append property images after inventory images
+    property_images = property_data.get('property_images', [])
+
+     # Define inventory categories
+    meeting_group = ["Day pass", "Meeting rooms"]
+    desk_group = ["Dedicated desk", "Private cabin", "Virtual office"]
+
+    # Fetch **Other Inventory** Cards (Exclude the selected one)
+    other_inventories = []
+    for inventory in property_data.get('inventory', []):
+        if inventory.get('type') == inventory_type:
+            continue  # Skip the current inventory type
+        
+        # **Ensure only the same category inventories are shown**
+        if (inventory_type in desk_group and inventory['type'] not in desk_group) or \
+           (inventory_type in meeting_group and inventory['type'] not in meeting_group):
+            continue  # Skip unrelated inventory types
+
+        # Generate random star rating and reviews count (like outerpage)
+        star_rating = round(random.uniform(3.5, 5.0), 1)  # Between 3.5 and 5.0
+        review_count = random.randint(10, 500)  # Between 10 and 500
+
+        # Determine the first image for this inventory
+        first_image = inventory.get('images', [])[0] if inventory.get('images') else None
+
+        # Get inventory details
+        coworking_name = property_data.get("coworking_name", "N/A")
+        micromarket = property_data.get("micromarket", "N/A")
+        city = property_data.get("city", "N/A")
+        seating_capacity = inventory.get("seating_capacity", "N/A")
+        
+        # Format price per unit
+        if inventory['type'] == "Day pass":
+            price_label = "/seat/day"
+        elif inventory['type'] == "Dedicated desk":
+            price_label = "/seat/month"
+        elif "Meeting Room" in inventory['type']:
+            price_label = "/hour"
+        elif inventory['type'] == "Virtual office":
+            price_label = "/year"
+        elif "Private Cabin" in inventory['type']:
+            price_label = "/seat/month"
+        else:
+            price_label = ""
+            
+
+        other_inventories.append({
+            "type": inventory['type'],
+            "price": inventory.get('price_per_seat', 0),
+            "price_label": price_label,
+            "first_image": first_image,
+            "coworking_name": coworking_name,
+            "micromarket": micromarket,
+            "city": city,
+            "star_rating": star_rating,
+            "review_count": review_count
+        })
+
+    return render_template(
+        'innerpage.html',
+        property=property_data,
+        inventoryType=inventory_type,
+        selected_inventory=selected_inventory , # Pass the selected inventory to the template
+        contact=contact,  # Pass contact for user tracking
+        user_data=user_data or {},  # Pass user details if needed
+        seats=seats,
+        budget=budget,
+        inventory_images=inventory_images,  # Pass inventory-specific images
+        property_images=property_images,  # Pass all property images
+        office_timings=property_data.get("office_timings", {}),
+        amenities=amenities,  # Pass amenities dynamically
+        other_inventories=other_inventories,  # Pass the other inventory data to template
+        time_slots=time_slots  # Pass time slots to the template
+    )
+
+@core_bp.route('/schedule_tour', methods=['POST'])
+def schedule_tour():
+    db = current_app.config['db']
+
+    # Parse form data
+    data = request.json
+    user_id = data.get("user_id")
+    property_id = data.get("property_id")
+    name = data.get("name")
+    email = data.get("email")
+    company = data.get("company")
+    contact = data.get("contact")
+    inventory_type = data.get("inventoryType")
+    date = data.get("date")
+    time = data.get("time")
+    message = data.get("message")
+    move_in_date = data.get("moveInDate", None)  # Optional
+    duration = data.get("duration", None)  # Optional
+    gstin = data.get("gstin", None)  # Optional
+    num_seats = data.get("numSeats")
+    budget = data.get("budget")
+
+    # Validate required fields
+    if not user_id or not property_id or not name or not email or not contact or not date or not time:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    # Convert user_id and property_id to ObjectId
+    try:
+        user_id = ObjectId(user_id)
+        property_id = ObjectId(property_id)
+    except:
+        return jsonify({"success": False, "message": "Invalid user or property ID"}), 400
+
+    # Prepare document for MongoDB
+    visit_data = {
+        "user_id": user_id,
+        "property_id": property_id,
+        "name": name,
+        "email": email,
+        "company": company,
+        "contact": contact,
+        "inventory_type": inventory_type,
+        "date": datetime.strptime(date, "%Y-%m-%d"),
+        "time": time,
+        "message": message,
+        "move_in_date": datetime.strptime(move_in_date, "%Y-%m-%d") if move_in_date else None,
+        "duration": duration,
+        "gstin": gstin,
+        "num_seats": num_seats,
+        "budget": budget,
+        "status": "Pending", 
+        "created_at": datetime.utcnow()
+    }
+
+    # Insert into MongoDB
+    db.visits.insert_one(visit_data)
+
+    return jsonify({"success": True, "message": "Tour scheduled successfully!"})
+
+
+@core_bp.route('/submit_purchase', methods=['POST'])
+def submit_purchase():
+    db = current_app.config['db']  # Access the MongoDB database
+    booking_collection = db["booking"]  # Reference the 'booking' collection
+
+    try:
+        data = request.json
+
+        # Required fields for validation
+        required_fields = ["inventoryType", "quantity", "totalPrice", "fullName", "email", "phone", "date"]
+        if not all(field in data for field in required_fields):
+            return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+        # Convert date string to datetime object
+        try:
+            booking_date = datetime.strptime(data["date"], "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"success": False, "message": "Invalid date format"}), 400
+
+        # Optional time field for Meeting Rooms
+        booking_time = data.get("time", None)
+
+        # Fetch user_id using contact number
+        user_data = db.users.find_one({"contact": data["phone"]}, {"_id": 1})
+        user_id = str(user_data["_id"]) if user_data else None
+
+        # Store booking in MongoDB
+        booking = {
+            "user_id": user_id,  # Store user_id if found
+            "property_id": data["property_id"],  # Store property ID
+            "inventoryType": data["inventoryType"],
+            "quantity": data["quantity"],
+            "totalPrice": data["totalPrice"],
+            "fullName": data["fullName"],
+            "email": data["email"],
+            "phone": data["phone"],
+            "company": data.get("company", ""),
+            "gstin": data.get("gstin", None),  # Store GSTIN if provided
+            "date": booking_date,
+            "time": booking_time,  # Only applicable for Meeting Rooms
+            "status": "Pending",  # Default status
+            "created_at": datetime.utcnow()
+        }
+
+        # Insert into MongoDB
+        booking_collection.insert_one(booking)
+
+        return jsonify({"success": True, "message": "Booking received successfully!"}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
 
 @core_bp.route('/verify_otp', methods=['POST'])
@@ -227,6 +522,96 @@ def sitemap():
 def index():
     # Render the template with the dynamic city data
     return render_template('index.html')
+
+
+@core_bp.route('/user')
+def user():
+    db = current_app.config['db']  # MongoDB connection
+    contact = request.args.get('contact')  # Get contact from URL parameter
+
+    if not contact:
+        return "Contact number is required!", 400
+
+    # Step 1: Fetch user details to get user_id
+    user = db.users.find_one({'contact': contact}, {'_id': 1, 'name': 1, 'contact': 1, 'email': 1, 'company': 1, 'location': 1})
+    
+    if not user:
+        return "User not found!", 404
+
+    user_id = str(user['_id'])
+
+    # Step 2: Fetch visits using user_id
+    visits = list(db.visits.find({'user_id': ObjectId(user_id)}))
+
+    # Step 3: Process visits and fetch property details
+    for visit in visits:
+        property_id = visit.get('property_id')
+
+        # Fetch property details
+        property_details = db.fillurdetails.find_one(
+            {'_id': ObjectId(property_id)},
+            {'coworking_name': 1, 'micromarket': 1, 'city': 1, 'address': 1, 'inventory': 1}
+        )
+
+        if property_details:
+            # Extract price_per_seat from the inventory matching the inventory type
+            inventory_type = visit.get('inventory_type')
+            price_per_seat = None
+
+            for inventory in property_details.get('inventory', []):
+                if inventory.get('type') == inventory_type:
+                    price_per_seat = inventory.get('price_per_seat')
+                    break
+
+            # Attach relevant property details to visit record
+            visit['property'] = {
+                'coworking_name': property_details.get('coworking_name'),
+                'micromarket': property_details.get('micromarket'),
+                'city': property_details.get('city'),
+                'address': property_details.get('address'),
+                'price_per_seat': price_per_seat
+            }
+
+    # Step 4: Fetch bookings using user_id
+    bookings = list(db.booking.find({'user_id': user_id}))
+
+    # Step 5: Process bookings and fetch property details
+    for booking in bookings:
+        property_id = booking.get('property_id')
+
+        # Fetch property details
+        property_details = db.fillurdetails.find_one(
+            {'_id': ObjectId(property_id)},
+            {'coworking_name': 1, 'micromarket': 1, 'city': 1, 'address': 1, 'inventory': 1}
+        )
+
+        if property_details:
+            # Extract price_per_seat from inventory based on inventory type
+            inventory_type = booking.get('inventoryType')
+            price_per_seat = None
+
+            for inventory in property_details.get('inventory', []):
+                if inventory.get('type') == inventory_type:
+                    price_per_seat = inventory.get('price_per_seat')
+                    break
+
+            # Attach property details to booking record
+            booking['property'] = {
+                'coworking_name': property_details.get('coworking_name'),
+                'micromarket': property_details.get('micromarket'),
+                'city': property_details.get('city'),
+                'address': property_details.get('address'),
+                'price_per_seat': price_per_seat
+            }
+
+        # Convert MongoDB date format to readable format
+        if 'date' in booking and isinstance(booking['date'], dict) and '$date' in booking['date']:
+            booking['date'] = datetime.strptime(booking['date']['$date'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime("%d %B %Y")
+
+    # Pass data to the template
+    return render_template('user.html', user=user, visits=visits, bookings=bookings)
+
+
 
 # Function to update users Excel sheet
 def update_users_excel(new_user):
@@ -426,7 +811,7 @@ def submit_preferences():
         'property_names': property_names,
         'operator_numbers': operator_numbers,
         'center_manager_numbers': center_manager_numbers, 
-        'date': datetime.datetime.now()
+        'date': datetime.now()
     }
 
     # Insert property data into the collection
@@ -782,7 +1167,6 @@ def list_your_space():
                     'workspace_tool': workspace_tool,
                     'notification_preference': notification_preference,
                     'space_description': space_description,
-                    'status':'new',
                     'date': datetime.datetime.now()
                 }
 

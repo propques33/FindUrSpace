@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Visits</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .btn-container {
+            display: flex;
+            gap: 10px; /* Space between buttons */
+            justify-content: center;
+        }
+        .table th, .table td {
+            vertical-align: middle; /* Center align table content */
+            text-align: center;
+        }
+        .badge {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navigation.html' %}
+    <div class="container mt-5">
+        <h2>Visits</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Email</th>
+                        <th>Company</th>
+                        <th>Contact</th>
+                        <th>Inventory Type</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Seats</th>
+                        <th>Budget</th>
+                        <th>Coworking Name</th>
+                        <th>Micromarket</th>
+                        <th>City</th>
+                        <th>Owner</th>
+                        <th>Owner Contact</th>
+                        <th>Center Manager</th>
+                        <th>Center Manager Contact</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr id="visit-row-{{ visit._id }}">
+                        <td>{{ visit.user_name }}</td>
+                        <td>{{ visit.email }}</td>
+                        <td>{{ visit.company }}</td>
+                        <td>{{ visit.contact }}</td>
+                        <td>{{ visit.inventory_type }}</td>
+                        <td>{{ visit.date }}</td>
+                        <td>{{ visit.time }}</td>
+                        <td>{{ visit.duration }}</td>
+                        <td>{{ visit.num_seats }}</td>
+                        <td>₹{{ visit.budget }}</td>
+                        <td>{{ visit.coworking_name }}</td>
+                        <td>{{ visit.micromarket }}</td>
+                        <td>{{ visit.city }}</td>
+                        <td>{{ visit.owner_name }}</td>
+                        <td>{{ visit.owner_phone }}</td>
+                        <td>{{ visit.center_manager_name }}</td>
+                        <td>{{ visit.center_manager_contact }}</td>
+                        <td id="status-{{ visit._id }}">
+                            <span class="badge {% if visit.status == 'approved' %} bg-success 
+                                              {% elif visit.status == 'declined' %} bg-danger 
+                                              {% else %} bg-warning {% endif %}">
+                                {{ visit.status.capitalize() }}
+                            </span>
+                        </td>
+                        <td id="action-{{ visit._id }}">
+                            {% if visit.status == "pending" %}
+                                <div class="btn-container">
+                                    <button class="btn btn-success btn-sm" onclick="updateVisitStatus('{{ visit._id }}', 'approved')">Approve</button>
+                                    <button class="btn btn-danger btn-sm" onclick="updateVisitStatus('{{ visit._id }}', 'declined')">Decline</button>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        function updateVisitStatus(visitId, status) {
+            fetch('/admin/update_visit_status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ visit_id: visitId, status: status })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById(`status-${visitId}`).innerHTML = `<span class="badge ${status === 'approved' ? 'bg-success' : 'bg-danger'}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+                    document.getElementById(`action-${visitId}`).innerHTML = '';
+                } else {
+                    alert("Failed to update status.");
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

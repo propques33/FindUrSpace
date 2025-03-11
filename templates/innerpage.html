@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/css/inner.css" />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- Mapbox CSS -->
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
+
+    <!-- Mapbox JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
+  </head>
+  <body>
+    <input type="hidden" id="currentInventoryType" value="{{ inventoryType }}">
+
+    <input type="hidden" id="userContact" value="{{ contact }}">
+
+<!-- Navbar Section -->
+<nav class="navbar">
+    <div class="navbar-container">
+        <!-- Logo -->
+        <a class="navbar-brand" href="#">
+            <img src="../static/images/logo.png" alt="Icon" width="70" height="60">
+            <span>FindUrSpace</span>
+        </a>
+
+        <!-- Menu Toggle Button -->
+        <button class="navbar-toggler" id="menuToggle">
+            <img src="../static/images/menu_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.png" alt="Menu" width="40px" height="40px">
+        </button>
+
+        <!-- Navigation Links -->
+        <div class="navbar-links" id="navbarMenu">
+            <ul class="nav-list">
+                <li><a href="{{ url_for('core_bp.user') }}" class="bs"><span class="material-symbols-outlined circle">account_circle</span> User Panel</a></li>
+                {% if contact %}
+                <li class="contact-number">Contact: {{ contact }}</li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+  <!-- Image Popup -->
+    <div id="unique-image-popup" class="unique-image-popup">
+      <div class="unique-popup-container">
+        <div class="unique-popup-content">
+          <span id="unique-close-btn" class="unique-close-btn">&times;</span>
+          <button
+            id="unique-prev-image"
+            class="unique-arrow-btn unique-left-arrow"
+          >
+            &larr;
+          </button>
+          <img
+            id="unique-popup-image"
+            class="unique-popup-image"
+            src=""
+            alt="Popup Image"
+          />
+          <button
+            id="unique-next-image"
+            class="unique-arrow-btn unique-right-arrow"
+          >
+            &rarr;
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Image Gallery -->
+    <section class="unique-image-gallery">
+      <div class="unique-gallery-container">
+        <div class="unique-main-image">
+          
+          {% if inventory_images %}
+                <img src="{{ inventory_images[0] }}" alt="Workspace Image" class="unique-image-click"/>
+            {% elif property_images %}
+                <img src="{{ property_images[0] }}" alt="Workspace Image" class="unique-image-click"/>
+            {% else %}
+                <img src="https://via.placeholder.com/800x400" alt="No Image Available" class="unique-image-click"/>
+            {% endif %}
+        </div>
+        <div class="unique-thumbnail-container">
+          {% set all_images = (inventory_images + property_images)[:3] %}
+            {% for img in all_images %}
+                <img src="{{ img }}" alt="Thumbnail Image" class="unique-image-click"/>
+            {% endfor %}
+        </div>
+      </div>
+    </section>
+    <div class="listing-container">
+      <!-- Left Section -->
+      <div>
+        <div class="listing-info">
+          <span class="business-name">{{ property.coworking_name }}</span>
+        </div>
+        <div class="rating-location">
+          <!-- <span class="star-icon">⭐ 4.3</span> -->
+          <span>📍 {{ property.micromarket }}, {{ property.city }}</span>
+        </div>
+      </div>
+
+      <!-- Right Section (Price) -->
+      <div class="price">Starting from<br/>
+        <span>{% if inventoryType == "Dedicated desk" %}
+            ₹{{ selected_inventory.price_per_seat| int  }} /seat/month
+        {% elif inventoryType == "Day pass" %}
+            ₹{{ selected_inventory.price_per_seat| int  }} /seat/day
+        {% elif inventoryType == "Meeting rooms" %}
+            ₹{{ selected_inventory.price_per_seat| int  }} /hour
+        {% elif inventoryType == "Private cabin" %}
+            ₹{{ selected_inventory.price_per_seat| int  }} /seat/month
+        {% elif inventoryType == "Virtual office" %}
+            ₹{{ selected_inventory.price_per_seat| int  }} /year
+        {% else %}
+            Contact for pricing
+        {% endif %}</span></div>
+    </div>
+
+    <div class="container">
+      <!-- Left Section (70%) -->
+      <div class="left-section">
+        <h1>
+          {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
+            {{ inventoryType }}
+          {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
+              {% set seating_capacities = selected_inventory.room_details | map(attribute='seating_capacity') | list %}
+              {{ seating_capacities | join(", ") }} Seater {{ inventoryType }}
+          {% endif %}
+        </h1>
+        <h5>SEATING OPTION</h5>
+        <div class="seating-option">
+          
+            {% if inventory_images %}
+              <img src="{{ inventory_images[0] }}" alt="Workspace Image" class="iminv"/>
+            {% elif property_images %}
+                <img src="{{ property_images[0] }}" alt="Property Image" class="iminv"/>
+            {% else %}
+                <img src="https://via.placeholder.com/800x400" alt="No Image Available" class="featured-image"/>
+            {% endif %}
+          <div class="seating-details">
+            <div class="seating-info">
+              <h2>
+                {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
+                    {{ inventoryType }}
+                {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
+                    {% set seating_capacities = selected_inventory.room_details | map(attribute='seating_capacity') | list %}
+                    {{ seating_capacities | join(", ") }} Seater {{ inventoryType }}
+                {% endif %}
+              </h2>
+              <p>
+                {% if inventoryType == "Day pass" %}
+                    Flexible workspace for a day with shared amenities.
+                {% elif inventoryType == "Dedicated desk" %}
+                    Personalized workstation with storage in a shared office.
+                {% elif inventoryType == "Meeting rooms" %}
+                    Private rooms for client meetings, brainstorming, or presentations.
+                {% elif inventoryType == "Private cabin" %}
+                    Exclusive enclosed space for teams or focused work sessions.
+                {% elif inventoryType == "Virtual office" %}
+                    Professional business address with mail handling and support services.
+                {% else %}
+                    Contact for more details on this workspace.
+                {% endif %}
+              </p>
+              <!-- <ul>
+                <li>
+                  <img src="./static/checked.png" alt="" id="checked" />
+                  Reserved desk, shared amenities
+                </li>
+              </ul> -->
+              <!-- <p>
+                <img src="../static/images/seat.png" alt="" id="seat" />
+                Seating: 
+                {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
+                  {{ selected_inventory.count }} Seats
+                {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
+                  {% set seating_capacities = selected_inventory.room_details | map(attribute='seating_capacity') | list %}
+                  {{ seating_capacities | join(", ") }} Seater {{ inventoryType }}
+                {% else %}
+                  Contact for details
+                {% endif %}
+              </p> -->
+            </div>
+            <div>
+              <span class="price-range"
+                >Starting Price <br />
+                {% if inventoryType == "Dedicated desk" %}
+                    ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+                {% elif inventoryType == "Day pass" %}
+                    ₹{{ selected_inventory.price_per_seat| int }} /seat/day
+                {% elif inventoryType == "Meeting rooms" %}
+                    ₹{{ selected_inventory.price_per_seat| int }} /hour
+                {% elif inventoryType == "Private cabin" %}
+                    ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+                {% elif inventoryType == "Virtual office" %}
+                    ₹{{ selected_inventory.price_per_seat| int }} /year
+                {% else %}
+                    Contact for pricing
+                {% endif %}
+             </span>
+             {% if inventoryType not in ["Day pass", "Meeting rooms"] %}
+              <button class="quote-btn" onclick="openTourModal()">Get Quote →</button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <p class="price-note">
+          *Prices mentioned above are starting prices &amp; subject to
+          availability
+        </p>
+        <!-- Right Section (30%) -->
+      {% if inventoryType in ["Day pass", "Meeting rooms"] %}
+<div class="container1" id="snt">
+        <h3>Select your preference</h3>
+
+        <!-- Updated Cart Summary UI -->
+        <div id="cartSummary" class="cart-summary" style="display: none;">
+            <div class="cart-header">
+                <h4>Your Selection</h4>
+            </div>
+            <div class="cart-details">
+                <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
+                <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
+            </div>
+            <div class="cart-footer">
+                <button class="btn-cart-checkout" onclick="openBuyNowModal()">Proceed to Buy</button>
+            </div>
+        </div>
+        
+        <!-- Day Pass Section -->
+        <div class="pass-card1">
+            <div class="left1">
+                <span>{{ inventoryType }}</span>
+                <div>
+                    <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
+                </div>
+            </div>
+            <div class="quantity1">
+                <button onclick="decreaseQuantity()">-</button>
+                <span id="passQuantity">1</span>
+                <button onclick="increaseQuantity()">+</button>
+            </div>
+        </div>
+
+        <!-- Bundle Offers -->
+        <div class="bundle1" id="bundleOffers">
+        </div>
+        <!-- Buttons -->
+
+        <!-- Limited Time Offer -->
+        <!-- <div class="limited-offer1">Limited Time Available (time counter)</div> -->
+    </div>
+{% endif %}
+
+        {% if inventoryType in ["Meeting rooms", "Private cabin"] %}
+  <div class="time-section">
+    <h3 class="section-title"><i class="fas fa-clock"></i> {{ inventoryType }} Timing</h3>
+    <div class="office-timing">
+      <div class="timing-card">
+        <img src="../static/images/calender.png" alt="Calendar Icon" />
+        <div class="timing-details">
+          <span>Mon - Fri</span>
+          <p>{{ office_timings.opening_time }} - {{ selected_inventory.closing_time }}</p>
+        </div>
+      </div>
+      <div class="timing-card">
+        <img src="../static/images/calender.png" alt="Calendar Icon" />
+        <div class="timing-details">
+          <span>Sat</span>
+          <p>{{ office_timings.opening_time }} - {{ selected_inventory.closing_time }}</p>
+        </div>
+      </div>
+      <div class="timing-card closed">
+        <img src="../static/images/calender.png" alt="Calendar Icon" />
+        <div class="timing-details">
+          <span>Sun</span>
+          <p>Closed</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+
+     <div class="time-section">
+      <h3 class="section-title"><i class="fas fa-clock"></i> Office Timing</h3>
+      <div class="office-timing">
+        
+        <!-- Monday to Friday -->
+        <div class="timing-card">
+          <img src="../static/images/calender.png" alt="Calendar Icon" />
+          <div class="timing-details">
+            <span>Mon - Fri</span>
+            <p>{{ property.office_timings.opening_time }} - {{ property.office_timings.closing_time }}</p>
+          </div>
+        </div>
+
+        <!-- Saturday -->
+        <div class="timing-card">
+          <img src="../static/images/calender.png" alt="Calendar Icon" />
+          <div class="timing-details">
+            <span>Sat</span>
+            <p>{{ property.office_timings.opening_time }} - {{ property.office_timings.closing_time }}</p>
+          </div>
+        </div>
+
+        <!-- Sunday (Closed by Default) -->
+        <div class="timing-card closed">
+          <img src="../static/images/calender.png" alt="Calendar Icon" />
+          <div class="timing-details">
+            <span>Sun</span>
+            <p>Closed</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+
+        <h3 class="section-title " id="nm">About</h3>
+        <h4 class="name">{{ property.coworking_name }}</h4>
+        <br />
+        <p class="about-text">
+          {{ property.space_description }}
+        </p>
+        <br />
+
+        <section class="section">
+  <div class="section-title">
+     Amenities
+  </div>
+  <div class="card-grid">
+    {% set amenities_icons = {
+      "High Speed WiFi": "fas fa-wifi",
+      "Printer": "fas fa-print",
+      "Housekeeping": "fas fa-broom",
+      "Tea/Coffee": "fas fa-coffee",
+      "Meeting Rooms": "fas fa-door-open",
+      "Car / Bike Parking": "fas fa-car",
+      "Reception": "fas fa-concierge-bell",
+      "Phone Booth": "fas fa-phone",
+      "Ergo Workstations": "fas fa-chair",
+      "Pantry": "fas fa-utensils",
+      "Air Conditioning": "fas fa-snowflake",
+      "Lounge": "fas fa-couch",
+      "24/7 Access": "fas fa-clock",
+      "Security": "fas fa-shield-alt",
+      "Cafeteria": "fas fa-utensils",
+      "Power Backup": "fas fa-battery-full",
+      "Event Space": "fas fa-users",
+      "Lockers": "fas fa-lock",
+      "Parking": "fas fa-parking"
+    } %}
+    {% for amenity in property.amenities %}
+      <div class="card">
+        <i class="{{ amenities_icons.get(amenity, 'fas fa-building') }}"></i>
+        <h3>{{ amenity }}</h3>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- <section class="section">
+  <div class="section-title">
+ Community Events
+  </div>
+  <div class="card-grid">
+    <div class="card">
+      <i class="fas fa-lightbulb"></i>
+      <h3>Innovation & Creativity</h3>
+    </div>
+    <div class="card">
+      <i class="fas fa-chalkboard-teacher"></i>
+      <h3>Workshop & Training</h3>
+    </div>
+    <div class="card">
+      <i class="fas fa-users"></i>
+      <h3>Meeting & Gatherings</h3>
+    </div>
+    <div class="card">
+      <i class="fas fa-network-wired"></i>
+      <h3>Networking Events</h3>
+    </div>
+    <div class="card">
+      <i class="fas fa-people-arrows"></i>
+      <h3>Community Building</h3>
+    </div>
+    <div class="card">
+      <i class="fas fa-heart"></i>
+      <h3>Health & Wellness</h3>
+    </div>
+  </div>
+</section> -->
+
+      </div>
+
+      <!-- Right Section (30%) -->
+      {% if inventoryType in ["Day pass", "Meeting rooms"] %}
+<div class="container1">
+        <h3>Select your preference</h3>
+
+        <!-- Updated Cart Summary UI -->
+        <div id="cartSummary" class="cart-summary" style="display: none;">
+            <div class="cart-header">
+                <h4>Your Selection</h4>
+            </div>
+            <div class="cart-details">
+                <p><strong></strong> <span id="totalPasses">1</span></p>
+                <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
+            </div>
+            <div class="cart-footer">
+                <button class="btn-cart-checkout" onclick="openBuyNowModal()">Proceed to Buy</button>
+            </div>
+        </div>
+
+        <!-- Day Pass Section -->
+        <div class="pass-card1">
+            <div class="left1">
+                <span>{{ inventoryType }}</span>
+                <div>
+                    <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
+                </div>
+            </div>
+            <div class="quantity1">
+                <button onclick="decreaseQuantity()">-</button>
+                <span id="passQuantity">1</span>
+                <button onclick="increaseQuantity()">+</button>
+            </div>
+        </div>
+
+        <!-- Bundle Offers -->
+        <div class="bundle1" id="bundleOffers">
+        </div>
+        <!-- Buttons -->
+
+        <!-- Limited Time Offer -->
+        <!-- <div class="limited-offer1">Limited Time Available (time counter)</div> -->
+    </div>
+{% else %}
+<!-- Keep the original right-section for other inventory types -->
+<div class="right-section">
+    <h3>{{ property.coworking_name }}</h3>
+    <p>Center Manager: {{ property.center_manager.name }}</p>
+    <h4>
+        {% if inventoryType == "Dedicated desk" %}
+            ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+        {% elif inventoryType == "Day pass" %}
+            ₹{{ selected_inventory.price_per_seat| int }} /seat/day
+        {% elif inventoryType == "Meeting rooms" %}
+            ₹{{ selected_inventory.price_per_seat| int }} /hour
+        {% elif inventoryType == "Private cabin" %}
+            ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+        {% elif inventoryType == "Virtual office" %}
+            ₹{{ selected_inventory.price_per_seat| int }} /year
+        {% else %}
+            Contact for pricing
+        {% endif %}
+    </h4>
+    <button class="tour-btn" id="scheduleTourBtn" onclick="openTourModal()">Schedule a Tour</button>
+    <button class="book-btn" onclick="openTourModal()">Request to Book</button>
+</div>
+{% endif %}
+
+<!-- Updated Buy Now Modal -->
+<div id="buyNowModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeBuyNowModal()">&times;</span>
+    <h3 class="modal-title" style="margin-top:10px;">Confirm Your Purchase</h3>
+
+    <!-- Select Date -->
+    <div class="modal-section">
+        <label for="buyNowDate">Select Date</label>
+        <input type="date" id="buyNowDate">
+    </div>
+
+    <!-- Select Timing (Dropdown) -->
+    <div id="timeSelectionContainer" class="modal-section" style="display: none;">
+        <label for="timeSlotDropdown">Select Timing</label>
+        <select id="timeSlotDropdown">
+            <option value="">Select Time Slot</option>
+        </select>
+    </div>
+
+    <div class="modal-form">
+        <label for="fullNameBuy">Full Name</label>
+        <input type="text" id="fullNameBuy" value="{{ user_data.get('name', '') }}" placeholder="Your Name">
+
+        <label for="emailBuy">Email</label>
+        <input type="email" id="emailBuy" value="{{ user_data.get('email', '') }}" placeholder="Your Email">
+
+        <label for="phoneBuy">Phone</label>
+        <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone">
+
+        <label for="companyBuy">Company</label>
+        <input type="text" id="companyBuy" value="{{ user_data.get('company', '') }}" placeholder="Your Company">
+
+        <label for="gstinBuy">GSTIN (Optional)</label>
+        <input type="text" id="gstinBuy" placeholder="Enter GSTIN (if applicable)">
+    </div>
+
+    <div class="modal-info" style="display:none;">
+        <div class="modal-row">
+            <span class="modal-label">Selected Inventory:</span>
+            <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
+        </div>
+        <div class="modal-row">
+            <span class="modal-label">Total Day Passes:</span>
+            <span class="modal-value" id="modalPassQuantity">1</span>
+        </div>
+        <div class="modal-row">
+            <span class="modal-label">Total Price:</span>
+            <span class="modal-value">₹<span id="modalTotalPrice">{{ selected_inventory.price_per_seat | int }}</span></span>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="modal-btn-confirm" onclick="submitPurchase()">Confirm Purchase</button>
+    </div>
+  </div>
+</div>
+
+      <!-- Background Overlay -->
+<div id="modalOverlay" class="modal-overlay"></div>
+
+      <!-- Schedule a Tour Modal -->
+      <!-- First Modal: Select a Date -->
+<div id="tourModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeTourModal()">&times;</span>
+    <h3>Schedule a Tour</h3>
+    <label for="tourDate">Select Date:</label>
+    <input type="date" id="tourDate">
+    <button onclick="confirmTour()">Confirm</button>
+  </div>
+</div>
+
+<!-- Second Modal: Select a Time -->
+<div id="timeModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeTimeModal()">&times;</span>
+    <h3>Schedule a Tour</h3>
+    <p>What Time?</p>
+    <button id="selectedDateBtn">Date: <span id="selectedDateText"></span></button>
+    <div id="timeSlots"></div>
+    <button onclick="closeTimeModal()">Back</button>
+  </div>
+</div>
+
+<!-- Third Modal: User Details Form -->
+<div id="detailsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeDetailsModal()">&times;</span>
+    <h3>Schedule a Tour</h3>
+    <button id="selectedTimeBtn">Time: <span id="selectedTimeText"></span></button>
+    
+    <label for="message">Message</label>
+    <textarea id="message" placeholder="Enter a message..."></textarea>
+    
+    <label for="moveInDate">Move-in Date (Optional)</label>
+    <input type="date" id="moveInDate">
+    
+    <label for="duration">Duration (Optional)</label>
+    <select id="duration">
+      <option>1 month</option>
+      <option>3 months or more</option>
+      <option>6 months or more</option>
+      <option>12 months or more</option>
+    </select>
+
+    <label for="fullName">Full Name</label>
+    <input type="text" id="fullName" placeholder="Your Name">
+    
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="Your Email">
+    
+    <label for="phone">Phone</label>
+    <input type="text" id="phone" placeholder="Your Phone">
+    
+    <label for="company">Company</label>
+    <input type="text" id="company" placeholder="Your Company">
+    
+    <label for="gstin">GSTIN (Optional)</label>
+    <input type="text" id="gstin" placeholder="Enter GSTIN (if applicable)">
+
+    <label for="numSeats">Number of Seats</label>
+    <input type="text" id="numSeats" value="{{ seats }}">
+
+    <label for="budget">Budget</label>
+    <input type="text" id="budget" value="{{ budget }}">
+
+    <button onclick="submitTourRequest()" class="bt">Schedule My Tour</button>
+    <button onclick="closeDetailsModal()">Back</button>
+  </div>
+</div>
+    </div>
+
+    <div class="location-container">
+      <section class="location-details">
+        <h3 class="location-heading">Location Details</h3>
+        <p class="location-address">
+          {{ property.address }}
+        </p>
+        {% set dynamic_long_description = {
+  "business hub": "{} is a thriving commercial destination, offering premium office spaces, coworking hubs, and corporate headquarters. Its well-developed infrastructure, seamless connectivity, and modern business facilities make it an ideal choice for startups, entrepreneurs, and established enterprises.",
+  
+  "startup ecosystem": "{} is emerging as a leading startup destination, offering vibrant coworking spaces, incubation centers, and an ecosystem that nurtures innovation and entrepreneurship. With access to funding opportunities, networking events, and a collaborative work culture, this area is perfect for tech startups and creative professionals.",
+  
+  "IT & tech park": "{} is a major technology hub, home to IT companies, multinational corporations, and cutting-edge startups. The area boasts world-class infrastructure, high-speed connectivity, and smart office spaces tailored for digital businesses and software firms.",
+  
+  "corporate district": "Positioned at the heart of {}, this corporate district is renowned for its high-end office spaces, corporate headquarters, and business-friendly infrastructure. It attracts leading enterprises, consulting firms, and financial institutions.",
+  
+  "commercial marketplace": "{} is a bustling commercial hub, blending retail, office spaces, and business centers. It serves as a key destination for enterprises looking to establish a strong presence in a high-footfall area.",
+  
+  "industrial zone": "{} is a crucial industrial and logistics hub, catering to manufacturing, warehousing, and supply chain businesses. With its robust infrastructure, industrial parks, and transport connectivity, this region is well-equipped for companies requiring operational efficiency.",
+  
+  "financial district": "{} stands as a key financial district, housing major banks, investment firms, and corporate finance institutions. The locality is known for its premium office spaces, business-friendly policies, and well-established corporate networks.",
+  
+  "tourism hub": "{} is a sought-after destination for digital nomads, freelancers, and remote professionals looking for an inspiring work environment. With a mix of coworking spaces, business lounges, and flexible offices, the area provides a perfect balance of work and leisure."
+} %}
+
+{% set city_industry_map = {
+  "Ahmedabad": "startup ecosystem",
+  "Bangalore": "startup ecosystem",
+  "Chandigarh": "corporate district",
+  "Chennai": "IT & tech park",
+  "Coimbatore": "industrial zone",
+  "Delhi": "corporate district",
+  "Ghaziabad": "commercial marketplace",
+  "Goa": "tourism hub",
+  "Gurugram": "corporate district",
+  "Hyderabad": "IT & tech park",
+  "Indore": "business hub",
+  "Jaipur": "commercial marketplace",
+  "Kanpur": "business hub",
+  "Kolkata": "commercial marketplace",
+  "Lucknow": "business hub",
+  "Mumbai": "financial district",
+  "Noida": "IT & tech park",
+  "Pondicherry": "tourism hub",
+  "Pune": "business hub",
+  "Vasai Virar": "industrial zone"
+} %}
+
+{% set industry_type = city_industry_map.get(property.city, "business hub") %}
+{% set fallback_long_description = "{} is a fast-growing business district, offering state-of-the-art coworking spaces, private offices, and premium business amenities. Whether you're an entrepreneur, a corporate professional, or a freelancer, this location provides the perfect blend of convenience, infrastructure, and professional networking to support your business growth.".format(property.micromarket ~ ', ' ~ property.city) %}
+        <h4 class="location-subheading">About {{ property.micromarket }}, {{ property.city }}</h4>
+        <p class="location-description">
+          {{ dynamic_long_description.get(industry_type, fallback_long_description).format(property.micromarket ~ ', ' ~ property.city) }}
+        </p>
+      </section>
+      <!-- <section class="map-section">
+        <div id="map" class="map-container"></div>
+      </section> -->
+    </div>
+
+    <div class="room-listings-container">
+      <!-- Updated Heading -->
+  <h2 class="section-title">Other Similar Options</h2>
+      <!-- Short Term Listings -->
+    <div class="room-grid">
+      {% for inventory in other_inventories %}
+      <div class="room-card">
+        <!-- Image -->
+        <div class="room-image-container">
+          <img
+            src="{{ inventory.first_image if inventory.first_image else 'https://via.placeholder.com/300x200' }}"
+            alt="{{ inventory.type }}"
+            class="room-image"
+          />
+          <span class="inventory-type">{{ inventory.type }}</span>
+        </div>
+
+        <!-- Card Content -->
+        <div class="room-info">
+          <!-- Price (Top Right) -->
+          <div class="room-header">
+            <p class="room-price">
+              ₹{{ inventory.price | int }} <span class="price-label">{{ inventory.price_label }}</span>
+            </p>
+            <div class="room-rating">
+              ⭐ {{ inventory.star_rating }}
+              <span class="rating-count">({{ inventory.review_count }} Reviews)</span>
+            </div>
+          </div>
+
+          <!-- Coworking Name -->
+          <p class="room-title">{{ inventory.coworking_name }}</p>
+
+          <!-- Location (Micromarket, City) -->
+          <p class="room-location">
+            📍 {{ inventory.micromarket }}, {{ inventory.city }}
+          </p>
+
+          <!-- View Details Button -->
+          <a href="{{ url_for('core_bp.innerpage', property_id=property._id, inventoryType=inventory.type, contact=contact) }}" 
+            class="view-details-btn">
+            View Details →
+          </a>
+
+          <!-- Wishlist Icon -->
+          <i class="fa-regular fa-heart wishlist-icon"></i>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+ 
+</div>
+
+    <!-- <div class="reviews-container">
+  <h2 class="reviews-title">Customer Reviews</h2>
+  <div class="reviews-grid">
+
+    <div class="review-card">
+      <div class="review-header">
+        <img
+          src="https://thumbs.dreamstime.com/b/business-woman-office-work-laptop-desk-staff-planning-creative-writing-startup-writer-seo-article-research-reading-338993641.jpg"
+          alt="User Avatar"
+          class="review-avatar"
+        />
+        <div class="review-info">
+          <h3 class="review-name">Office Evolution L.</h3>
+          <p class="review-date">11/06/2024</p>
+        </div>
+      </div>
+      <div class="review-rating">
+        <span>★★★★★</span> <span class="rating-value">5.0</span>
+      </div>
+      <div class="review-body">
+        <p class="review-comment">
+          The space was perfect for our meeting. Clean, spacious, and well-equipped!
+        </p>
+        <p class="room-title">
+          Large Conference Room - Los Gatos
+        </p>
+        <p class="room-address">
+          16185 Los Gatos Boulevard, Suite 205, Los Gatos, CA 95032
+        </p>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-header">
+        <img
+          src="https://via.placeholder.com/50"
+          alt="User Avatar"
+          class="review-avatar"
+        />
+        <div class="review-info">
+          <h3 class="review-name">Enrique de la Rica</h3>
+          <p class="review-date">07/25/2024</p>
+        </div>
+      </div>
+      <div class="review-rating">
+        <span>★★★★★</span> <span class="rating-value">5.0</span>
+      </div>
+      <div class="review-body">
+        <p class="review-comment">
+          Nice place, easy to work with.
+        </p>
+        <p class="room-title">
+          Large Conference Room - Los Gatos
+        </p>
+        <p class="room-address">
+          16185 Los Gatos Boulevard, Suite 205, Los Gatos, CA 95032
+        </p>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="review-header">
+        <img
+          src="https://via.placeholder.com/50"
+          alt="User Avatar"
+          class="review-avatar"
+        />
+        <div class="review-info">
+          <h3 class="review-name">Randy W.</h3>
+          <p class="review-date">10/17/2023</p>
+        </div>
+      </div>
+      <div class="review-rating">
+        <span>★★★★★</span> <span class="rating-value">5.0</span>
+      </div>
+      <div class="review-body">
+        <p class="review-comment">
+          Great environment and very professional.
+        </p>
+        <p class="room-title">
+          Large Conference Room - Los Gatos
+        </p>
+        <p class="room-address">
+          16185 Los Gatos Boulevard, Suite 205, Los Gatos, CA 95032
+        </p>
+      </div>
+    </div>
+  </div> -->
+
+ <div class="faq-container">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <h3 class="faq-question">
+          What are the different seating options available in CubiSpace?
+          <span class="toggle-icon">+</span>
+        </h3>
+        <p class="faq-answer" style="display: none;">
+          Different seating options available in Awfis are open Dedicated Desks,
+          2 seater private cabin, 4 seater private cabin, 6 seater private
+          cabin, 8 seater private cabin and 20 seater private cabin.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-question">How much does a seat in CubiSpace cost? <span class="toggle-icon">+</span></h3>
+        <p class="faq-answer" style="display: none;">
+          Pricing varies depending on location and seating option. Please
+          contact CubiSpace for detailed pricing information.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-question">
+          What amenities and facilities are provided at CubiSpace?
+          <span class="toggle-icon">+</span>
+        </h3>
+        <p class="faq-answer" style="display: none;">
+          CubiSpace provides high-speed internet, meeting rooms, pantry
+          services, security, and other modern office amenities.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-question">
+          Can the office space be customised based on our requirements?
+          <span class="toggle-icon">+</span>
+        </h3>
+        <p class="faq-answer" style="display: none;">
+          Yes, CubiSpace offers flexible customisation options to suit your
+          team’s needs.
+        </p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-question">
+          Are there any lock-ins, security deposit or any other charges?
+          <span class="toggle-icon">+</span>
+        </h3>
+        <p class="faq-answer" style="display: none;">
+          Flexible terms with transparent pricing. Please check with CubiSpace
+          for specific details.
+        </p>
+      </div>
+    </div>
+
+
+    <!-- <section class="review-section">
+  <h3 class="section-title">
+    <i class="fas fa-star"></i> Give Your Rating & Review
+  </h3>
+  <form class="review-form">
+
+    <div class="rating">
+      <span class="star" data-value="5">&#9733;</span>
+      <span class="star" data-value="4">&#9733;</span>
+      <span class="star" data-value="3">&#9733;</span>
+      <span class="star" data-value="2">&#9733;</span>
+      <span class="star" data-value="1">&#9733;</span>
+    </div>
+
+    <div class="form-group">
+      <textarea
+        name="review"
+        class="review-text"
+        rows="4"
+        placeholder="Write your review here..."
+        required
+      ></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Review</button>
+  </form>
+</section> -->
+  <footer>
+        <div class="footer-container">
+            <div class="footer-section logo-section">
+                <img src="../static/images/logo.webp" loading="lazy" alt="FindurSpace Logo" class="footer-logo">
+                <p class="tu">Follow us on social media to stay updated with the <strong>latest coworking trends, special deals, & workspace tips.</strong></p>
+                <div class="social-media">
+                    <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr" target="_blank" alt="follow us on Facebook"><img src="../static/images/Face BookAsset 27.svg" loading="lazy" alt="Facebook"  width="" height=""></a>
+                    <a href="https://www.instagram.com/findur.space/" target="_blank" alt="follow us on Instagram"><img src="../static/images/InstagramAsset 28.svg" loading="lazy" alt="instagram"  width="" height=""></a>
+                </div>
+            </div>
+            <div class="footer-section links">
+                <p class="fot-link">Useful Links</p>
+                <ul>
+                    <li><a href="{{ url_for('core_bp.index') }}">Home</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">How it Works</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Our Presence</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Features</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section product-help">
+                <p class="fot-link">Product Help</p>
+                <ul>
+                    <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">FAQ</a></li>
+                    <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="{{ url_for('core_bp.index') }}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section contact">
+                <p class="fot-link">Contact US</p>
+                <ul>
+                    <li style="align-items: flex-start;">
+                        <img src="../static/images/house.png" loading="lazy" alt="office Address" width="" height=""> 
+                        <span>Excel Coworks - Naagarabhaavi, Bangalore 3rd Floor, Tushar Arcade, Service Road, Naagarabhaavi, Bengaluru, Karnataka 560072</span>
+                    </li>
+                    <li style="display:flex; align-items:center;">
+                        <a href="tel:+918069328922">
+                            <img src="../static/images/phone-call.png" loading="lazy" alt="Contact Number" style="width:40px;height:40px;">
+                        </a>
+                        <a href="tel:+918069328922">+91-8069328922</a>
+                    </li>
+                    <li style="display:flex; align-items:center;">
+                        <a href="mailto:sales@findurspace.tech">
+                            <img src="../static/images/email.png" loading="lazy" alt="Email Address" style="width:40px;height:40px;">
+                        </a>
+                        <a href="mailto:sales@findurspace.tech">sales@findurspace.tech</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© Copyrights 2025 FindurSpace All rights reserved.</p>
+        </div>
+      </footer>
+      <a href="https://propques.com/" rel="noopener" alt="Propques Service Pvt Ltd" target="_blank" style="text-decoration-line: none;"><div class="fnv">Powered by Propques Services Pvt Ltd <span class="arr" ><img src="../static/images/arrow1.svg" alt="arrow"></span></div></a>
+
+      <!-- Thank You Modal -->
+<!-- Thank You Modal -->
+<div id="thankYouModal" class="modal">
+  <div class="modal-content thank-you-content">
+    <span class="close" onclick="closeThankYouModal()">&times;</span>
+    <div class="checkmark">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h3 id="thankYouTitle">Visit Scheduled Successfully!</h3>
+    <p id="thankYouMessage">Your tour has been scheduled successfully.</p>
+    <p id="thankYouDetails">
+      <strong>Date:</strong> <span id="confirmedDate"></span>
+      <span id="confirmedTimeContainer"> | <strong>Time:</strong> <span id="confirmedTime"></span></span>
+    </p>
+    <button onclick="closeThankYouModal()" class="modal-btn">OK</button>
+  </div>
+</div>
+
+
+
+
+<!-- Background Overlay -->
+<div id="thankYouOverlay" class="modal-overlay"></div>
+
+
+</div>
+
+    <script>
+const popup = document.getElementById("unique-image-popup");
+      const popupImage = document.getElementById("unique-popup-image");
+      const closeBtn = document.getElementById("unique-close-btn");
+      const prevBtn = document.getElementById("unique-prev-image");
+      const nextBtn = document.getElementById("unique-next-image");
+
+      const images = document.querySelectorAll(".unique-image-click");
+      let currentIndex = 0;
+
+      images.forEach((img, index) => {
+        img.addEventListener("click", () => {
+          currentIndex = index;
+          updatePopup();
+          popup.style.display = "flex";
+        });
+      });
+
+      function updatePopup() {
+        popupImage.src = images[currentIndex].src;
+      }
+
+      prevBtn.addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        updatePopup();
+      });
+      nextBtn.addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % images.length;
+        updatePopup();
+      });
+      closeBtn.addEventListener("click", () => (popup.style.display = "none"));
+
+
+
+
+
+// Footer Copyright Year Update
+document.querySelector('.footer-bottom p').innerHTML = 
+    `© Copyrights ${new Date().getFullYear()} FindurSpace All rights reserved.`;
+
+    function toggleBookmark(element) {
+    // Toggle between filled and unfilled heart
+    if (element.innerHTML.includes('fa-regular fa-heart')) {
+      element.innerHTML = '<i class="fa-solid fa-heart" style="color: #e61433;"></i>'; // Filled heart
+    } else {
+      element.innerHTML = '<i class="fa-regular fa-heart"></i>'; // Empty heart
+    }
+  }
+
+
+// JavaScript for Star Rating Interactivity
+// document.querySelectorAll('.star').forEach(star => {
+//   star.addEventListener('click', function () {
+//     // Reset all stars
+//     document.querySelectorAll('.star').forEach(s => s.classList.remove('selected'));
+    
+//     // Add selected class to clicked star and all previous siblings
+//     this.classList.add('selected');
+//     let prev = this.previousElementSibling;
+//     while (prev) {
+//       prev.classList.add('selected');
+//       prev = prev.previousElementSibling;
+//     }
+//   });
+// });
+
+// // JavaScript for Form Submission
+// document.querySelector('.review-form').addEventListener('submit', function (e) {
+//   e.preventDefault();
+//   alert('Thank you for your review!');
+// });
+
+      // Mapbox Access Token
+      // mapboxgl.accessToken = "YOUR_MAPBOX_ACCESS_TOKEN";
+
+      // const map = new mapboxgl.Map({
+      //   container: "map",
+      //   style: "mapbox://styles/mapbox/streets-v11",
+      //   center: [77.1495, 28.5402], // Coordinates for Vasant Kunj, New Delhi
+      //   zoom: 13,
+      // });
+
+      // new mapboxgl.Marker()
+      //   .setLngLat([77.1495, 28.5402])
+      //   .setPopup(
+      //     new mapboxgl.Popup().setHTML(
+      //       "<h4>Vasant Kunj</h4><p>New Delhi, India</p>"
+      //     )
+      //   )
+      //   .addTo(map);
+
+      // Get Elements
+      const seeAllImagesBtn = document.getElementById("seeAllImagesBtn");
+      const popupContainer = document.getElementById("popupContainer");
+      const closePopup = document.getElementById("closePopup");
+
+      // Show Popup
+      seeAllImagesBtn.addEventListener("click", () => {
+        popupContainer.style.display = "flex";
+      });
+
+      // Close Popup
+      closePopup.addEventListener("click", () => {
+        popupContainer.style.display = "none";
+      });
+
+      // Close Popup when clicking outside the content
+      window.addEventListener("click", (event) => {
+        if (event.target === popupContainer) {
+          popupContainer.style.display = "none";
+        }
+      });
+
+
+  document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+      const answer = question.nextElementSibling;
+      const icon = question.querySelector(".toggle-icon");
+
+      if (answer.style.display === "none" || answer.style.display === "") {
+              answer.style.display = "block"; 
+              icon.textContent = "-"; 
+          } else {
+              answer.style.display = "none"; 
+              icon.textContent = "+"; 
+          }
+    });
+  });
+    
+  document.querySelectorAll('.wishlist-icon').forEach(heart => {
+    heart.addEventListener('click', function () {
+        if (this.classList.contains('fa-regular')) {
+            this.classList.remove('fa-regular'); // Remove empty heart
+            this.classList.add('fa-solid'); // Add filled heart
+            this.style.color = "#e61433"; // Change color to red
+        } else {
+            this.classList.remove('fa-solid'); // Remove filled heart
+            this.classList.add('fa-regular'); // Add empty heart
+            this.style.color = ""; // Reset to default color
+        }
+    });
+});
+
+// Function to show modal and overlay
+function showModal(modalId) {
+  document.getElementById("modalOverlay").style.display = "block";
+  document.getElementById(modalId).style.display = "block";
+}
+
+// Function to hide modal and overlay
+function hideModal(modalId) {
+  document.getElementById("modalOverlay").style.display = "none";
+  document.getElementById(modalId).style.display = "none";
+}
+
+// Open Date Selection Modal
+function openTourModal() {
+  showModal("tourModal");
+   // Fetch user data from the backend
+    let userData = {{ user_data | tojson | safe }};
+    
+    // Check if userData exists before filling fields
+    if (userData && Object.keys(userData).length !== 0) {
+        document.getElementById("fullName").value = userData.name || "";
+        document.getElementById("email").value = userData.email || "";
+        document.getElementById("phone").value = userData.contact || "";
+        document.getElementById("company").value = userData.company || "";
+    }
+}
+
+// Close Date Selection Modal
+function closeTourModal() {
+  hideModal("tourModal");
+}
+
+// Open Time Selection Modal
+function openTimeModal() {
+  showModal("timeModal");
+}
+
+// Close Time Selection Modal
+function closeTimeModal() {
+  hideModal("timeModal");
+}
+
+// Open Details Modal
+function openDetailsModal() {
+  showModal("detailsModal");
+
+  // Fetch user data from the backend
+    let userData = {{ user_data | tojson | safe }};
+    
+    // Check if userData exists before filling fields
+    if (userData && Object.keys(userData).length !== 0) {
+        document.getElementById("fullName").value = userData.name || "";
+        document.getElementById("email").value = userData.email || "";
+        document.getElementById("phone").value = userData.contact || "";
+        document.getElementById("company").value = userData.company || "";
+    }
+}
+
+// Close Details Modal
+function closeDetailsModal() {
+  hideModal("detailsModal");
+}
+
+// Generate Time Slots
+function generateTimeSlots1() {
+  const timeContainer = document.getElementById("timeSlots");
+  timeContainer.innerHTML = "";
+
+  // Get time slots from server-side rendering
+  const timeSlots = JSON.parse('{{ time_slots | tojson | safe }}');
+
+  timeSlots.forEach(time => {
+    const btn = document.createElement("button");
+    btn.textContent = time;
+    btn.classList.add("time-slot");
+    btn.onclick = function () {
+      document.getElementById("selectedTimeText").textContent = time;
+      closeTimeModal();
+      openDetailsModal();
+    };
+    timeContainer.appendChild(btn);
+  });
+}
+
+// Confirm Date and Open Time Selection
+function confirmTour() {
+  const selectedDate = document.getElementById("tourDate").value;
+  if (selectedDate) {
+    document.getElementById("selectedDateText").textContent = new Date(selectedDate).toDateString();
+    closeTourModal();
+    openTimeModal();
+    generateTimeSlots1();
+  } else {
+    alert("Please select a date.");
+  }
+}
+
+// Final Submission
+function submitTourRequest() {
+  const selectedDate = new Date(document.getElementById("selectedDateText").textContent)
+    .toISOString()
+    .split("T")[0];  // Convert to YYYY-MM-DD format
+  const selectedTime = document.getElementById("selectedTimeText").textContent;
+  const gstin = document.getElementById("gstin").value;
+  const numSeats = document.getElementById("numSeats").value;
+  const budget = document.getElementById("budget").value;
+  const message = document.getElementById("message").value;
+  const moveInDate = document.getElementById("moveInDate").value;
+  const duration = document.getElementById("duration").value;
+  const fullName = document.getElementById("fullName").value;
+  const email = document.getElementById("email").value;
+  const phone = document.getElementById("phone").value;
+  const company = document.getElementById("company").value;
+
+   // Validate required fields
+    if (!selectedDate || !selectedTime || !fullName || !email || !phone) {
+        alert("Please fill in all required fields (Date, Time, Name, Email, Phone).");
+        return;
+    }
+
+  // Get user and property ID from hidden fields
+    const userId = "{{ user_data['_id'] }}";  
+    const propertyId = "{{ property['_id'] }}";
+    const inventoryType = "{{ inventoryType }}";  
+
+    // Prepare data object
+    const formData = {
+        user_id: userId,
+        property_id: propertyId,
+        name: fullName,
+        email: email,
+        company: company,
+        contact: phone,
+        inventoryType: inventoryType,
+        date: selectedDate,
+        time: selectedTime,
+        message: message,
+        moveInDate: moveInDate || null,
+        duration: duration || null,
+        gstin: gstin || null,
+        numSeats: numSeats,
+        budget: budget
+    };
+
+    // Send AJAX request
+    fetch("/schedule_tour", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message and close modal
+            document.getElementById("confirmedDate").textContent = selectedDate;
+            document.getElementById("confirmedTime").textContent = selectedTime;
+            document.getElementById("thankYouDetails").style.display = "block"; // Show date & time for tours
+            document.getElementById("confirmedTimeContainer").style.display = "inline";
+            closeDetailsModal();
+            showThankYouModal(false);
+        } else {
+            alert("Error: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error submitting form:", error);
+        alert("Failed to schedule tour. Please try again.");
+    });
+  }
+
+// Function to close Thank You Modal
+function closeThankYouModal() {
+  hideModal("thankYouModal");
+}
+
+function closeThankYouModal() {
+    document.getElementById("thankYouModal").style.display = "none";
+    document.getElementById("thankYouTitle").innerText = "";
+    document.getElementById("thankYouMessage").innerText = "";
+    document.getElementById("thankYouDetails").style.display = "none"; // Reset
+}
+
+// Close modal when clicking outside the content
+window.onclick = function (event) {
+  if (event.target === document.getElementById("modalOverlay")) {
+    hideModal("tourModal");
+    hideModal("timeModal");
+    hideModal("detailsModal");
+  }
+};
+
+// Ensure navbar dropdown closes when a link is clicked
+document.addEventListener("DOMContentLoaded", function () {
+    const navLinks = document.querySelectorAll(".nav-link");
+    const navbarCollapse = document.querySelector(".navbar-collapse");
+
+    navLinks.forEach(link => {
+        link.addEventListener("click", function () {
+            navbarCollapse.classList.remove("show");
+        });
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const navbarToggler = document.querySelector(".navbar-toggler");
+    const navbarCollapse = document.querySelector(".navbar-collapse");
+
+    // Close navbar when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!navbarCollapse.contains(event.target) && !navbarToggler.contains(event.target)) {
+            navbarCollapse.classList.remove("show");
+        }
+    });
+
+    // Ensure navbar dropdown closes when a link is clicked
+    const navLinks = document.querySelectorAll(".nav-link");
+    navLinks.forEach(link => {
+        link.addEventListener("click", function () {
+            navbarCollapse.classList.remove("show");
+        });
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const navbarMenu = document.getElementById("navbarMenu");
+
+    menuToggle.addEventListener("click", function () {
+        navbarMenu.classList.toggle("active");
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!menuToggle.contains(event.target) && !navbarMenu.contains(event.target)) {
+            navbarMenu.classList.remove("active");
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Fetch user data passed from Flask
+    let userData = {{ user_data | tojson | safe }};
+
+    function prefillUserDetails() {
+        // Ensure userData is not null before using it
+        if (userData) {
+            document.getElementById("fullName").value = userData.name || "";
+            document.getElementById("email").value = userData.email || "";
+            document.getElementById("phone").value = userData.contact || "";
+            document.getElementById("company").value = userData.company || "";
+        }
+    }
+
+    // Call prefill function when Details Modal opens
+    document.getElementById("detailsModal").addEventListener("click", prefillUserDetails);
+    });
+
+    </script>
+    <script>
+let passQuantity = 1;
+let pricePerSeat = {{ selected_inventory.price_per_seat | int }};
+let totalPrice = pricePerSeat;
+let selectedBundle = 0;
+let inventoryType = "{{ inventoryType }}"; 
+
+function updateCartSummary() {
+    let cartSummaries = document.querySelectorAll("#cartSummary"); // Select all cart summary sections
+    let totalPassDisplays = document.querySelectorAll("#totalPasses"); // Total quantity displays
+    let totalPriceDisplays = document.querySelectorAll("#totalPrice"); // Total price displays
+    let quantityDisplays = document.querySelectorAll("#passQuantity"); // Ensure UI reflects changes
+
+    let inventoryType = "{{ inventoryType }}";  // Get current inventory type
+
+    cartSummaries.forEach(cart => cart.style.display = "block"); // Show cart summary
+
+    totalPassDisplays.forEach(total => {
+        if (inventoryType === "Meeting rooms") {
+            total.innerText = `${passQuantity} Hours`;  
+        } else {
+            total.innerText = `${passQuantity} Day(s)`;  
+        }
+    });
+
+    totalPriceDisplays.forEach(price => {
+        price.innerText = `₹${totalPrice}`;
+    });
+
+    quantityDisplays.forEach(qty => {
+        qty.innerText = passQuantity; // Update quantity in UI
+    });
+}
+
+
+// Function to increase quantity
+function increaseQuantity() {
+    passQuantity++;
+    totalPrice = passQuantity * pricePerSeat;
+    updateCartSummary();
+}
+
+// Function to decrease quantity (minimum 1)
+function decreaseQuantity() {
+    if (passQuantity > 1) {
+        passQuantity--;
+        totalPrice = passQuantity * pricePerSeat;
+        updateCartSummary();
+    }
+}
+
+// Function to add bundles
+function addBundle(quantity) {
+    passQuantity = quantity;
+    totalPrice = passQuantity * pricePerSeat;
+
+    let inventoryType = "{{ inventoryType }}";
+
+    let selectionText = (inventoryType === "Meeting rooms") ? "Meeting Room Hours: " : "Day Passes: ";
+
+    document.querySelectorAll("#totalPasses").forEach(element => {
+        element.innerText = selectionText + passQuantity;
+    });
+
+    document.querySelectorAll("#totalPrice").forEach(element => {
+        element.innerText = "₹" + totalPrice;
+    });
+
+    document.querySelectorAll("#cartSummary").forEach(cart => {
+        cart.style.display = "block";
+    });
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    let bundleContainers = document.querySelectorAll("#bundleOffers"); // Select all bundleOffer divs
+    bundleContainers.forEach(bundleContainer => {
+        bundleContainer.innerHTML = ""; // Clear previous bundles
+
+        if (inventoryType === "Meeting rooms") {
+            bundleContainer.innerHTML = `
+                <div class="bundle1">
+                    <div>
+                        <strong>2 Hours</strong>
+                        <div class="price1">₹${2 * pricePerSeat}</div>
+                    </div>
+                    <button class="btn1 btn-add1" onclick="addBundle(2)">Add</button>
+                </div>
+                <div class="bundle1">
+                    <div>
+                        <strong>4 Hours</strong>
+                        <div class="price1">₹${4 * pricePerSeat}</div>
+                    </div>
+                    <button class="btn1 btn-add1" onclick="addBundle(4)">Add</button>
+                </div>
+            `;
+        } else {
+            bundleContainer.innerHTML = `
+                <div class="bundle1">
+                    <div>
+                        <strong>5 Days</strong>
+                        <div class="price1">₹${5 * pricePerSeat}</div>
+                    </div>
+                    <button class="btn1 btn-add1" onclick="addBundle(5)">Add</button>
+                </div>
+                <div class="bundle1">
+                    <div>
+                        <strong>10 Days</strong>
+                        <div class="price1">₹${10 * pricePerSeat}</div>
+                    </div>
+                    <button class="btn1 btn-add1" onclick="addBundle(10)">Add</button>
+                </div>
+            `;
+        }
+    });
+});
+
+</script>
+<script>
+function openBuyNowModal() {
+    document.getElementById("modalPassQuantity").innerText = passQuantity;
+    document.getElementById("modalTotalPrice").innerText = totalPrice;
+    document.getElementById("buyNowModal").style.display = "flex";
+
+    // Show time selection only if inventoryType is "Meeting rooms"
+    let inventoryType = "{{ inventoryType }}";
+    // Show time slots for all inventory types except Day Pass
+    if (inventoryType !== "Day pass") {
+        document.getElementById("timeSelectionContainer").style.display = "block";
+        generateTimeSlots(); // Generate time slots for all applicable inventories
+    } else {
+        document.getElementById("timeSelectionContainer").style.display = "none";
+    }
+}
+
+// Function to close Buy Now Modal
+function closeBuyNowModal() {
+    document.getElementById("buyNowModal").style.display = "none";
+}
+
+// Function to generate time slots from 9 AM to 6 PM in 1-hour intervals
+// Function to generate time slots in dropdown
+function generateTimeSlots() {
+    let timeSlotDropdown = document.getElementById("timeSlotDropdown");
+    timeSlotDropdown.innerHTML = `<option value="">Select Time Slot</option>`; // Reset dropdown
+
+    let timeSlots = JSON.parse('{{ time_slots | tojson | safe }}'); // Ensure time slots are available
+
+    if (timeSlots.length === 0) {
+        console.error("No time slots available!"); // Debugging log
+        return;
+    }
+
+    timeSlots.forEach(time => {
+        let option = document.createElement("option");
+        option.value = time;
+        option.textContent = time;
+        timeSlotDropdown.appendChild(option);
+    });
+
+    console.log("Time Slots Generated:", timeSlots); // Debugging log
+}
+
+// Function to handle purchase submission
+function submitPurchase() {
+    let fullName = document.getElementById("fullNameBuy").value;
+    let email = document.getElementById("emailBuy").value;
+    let phone = document.getElementById("phoneBuy").value;
+    let company = document.getElementById("companyBuy").value;
+    let gstin = document.getElementById("gstinBuy").value; // Capture GSTIN
+    let selectedDate = document.getElementById("buyNowDate").value;
+    let selectedTime = document.getElementById("timeSlotDropdown").value; // Ensure time is captured correctly
+
+    if (!fullName || !email || !phone || !selectedDate) {
+        alert("Please fill in all required fields (Name, Email, Phone, Date).");
+        return;
+    }
+
+    // Include selected time if inventory type is "Meeting rooms"
+    let inventoryType = "{{ inventoryType }}";
+
+    if (inventoryType === "Meeting rooms" && !selectedTime) {
+        alert("Please select a time slot for your meeting room booking.");
+        return;
+    }
+    let propertyId = "{{ property['_id'] }}";
+    let purchaseData = {
+        inventoryType: inventoryType,
+        quantity: passQuantity,
+        totalPrice: totalPrice,
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        company: company,
+        gstin: gstin || null,  // Include GSTIN (if provided)
+        date: selectedDate,
+        time: inventoryType === "Meeting rooms" ? selectedTime : null,
+        property_id: propertyId // Pass the property ID
+    };
+
+    // Send AJAX request to store data in the database
+    fetch("/submit_purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(purchaseData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeBuyNowModal(); // Close Buy Now Modal
+            showThankYouModal(true); // Show Thank You Modal
+        } else {
+            alert("Purchase Failed: " + data.message);
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Something went wrong.");
+    });
+}
+
+// Function to show Thank You Modal
+// function showThankYouModal() {
+//     document.getElementById("thankYouModal").style.display = "flex";
+// }
+
+// Function to close Thank You Modal
+function closeThankYouModal() {
+    document.getElementById("thankYouModal").style.display = "none";
+}
+
+function showThankYouModal(isBooking) {
+    document.getElementById("thankYouModal").style.display = "flex";
+
+    if (isBooking) {
+        // Booking case (Buy Now)
+        document.getElementById("thankYouTitle").innerText = "Your Booking Has Been Received!";
+        document.getElementById("thankYouMessage").innerText = "We will notify you once it's confirmed.";
+        document.getElementById("thankYouDetails").style.display = "none"; // Hide date & time section
+    } else {
+        // Tour scheduling case
+        document.getElementById("thankYouTitle").innerText = "Visit Scheduled Successfully!";
+        document.getElementById("thankYouMessage").innerText = "Your tour has been scheduled successfully.";
+        document.getElementById("thankYouDetails").style.display = "block"; // Show date section
+        document.getElementById("confirmedTimeContainer").style.display = "inline"; // Ensure time is shown
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    let selectionLabel = document.getElementById("selectionLabel");
+    let inventoryType = "{{ inventoryType }}";
+
+    if (inventoryType === "Meeting rooms") {
+        selectionLabel.innerText = "Meeting Room Hours:";
+    } else {
+        selectionLabel.innerText = "Day Passes:";
+    }
+});
+
+</script>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    
+  </body>
+</html>

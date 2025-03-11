@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../static/css/user.css" />
+</head>
+
+<body>
+
+    
+
+  <div class="dashboard-container">
+
+
+    <!-- Sidebar -->
+    <aside class="sidebar-mobile">
+      <div class="user-profile">
+        <div class="profile-pic">
+          <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+            alt="User Profile" />
+        </div>
+        <div class="user-details">
+          <p>Hi!👋 {{ user.name }}</p>
+          <p>{{user.company}}</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li onclick="showPage('bookings')" class="active">Bookings</li>
+          <li onclick="showPage('visits')">Visits</li>
+          <!-- <li onclick="showPage('invoice')">Invoice</li> -->
+          <!-- <li onclick="showPage('reviews')">Reviews</li> -->
+          <!-- <li onclick="showPage('workspaces')">Workspaces</li> -->
+          <li onclick="logoutUser()">Logout</li>
+        </ul>
+      </nav>
+    </aside>
+    <aside class="sidebar">
+      <div class="user-profile">
+        <div class="profile-pic">
+          <img src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+            alt="User Profile" />
+        </div>
+        <div>
+          <p>Hi!👋 {{ user.name }}</p>
+          <p>{{user.company}}</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <ul>
+          <li onclick="showPage('bookings')" class="active">Bookings</li>
+          <li onclick="showPage('visits')">Visits</li>
+          <!-- <li onclick="showPage('invoice')">Invoice</li> -->
+          <!-- <li onclick="showPage('reviews')">Reviews</li> -->
+          <!-- <li onclick="showPage('workspaces')">Workspaces</li> -->
+          <li onclick="logoutUser()">Logout</li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Visits Page -->
+<section id="visits" class="page active">
+  <h2>Your Visits</h2>
+
+  {% if visits %}
+    {% for visit in visits %}
+    <div class="visit-card">
+      <!-- Card Header -->
+      <div class="visit-header">
+        <div class="visit-title">
+          <h2>{{ visit.property.coworking_name }}</h2>
+          <div class="visit-status {% if visit.status == 'approved' %}approved{% elif visit.status == 'pending' %}pending{% elif visit.status == 'declined' %}declined{% endif %}">
+              <i class="ri-close-circle-line"></i> {{ visit.status.capitalize() }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Visit Details -->
+      <div class="visit-body">
+        <div class="visit-info">
+          <p><strong>Location:</strong> {{ visit.property.micromarket }}, {{ visit.property.city }}</p>
+          <p><strong>Address:</strong> {{ visit.property.address }}</p>
+          <p><strong>Date of Visit:</strong> {{ visit.date.strftime('%d %B %Y') }} | <strong>Time:</strong> {{ visit.time }}</p>
+          <p><strong>Inventory Type:</strong> {{ visit.inventory_type }}</p>
+          <p><strong>Number of Seats:</strong> {{ visit.num_seats }}</p>
+          <p><strong>Price per Seat:</strong> ₹{{ visit.property.price_per_seat }}</p>
+        </div>
+
+        <!-- Timeline -->
+        <!-- Timeline -->
+              <div class="visit-timeline">
+                <div class="timeline-step {% if visit.status in ['pending', 'approved', 'declined'] %}completed{% endif %}">
+                    <div class="timeline-icon"><i class="ri-mail-open-line"></i></div>
+                    <p>Visit Scheduled</p>
+                </div>
+
+                <div class="timeline-step {% if visit.status == 'approved' %}completed{% elif visit.status == 'pending' %}active{% elif visit.status == 'declined' %}declined{% endif %}">
+                    <div class="timeline-icon"><i class="ri-time-line"></i></div>
+                    <p>Pending Approval</p>
+                </div>
+
+                <div class="timeline-step {% if visit.status == 'approved' %}completed{% elif visit.status == 'declined' %}declined{% endif %}">
+                    <div class="timeline-icon"><i class="ri-check-double-line"></i></div>
+                    <p>Visit Confirmed</p>
+                </div>
+
+                {% if visit.status == 'declined' %}
+                <div class="timeline-step declined">
+                    <div class="timeline-icon"><i class="ri-close-circle-line"></i></div>
+                    <p>Visit Declined</p>
+                </div>
+                {% endif %}
+              </div>
+
+
+        <!-- Action Buttons -->
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>No visits found.</p>
+  {% endif %}
+</section>
+
+<!-- Bookings Page -->
+<!-- Bookings Page -->
+<section id="bookings" class="page">
+  <h2 class="section-title">Your Bookings</h2>
+
+  {% if bookings %}
+    {% for booking in bookings %}
+    <div class="booking-card">
+      
+      <!-- Card Header -->
+      <div class="booking-header">
+        <div class="booking-title">
+          <h2>{{ booking.property.coworking_name }}</h2>
+          <div class="booking-status {% if booking.status == 'paid' %}completed{% elif booking.status == 'approved' %}approved{% elif booking.status == 'pending' %}pending{% elif booking.status == 'declined' %}declined{% endif %}">
+              <i class="ri-close-circle-line"></i> {{ booking.status.capitalize() }}
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Booking Details -->
+      <div class="booking-body">
+        <div class="booking-info">
+          <p><strong><i class="ri-map-pin-line"></i> Location:</strong> {{ booking.property.micromarket }}, {{ booking.property.city }}</p>
+          <p><strong><i class="ri-home-4-line"></i> Address:</strong> {{ booking.property.address }}</p>
+          {% if booking.date %}
+          <p><strong><i class="ri-calendar-line"></i> Date of Booking:</strong> {{ booking.date.strftime('%d %B %Y') }} | <strong>Time:</strong> {{ booking.time }}</p>
+          {% endif %}
+          <p><strong><i class="ri-building-2-line"></i> Inventory Type:</strong> {{ booking.inventoryType }}</p>
+          <p><strong><i class="ri-user-line"></i> Quantity:</strong> {{ booking.quantity }}</p>
+          <p><strong><i class="ri-money-dollar-circle-line"></i> Total Price:</strong> ₹{{ booking.totalPrice }}</p>
+          <p><strong><i class="ri-price-tag-3-line"></i> Price per Seat:</strong> ₹{{ booking.property.price_per_seat }}</p>
+        </div>
+
+        <!-- Timeline -->
+        <!-- Booking Timeline -->
+              <div class="booking-timeline">
+                <div class="timeline-step {% if booking.status in ['pending', 'approved', 'paid', 'declined'] %}completed{% endif %}">
+                    <div class="timeline-icon"><i class="ri-mail-send-line"></i></div>
+                    <p>Booking Received</p>
+                </div>
+
+                <div class="timeline-step {% if booking.status in ['approved', 'paid'] %}completed{% elif booking.status == 'pending' %}active{% elif booking.status == 'declined' %}declined{% endif %}">
+                    <div class="timeline-icon"><i class="ri-time-line"></i></div>
+                    <p>Approval Pending</p>
+                </div>
+
+                <div class="timeline-step {% if booking.status == 'paid' %}completed{% elif booking.status == 'approved' %}active{% elif booking.status == 'declined' %}declined{% endif %}">
+                    <div class="timeline-icon"><i class="ri-wallet-3-line"></i></div>
+                    <p>Payment</p>
+                </div>
+
+                <div class="timeline-step {% if booking.status == 'paid' %}completed{% elif booking.status == 'declined' %}declined{% endif %}">
+                    <div class="timeline-icon"><i class="ri-checkbox-circle-fill"></i></div>
+                    <p>Booking Confirmed</p>
+                </div>
+
+                {% if booking.status == 'declined' %}
+                <div class="timeline-step declined">
+                    <div class="timeline-icon"><i class="ri-close-circle-line"></i></div>
+                    <p>Booking Declined</p>
+                </div>
+                {% endif %}
+              </div>
+
+
+        <!-- Action Buttons -->
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <p class="no-bookings">No bookings found.</p>
+  {% endif %}
+</section>
+
+
+
+
+      <!-- Invoice -->
+      <section id="invoice" class="page">
+        <div class="invoice-header">
+          <button class="toggle-btn active" onclick="toggleInvoice('short')">
+            Short Term Pass
+          </button>
+          <button class="toggle-btn" onclick="toggleInvoice('long')">
+            Long Term Pass
+          </button>
+        </div>
+        <div class="invoice-content" id="short-invoices">
+          <div>
+            <h3>Short-Term Invoices</h3>
+            <div class="invoice-card">
+              <h4>Invoice 1</h4>
+              <p>Coworking Name</p>
+              <p>26/09/2025</p>
+              <p>₹ 10000</p>
+              <p class="download-btn-2">Download</p>
+            </div>
+          </div>
+        </div>
+        <div class="invoice-content" id="long-invoices" style="display: none">
+          <div>
+            <h3>Long-Term Invoices</h3>
+            <div class="invoice-card">
+              <h4>Invoice 1</h4>
+              <p>Coworking Name</p>
+              <p>26/09/2025</p>
+              <p>₹ 10000</p>
+              <p class="download-btn-2">Download</p>
+            </div>
+          </div>
+        </div>
+  </div>
+  </section>
+
+  <!-- Reviews -->
+  <section id="reviews" class="page">
+    <div class="reviews-container">
+      <h1>Hi, Pranjal! Welcome to Your Reviews.</h1>
+      <p>No reviews yet. Find your space now.</p>
+      <button class="cta-button">Find Your Space</button>
+    </div>
+  </section>
+
+  <!-- Workspaces -->
+  <section id="workspaces" class="page">
+    <h2>Workspaces</h2>
+    <p>Browse and manage your workspaces.</p>
+  </section>
+  </main>
+  </div>
+
+
+
+  <script>document.addEventListener("DOMContentLoaded", () => {
+      showPage("dashboard");
+
+      // Sidebar Toggle
+      document.querySelector(".hamburger-menu").addEventListener("click", toggleSidebar);
+      document.querySelector(".overlay").addEventListener("click", closeSidebar);
+    });
+
+    function toggleSidebar() {
+      document.querySelector(".sidebar").classList.toggle("show");
+      document.querySelector(".overlay").classList.toggle("show");
+    }
+
+    function closeSidebar() {
+      document.querySelector(".sidebar").classList.remove("show");
+      document.querySelector(".overlay").classList.remove("show");
+    }
+
+    function showPage(page) {
+    document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
+
+    // Remove 'active' class from all sidebar links
+    document.querySelectorAll(".sidebar-nav ul li").forEach((item) => item.classList.remove("active"));
+    
+    // Add 'active' class to the clicked link
+    document.querySelector(`.sidebar-nav ul li[onclick="showPage('${page}')"]`).classList.add("active");
+  }
+  
+  document.addEventListener("DOMContentLoaded", () => {
+    showPage("bookings");
+  });
+
+  function logoutUser() {
+    window.location.href = "/"; // Redirects to the home page
+}
+
+
+  </script>
+</body>
+
+</html>

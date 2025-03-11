@@ -764,6 +764,12 @@ footer {
     padding-top: 4px;
 }
 
+.navbar-nav{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 @media screen and (max-width: 1024px) {
     .footer-container {
         gap: 10px;
@@ -1153,3 +1159,16 @@ footer {
 
 
 
+.circle{
+  font-size: 32px;
+  scale: 1.5;
+}
+
+.bs{
+  display:flex;
+  flex-direction: row;
+  column-gap: 10px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;;
+}

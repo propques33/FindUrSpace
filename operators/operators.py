@@ -42,6 +42,144 @@ def operators_login():
     return render_template('operators_login.html', error="Please enter your mobile number.")
 
 
+@operators_bp.route('/bookings', methods=['GET'])
+def bookings():
+    if 'operator_phone' not in session:
+        return redirect(url_for('operators.operators_login'))
+
+    db = current_app.config['db']
+    operator_phone = session['operator_phone']
+
+    # Fetch properties managed by the operator
+     # Step 1: Fetch properties owned by the operator
+    # Step 1: Fetch properties owned by the operator
+    properties = list(db.fillurdetails.find({'owner.phone': operator_phone}))
+    property_map = {str(prop['_id']): prop for prop in properties}  # Store properties in a dictionary
+
+    # Step 2: Extract property IDs
+    property_ids = list(property_map.keys())
+
+    if not property_ids:
+        flash("No properties found for this operator.", "warning")
+        return render_template('operators_bookings.html', bookings=[])
+
+    # Fetch bookings related to these properties
+    bookings_cursor = db.booking.find({'property_id': {'$in': property_ids}})
+    bookings = []
+    
+    for booking in bookings_cursor:
+        # Fetch property details from fillurdetails
+        property_details = property_map.get(booking['property_id'], {})
+        booking['micromarket'] = property_details.get('micromarket', 'N/A')
+        booking['city'] = property_details.get('city', 'N/A')
+
+        # Convert ObjectId fields to string
+        booking['_id'] = str(booking['_id'])
+        booking['property_id'] = str(booking['property_id'])
+        booking['user_id'] = str(booking['user_id'])
+        booking['date'] = booking['date'].strftime('%d %b %Y')  # Format date
+        booking['created_at'] = booking['created_at'].strftime('%d %b %Y %I:%M %p')
+
+        bookings.append(booking)
+
+    return render_template('operators_bookings.html', bookings=bookings)
+
+@operators_bp.route('/visits', methods=['GET'])
+def visits():
+    if 'operator_phone' not in session:
+        return redirect(url_for('operators.operators_login'))
+
+    db = current_app.config['db']
+    operator_phone = session['operator_phone']
+
+    print(f"Fetching visits for owner with phone: {operator_phone}")
+
+    # Step 1: Fetch properties owned by the operator
+    properties = list(db.fillurdetails.find({'owner.phone': operator_phone}))
+
+
+    if not properties:
+        print("No properties found for this owner.")
+        flash("No properties found for this operator.", "warning")
+        return render_template('operators_visits.html', visits=[])
+    
+    # Step 2: Extract property IDs and convert them to strings for comparison
+    property_map = {str(prop['_id']): prop for prop in properties}
+    property_ids = [prop['_id'] for prop in properties]
+
+    print(f"Properties found: {property_ids}")
+
+    if not property_ids:
+        flash("No properties found for this operator.", "warning")
+        return render_template('operators_visits.html', visits=[])
+    
+    # Fetch visits related to these properties
+    visits_cursor = db.visits.find({'property_id': {'$in': property_ids}})
+    visits = []
+
+    for visit in visits_cursor:
+        # Fetch property details
+        # Fetch property details from fillurdetails
+        property_details = property_map.get(str(visit['property_id']), {})
+        visit['micromarket'] = property_details.get('micromarket', 'N/A')
+        visit['city'] = property_details.get('city', 'N/A')
+
+        # Convert ObjectId fields to string for frontend use
+        visit['_id'] = str(visit['_id'])
+        visit['property_id'] = str(visit['property_id'])
+        visit['user_id'] = str(visit['user_id'])
+        visit['date'] = visit['date'].strftime('%d %b %Y')  # Format date
+        visit['created_at'] = visit['created_at'].strftime('%d %b %Y %I:%M %p')
+
+        visits.append(visit)
+
+    if not visits:
+        print("No visits found for the owner’s properties.")
+    else:
+        print(f"Total visits fetched: {len(visits)}")
+
+
+    return render_template('operators_visits.html', visits=visits)
+
+
+@operators_bp.route('/update_booking_status', methods=['POST'])
+def update_booking_status():
+    if 'operator_phone' not in session:
+        return jsonify({'status': 'failure', 'message': 'Unauthorized access'}), 401
+
+    db = current_app.config['db']
+    data = request.json
+    booking_id = data.get('booking_id')
+    new_status = data.get('status')
+
+    if not booking_id or not new_status:
+        return jsonify({'status': 'failure', 'message': 'Missing parameters'}), 400
+
+    # Update booking status
+    db.booking.update_one({'_id': ObjectId(booking_id)}, {'$set': {'status': new_status}})
+    
+    return jsonify({'status': 'success', 'message': f'Booking status updated to {new_status}'}), 200
+
+
+@operators_bp.route('/update_visit_status', methods=['POST'])
+def update_visit_status():
+    if 'operator_phone' not in session:
+        return jsonify({'status': 'failure', 'message': 'Unauthorized access'}), 401
+
+    db = current_app.config['db']
+    data = request.json
+    visit_id = data.get('visit_id')
+    new_status = data.get('status')
+
+    if not visit_id or not new_status:
+        return jsonify({'status': 'failure', 'message': 'Missing parameters'}), 400
+
+    # Update visit status
+    db.visits.update_one({'_id': ObjectId(visit_id)}, {'$set': {'status': new_status}})
+    
+    return jsonify({'status': 'success', 'message': f'Visit status updated to {new_status}'}), 200
+
+
 @operators_bp.route('/logout')
 def operators_logout():
     session.pop('operator_phone', None)

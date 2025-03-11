@@ -1043,3 +1043,149 @@ def delete_property():
     except Exception as e:
         print(f"Error deleting property: {e}")
         return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
+
+
+@admin_bp.route('/bookings', methods=['GET'])
+def admin_bookings():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']  # Access MongoDB
+
+    # Fetch all bookings from the 'bookings' collection
+    bookings_cursor = db.booking.find()
+    bookings = list(bookings_cursor)
+
+    # Convert ObjectId to string for template rendering
+    for booking in bookings:
+        booking['_id'] = str(booking['_id'])
+
+        # Fetch property details from 'fillurdetails' using property_id
+        property_id = booking.get('property_id')
+        if property_id:
+            property_data = db.fillurdetails.find_one({'_id': ObjectId(property_id)})
+
+            if property_data:
+                # Add property details to the booking record
+                booking['coworking_name'] = property_data.get('coworking_name', 'N/A')
+                booking['city'] = property_data.get('city', 'N/A')
+                booking['micromarket'] = property_data.get('micromarket', 'N/A')
+
+                # Owner details
+                owner = property_data.get('owner', {})
+                booking['owner_name'] = owner.get('name', 'N/A')
+                booking['owner_phone'] = owner.get('phone', 'N/A')
+                booking['owner_email'] = owner.get('email', 'N/A')
+
+                # Center manager details
+                center_manager = property_data.get('center_manager', {})
+                booking['center_manager_name'] = center_manager.get('name', 'N/A')
+                booking['center_manager_contact'] = center_manager.get('contact', 'N/A')
+
+    return render_template('admin_bookings.html', bookings=bookings)
+
+# ✅ Update booking status (Approve/Decline)
+@admin_bp.route('/update_booking_status', methods=['POST'])
+def update_booking_status():
+    db = current_app.config['db']
+    data = request.json
+    booking_id = data.get('booking_id')
+    new_status = data.get('status')
+
+    if not booking_id or not new_status:
+        return jsonify({'status': 'error', 'message': 'Missing booking ID or status'})
+
+    # Update the booking status in MongoDB
+    result = db.booking.update_one({'_id': ObjectId(booking_id)}, {'$set': {'status': new_status}})
+    
+    if result.modified_count > 0:
+        return jsonify({'status': 'success', 'new_status': new_status})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to update status'})
+    
+# ✅ Process payment (Mark as Paid)
+@admin_bp.route('/update_payment_status', methods=['POST'])
+def update_payment_status():
+    db = current_app.config['db']
+    data = request.json
+    booking_id = data.get('booking_id')
+
+    if not booking_id:
+        return jsonify({'status': 'error', 'message': 'Missing booking ID'})
+
+    # Update payment status in MongoDB
+    result = db.booking.update_one({'_id': ObjectId(booking_id)}, {'$set': {'status': 'paid'}})
+
+    if result.modified_count > 0:
+        return jsonify({'status': 'success'})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to update payment status'})
+    
+@admin_bp.route('/visits', methods=['GET'])
+def admin_visits():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']
+
+    # Fetch all visits
+    visits_cursor = db.visits.find().sort("date", -1)
+    visits = []
+
+    for visit in visits_cursor:
+        property_details = db.fillurdetails.find_one({'_id': ObjectId(visit['property_id'])})
+
+        visit_data = {
+            '_id': str(visit['_id']),
+            'user_name': visit.get('name', 'N/A'),
+            'email': visit.get('email', 'N/A'),
+            'company': visit.get('company', 'N/A'),
+            'contact': visit.get('contact', 'N/A'),
+            'inventory_type': visit.get('inventory_type', 'N/A'),
+            'date': visit.get('date').strftime('%d %b %Y') if visit.get('date') else 'N/A',
+            'time': visit.get('time', 'N/A'),
+            'duration': visit.get('duration', 'N/A'),
+            'gstin': visit.get('gstin', 'N/A'),
+            'num_seats': visit.get('num_seats', 'N/A'),
+            'budget': visit.get('budget', 'N/A'),
+            'status': visit.get('status', 'pending'),
+        }
+
+        # Fetch property details
+        if property_details:
+            visit_data.update({
+                'coworking_name': property_details.get('coworking_name', 'N/A'),
+                'city': property_details.get('city', 'N/A'),
+                'micromarket': property_details.get('micromarket', 'N/A'),
+                'owner_name': property_details.get('owner', {}).get('name', 'N/A'),
+                'owner_phone': property_details.get('owner', {}).get('phone', 'N/A'),
+                'owner_email': property_details.get('owner', {}).get('email', 'N/A'),
+                'center_manager_name': property_details.get('center_manager', {}).get('name', 'N/A'),
+                'center_manager_contact': property_details.get('center_manager', {}).get('contact', 'N/A'),
+            })
+
+        visits.append(visit_data)
+
+    return render_template('admin_visits.html', visits=visits)
+
+# ✅ Update visit status (Approve/Decline)
+@admin_bp.route('/update_visit_status', methods=['POST'])
+def update_visit_status():
+    if 'admin' not in session:
+        return jsonify({'status': 'error', 'message': 'Not authorized'}), 403
+
+    db = current_app.config['db']
+    data = request.json
+    visit_id = data.get('visit_id')
+    new_status = data.get('status')
+
+    if not visit_id or not new_status:
+        return jsonify({'status': 'error', 'message': 'Missing visit ID or status'})
+
+    # Update visit status in MongoDB
+    result = db.visits.update_one({'_id': ObjectId(visit_id)}, {'$set': {'status': new_status}})
+    
+    if result.modified_count > 0:
+        return jsonify({'status': 'success', 'new_status': new_status})
+    else:
+        return jsonify({'status': 'error', 'message': 'Failed to update status'})
