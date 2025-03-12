@@ -455,6 +455,8 @@ function submitUserPreferences() {
     let inventoryType = document.getElementById('inventory-type').value; // New field
     let hearAbout = document.getElementById('hear-about').value; // New field
 
+    console.log("Submitting Preferences:", { seats, location, area, budget, inventoryType, hearAbout });
+    
     if (!seats || !location || !area || !budget|| !inventoryType || !hearAbout) {
         alert('All fields are required.');
         return;
@@ -485,7 +487,9 @@ function submitUserPreferences() {
         hideLoader();
         if (data.status === 'success') {
             // Redirect with query parameters for filtering
-            const redirectUrl = `/outerpage?location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(inventoryType)}`;
+            console.log("Submission successful:", data);
+            // const redirectUrl = `/outerpage?location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(inventoryType)}`;
+            const redirectUrl = `/thankyou`;
             window.location.href = redirectUrl;
         } else {
             alert(data.message);

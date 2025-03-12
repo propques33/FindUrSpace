@@ -897,6 +897,30 @@ def terms_and_conditions():
 def freq_asked_ques():
     return render_template('FAQs.html')
 
+@core_bp.route('/managed-offices/ahmedabad')
+def ahmedabad():
+    return render_template('ahmedabad.html')
+
+@core_bp.route('/managed-offices/bangalore')
+def bangalore():
+    return render_template('bangalore.html')
+
+@core_bp.route('/managed-offices/hyderabad')
+def hyderabad():
+    return render_template('hyderabad.html')
+
+@core_bp.route('/managed-offices/indore')
+def indore():
+    return render_template('indore.html')
+
+@core_bp.route('/managed-offices/lucknow')
+def lucknow():
+    return render_template('lucknow.html')
+
+@core_bp.route('/managed-offices/mumbai')
+def mumbai():
+    return render_template('mumbai.html')
+
 def to_camel_case(input_str):
     return ' '.join(word.capitalize() for word in input_str.split())
 

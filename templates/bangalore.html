@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Professional Coworking Hero Section</title>
+    <link rel="stylesheet" href="../static/css/bangalore.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="logo">
+        <img
+          src="https://findurspace.tech/static/images/logo.png"
+          alt="Company Logo"
+        />
+        <span class="company-name">FindurSpace</span>
+      </div>
+      <ul>
+        <li><a onclick="openPopup()">Looking for a workspace?</a></li>
+      </ul>
+    </nav>
+    <section class="whatsapp">
+      <a href="https://wa.me/message/UMI6M5SMOZXNP1">
+        <img src="../static/bangalore/whats.png" alt="" class="whatsapp-image" />
+      </a>
+    </section>
+
+    <div class="popup-overlay" id="popup" onclick="closePopup(event)">
+      <div class="popup-content" onclick="event.stopPropagation();">
+        <span class="close-btn" onclick="closePopup(event)">×</span>
+        <h2>Request a Callback</h2>
+
+        <form id="contactForm-hero">
+          
+          <input class="name-hero" type="text"placeholder="Name" required />
+          <input class="email-hero" type="email"  placeholder="Email" required />
+          <input class="phone-hero" type="phone"  placeholder="Phone Number" required />
+          <select class="seats-hero" name="seats" required>
+            <option value="" disabled selected>No. of Seats</option>
+            <option value="20-30">20-30 Seats</option>
+            <option value="30-40">30-40 Seats</option>
+            <option value="40+">40+ Seats</option>
+          </select>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+    <section class="enquiry-section-phone">
+      <h3>Enquire Now</h3>
+      <a onclick="openPopup()" class="cta-button" onclick="openPopup()"
+        >Get A Free Consultation</a
+      >
+    </section>
+
+    <div class="hero-section-bg">
+      <!-- Background Image Slider -->
+      <div
+        class="hero-background active"
+        style="
+          background-image: url('https://images.unsplash.com/photo-1549757521-4160565ff3de?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+        "
+      ></div>
+      <div
+        class="hero-background"
+        style="
+          background-image: url('https://images.unsplash.com/photo-1515263487990-61b07816b324?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+        "
+      ></div>
+      <div
+        class="hero-background"
+        style="
+          background-image: url('https://images.unsplash.com/photo-1618274811386-6ac8d8a3c3a9?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+        "
+      ></div>
+
+      <div class="hero-content">
+        <h1>Seamlessly Navigating Business Expansion</h1>
+        <div class="hero-overlay"></div>
+        <p>
+          Rapidly deploy your ideal office with our customized managed space
+          solutions. We align with global standards and ensure full regulatory
+          compliance.
+        </p>
+        <p class="hero-highlights">
+          100% Compliant | 100% Customization | 0% Brokerage
+        </p>
+        <a onclick="openPopup()" class="cta-button" onclick="openPopup()"
+          >Get A Free Consultation</a
+        >
+      </div>
+
+      <!-- Form on Right Side -->
+      <div class="hero-content-form">
+        <form class="hero-form" id="contactForm">
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="Full Name"
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Email Address"
+            required
+          />
+          <input
+            type="tel"
+            name="phone"
+            id="phone"
+            placeholder="Phone Number"
+            required
+          />
+          <select name="seats" id="seats" required>
+            <option value="" disabled selected>No. of Seats</option>
+            <option value="20-30">20-30 Seats</option>
+            <option value="30-40">30-40 Seats</option>
+            <option value="40+">40+ Seats</option>
+          </select>
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+    </div>
+    <!-- Enquiry Section -->
+    <section class="enquiry-section">
+      <h3>Enquire Now</h3>
+
+      <!--   -->
+      <form id="contactForm-footer" class="enquiry-form">
+        <input
+          class="name-footer"
+          type="text"
+          id="name"
+          placeholder="Name"
+          required
+        />
+        <input
+          class="email-footer"
+          type="email"
+          id="email"
+          placeholder="Email"
+          required
+        />
+        <input
+          class="phone-footer"
+          type="phone"
+          id="phone"
+          placeholder="Phone Number"
+          required
+        />
+        <select class="seats-footer" id="seats" name="seats" required>
+          <option value="" disabled selected>No. of Seats</option>
+          <option value="20-30">20-30 Seats</option>
+          <option value="30-40">30-40 Seats</option>
+          <option value="40+">40+ Seats</option>
+        </select>
+        <button type="submit">Submit</button>
+      </form>
+    </section>
+       <div class="space-section">
+      <h1>Explore our featured managed office spaces in Bangalore</h1>
+      <p>
+        Discover our premium office spaces, designed for productivity and
+        growth!
+      </p>
+      <div class="space-card-container">
+      
+        <div class="space-card">
+          <img
+            src="../static/bangalore/10.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3><i class="ri-map-pin-line"></i> Managed office in CBD Bangalore</h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 7+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/11.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in HSR Layout
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 13+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="space-card">
+          <img
+            src="../static/bangalore/3.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Koramangala
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 12+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="space-card">
+          <img
+            src="../static/bangalore/7.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Whitefield
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 15+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/7.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Outer Ring Road
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 30+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/9.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Indiranagar
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 10+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/12.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in MG Road Bangalore
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 6+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/14.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in J P Nagar
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/ew.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Jayanagar
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/2.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Rajajinagar
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/9vghpd.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Electronic City
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/cyfqpm.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in BTM Layout
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/e5wdxg.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Sarjapura
+
+
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+        <div class="space-card">
+          <img
+            src="../static/bangalore/pn7vyf.webp"
+            alt="Coworking Space"
+          />
+          <div class="card-content">
+            <h3>
+              <i class="ri-map-pin-line"></i> Managed office in Yelahanka
+
+
+
+            </h3>
+            <!-- <div class="location">
+              
+              <span>Gomti Nagar, Lucknow</span>
+            </div> -->
+            <!-- 
+            <p class="amount">
+              ₹7,000
+              <span style="font-size: 14px; color: #666">/desk/month</span>
+            </p> -->
+            <a onclick="openPopup()" class="cta-link">
+              Explore 14+ Spaces <i class="ri-arrow-right-line"></i>
+            </a>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+    <section class="process-section">
+      <h2>Our Process</h2>
+      <p>Get a future-ready, hassle-free workspace tailored to your success</p>
+
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-line"></div>
+        <div class="progress-step active"><i class="ri-check-line"></i></div>
+        <div class="progress-step">02</div>
+        <div class="progress-step">03</div>
+        <div class="progress-step">04</div>
+        <div class="progress-step">05</div>
+        <div class="progress-step">06</div>
+        <div class="progress-step">07</div>
+      </div>
+
+      <!-- Process Cards -->
+      <div class="process-steps">
+        <div class="step-card">
+          <i class="ri-search-line"></i>
+          <p>STEP 1</p>
+          <h3>Search Requirements</h3>
+        </div>
+
+        <div class="step-card">
+          <i class="ri-calendar-check-line"></i>
+          <p>STEP 2</p>
+          <h3>Schedule A Tour</h3>
+        </div>
+
+        <div class="step-card">
+          <i class="ri-hand-coin-line"></i>
+          <p>STEP 3</p>
+          <h3>Strategic Negotiation</h3>
+        </div>
+
+        <div class="step-card">
+          <i class="ri-file-text-line"></i>
+          <p>STEP 4</p>
+          <h3>Seal the Agreement</h3>
+        </div>
+
+        <div class="step-card">
+          <i class="ri-pencil-ruler-2-line"></i>
+          <p>STEP 5</p>
+          <h3>Design Your Workspace</h3>
+        </div>
+
+        <div class="step-card">
+          <i class="ri-tools-line"></i>
+          <p>STEP 6</p>
+          <h3>Build & Set Up</h3>
+        </div>
+
+        <div class="step-card">
+          <i class="ri-rocket-line"></i>
+          <p>STEP 7</p>
+          <h3>Move In & Thrive</h3>
+        </div>
+      </div>
+    </section>
+
+    <section class="services">
+      Search, Design, Build <span>& </span> Manage
+    </section>
+
+    <section class="why-choose">
+      <h2>Why Businesses <span>Choose Managed Offices</span></h2>
+      <p>
+        Focus on your core business while we handle all workspace hassles! From
+        customization to management <br />
+        We ensure your office is always ready for growth.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="icon-circle">
+            <i class="ri-money-dollar-circle-line"></i>
+          </div>
+          <h3>No CapEx Investment</h3>
+          <p>Save on furnishing costs – invest in growth.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-layout-5-line"></i></div>
+          <h3>Customized Layout</h3>
+          <p>Office spaces tailored to your business needs.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-calendar-2-line"></i></div>
+          <h3>Flexible Leases</h3>
+          <p>Shorter commitments for better scalability.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-tools-line"></i></div>
+          <h3>Fully Managed</h3>
+          <p>Hassle-free operations – we take care of everything.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-time-line"></i></div>
+          <h3>Fast Setup</h3>
+          <p>Move in within 7 to 90 days.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-secure-payment-line"></i></div>
+          <h3>Cost-Effective</h3>
+          <p>Reduce costs with an all-inclusive package.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-shield-keyhole-line"></i></div>
+          <h3>Secure Offices</h3>
+          <p>Top-tier security and compliance.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="icon-circle"><i class="ri-rocket-line"></i></div>
+          <h3>Growth Ready</h3>
+          <p>Scale effortlessly with a future-proof workspace.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mission-section-remix">
+      <h2>Mission & Philosophy</h2>
+      <p>
+        At Find UR Space, we understand the complexities of business expansion.
+        Our 3C philosophy ensures that your journey into India's dynamic
+        business landscape is seamless and successful.
+      </p>
+
+      <div class="mission-container-remix">
+        <!-- Compliance -->
+        <div class="mission-box-remix">
+          <i class="ri-scales-line"></i>
+          <h3>Compliance</h3>
+          <p>
+            We prioritize compliance with local regulations, ensuring your
+            business operates without legal concerns.
+          </p>
+        </div>
+
+        <!-- Concept -->
+        <div class="mission-box-remix">
+          <i class="ri-lightbulb-line"></i>
+          <h3>Concept</h3>
+          <p>
+            We collaborate closely with you to conceptualize your ideal
+            workspace, tailored to your needs.
+          </p>
+        </div>
+
+        <!-- Completion -->
+        <div class="mission-box-remix">
+          <i class="ri-check-double-line"></i>
+          <h3>Completion</h3>
+          <p>
+            We deliver a fully operational office space that meets your exact
+            specifications and business requirements.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="why-choose">
+      <h2>Why choose us</h2>
+      <div class="scroll-container">
+        <div class="card">
+          <div class="icon-badge">
+            <i class="ri-calendar-check-line"></i>
+          </div>
+          <p>Compliance Expertise</p>
+        </div>
+
+        <div class="card">
+          <div class="icon-badge">
+            <i class="ri-file-check-line"></i>
+          </div>
+          <p>Tailored Solutions</p>
+        </div>
+
+        <div class="card">
+          <div class="icon-badge">
+            <i class="ri-home-heart-line"></i>
+          </div>
+          <p>End-to-End Support</p>
+        </div>
+
+        <div class="card">
+          <div class="icon-badge">
+            <i class="ri-building-2-line"></i>
+          </div>
+          <p>Unmatched Experience</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="experience-banner">
+      <div class="banner-content">
+        <h2>
+          Elevate Your Workspace, <br />
+          <span>Elevate Your Business</span>
+        </h2>
+        <p>Walk into any of our centres in 50+ cities</p>
+        <a onclick="openPopup()" class="cta-button" onclick="openPopup()"
+          >Find Your Space Near You <i class="ri-arrow-right-line"></i
+        ></a>
+      </div>
+      <div class="banner-image">
+        <img
+          src="https://cdn.dribbble.com/users/1568450/screenshots/5430738/work_2_dribbble-01.png"
+          alt="Experience Centre"
+        />
+      </div>
+    </section>
+
+    <!-- <div class="management-partners">
+      <h2>Our Management Partners</h2>
+
+      <div class="partners-container">
+        <img
+          class="partner-logo"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmF8yZ6JPQAbOTbDbwkPcTp4Vc2UuO-9MfzA&s"
+          alt="Awfis"
+        />
+        <img
+          class="partner-logo"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQchMv_lCjIj2jV-F-8dtv0vHBgSLos24-UCA&s"
+          alt="WeWork"
+        />
+        <img
+          class="partner-logo"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZHheslOzF5uUEBow7j_im7RyOkTJsIdIFOfMwcuYKkQEYn5HxeLMg32gTrrmrVT6aV7M&usqp=CAU"
+          alt="Table Space"
+        />
+        <img
+          class="partner-logo"
+          src="https://media.licdn.com/dms/image/v2/D4D0BAQFMC0VBGknSeA/company-logo_200_200/company-logo_200_200/0/1704176953817/devxwork_logo?e=2147483647&v=beta&t=seb1qWn2Z3qPUeSRgB2-r-byZt6uM9673Uj33bc9PA8"
+          alt="DevX"
+        />
+        <img
+          class="partner-logo"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB9mQtoIr2SKJxK7kce5FIPZOk8t9TeShBXg&s"
+          alt="Incuspaze"
+        />
+        <img
+          class="partner-logo"
+          src="https://media.instahyre.com/images/profile/base/employer/8193/05fffba8fc/14993348_1115174321929448_5699296098124488297.webp"
+          alt="BHIVE Workspace"
+        />
+      </div>
+    </div> -->
+
+    <div class="presence-section">
+      <div class="presence-title">Our Presence</div>
+      <div class="city-container">
+        <div class="city">
+          <img
+            src="https://t4.ftcdn.net/jpg/05/13/77/31/360_F_513773104_G7Pin2bxWwpMAWqI5MIvrSnWDpYs80WN.jpg"
+            alt="Lucknow"
+          />
+          <div class="city-name">Lucknow</div>
+        </div>
+        <div class="city">
+          <img
+            src="https://www.holidaymonk.com/wp-content/uploads/2022/04/Gateway-Of-India-MUMBAI.jpg"
+            alt="Mumbai"
+          />
+          <div class="city-name">Mumbai</div>
+        </div>
+        <div class="city">
+          <img
+            src="https://www.agoda.com/wp-content/uploads/2024/07/bangalore-feature-1244x700.jpg"
+            alt="Bangalore"
+          />
+          <div class="city-name">Bangalore</div>
+        </div>
+        <div class="city">
+          <img
+            src="https://media.istockphoto.com/id/515708294/photo/rajwada-palace-indore.jpg?s=612x612&w=0&k=20&c=6EJQx60pezFShgdH-UanSAW_UvsqUzGgC2rmeKScJDQ="
+            alt="Indore"
+          />
+          <div class="city-name">Indore</div>
+        </div>
+        <div class="city">
+          <img
+            src="https://media.istockphoto.com/id/1424699305/photo/atal-bridge-at-the-sabarmati-riverfront-in-ahmedabad.jpg?s=612x612&w=0&k=20&c=-wnbWk9dynJ67_Cog0ZdLGjkJ-xqtrGUWt1G4r4HyMY="
+            alt="Ahmedabad"
+          />
+          <div class="city-name">Ahmedabad</div>
+        </div>
+        <div class="city">
+          <img
+            src="https://images.herzindagi.info/image/2022/Oct/places-to-visit.jpg"
+            alt="Hyderabad"
+          />
+          <div class="city-name">Hyderabad</div>
+        </div>
+      </div>
+    </div>
+
+    <section class="clients">
+      <h2>Our prestigious client network</h2>
+      <div class="client-logos">
+        <img
+          src="https://findurspace.tech/static/images/BridgestoneAsset%207.svg"
+          alt="Zomato"
+        />
+        <img
+          src="https://findurspace.tech/static/images/HitachiAsset%206.svg"
+          alt="Outlook"
+        />
+        <img
+          src="https://findurspace.tech/static/images/Tata%20SkyAsset%209.svg"
+          alt="JioSaavn"
+        />
+        <img
+          src="https://findurspace.tech/static/images/Tata%20SteelAsset%2010.svg"
+          alt="Signzy"
+        />
+        <img
+          src="https://findurspace.tech/static/images/Motilal%20OswalAsset%2011.svg"
+          alt="Marriott"
+        />
+        <img
+          src="https://findurspace.tech/static/images/FinolexAsset%2012.svg"
+          alt="Tata Cliq"
+        />
+      </div>
+      <a onclick="openPopup()" onclick="openPopup()" class="consultation-link"
+        >Get a free consultation →</a
+      >
+    </section>
+
+    <!-- Bottom Banner Section -->
+    <div class="bottom-banner-section">
+      <div class="bottom-banner-overlay"></div>
+      <div class="bottom-banner-content">
+        <a
+          onclick="openPopup()"
+          class="bottom-banner-button"
+          onclick="openPopup()"
+          >Get A Free Consultation</a
+        >
+      </div>
+    </div>
+
+    <section class="brand-portfolio">
+      <h2>Our Portfolio of Management Partners Brands</h2>
+
+      <div class="brand-grid">
+        <div class="brand-card">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmF8yZ6JPQAbOTbDbwkPcTp4Vc2UuO-9MfzA&s"
+            alt="Hubstains"
+          />
+          <a onclick="openPopup()">Explore 4 workspaces →</a>
+        </div>
+        <div class="brand-card">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQchMv_lCjIj2jV-F-8dtv0vHBgSLos24-UCA&s"
+            alt="COWRKS"
+          />
+          <a onclick="openPopup()">Explore 9 workspaces →</a>
+        </div>
+        <div class="brand-card">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZHheslOzF5uUEBow7j_im7RyOkTJsIdIFOfMwcuYKkQEYn5HxeLMg32gTrrmrVT6aV7M&usqp=CAU"
+            alt="WeWork"
+          />
+          <a onclick="openPopup()">Explore 17 workspaces →</a>
+        </div>
+
+        <div class="brand-card">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB9mQtoIr2SKJxK7kce5FIPZOk8t9TeShBXg&s"
+            alt="OYO"
+          />
+          <a onclick="openPopup()">Explore 14 workspaces →</a>
+        </div>
+
+        <div class="brand-card">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIHXXoo1eASHjiIv5cMl4hAPkadKCuE_Lvrw&s"
+            alt="Awfis"
+          />
+          <a onclick="openPopup()">Explore 13 workspaces →</a>
+        </div>
+      </div>
+
+      <a onclick="openPopup()" class="callback-link"
+        >Need Help Picking the Right Brand? Request a Callback →</a
+      >
+    </section>
+
+    <section class="faq">
+      <h2>Frequently Asked Questions - Managing Office Space</h2>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          1. What does office space management include?
+          <span class="toggle-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>
+            Office space management includes optimizing space allocation,
+            facility maintenance, lease administration, security, and enhancing
+            workplace experience.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          2. How can I reduce operational costs in office space management?
+          <span class="toggle-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>
+            Reducing costs can be done through efficient space utilization,
+            adopting smart office technology, energy management, and flexible
+            lease agreements.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          3. What are the benefits of coworking in office space management?
+          <span class="toggle-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>
+            Coworking spaces offer flexibility, reduced overhead costs,
+            networking opportunities, and access to shared resources without
+            long-term commitments.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-question">
+          4. How does technology help in managing office space efficiently?
+          <span class="toggle-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>
+            Technology such as IoT, smart scheduling, workspace analytics, and
+            automation tools help optimize office space usage, enhance security,
+            and improve employee experience.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <div class="logo-container">
+            <img
+              src="https://findurspace.tech/static/images/logo.png"
+              alt=" Logo"
+              class="logo"
+            />
+            <p>FindurSpace</p>
+          </div>
+
+          <p>
+            FindUrSpace is your go-to platform that simplifies everything, from
+            vibrant hubs in Delhi to serene spaces in Goa. FindUrSpace caters to
+            unique co-working spaces for preferred locations tailored to your
+            needs.
+          </p>
+        </div>
+        <div class="footer-right">
+          <!-- <p><i class="ri-phone-line"></i> +91-8069328922</p> -->
+          <p><i class="ri-mail-line"></i> sales@findurspace.tech</p>
+          <p>
+            <i class="ri-map-pin-line"></i> Excel Coworks - Naagarabhaavi,
+            Bangalore 3rd Floor, Tushar Arcade, Service Road, Naagarabhaavi,
+            Bengaluru, Karnataka 560072
+          </p>
+        </div>
+      </div>
+      <hr />
+      <p class="copyright">Copyright © 2025</p>
+    </footer>
+
+    <script>
+      let images = document.querySelectorAll(".hero-background");
+      let currentIndex = 0;
+
+      function changeImage() {
+        images[currentIndex].classList.remove("active");
+        currentIndex = (currentIndex + 1) % images.length;
+        images[currentIndex].classList.add("active");
+      }
+
+      setInterval(changeImage, 3000);
+
+      const steps = document.querySelectorAll(".progress-step");
+      steps.forEach((step, index) => {
+        setTimeout(() => {
+          step.classList.add("active");
+        }, index * 500);
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const faqItems = document.querySelectorAll(".faq-item");
+
+        faqItems.forEach((item) => {
+          const question = item.querySelector(".faq-question");
+          const answer = item.querySelector(".faq-answer");
+          const icon = item.querySelector(".toggle-icon");
+
+          question.addEventListener("click", () => {
+            const isOpen = answer.style.display === "block";
+
+            // Close all answers
+            document
+              .querySelectorAll(".faq-answer")
+              .forEach((ans) => (ans.style.display = "none"));
+            document
+              .querySelectorAll(".toggle-icon")
+              .forEach((icon) => (icon.textContent = "+"));
+
+            // Toggle current answer
+            if (!isOpen) {
+              answer.style.display = "block";
+              icon.textContent = "-";
+            } else {
+              answer.style.display = "none";
+              icon.textContent = "+";
+            }
+          });
+        });
+      });
+
+      function openPopup() {
+        document.getElementById("popup").style.display = "flex";
+      }
+
+
+      function closePopup() {
+        document.getElementById("popup").style.display = "none";
+      }
+
+      // Close when clicking outside the popup content
+      document.addEventListener("click", function (event) {
+        const popup = document.getElementById("popup");
+        const popupContent = document.querySelector(".popup-content");
+
+        if (event.target === popup) {
+          closePopup();
+        }
+      });
+
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // Collect form data
+          const formData = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            phone: document.getElementById("phone").value,
+            seats: document.getElementById("seats").value,
+            location: "bangalore", // Default location
+          };
+
+          // Send data to Make webhook
+          fetch("https://hook.eu2.make.com/m3jyrov1tnx1ckyo6ejbprxtbgchvxk8", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => {
+              if (response.ok) {
+                alert("Form submitted successfully!");
+                document.getElementById("contactForm").reset(); // Clear the form
+              } else {
+                throw new Error("Form submission failed");
+              }
+            })
+            .catch((error) => {
+              alert("Error submitting the form. Please try again.");
+              console.error("Error:", error);
+            });
+        });
+
+   document
+    .getElementById("contactForm-footer")
+    .addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Collect form data
+        const formData = {
+            name: document.querySelector(".name-footer").value, // Use querySelector for individual elements
+            email: document.querySelector(".email-footer").value,
+            phone: document.querySelector(".phone-footer").value,
+            seats: document.querySelector(".seats-footer").value,
+            location: "bangalore", // Default location
+        };
+
+        // Send data to Make webhook
+        fetch("https://hook.eu2.make.com/m3jyrov1tnx1ckyo6ejbprxtbgchvxk8", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    alert("Form submitted successfully! Footer");
+                    document.getElementById("contactForm-footer").reset(); // Clear the form
+                } else {
+                    throw new Error("Form submission failed");
+                }
+            })
+            .catch((error) => {
+                alert("Error submitting the form. Please try again.");
+                console.error("Error:", error);
+            });
+    });
+
+
+
+
+     document
+    .getElementById("contactForm-hero")
+    .addEventListener("submit", function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Collect form data
+        const formData = {
+            name: document.querySelector(".name-hero").value, // Use querySelector for individual elements
+            email: document.querySelector(".email-hero").value,
+            phone: document.querySelector(".phone-hero").value,
+            seats: document.querySelector(".seats-hero").value,
+            location: "bangalore", // Default location
+        };
+
+        // Send data to Make webhook
+        fetch("https://hook.eu2.make.com/m3jyrov1tnx1ckyo6ejbprxtbgchvxk8", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        })
+            .then((response) => {
+                if (response.ok) {
+                    alert("Form submitted successfully! Footer");
+                    document.getElementById("contactForm-footer").reset(); // Clear the form
+                } else {
+                    throw new Error("Form submission failed");
+                }
+            })
+            .catch((error) => {
+                alert("Error submitting the form. Please try again.");
+                console.error("Error:", error);
+            });
+    });
+
+    </script>
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
