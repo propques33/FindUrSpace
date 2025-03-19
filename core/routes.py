@@ -388,6 +388,22 @@ def schedule_tour():
     num_seats = data.get("numSeats")
     budget = data.get("budget")
 
+    # Check if user exists
+    user = db.users.find_one({"contact": contact})
+
+    if not user:
+        # Create a new user record
+        new_user = {
+            "name": data.get("name"),
+            "contact": contact,
+            "company": data.get("company"),
+            "email": data.get("email"),
+            "created_at": datetime.utcnow()
+        }
+        user_id = db.users.insert_one(new_user).inserted_id
+    else:
+        user_id = user["_id"]
+
     # Validate required fields
     if not user_id or not property_id or not name or not email or not contact or not date or not time:
         return jsonify({"success": False, "message": "Missing required fields"}), 400
@@ -416,14 +432,14 @@ def schedule_tour():
         "gstin": gstin,
         "num_seats": num_seats,
         "budget": budget,
-        "status": "Pending", 
+        "status": "pending", 
         "created_at": datetime.utcnow()
     }
 
     # Insert into MongoDB
     db.visits.insert_one(visit_data)
 
-    return jsonify({"success": True, "message": "Tour scheduled successfully!"})
+    return jsonify({"success": True,"contact": contact, "message": "Tour scheduled successfully!"})
 
 
 @core_bp.route('/submit_purchase', methods=['POST'])
@@ -433,7 +449,27 @@ def submit_purchase():
 
     try:
         data = request.json
+        contact = data.get("phone")
 
+        if not contact:
+            return jsonify({"success": False, "message": "Phone number is required"}), 400
+
+        # Check if user exists
+        user = db.users.find_one({"contact": contact})
+
+        if not user:
+            # Create a new user record
+            new_user = {
+                "name": data.get("fullName"),
+                "contact": contact,
+                "company": data.get("company"),
+                "email": data.get("email"),
+                "created_at": datetime.utcnow()
+            }
+            user_id = db.users.insert_one(new_user).inserted_id
+        else:
+            user_id = user["_id"]
+            
         # Required fields for validation
         required_fields = ["inventoryType", "quantity", "totalPrice", "fullName", "email", "phone", "date"]
         if not all(field in data for field in required_fields):
@@ -466,14 +502,14 @@ def submit_purchase():
             "gstin": data.get("gstin", None),  # Store GSTIN if provided
             "date": booking_date,
             "time": booking_time,  # Only applicable for Meeting Rooms
-            "status": "Pending",  # Default status
+            "status": "pending",  # Default status
             "created_at": datetime.utcnow()
         }
 
         # Insert into MongoDB
         booking_collection.insert_one(booking)
 
-        return jsonify({"success": True, "message": "Booking received successfully!"}), 200
+        return jsonify({"success": True,"contact": data["phone"], "message": "Booking received successfully!"}), 200
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
@@ -497,6 +533,8 @@ def verify_otp():
         return jsonify({'success': True, 'message': 'OTP verified successfully!'})
     else:
         return jsonify({'success': False, 'message': 'OTP verification failed'})
+
+
 # def verify_otp():
 #     request_id = request.json.get('requestId')
 #     otp = request.json.get('otp')
@@ -714,12 +752,19 @@ def submit_preferences():
 
     # Get form data
     seats = request.form.get('seats')
+    contact = request.form.get('contact')
     location = request.form.get('location')
     area = request.form.get('area')
     budget = request.form.get('budget')
     inventory_type = request.form.get('inventory-type')  # New field
     hear_about = request.form.get('hear-about')  # New field
     
+    user = db.users.find_one({'contact': contact})
+    if not user:
+        return jsonify({'status': 'error', 'message': 'User not found'})
+    
+    user_id = user['_id']
+
     # Parse budget range
     min_budget, max_budget = 0, float('inf')  # Default range
     try:
@@ -732,20 +777,13 @@ def submit_preferences():
     except ValueError as e:
         return jsonify({'status': 'error', 'message': str(e)})
     
-    # Check if the session has a user_id
-    user_id = session.get('user_id')
+    user_id = user['_id']
 
-    if not user_id:
-        flash('Please fill out the "Your Info" form first.', 'error')
-        return jsonify({'status': 'error', 'message': 'User information is missing'})
-
-    try:
-        user_object_id = ObjectId(user_id)
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': 'Invalid user ID format'})
+    # Check if the user already has an existing property record
+    existing_property = db.properties.find_one({'user_id': user_id})
 
     # Fetch user information
-    user = db.users.find_one({'_id': user_object_id})
+    user = db.users.find_one({'_id': user_id})
     if not user:
         flash('User not found. Please fill out the "Your Info" form again.', 'error')
         return jsonify({'status': 'error', 'message': 'User not found'})
@@ -799,23 +837,44 @@ def submit_preferences():
     # Prepare property names for logging
     property_names = ", ".join([p.get('coworking_name', 'Unknown') for p in filtered_properties]) if filtered_properties else 'N/A'
 
-    # Store preferences in the `properties` collection
-    new_property = {
-        'user_id': user_object_id,
-        'seats': seats,
-        'city': location,
-        'micromarket': area,
-        'budget': budget,
-        'inventory_type': inventory_type,  # Save new field
-        'hear_about': hear_about,  # Save new field
-        'property_names': property_names,
-        'operator_numbers': operator_numbers,
-        'center_manager_numbers': center_manager_numbers, 
-        'date': datetime.now()
-    }
+    user_id = user['_id']
 
-    # Insert property data into the collection
-    db.properties.insert_one(new_property)
+    # Check if the user already has an existing property record
+    existing_property = db.properties.find_one({'user_id': user_id})
+
+    if existing_property:
+        # Update existing record instead of creating a new one
+        update_data = {
+            'seats': seats,
+            'city': location,
+            'micromarket': area,
+            'budget': budget,
+            'inventory_type': inventory_type,
+            'hear_about': hear_about,
+            'date': datetime.now()  # Update timestamp
+        }
+        db.properties.update_one({'user_id': user_id}, {'$set': update_data})
+        return jsonify({'status': 'success', 'message': 'Preferences updated successfully.'})
+    else:
+
+        # Store preferences in the `properties` collection
+        new_property = {
+            'user_id': user_id,
+            'contact': contact,
+            'seats': seats,
+            'city': location,
+            'micromarket': area,
+            'budget': budget,
+            'inventory_type': inventory_type,  # Save new field
+            'hear_about': hear_about,  # Save new field
+            'property_names': property_names,
+            'operator_numbers': operator_numbers,
+            'center_manager_numbers': center_manager_numbers, 
+            'date': datetime.now()
+        }
+
+        # Insert property data into the collection
+        db.properties.insert_one(new_property)
 
     # Background threads for email and Google Sheets updates
     app = current_app._get_current_object()
@@ -831,7 +890,7 @@ def submit_preferences():
     )
     gsheet_thread.start()
 
-    return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.'})
+    return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.','redirect_url': url_for('core_bp.outerpage', contact=contact)})
 
 # Helper function to format input for case-insensitive, trimmed match
 def format_query_param(param):
@@ -920,6 +979,75 @@ def lucknow():
 @core_bp.route('/managed-offices/mumbai')
 def mumbai():
     return render_template('mumbai.html')
+
+@core_bp.route('/user1')
+def user1():
+    db = current_app.config['db']
+    contact = request.args.get('contact')
+
+    if not contact:
+        return "Contact number is required!", 400
+
+    # Fetch user details
+    user = db.users.find_one({'contact': contact}, {'_id': 1, 'name': 1, 'contact': 1, 'email': 1, 'company': 1, 'location': 1})
+    
+    if not user:
+        return "User not found!", 404
+
+    user_id = str(user['_id'])
+
+    # Fetch visits
+    visits = list(db.visits.find({'user_id': ObjectId(user_id)}))
+
+    # Fetch bookings
+    bookings = list(db.booking.find({'user_id': user_id}))
+
+    # Process property details for visits
+    for visit in visits:
+        property_id = visit.get('property_id')
+        property_details = db.fillurdetails.find_one(
+            {'_id': ObjectId(property_id)},
+            {'coworking_name': 1, 'micromarket': 1, 'city': 1, 'address': 1, 'inventory': 1}
+        )
+        if property_details:
+            inventory_type = visit.get('inventory_type')
+            price_per_seat = None
+            for inventory in property_details.get('inventory', []):
+                if inventory.get('type') == inventory_type:
+                    price_per_seat = inventory.get('price_per_seat')
+                    break
+            visit['property'] = {
+                'coworking_name': property_details.get('coworking_name'),
+                'micromarket': property_details.get('micromarket'),
+                'city': property_details.get('city'),
+                'address': property_details.get('address'),
+                'price_per_seat': price_per_seat
+            }
+
+    # Process property details for bookings
+    for booking in bookings:
+        property_id = booking.get('property_id')
+        property_details = db.fillurdetails.find_one(
+            {'_id': ObjectId(property_id)},
+            {'coworking_name': 1, 'micromarket': 1, 'city': 1, 'address': 1, 'inventory': 1}
+        )
+        if property_details:
+            inventory_type = booking.get('inventoryType')
+            price_per_seat = None
+            for inventory in property_details.get('inventory', []):
+                if inventory.get('type') == inventory_type:
+                    price_per_seat = inventory.get('price_per_seat')
+                    break
+            booking['property'] = {
+                'coworking_name': property_details.get('coworking_name'),
+                'micromarket': property_details.get('micromarket'),
+                'city': property_details.get('city'),
+                'address': property_details.get('address'),
+                'price_per_seat': price_per_seat
+            }
+
+    return render_template('user1.html', user=user, visits=visits, bookings=bookings)
+
 
 def to_camel_case(input_str):
     return ' '.join(word.capitalize() for word in input_str.split())
@@ -1560,3 +1688,43 @@ def manage_blog_likes(slug):
             return jsonify({"success": True, "likes": updated_entry["likes"]})
         except Exception as e:
             return jsonify({"success": False, "message": str(e)}), 500
+        
+
+@core_bp.route('/submit_booking_form', methods=['POST'])
+def submit_booking_form():
+    db = current_app.config['db']  # Access MongoDB instance
+
+    try:
+        data = request.json
+
+        # Extract form data
+        coworking_name = data.get("coworking_name")
+        name = data.get("name")
+        contact = data.get("contact")
+        company = data.get("company")
+        email = data.get("email")
+        inventory = data.get("inventory")
+
+        # Validate required fields
+        if not all([coworking_name, name, contact, email, inventory]):
+            return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+        # Store in MongoDB
+        booking_data = {
+            "coworking_name": coworking_name,
+            "name": name,
+            "contact": contact,
+            "company": company,
+            "email": email,
+            "inventory": inventory,
+            "created_at": datetime.utcnow()
+        }
+
+        db.users.insert_one(booking_data)
+
+        return jsonify({"success": True, "message": "Booking request submitted successfully!"}), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+

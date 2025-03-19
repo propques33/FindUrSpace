@@ -1680,13 +1680,13 @@ h1.listur {
 
 .nav-list {
     display: flex;
+    align-items: center;
     list-style: none;
-    gap: 20px;
+    position: relative;
+    bottom:10px;
 }
 
-.nav-list li {
-    padding: 10px;
-}
+
 
 .nav-list li a {
     color: white;
@@ -2512,4 +2512,95 @@ h1.listur {
   display:flex;
   flex-direction: row;
   column-gap: 10px;
+}
+
+.coupon-container {
+  display: flex;
+  flex-wrap: wrap;
+  overflow-x: scroll;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px 40px;
+  background: #f8f8f8;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.coupon-main {
+  width: 100%;
+  display: flex;
+  overflow-x: scroll;
+  justify-content: space-between;
+  column-gap: 10px;
+  border-radius: 20px;
+}
+
+.coupon-main img {
+  width: 30%;
+  min-width:200px;
+  padding: 2px;
+  box-shadow: 0 5px 15px rgba(185, 185, 185, 0.3);
+  height: 150px;
+}
+
+.coupon-marquee {
+  width: 25%;
+  display: flex;
+}
+
+.marquee-container img {
+  position: absolute;
+  width: 25%;
+  object-fit: cover;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.marquee-container img:first-child {
+  opacity: 1;
+}
+
+
+@media screen and (max-width: 768px) {
+    /* Hide User Panel by default */
+    .navbar-links .nav-item {
+        display: none;
+    }
+
+    /* Show User Panel when navbar menu is active */
+    .navbar-links.active .nav-item {
+        display: block;
+    }
+
+    /* Ensure the mobile menu is positioned correctly */
+    .navbar-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background: #151d31;
+        padding: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        margin:0 auto;
+    }
+
+    h1.listur{
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .bs{
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Show menu when active */
+    .navbar-links.active {
+        display: flex;
+    }
 }

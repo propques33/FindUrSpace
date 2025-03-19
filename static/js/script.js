@@ -2,6 +2,7 @@
 // Declare currentStep globally so it can be accessed in all functions
 let currentStep = 1;
 let OTPlessSignin = null;
+let userContact = ""; // Store contact globally
 
 // Load OTPless SDK
 async function OTPlessSdk() {
@@ -118,7 +119,10 @@ function loadFormStep() {
 
     if (currentStep === 2) {
         form.innerHTML = `
-        
+        <div class="form-group mb-3">
+            <input type="text" id="contact" class="form-control" value="${userContact}" disabled>
+        </div>
+
         <!-- Hear About Us Dropdown -->
         <div class="form-group mb-3">
             <select id="hear-about" name="hear-about" class="form-select" required>
@@ -264,8 +268,10 @@ async function verifyOtp() {
             document.getElementById('verify-btn').disabled = true;
             document.getElementById('otp-section').style.display = 'none';
 
-            // Store OTP verification status in sessionStorage
+            // Store OTP verification status and contact number
             sessionStorage.setItem('otp_verified', 'true');
+            sessionStorage.setItem('user_contact', contact);
+            userContact = contact; // Store globally
 
             // Check if user exists in the database
             checkUserExists(contact);
@@ -448,6 +454,7 @@ function submitUserInfo() {
 
 // Function to handle form submission for "Your Preference"
 function submitUserPreferences() {
+    let contact = userContact; // Retrieve stored contact
     let seats = document.getElementById('seats').value;
     let location = document.getElementById('location').value;
     let area = document.getElementById('area').value;
@@ -455,7 +462,7 @@ function submitUserPreferences() {
     let inventoryType = document.getElementById('inventory-type').value; // New field
     let hearAbout = document.getElementById('hear-about').value; // New field
 
-    console.log("Submitting Preferences:", { seats, location, area, budget, inventoryType, hearAbout });
+    console.log("Submitting Preferences:", {contact, seats, location, area, budget, inventoryType, hearAbout });
     
     if (!seats || !location || !area || !budget|| !inventoryType || !hearAbout) {
         alert('All fields are required.');
@@ -479,7 +486,7 @@ function submitUserPreferences() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ seats, location, area, budget, 'inventory-type': inventoryType, 
+        body: new URLSearchParams({ contact, seats, location, area, budget, 'inventory-type': inventoryType, 
             'hear-about': hearAbout  })
     })
     .then(response => response.json())
@@ -488,8 +495,8 @@ function submitUserPreferences() {
         if (data.status === 'success') {
             // Redirect with query parameters for filtering
             console.log("Submission successful:", data);
-            // const redirectUrl = `/outerpage?location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(inventoryType)}`;
-            const redirectUrl = `/thankyou`;
+            const redirectUrl = `/outerpage?contact=${encodeURIComponent(contact)}&location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(inventoryType)}`;
+            // const redirectUrl = `/thankyou`;
             window.location.href = redirectUrl;
         } else {
             alert(data.message);

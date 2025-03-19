@@ -46,16 +46,34 @@
         </button>
 
         <!-- Navigation Links -->
-        <div class="navbar-links" id="navbarMenu">
-            <ul class="nav-list">
-                <li><a href="{{ url_for('core_bp.user') }}" class="bs"><span class="material-symbols-outlined circle">account_circle</span> User Panel</a></li>
-                {% if contact %}
-                <li class="contact-number">Contact: {{ contact }}</li>
-                {% endif %}
-            </ul>
-        </div>
+        <!-- Navigation Links -->
+<div class="navbar-links" id="navbarMenu">
+    <ul class="nav-list">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('core_bp.user1', contact=contact if contact else '') }}">
+                <h1 class="listur bs">
+                    <span class="material-symbols-outlined circle">account_circle</span>
+                    User Panel
+                </h1>
+            </a>
+        </li>
+    </ul>
+</div>
     </div>
 </nav>
+
+<!-- Contact Number Modal -->
+<div id="contactModal" class="modal">
+  <div class="modal-content">
+    <h3>Enter Your Contact Number</h3>
+    <p>Please provide your contact number to proceed.</p>
+    <input type="tel" id="userContactInput" placeholder="Enter your contact number" />
+    <button onclick="submitContact()">Submit</button>
+  </div>
+</div>
+
+<!-- Background Overlay -->
+<div id="modalOverlay" class="modal-overlay"></div>
 
   <!-- Image Popup -->
     <div id="unique-image-popup" class="unique-image-popup">
@@ -81,6 +99,16 @@
             &rarr;
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Coupon Section -->
+    <div class="coupon-container">
+      <div class="coupon-main">
+        <img src="../static/images/6951444_3537439.jpg" alt="Coupon 1" />
+        <img src="../static/images/c1.jpg" alt="Coupon 2" />
+        <img src="../static/images/c4.jpg" alt="Coupon 3" />
+        <img src="../static/images/6951444_3537439.jpg" alt="Coupon 1" />
       </div>
     </div>
 
@@ -814,7 +842,7 @@
     </div>
   </div> -->
 
- <div class="faq-container">
+ <!-- <div class="faq-container">
       <h2>Frequently Asked Questions</h2>
       <div class="faq-item">
         <h3 class="faq-question">
@@ -864,7 +892,7 @@
           for specific details.
         </p>
       </div>
-    </div>
+    </div> -->
 
 
     <!-- <section class="review-section">
@@ -966,7 +994,8 @@
       <strong>Date:</strong> <span id="confirmedDate"></span>
       <span id="confirmedTimeContainer"> | <strong>Time:</strong> <span id="confirmedTime"></span></span>
     </p>
-    <button onclick="closeThankYouModal()" class="modal-btn">OK</button>
+    <!-- Updated Button -->
+    <button id="seeDetailsBtn" class="modal-btn" onclick="redirectToUserPanel()">See Details</button>
   </div>
 </div>
 
@@ -980,6 +1009,12 @@
 </div>
 
     <script>
+      function getBaseUrl() {
+    // Get base URL dynamically (works for both local & deployed)
+    return window.location.origin;
+}
+
+
 const popup = document.getElementById("unique-image-popup");
       const popupImage = document.getElementById("unique-popup-image");
       const closeBtn = document.getElementById("unique-close-btn");
@@ -1614,8 +1649,9 @@ function closeThankYouModal() {
     document.getElementById("thankYouModal").style.display = "none";
 }
 
-function showThankYouModal(isBooking) {
+function showThankYouModal(isBooking,contact) {
     document.getElementById("thankYouModal").style.display = "flex";
+    let seeDetailsBtn = document.getElementById("seeDetailsBtn");
 
     if (isBooking) {
         // Booking case (Buy Now)
@@ -1629,6 +1665,22 @@ function showThankYouModal(isBooking) {
         document.getElementById("thankYouDetails").style.display = "block"; // Show date section
         document.getElementById("confirmedTimeContainer").style.display = "inline"; // Ensure time is shown
     }
+
+    // Set dynamic URL for "See Details" Button
+    if (contact) {
+        let userPanelUrl = `${getBaseUrl()}/user1?contact=${encodeURIComponent(contact)}`;
+        seeDetailsBtn.setAttribute("onclick", `window.location.href='${userPanelUrl}'`);
+    }
+}
+
+// Function to redirect user to User Panel with contact number
+function redirectToUserPanel() {
+    const contact = document.getElementById("userContact").value; // Get contact number
+    if (contact) {
+        window.location.href = `/user1?contact=${encodeURIComponent(contact)}`;
+    } else {
+        alert("Contact number is missing.");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1640,6 +1692,52 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         selectionLabel.innerText = "Day Passes:";
     }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    let urlParams = new URLSearchParams(window.location.search);
+    let contact = urlParams.get("contact");
+
+    if (!contact) {
+        // Show the contact modal if contact is missing
+        document.getElementById("contactModal").style.display = "block";
+        document.getElementById("modalOverlay").style.display = "block";
+    }
+});
+
+// Function to validate and append the contact number
+function submitContact() {
+    let contactInput = document.getElementById("userContactInput").value.trim();
+
+    // Basic validation for 10-digit phone number
+    let phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(contactInput)) {
+        alert("Please enter a valid 10-digit phone number.");
+        return;
+    }
+
+    // Append contact number to URL
+    let currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set("contact", contactInput);
+
+    // Reload the page with the updated URL
+    window.location.href = currentUrl.toString();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const menuToggle = document.getElementById("menuToggle");
+    const navbarMenu = document.getElementById("navbarMenu");
+
+    menuToggle.addEventListener("click", function () {
+        navbarMenu.classList.toggle("active");
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!menuToggle.contains(event.target) && !navbarMenu.contains(event.target)) {
+            navbarMenu.classList.remove("active");
+        }
+    });
 });
 
 </script>

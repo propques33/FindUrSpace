@@ -67,10 +67,9 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto gap-4">
                 
-
                 <li class="nav-item inline-block">
-                  <a class="nav-link" href="{{ url_for('core_bp.user', contact=contact) }}">
-                      <h1 class="listur bs"><span class="material-symbols-outlined circle">account_circle</span>User Panel</h1>
+                  <a class="nav-link" href="{{ url_for('core_bp.user1', contact=contact) }}">
+                    <h1 class="listur bs"><span class="material-symbols-outlined circle">account_circle</span>User Panel</h1>
                   </a>
                 </li>
 
@@ -84,6 +83,17 @@
             </div>
         </div>
     </nav>
+
+    <!-- Coupon Section -->
+    <div class="coupon-container">
+      <div class="coupon-main">
+        <img src="../static/images/6951444_3537439.jpg" alt="Coupon 1" />
+        <img src="../static/images/c1.jpg" alt="Coupon 2" />
+        <img src="../static/images/c4.jpg" alt="Coupon 3" />
+        <img src="../static/images/6951444_3537439.jpg" alt="Coupon 1" />
+      </div>
+    </div>
+
     <div class="content-wrapper">
   <div class="main">
     <div class="cards">
@@ -155,17 +165,17 @@
 <!-- Dynamic Pagination -->
 <div class="pagination">
   {% if page > 1 %}
-    <a href="{{ url_for('core_bp.outerpage', page=page-1, location=location, area=area, inventoryType=inventoryType) }}" class="page prev">
+    <a href="{{ url_for('core_bp.outerpage', page=page-1,contact=contact, location=location, area=area, inventoryType=inventoryType) }}" class="page prev">
       <span class="material-symbols-outlined">chevron_left</span>
     </a>
   {% endif %}
   {% for p in range(1, total_pages + 1) %}
-    <a href="{{ url_for('core_bp.outerpage', page=p, location=location, area=area, inventoryType=inventoryType) }}" class="page {% if p == page %} active {% endif %}">
+    <a href="{{ url_for('core_bp.outerpage', page=p, contact=contact, location=location, area=area, inventoryType=inventoryType) }}" class="page {% if p == page %} active {% endif %}">
       {{ p }}
     </a>
   {% endfor %}
   {% if page < total_pages %}
-    <a href="{{ url_for('core_bp.outerpage', page=page+1, location=location, area=area, inventoryType=inventoryType) }}" class="page next">
+    <a href="{{ url_for('core_bp.outerpage', page=page+1,contact=contact, location=location, area=area, inventoryType=inventoryType) }}" class="page next">
       <span class="material-symbols-outlined">chevron_right</span>
     </a>
   {% endif %}
@@ -562,6 +572,19 @@ document.querySelector('.footer-bottom p').innerHTML =
       element.innerHTML = '<i class="fa-regular fa-heart"></i>'; // Empty heart
     }
   }
+
+  let images = document.querySelectorAll(".marquee-container img");
+      let index = 0;
+
+      function changeImage() {
+        images.forEach((img, i) => {
+          img.style.opacity = i === index ? "1" : "0";
+        });
+        index = (index + 1) % images.length;
+      }
+
+      setInterval(changeImage, 2000);
+      changeImage();
     </script>
     
   </body>

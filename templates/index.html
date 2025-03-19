@@ -155,6 +155,48 @@
             </div>
         </div>
     </nav>
+    <!-- Book Now Modal -->
+<div class="modal fade" id="bookNowModal" tabindex="-1" aria-labelledby="bookNowModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookNowModalLabel">Book Now</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bookNowForm">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Your Name</label>
+                        <input type="text" class="form-control" id="userName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactNumber" class="form-label">Contact Number</label>
+                        <input type="tel" class="form-control" id="contactNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyName" class="form-label">Company Name</label>
+                        <input type="text" class="form-control" id="companyName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="emailAddress" class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="emailAddress" required>
+                    </div>
+                    <div class="mb-3">
+                      <label for="inventoryType" class="form-label">Inventory Type</label>
+                      <select class="form-control" id="inventoryType" required>
+                          <option value="">Select</option>
+                          <option value="Private cabin">Private Cabin</option>
+                          <option value="Dedicated desk">Dedicated Desk</option>
+                          <option value="Meeting rooms">Meeting Rooms</option>
+                          <option value="Day pass">Day Pass</option>
+                      </select>
+                  </div>
+                    <button type="submit" class="btn btn-primary w-100 bk">Book Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
     <div class="loader-overlay"></div>
     <!-- Hero section -->
     <div class="spinner">
@@ -428,8 +470,6 @@
         <h2 id="headn">Featured Coworkings Spaces</h2>
         <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.</p>
 
-        <div class="scroll-container">
-          <button class="scroll-btn left" onclick="scrollLeftFeatured()">&#8249;</button>
             <div class="cities-wrapper" id="featured-cities-wrapper">
                 <div class="card">
                     <div class="top-section" id="card1">
@@ -494,13 +534,13 @@
                       </span>
                       <div class="row row1">
                         <div class="item">
-                          <span class="big-text">Rs.6500</span>
-                          <span class="regular-text">Starting from</span>
-                        </div>
-                        <div class="item">
                           <span class="big-text">Jankipuram,</span>
                           <span class="regular-text">Lucknow</span>
                         </div>
+                      </div>
+                      <!-- New Book Now Button -->
+                      <div class="book-now-container">
+                              <button class="book-now-btn" data-space-name="Cubispace">Book Now</button>
                       </div>
                     </div>
                   </div>
@@ -568,13 +608,13 @@
                       </span>
                       <div class="row row1">
                         <div class="item">
-                          <span class="big-text">Rs.5500</span>
-                          <span class="regular-text">Starting from</span>
-                        </div>
-                        <div class="item">
                           <span class="big-text">MahaLaxmi,</span>
                           <span class="regular-text">Indore</span>
                         </div>
+                      </div>
+                      <!-- New Book Now Button -->
+                      <div class="book-now-container">
+                              <button class="book-now-btn" data-space-name="Workdesq">Book Now</button>
                       </div>
                     </div>
                   </div>
@@ -642,96 +682,17 @@
                       </span>
                       <div class="row row1">
                         <div class="item">
-                          <span class="big-text">Rs.5500</span>
-                          <span class="regular-text">Starting from</span>
-                        </div>
-                        <div class="item">
                           <span class="big-text">Vashi,</span>
                           <span class="regular-text">Mumbai</span>
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div class="card">
-                    <div class="top-section" id="card4">
-                      <div class="border"> 
-<div class="loader">
-  <svg
-    viewBox="0 0 256 256"
-    class="star star1"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star2"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star3"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-</div>
-
-                      </div>
-                    </div>
-                    <div class="bottom-section">
-                      <span class="title">
-<a href="https://wellwork.space/" target="_blank">
-  <button>
-    <span id="fon">Wellwork</span>
-    <span class="icon">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 448 512"
-        class="svg-icon"
-      >
-        <path
-          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-        ></path>
-      </svg>
-    </span>
-  </button>
-</a>
-
-                      </span>
-                      <div class="row row1">
-                        <div class="item">
-                          <span class="big-text">Rs.12000</span>
-                          <span class="regular-text">Starting from</span>
-                        </div>
-                        <div class="item">
-                          <span class="big-text">Gachibowli,</span>
-                          <span class="regular-text">Hyderabad</span>
-                        </div>
+                      <!-- New Book Now Button -->
+                      <div class="book-now-container">
+                              <button class="book-now-btn" data-space-name="Worqspot">Book Now</button>
                       </div>
                     </div>
                   </div>
-
-                  
-                  
             </div>
-            <button class="scroll-btn right" onclick="scrollRightFeatured()">&#8250;</button>
-        </div>
         </div>
     </div>
 </section>
@@ -1058,9 +1019,106 @@
             behavior: 'smooth'
         });
     }
-</script>
 
     
+</script>
+<!-- JavaScript for Handling Modal and Form Submission -->
+<!-- JavaScript for Handling Modal and Form Submission -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const propertyIds = {
+            "Cubispace": "67d97504b7d102cce7d527f5",
+            "Workdesq": "67d97597b7d102cce7d52805",
+            "Worqspot": "67da86abb7d102cce7d5280a"
+        };
+
+        document.querySelectorAll(".book-now-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let coworkingName = this.getAttribute("data-space-name"); // Get coworking name
+                document.getElementById("bookNowModalLabel").innerText = `Book for ${coworkingName}`; // Update modal title
+                
+                // Store coworking name in the form
+                document.getElementById("bookNowForm").setAttribute("data-coworking", coworkingName);
+
+                let inventoryDropdown = document.getElementById("inventoryType");
+
+                // Clear existing options
+                inventoryDropdown.innerHTML = "";
+
+                // Set inventory options based on coworking space
+                if (coworkingName === "Worqspot") {
+                    let option = document.createElement("option");
+                    option.value = "Private cabin";
+                    option.text = "Private Cabin";
+                    inventoryDropdown.appendChild(option);
+                } else {
+                    let options = [
+                        { value: "Private cabin", text: "Private Cabin" },
+                        { value: "Dedicated desk", text: "Dedicated Desk" },
+                        { value: "Meeting rooms", text: "Meeting Rooms" },
+                        { value: "Day pass", text: "Day Pass" }
+                    ];
+
+                    options.forEach(opt => {
+                        let option = document.createElement("option");
+                        option.value = opt.value;
+                        option.text = opt.text;
+                        inventoryDropdown.appendChild(option);
+                    });
+                }
+
+                $('#bookNowModal').modal('show');
+            });
+        });
+
+        document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            let coworkingName = this.getAttribute("data-coworking"); // Get stored coworking name
+            let propertyId = propertyIds[coworkingName]; // Get property ID
+
+            if (!propertyId) {
+                alert("Error: Invalid coworking space selected.");
+                return;
+            }
+
+            let contact = document.getElementById("contactNumber").value;
+            let inventory = document.getElementById("inventoryType").value;
+
+            // Encode inventory type for URL
+            inventory = inventory.replace(" ", "+");
+
+            // Construct the redirection URL
+            let redirectUrl = `/innerpage/${propertyId}?inventoryType=${inventory}&contact=${encodeURIComponent(contact)}`;
+
+            // Submit data via API (Optional: If you still want to store the booking in DB)
+            const formData = {
+                coworking_name: coworkingName,
+                name: document.getElementById("userName").value,
+                contact: contact,
+                company: document.getElementById("companyName").value,
+                email: document.getElementById("emailAddress").value,
+                inventory: inventory.replace("+", " ") // Store readable inventory name in DB
+            };
+
+            fetch("/submit_booking_form", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect after successful submission
+                    window.location.href = redirectUrl;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+</script>
     <!-- Scripts at the bottom for performance -->
     <!-- jQuery first -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer></script>

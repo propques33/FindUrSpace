@@ -115,10 +115,13 @@ body {
 
 .cities-wrapper {
     display: flex;
+    justify-content: center;
+    align-items: center;
     overflow-x: auto;
     scroll-behavior: smooth;
     padding: 20px 0;
     scrollbar-width: none;
+    margin:0 auto;
 }
 
 .cities-wrapper::-webkit-scrollbar {
@@ -189,6 +192,7 @@ button {
   user-select: none;
   position:relative;
   top:15px;
+  animation: none !important; /* Disables animation */
 }
 
 .star {
@@ -865,15 +869,12 @@ h1.listur{
 
 .cities-wrapper {
     display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
     padding: 20px 0;
-    scrollbar-width: none;
+    row-gap:15px;
+    /* scrollbar-width: none; */
 }
 
-.cities-wrapper::-webkit-scrollbar {
-    display: none;
-}
+
 
 .city-card {
     margin: 0 15px;
@@ -1981,9 +1982,9 @@ h1, h2, h3, p, span, a {
 }
 
 /* Infinite scrolling animations */
-.row1 {
+/* .row1 {
     animation: scrollLeft 10s linear infinite;
-}
+} */
 
 .row2 {
     animation: scrollLeft 10s linear infinite reverse;
@@ -3163,4 +3164,47 @@ footer {
 .other-blog-title a{
     text-decoration:none;
     color:black;
+}
+
+.book-now-container {
+    width:100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.book-now-container a:hover{
+    text-decoration-line: none;
+}
+
+.book-now-btn {
+    width:300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    color: #151d31;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    border:2px solid #151d31;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.book-now-btn:hover{
+    background-color: #151D31;
+    color: white;
+    border:2px solid white;
+}
+
+#featured-cities-wrapper{
+    flex-wrap: wrap;
+}
+
+.bk{
+    padding:10px 0px;
+    font-size: 18px;
 }

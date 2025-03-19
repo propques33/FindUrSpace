@@ -1172,3 +1172,50 @@ footer {
   align-items: center;
   text-align: center;;
 }
+
+.coupon-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow-x: scroll;
+  width: 100%;
+  padding: 20px 40px;
+  background: #f8f8f8;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.coupon-main {
+  width: 100%;
+  display: flex;
+  overflow-x: scroll;
+  justify-content: space-between;
+  column-gap: 10px;
+  border-radius: 20px;
+}
+
+.coupon-main img {
+  width: 30%;
+  min-width:200px;
+  padding: 2px;
+  box-shadow: 0 5px 15px rgba(185, 185, 185, 0.3);
+  height: 150px;
+}
+
+.coupon-marquee {
+  width: 25%;
+  display: flex;
+}
+
+.marquee-container img {
+  position: absolute;
+  width: 25%;
+  object-fit: cover;
+  border-radius: 10px;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.marquee-container img:first-child {
+  opacity: 1;
+}
