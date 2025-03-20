@@ -156,6 +156,7 @@
         </div>
     </nav>
     <!-- Book Now Modal -->
+<!-- Book Now Modal -->
 <div class="modal fade" id="bookNowModal" tabindex="-1" aria-labelledby="bookNowModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -166,27 +167,13 @@
             <div class="modal-body">
                 <form id="bookNowForm">
                     <div class="mb-3">
-                        <label for="userName" class="form-label">Your Name</label>
-                        <input type="text" class="form-control" id="userName" required>
-                    </div>
-                    <div class="mb-3">
                         <label for="contactNumber" class="form-label">Contact Number</label>
                         <input type="tel" class="form-control" id="contactNumber" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="companyName" class="form-label">Company Name</label>
-                        <input type="text" class="form-control" id="companyName" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="emailAddress" class="form-label">Email Address</label>
-                        <input type="email" class="form-control" id="emailAddress" required>
                     </div>
                     <div class="mb-3">
                       <label for="inventoryType" class="form-label">Inventory Type</label>
                       <select class="form-control" id="inventoryType" required>
                           <option value="">Select</option>
-                          <option value="Private cabin">Private Cabin</option>
-                          <option value="Dedicated desk">Dedicated Desk</option>
                           <option value="Meeting rooms">Meeting Rooms</option>
                           <option value="Day pass">Day Pass</option>
                       </select>
@@ -1024,101 +1011,7 @@
 </script>
 <!-- JavaScript for Handling Modal and Form Submission -->
 <!-- JavaScript for Handling Modal and Form Submission -->
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const propertyIds = {
-            "Cubispace": "67d97504b7d102cce7d527f5",
-            "Workdesq": "67d97597b7d102cce7d52805",
-            "Worqspot": "67da86abb7d102cce7d5280a"
-        };
 
-        document.querySelectorAll(".book-now-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                let coworkingName = this.getAttribute("data-space-name"); // Get coworking name
-                document.getElementById("bookNowModalLabel").innerText = `Book for ${coworkingName}`; // Update modal title
-                
-                // Store coworking name in the form
-                document.getElementById("bookNowForm").setAttribute("data-coworking", coworkingName);
-
-                let inventoryDropdown = document.getElementById("inventoryType");
-
-                // Clear existing options
-                inventoryDropdown.innerHTML = "";
-
-                // Set inventory options based on coworking space
-                if (coworkingName === "Worqspot") {
-                    let option = document.createElement("option");
-                    option.value = "Private cabin";
-                    option.text = "Private Cabin";
-                    inventoryDropdown.appendChild(option);
-                } else {
-                    let options = [
-                        { value: "Private cabin", text: "Private Cabin" },
-                        { value: "Dedicated desk", text: "Dedicated Desk" },
-                        { value: "Meeting rooms", text: "Meeting Rooms" },
-                        { value: "Day pass", text: "Day Pass" }
-                    ];
-
-                    options.forEach(opt => {
-                        let option = document.createElement("option");
-                        option.value = opt.value;
-                        option.text = opt.text;
-                        inventoryDropdown.appendChild(option);
-                    });
-                }
-
-                $('#bookNowModal').modal('show');
-            });
-        });
-
-        document.getElementById("bookNowForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            
-            let coworkingName = this.getAttribute("data-coworking"); // Get stored coworking name
-            let propertyId = propertyIds[coworkingName]; // Get property ID
-
-            if (!propertyId) {
-                alert("Error: Invalid coworking space selected.");
-                return;
-            }
-
-            let contact = document.getElementById("contactNumber").value;
-            let inventory = document.getElementById("inventoryType").value;
-
-            // Encode inventory type for URL
-            inventory = inventory.replace(" ", "+");
-
-            // Construct the redirection URL
-            let redirectUrl = `/innerpage/${propertyId}?inventoryType=${inventory}&contact=${encodeURIComponent(contact)}`;
-
-            // Submit data via API (Optional: If you still want to store the booking in DB)
-            const formData = {
-                coworking_name: coworkingName,
-                name: document.getElementById("userName").value,
-                contact: contact,
-                company: document.getElementById("companyName").value,
-                email: document.getElementById("emailAddress").value,
-                inventory: inventory.replace("+", " ") // Store readable inventory name in DB
-            };
-
-            fetch("/submit_booking_form", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirect after successful submission
-                    window.location.href = redirectUrl;
-                } else {
-                    alert(data.message);
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
-    });
-</script>
     <!-- Scripts at the bottom for performance -->
     <!-- jQuery first -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer></script>

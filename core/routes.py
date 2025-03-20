@@ -391,7 +391,19 @@ def schedule_tour():
     # Check if user exists
     user = db.users.find_one({"contact": contact})
 
-    if not user:
+    if user:
+        # Update existing user
+        db.users.update_one(
+            {"contact": contact},
+            {"$set": {
+                "name": data.get("name"),
+                "company": data.get("company"),
+                "email": data.get("email"),
+                "updated_at": datetime.utcnow()
+            }}
+        )
+        user_id = user["_id"]
+    else:
         # Create a new user record
         new_user = {
             "name": data.get("name"),
@@ -401,8 +413,6 @@ def schedule_tour():
             "created_at": datetime.utcnow()
         }
         user_id = db.users.insert_one(new_user).inserted_id
-    else:
-        user_id = user["_id"]
 
     # Validate required fields
     if not user_id or not property_id or not name or not email or not contact or not date or not time:
@@ -457,7 +467,19 @@ def submit_purchase():
         # Check if user exists
         user = db.users.find_one({"contact": contact})
 
-        if not user:
+        if user:
+            # Update existing user
+            db.users.update_one(
+                {"contact": contact},
+                {"$set": {
+                    "name": data.get("fullName"),
+                    "company": data.get("company"),
+                    "email": data.get("email"),
+                    "updated_at": datetime.utcnow()
+                }}
+            )
+            user_id = user["_id"]
+        else:
             # Create a new user record
             new_user = {
                 "name": data.get("fullName"),
@@ -467,9 +489,7 @@ def submit_purchase():
                 "created_at": datetime.utcnow()
             }
             user_id = db.users.insert_one(new_user).inserted_id
-        else:
-            user_id = user["_id"]
-            
+
         # Required fields for validation
         required_fields = ["inventoryType", "quantity", "totalPrice", "fullName", "email", "phone", "date"]
         if not all(field in data for field in required_fields):
@@ -716,12 +736,10 @@ def submit_info():
     }
 
     if existing_user:
-        # If the user exists, fetch their user_id and save it in the session
-        session['user_id'] = str(existing_user['_id'])
         # ✅ Update Google Sheets with latest form submission
         google_sheet_status = handle_new_user_entry(user_data)
         
-        return jsonify({'status': 'exists', 'message': 'User exists', 'redirect': '/outerpage'})
+        return jsonify({'status': 'exists', 'message': 'User exists'})
     else:
         result = db.users.insert_one(user_data)
         session['user_id'] = str(result.inserted_id)  # Save new user_id in the session
@@ -1699,32 +1717,86 @@ def submit_booking_form():
 
         # Extract form data
         coworking_name = data.get("coworking_name")
-        name = data.get("name")
         contact = data.get("contact")
-        company = data.get("company")
-        email = data.get("email")
         inventory = data.get("inventory")
 
         # Validate required fields
-        if not all([coworking_name, name, contact, email, inventory]):
+        if not all([coworking_name, contact, inventory]):
             return jsonify({"success": False, "message": "Missing required fields"}), 400
 
-        # Store in MongoDB
-        booking_data = {
-            "coworking_name": coworking_name,
-            "name": name,
-            "contact": contact,
-            "company": company,
-            "email": email,
-            "inventory": inventory,
-            "created_at": datetime.utcnow()
-        }
+        # Check if a record with the same contact exists
+        existing_record = db.users.find_one({"contact": contact})
 
-        db.users.insert_one(booking_data)
+        if existing_record:
+            # Update the existing record by appending inventory type
+            updated_inventory = existing_record.get("inventory", [])
+            if inventory not in updated_inventory:  # Avoid duplicate inventory types
+                updated_inventory.append(inventory)
 
-        return jsonify({"success": True, "message": "Booking request submitted successfully!"}), 200
+            db.users.update_one(
+                {"contact": contact},
+                {"$set": {"inventory": updated_inventory}}
+            )
+
+            return jsonify({"success": True, "message": "Inventory type added to existing booking!"}), 200
+        else:
+            # Store in MongoDB as a new record
+            booking_data = {
+                "coworking_name": coworking_name,
+                "contact": contact,
+                "inventory": [inventory],  # Store as a list to allow multiple inventory types
+                "created_at": datetime.utcnow()
+            }
+
+            db.users.insert_one(booking_data)
+
+            return jsonify({"success": True, "message": "Booking request submitted successfully!"}), 200
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
 
+@core_bp.route('/check_existing_contact', methods=['GET'])
+def check_existing_contact():
+    """Checks if a contact already exists in the users collection."""
+    db = current_app.config['db']
+    contact = request.args.get("contact")
+
+    if not contact:
+        return jsonify({"exists": False, "message": "Contact not provided"}), 400
+
+    existing_record = db.users.find_one({"contact": contact})
+
+    return jsonify({"exists": bool(existing_record)})
+
+@core_bp.route('/update_inventory', methods=['POST'])
+def update_inventory():
+    """Updates inventory type for an existing user."""
+    db = current_app.config['db']
+    try:
+        data = request.json
+        contact = data.get("contact")
+        inventory = data.get("inventory")
+
+        if not all([contact, inventory]):
+            return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+        existing_record = db.users.find_one({"contact": contact})
+
+        if existing_record:
+            updated_inventory = existing_record.get("inventory", [])
+            if inventory not in updated_inventory:
+                updated_inventory.append(inventory)
+
+            db.users.update_one(
+                {"contact": contact},
+                {"$set": {"inventory": updated_inventory}}
+            )
+
+            return jsonify({"success": True, "message": "Inventory type added to existing booking!"}), 200
+
+        return jsonify({"success": False, "message": "Contact not found"}), 404
+
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+    

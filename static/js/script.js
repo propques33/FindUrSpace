@@ -445,9 +445,9 @@ function submitUserInfo() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        currentStep++;
+        loadFormStep();
         hideLoader(); // Hide loader on error
-        alert('An error occurred while submitting your details. Please try again.');
     });
 }
 
@@ -895,3 +895,74 @@ function checkButtons() {
 
 // Initial check on page load
 checkButtons();
+
+document.addEventListener("DOMContentLoaded", function () {
+        const propertyIds = {
+            "Cubispace": "67d97504b7d102cce7d527f5",
+            "Workdesq": "67d97597b7d102cce7d52805",
+            "Worqspot": "67da86abb7d102cce7d5280a"
+        };
+
+        document.querySelectorAll(".book-now-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let coworkingName = this.getAttribute("data-space-name"); // Get coworking name
+                document.getElementById("bookNowModalLabel").innerText = `Book for ${coworkingName}`;
+                document.getElementById("bookNowForm").setAttribute("data-coworking", coworkingName);
+                $('#bookNowModal').modal('show');
+            });
+        });
+
+        document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+            
+            let coworkingName = this.getAttribute("data-coworking");
+            let propertyId = propertyIds[coworkingName];
+
+            if (!propertyId) {
+                alert("Error: Invalid coworking space selected.");
+                return;
+            }
+
+            let contact = document.getElementById("contactNumber").value;
+            let inventory = document.getElementById("inventoryType").value;
+
+            if (!contact || !inventory) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            // Check if contact exists in database
+        fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    // Contact exists -> Update inventory type
+                    return fetch("/update_inventory", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ contact: contact, inventory: inventory })
+                    });
+                } else {
+                    // Contact does not exist -> Create a new record
+                    return fetch("/submit_booking_form", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            coworking_name: coworkingName,
+                            contact: contact,
+                            inventory: inventory
+                        })
+                    });
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/innerpage/${propertyId}?inventoryType=${encodeURIComponent(inventory)}&contact=${encodeURIComponent(contact)}`;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    });
+});
