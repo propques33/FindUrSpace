@@ -222,6 +222,20 @@ def outerpage():
         area=filter_micromarket,
         inventoryType=filter_inventory_type)
 
+
+@core_bp.route('/get_user_by_contact')
+def get_user_by_contact():
+    db = current_app.config['db']
+    contact = request.args.get('contact')
+    user = db.users.find_one({"contact": contact})
+    if user:
+        return jsonify({
+            "name": user.get("name"),
+            "email": user.get("email")
+        })
+    return jsonify({})
+
+
 @core_bp.route('/innerpage/<property_id>')
 def innerpage(property_id):
     db = current_app.config['db']
@@ -236,6 +250,7 @@ def innerpage(property_id):
     # Fetch user details if contact is provided
     user_data = None
     property_details = None  # To store seats and budget
+    is_user_complete = False  # 🔹 Initialize flag
 
     if contact:
         user_data = db.users.find_one({'contact': contact}, {"_id": 1, "name": 1, "contact": 1, "company": 1, "email": 1})
@@ -243,6 +258,8 @@ def innerpage(property_id):
         if user_data:
             user_data["_id"] = str(user_data["_id"])  # Convert ObjectId to string
             user_id = user_data["_id"]  # Get the user ID safely
+
+            is_user_complete = bool(user_data.get("name") and user_data.get("email"))  # ✅ Step 1: Compute flag
 
             # Fetch property details using user_id
             property_details = db.properties.find_one({'user_id': ObjectId(user_id)}, {"_id": 0, "seats": 1, "budget": 1})
@@ -363,7 +380,8 @@ def innerpage(property_id):
         office_timings=property_data.get("office_timings", {}),
         amenities=amenities,  # Pass amenities dynamically
         other_inventories=other_inventories,  # Pass the other inventory data to template
-        time_slots=time_slots  # Pass time slots to the template
+        time_slots=time_slots,
+        is_user_complete=is_user_complete   # Pass time slots to the template
     )
 
 @core_bp.route('/schedule_tour', methods=['POST'])
@@ -1800,3 +1818,50 @@ def update_inventory():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
     
+@core_bp.route('/submit_signup', methods=['POST'])
+def submit_signup():
+    db = current_app.config['db']
+    data = request.json
+
+    contact = data.get('contact')
+    if not contact:
+        return jsonify({"success": False, "message": "Contact is missing"})
+
+    update_data = {
+        "name": data.get("name"),
+        "email": data.get("email"),
+        "company": data.get("company"),
+        "location": data.get("location"),
+        "latitude": data.get("latitude"),
+        "longitude": data.get("longitude"),
+    }
+
+    result = db.users.update_one({"contact": contact}, {"$set": update_data}, upsert=True)
+
+    return jsonify({"success": True})
+
+
+@core_bp.route('/register_or_update_user', methods=['POST'])
+def register_or_update_user():
+    db = current_app.config['db']
+    data = request.json
+    contact = data.get('contact')
+    if not contact:
+        return jsonify({'success': False, 'message': 'Contact number missing'}), 400
+
+    existing_user = db.users.find_one({'contact': contact})
+    if existing_user:
+        db.users.update_one({'contact': contact}, {'$set': {
+            'name': data.get('name'),
+            'company': data.get('company'),
+            'email': data.get('email'),
+        }})
+    else:
+        db.users.insert_one({
+            'name': data.get('name'),
+            'company': data.get('company'),
+            'email': data.get('email'),
+            'contact': contact,
+        })
+
+    return jsonify({'success': True})

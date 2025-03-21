@@ -48,19 +48,56 @@
         <!-- Navigation Links -->
         <!-- Navigation Links -->
 <div class="navbar-links" id="navbarMenu">
-    <ul class="nav-list">
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('core_bp.user1', contact=contact if contact else '') }}">
-                <h1 class="listur bs">
-                    <span class="material-symbols-outlined circle">account_circle</span>
-                    User Panel
-                </h1>
-            </a>
-        </li>
-    </ul>
+  <ul class="nav-list">
+    {% if is_user_complete %}
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('core_bp.user1', contact=contact if contact else '') }}">
+          <h1 class="listur bs">
+            <span class="material-symbols-outlined circle">account_circle</span>
+            User Panel
+          </h1>
+        </a>
+      </li>
+    {% else %}
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="openSignUpModal()">
+          <h1 class="listur bs">
+            Sign Up
+          </h1>
+        </a>
+      </li>
+    {% endif %}
+  </ul>
 </div>
     </div>
 </nav>
+
+<div id="signUpModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeSignUpModal()">&times;</span>
+    <h3>Complete Your Sign Up</h3>
+    <form id="signUpForm">
+      <label for="signUpName">Full Name</label>
+      <input type="text" id="signUpName" required />
+
+      <label for="signUpCompany">Company Name</label>
+      <input type="text" id="signUpCompany" />
+
+      <label for="signUpEmail">Email</label>
+      <input type="email" id="signUpEmail" required />
+
+      <label for="signUpContact">Contact Number</label>
+      <input type="text" id="signUpContact" value="{{ contact }}" disabled />
+
+      <input type="hidden" id="signUpLocation" />
+      <input type="hidden" id="signUpLatitude" />
+      <input type="hidden" id="signUpLongitude" />
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</div>
+
 
 <!-- Contact Number Modal -->
 <div id="contactModal" class="modal">
@@ -1199,6 +1236,11 @@ function closeTimeModal() {
   hideModal("timeModal");
 }
 
+function openSignUpModal() {
+  document.getElementById("signUpModal").style.display = "flex";
+  getLocation(); // Autofill location if enabled
+}
+
 // Open Details Modal
 function openDetailsModal() {
   showModal("detailsModal");
@@ -1318,7 +1360,8 @@ function submitTourRequest() {
             document.getElementById("thankYouDetails").style.display = "block"; // Show date & time for tours
             document.getElementById("confirmedTimeContainer").style.display = "inline";
             closeDetailsModal();
-            showThankYouModal(false);
+            localStorage.setItem("showThankYou", "tour");
+            window.location.reload();
         } else {
             alert("Error: " + data.message);
         }
@@ -1628,7 +1671,9 @@ function submitPurchase() {
     .then(data => {
         if (data.success) {
             closeBuyNowModal(); // Close Buy Now Modal
-            showThankYouModal(true); // Show Thank You Modal
+            localStorage.setItem("showThankYou", "booking"); // or "tour" for tour request
+            window.location.reload();
+            // Show Thank You Modal
         } else {
             alert("Purchase Failed: " + data.message);
         }
@@ -1705,23 +1750,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// Function to validate and append the contact number
 function submitContact() {
-    let contactInput = document.getElementById("userContactInput").value.trim();
+  let contactInput = document.getElementById("userContactInput").value.trim();
+  let phoneRegex = /^[6-9]\d{9}$/;
 
-    // Basic validation for 10-digit phone number
-    let phoneRegex = /^[6-9]\d{9}$/;
-    if (!phoneRegex.test(contactInput)) {
-        alert("Please enter a valid 10-digit phone number.");
-        return;
-    }
+  if (!phoneRegex.test(contactInput)) {
+    alert("Please enter a valid 10-digit phone number.");
+    return;
+  }
 
-    // Append contact number to URL
-    let currentUrl = new URL(window.location.href);
-    currentUrl.searchParams.set("contact", contactInput);
+  // Step 1: Add contact to URL and reload page with contact
+  let currentUrl = new URL(window.location.href);
+  currentUrl.searchParams.set("contact", contactInput);
+  window.history.replaceState({}, '', currentUrl);  // Update URL without reload
 
-    // Reload the page with the updated URL
-    window.location.href = currentUrl.toString();
+  // Step 2: Save contact in hidden field
+  document.getElementById("userContact").value = contactInput;
+
+  // Step 3: Check if contact exists
+  fetch(`/check_existing_contact?contact=${contactInput}`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.exists) {
+        window.location.href = currentUrl.toString(); // Reload page with contact
+      } else {
+        // Show sign-up modal with contact pre-filled
+        document.getElementById("signUpContact").value = contactInput;
+        closeContactModal();
+        openSignUpModal();
+      }
+    })
+    .catch(error => {
+      console.error("Error checking contact:", error);
+      alert("Something went wrong. Please try again.");
+    });
+}
+
+function closeContactModal() {
+  document.getElementById("contactModal").style.display = "none";
+  document.getElementById("modalOverlay").style.display = "none";
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -1740,6 +1807,72 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+function openSignUpModal() {
+  document.getElementById("signUpModal").style.display = "flex";
+  getLocation(); // Fetch location and lat/long
+}
+
+function closeSignUpModal() {
+  document.getElementById("signUpModal").style.display = "none";
+}
+
+// Get Location Info
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      document.getElementById("signUpLatitude").value = position.coords.latitude;
+      document.getElementById("signUpLongitude").value = position.coords.longitude;
+
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("signUpLocation").value = data.display_name || "";
+        });
+    });
+  }
+}
+
+// Handle Form Submission
+document.getElementById("signUpForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const payload = {
+    name: document.getElementById("signUpName").value,
+    company: document.getElementById("signUpCompany").value,
+    email: document.getElementById("signUpEmail").value,
+    contact: "{{ contact }}",
+    location: document.getElementById("signUpLocation").value,
+    latitude: document.getElementById("signUpLatitude").value,
+    longitude: document.getElementById("signUpLongitude").value
+  };
+
+  fetch("/submit_signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Signup successful!");
+        window.location.reload();
+      } else {
+        alert("Signup failed.");
+      }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const thankYouType = localStorage.getItem("showThankYou");
+
+    if (thankYouType === "booking") {
+        showThankYouModal(true);
+        localStorage.removeItem("showThankYou");
+    } else if (thankYouType === "tour") {
+        showThankYouModal(false);
+        localStorage.removeItem("showThankYou");
+    }
+});
 </script>
 
 
