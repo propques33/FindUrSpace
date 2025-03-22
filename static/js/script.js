@@ -896,73 +896,136 @@ function checkButtons() {
 // Initial check on page load
 checkButtons();
 
-document.addEventListener("DOMContentLoaded", function () {
-        const propertyIds = {
-            "Cubispace": "67d97504b7d102cce7d527f5",
-            "Workdesq": "67d97597b7d102cce7d52805",
-            "Worqspot": "67da86abb7d102cce7d5280a"
-        };
+// document.addEventListener("DOMContentLoaded", function () {
+//         const propertyIds = {
+//             "Cubispace": "67d97504b7d102cce7d527f5",
+//             "Workdesq": "67d97597b7d102cce7d52805",
+//             "Worqspot": "67da86abb7d102cce7d5280a"
+//         };
 
-        document.querySelectorAll(".book-now-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                let coworkingName = this.getAttribute("data-space-name"); // Get coworking name
-                document.getElementById("bookNowModalLabel").innerText = `Book for ${coworkingName}`;
-                document.getElementById("bookNowForm").setAttribute("data-coworking", coworkingName);
-                $('#bookNowModal').modal('show');
-            });
-        });
+//         document.querySelectorAll(".book-now-btn").forEach(button => {
+//             button.addEventListener("click", function () {
+//                 let coworkingName = this.getAttribute("data-space-name"); // Get coworking name
+//                 document.getElementById("bookNowModalLabel").innerText = `Book for ${coworkingName}`;
+//                 document.getElementById("bookNowForm").setAttribute("data-coworking", coworkingName);
+//                 $('#bookNowModal').modal('show');
+//             });
+//         });
 
-        document.getElementById("bookNowForm").addEventListener("submit", function (e) {
-            e.preventDefault();
+//         document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+//             e.preventDefault();
             
-            let coworkingName = this.getAttribute("data-coworking");
-            let propertyId = propertyIds[coworkingName];
+//             let coworkingName = this.getAttribute("data-coworking");
+//             let propertyId = propertyIds[coworkingName];
 
-            if (!propertyId) {
-                alert("Error: Invalid coworking space selected.");
-                return;
-            }
+//             if (!propertyId) {
+//                 alert("Error: Invalid coworking space selected.");
+//                 return;
+//             }
 
-            let contact = document.getElementById("contactNumber").value;
-            let inventory = document.getElementById("inventoryType").value;
+//             let contact = document.getElementById("contactNumber").value;
+//             let inventory = document.getElementById("inventoryType").value;
 
-            if (!contact || !inventory) {
-                alert("Please fill all fields.");
-                return;
-            }
+//             if (!contact || !inventory) {
+//                 alert("Please fill all fields.");
+//                 return;
+//             }
 
-            // Check if contact exists in database
+//             // Check if contact exists in database
+//         fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
+//             .then(response => response.json())
+//             .then(data => {
+//                 if (data.exists) {
+//                     // Contact exists -> Update inventory type
+//                     return fetch("/update_inventory", {
+//                         method: "POST",
+//                         headers: { "Content-Type": "application/json" },
+//                         body: JSON.stringify({ contact: contact, inventory: inventory })
+//                     });
+//                 } else {
+//                     // Contact does not exist -> Create a new record
+//                     return fetch("/submit_booking_form", {
+//                         method: "POST",
+//                         headers: { "Content-Type": "application/json" },
+//                         body: JSON.stringify({
+//                             coworking_name: coworkingName,
+//                             contact: contact,
+//                             inventory: inventory
+//                         })
+//                     });
+//                 }
+//             })
+//             .then(response => response.json())
+//             .then(data => {
+//                 if (data.success) {
+//                     window.location.href = `/innerpage/${propertyId}?inventoryType=${encodeURIComponent(inventory)}&contact=${encodeURIComponent(contact)}`;
+//                 } else {
+//                     alert(data.message);
+//                 }
+//             })
+//             .catch(error => console.error("Error:", error));
+//     });
+// });
+
+document.addEventListener("DOMContentLoaded", function () {
+    let selectedSpace = {
+        coworkingName: "",
+        city: "",
+        micromarket: ""
+    };
+
+    document.querySelectorAll(".book-now-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            selectedSpace.coworkingName = this.getAttribute("data-space-name") || "";
+            selectedSpace.city = this.getAttribute("data-city") || "";
+            selectedSpace.micromarket = this.getAttribute("data-micromarket") || "";
+
+            document.getElementById("bookNowModalLabel").innerText = `Book for ${selectedSpace.coworkingName}`;
+            $('#bookNowModal').modal('show');
+        });
+    });
+
+    document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const contact = document.getElementById("contactNumber").value.trim();
+        const inventory = document.getElementById("inventoryType").value.trim();
+
+        if (!contact || !inventory || !selectedSpace.coworkingName) {
+            alert("Please fill all fields.");
+            return;
+        }
+
+        // Submit to backend (MongoDB logic)
         fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
             .then(response => response.json())
             .then(data => {
-                if (data.exists) {
-                    // Contact exists -> Update inventory type
-                    return fetch("/update_inventory", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ contact: contact, inventory: inventory })
-                    });
-                } else {
-                    // Contact does not exist -> Create a new record
-                    return fetch("/submit_booking_form", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            coworking_name: coworkingName,
-                            contact: contact,
-                            inventory: inventory
-                        })
-                    });
-                }
+                const endpoint = data.exists ? "/update_inventory" : "/submit_booking_form";
+                const payload = {
+                    coworking_name: selectedSpace.coworkingName,
+                    contact: contact,
+                    inventory: inventory
+                };
+
+                return fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = `/innerpage/${propertyId}?inventoryType=${encodeURIComponent(inventory)}&contact=${encodeURIComponent(contact)}`;
+                    // Construct new redirect URL with proper casing (no lowercase/slug format)
+                    const url = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}?inventoryType=${encodeURIComponent(inventory)}&contact=${encodeURIComponent(contact)}`;
+                    window.location.href = url;
                 } else {
-                    alert(data.message);
+                    alert(data.message || "Submission failed.");
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
     });
 });

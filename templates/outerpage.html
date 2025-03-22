@@ -188,7 +188,7 @@
                 {{ card.record.micromarket }}, {{ card.record.city }}
               </p>
             </div>
-            <a href="{{ url_for('core_bp.innerpage', property_id=card.record._id, inventoryType=card.inventory.type, contact=contact) }}" class="btn">View Details</a>
+            <a href="{{ url_for('core_bp.innerpage', city=card.record.city, micromarket=card.record.micromarket, coworking_name=card.record.coworking_name, inventoryType=card.inventory.type, contact=contact) }}" class="btn">View Details</a>
           </div>
         </div>
       {% endfor %}

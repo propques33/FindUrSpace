@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <link rel="stylesheet" href="../static/css/inner.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inner.css') }}">
+
+    <!-- <link rel="stylesheet" href="../static/css/inner.css" /> -->
     <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
@@ -36,13 +38,13 @@
     <div class="navbar-container">
         <!-- Logo -->
         <a class="navbar-brand" href="#">
-            <img src="../static/images/logo.png" alt="Icon" width="70" height="60">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Icon" width="70" height="60">
             <span>FindUrSpace</span>
         </a>
 
         <!-- Menu Toggle Button -->
         <button class="navbar-toggler" id="menuToggle">
-            <img src="../static/images/menu_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.png" alt="Menu" width="40px" height="40px">
+            <img src="{{ url_for('static', filename='images/menu_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.png') }}" alt="Menu" width="40px" height="40px">
         </button>
 
         <!-- Navigation Links -->
@@ -142,10 +144,10 @@
     <!-- Coupon Section -->
     <div class="coupon-container">
       <div class="coupon-main">
-        <img src="../static/images/6951444_3537439.jpg" alt="Coupon 1" />
-        <img src="../static/images/c1.jpg" alt="Coupon 2" />
-        <img src="../static/images/c4.jpg" alt="Coupon 3" />
-        <img src="../static/images/6951444_3537439.jpg" alt="Coupon 1" />
+        <img src="{{ url_for('static', filename='images/6951444_3537439.jpg') }}" alt="Coupon 1" />
+        <img src="{{ url_for('static', filename='images/c1.jpg') }}" alt="Coupon 2" />
+        <img src="{{ url_for('static', filename='images/c4.jpg') }}" alt="Coupon 3" />
+        <img src="{{ url_for('static', filename='images/6951444_3537439.jpg') }}" alt="Coupon 1" />
       </div>
     </div>
 
@@ -340,21 +342,21 @@
     <h3 class="section-title"><i class="fas fa-clock"></i> {{ inventoryType }} Timing</h3>
     <div class="office-timing">
       <div class="timing-card">
-        <img src="../static/images/calender.png" alt="Calendar Icon" />
+        <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
         <div class="timing-details">
           <span>Mon - Fri</span>
           <p>{{ office_timings.opening_time }} - {{ selected_inventory.closing_time }}</p>
         </div>
       </div>
       <div class="timing-card">
-        <img src="../static/images/calender.png" alt="Calendar Icon" />
+        <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
         <div class="timing-details">
           <span>Sat</span>
           <p>{{ office_timings.opening_time }} - {{ selected_inventory.closing_time }}</p>
         </div>
       </div>
       <div class="timing-card closed">
-        <img src="../static/images/calender.png" alt="Calendar Icon" />
+        <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
         <div class="timing-details">
           <span>Sun</span>
           <p>Closed</p>
@@ -371,7 +373,7 @@
         
         <!-- Monday to Friday -->
         <div class="timing-card">
-          <img src="../static/images/calender.png" alt="Calendar Icon" />
+          <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
           <div class="timing-details">
             <span>Mon - Fri</span>
             <p>{{ property.office_timings.opening_time }} - {{ property.office_timings.closing_time }}</p>
@@ -380,7 +382,7 @@
 
         <!-- Saturday -->
         <div class="timing-card">
-          <img src="../static/images/calender.png" alt="Calendar Icon" />
+          <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
           <div class="timing-details">
             <span>Sat</span>
             <p>{{ property.office_timings.opening_time }} - {{ property.office_timings.closing_time }}</p>
@@ -389,7 +391,7 @@
 
         <!-- Sunday (Closed by Default) -->
         <div class="timing-card closed">
-          <img src="../static/images/calender.png" alt="Calendar Icon" />
+          <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
           <div class="timing-details">
             <span>Sun</span>
             <p>Closed</p>
@@ -776,7 +778,7 @@
           </p>
 
           <!-- View Details Button -->
-          <a href="{{ url_for('core_bp.innerpage', property_id=property._id, inventoryType=inventory.type, contact=contact) }}" 
+          <a href="{{ url_for('core_bp.innerpage', city=property.city, micromarket=property.micromarket, coworking_name=property.coworking_name, inventoryType=inventory.type, contact=contact) }}" 
             class="view-details-btn">
             View Details →
           </a>
@@ -962,11 +964,11 @@
   <footer>
         <div class="footer-container">
             <div class="footer-section logo-section">
-                <img src="../static/images/logo.webp" loading="lazy" alt="FindurSpace Logo" class="footer-logo">
+                <img src="{{ url_for('static', filename='images/logo.webp') }}" loading="lazy" alt="FindurSpace Logo" class="footer-logo">
                 <p class="tu">Follow us on social media to stay updated with the <strong>latest coworking trends, special deals, & workspace tips.</strong></p>
                 <div class="social-media">
-                    <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr" target="_blank" alt="follow us on Facebook"><img src="../static/images/Face BookAsset 27.svg" loading="lazy" alt="Facebook"  width="" height=""></a>
-                    <a href="https://www.instagram.com/findur.space/" target="_blank" alt="follow us on Instagram"><img src="../static/images/InstagramAsset 28.svg" loading="lazy" alt="instagram"  width="" height=""></a>
+                    <a href="https://www.facebook.com/p/Findurspace-100094107776054/?_rdr" target="_blank" alt="follow us on Facebook"><img src="{{ url_for('static', filename='images/Face BookAsset 27.svg') }}" loading="lazy" alt="Facebook"  width="" height=""></a>
+                    <a href="https://www.instagram.com/findur.space/" target="_blank" alt="follow us on Instagram"><img src="{{ url_for('static', filename='images/InstagramAsset 28.svg') }}" loading="lazy" alt="instagram"  width="" height=""></a>
                 </div>
             </div>
             <div class="footer-section links">
@@ -993,18 +995,18 @@
                 <p class="fot-link">Contact US</p>
                 <ul>
                     <li style="align-items: flex-start;">
-                        <img src="../static/images/house.png" loading="lazy" alt="office Address" width="" height=""> 
+                        <img src="{{ url_for('static', filename='images/house.png') }}" loading="lazy" alt="office Address" width="" height=""> 
                         <span>Excel Coworks - Naagarabhaavi, Bangalore 3rd Floor, Tushar Arcade, Service Road, Naagarabhaavi, Bengaluru, Karnataka 560072</span>
                     </li>
                     <li style="display:flex; align-items:center;">
                         <a href="tel:+918069328922">
-                            <img src="../static/images/phone-call.png" loading="lazy" alt="Contact Number" style="width:40px;height:40px;">
+                            <img src="{{ url_for('static', filename='images/phone-call.png') }}" loading="lazy" alt="Contact Number" style="width:40px;height:40px;">
                         </a>
                         <a href="tel:+918069328922">+91-8069328922</a>
                     </li>
                     <li style="display:flex; align-items:center;">
                         <a href="mailto:sales@findurspace.tech">
-                            <img src="../static/images/email.png" loading="lazy" alt="Email Address" style="width:40px;height:40px;">
+                            <img src="{{ url_for('static', filename='images/email.png') }}" loading="lazy" alt="Email Address" style="width:40px;height:40px;">
                         </a>
                         <a href="mailto:sales@findurspace.tech">sales@findurspace.tech</a>
                     </li>
@@ -1015,7 +1017,7 @@
             <p>© Copyrights 2025 FindurSpace All rights reserved.</p>
         </div>
       </footer>
-      <a href="https://propques.com/" rel="noopener" alt="Propques Service Pvt Ltd" target="_blank" style="text-decoration-line: none;"><div class="fnv">Powered by Propques Services Pvt Ltd <span class="arr" ><img src="../static/images/arrow1.svg" alt="arrow"></span></div></a>
+      <a href="https://propques.com/" rel="noopener" alt="Propques Service Pvt Ltd" target="_blank" style="text-decoration-line: none;"><div class="fnv">Powered by Propques Services Pvt Ltd <span class="arr" ><img src="{{ url_for('static', filename='images/arrow1.svg') }}" alt="arrow"></span></div></a>
 
       <!-- Thank You Modal -->
 <!-- Thank You Modal -->

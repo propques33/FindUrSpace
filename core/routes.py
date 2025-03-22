@@ -236,16 +236,23 @@ def get_user_by_contact():
     return jsonify({})
 
 
-@core_bp.route('/innerpage/<property_id>')
-def innerpage(property_id):
+@core_bp.route('/<city>/<micromarket>/<coworking_name>')
+def innerpage(city, micromarket, coworking_name):
     db = current_app.config['db']
     inventory_type = request.args.get('inventoryType', None)  # Capture inventoryType from the URL
     contact = request.args.get('contact', None)  # Capture contact from the URL
 
-    # Fetch the property details from the database
-    property_data = db.fillurdetails.find_one({"_id": ObjectId(property_id)})
+    # Fetch the property details from the database using city, micromarket, and coworking_name
+    property_data = db.fillurdetails.find_one({
+        "city": {'$regex': f'^{city}$', '$options': 'i'},
+        "micromarket": {'$regex': f'^{micromarket}$', '$options': 'i'},
+        "coworking_name": {'$regex': f'^{coworking_name}$', '$options': 'i'}
+    })
+
     if not property_data:
         return "Property not found", 404
+
+    # property_id = property_data["_id"]
 
     # Fetch user details if contact is provided
     user_data = None
