@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CubiSpace | Booking</title>
+    <link rel="stylesheet" href="../static/css/cubispace.css">
+  </head>
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <!-- Mapbox CSS -->
+  <link
+    href="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css"
+    rel="stylesheet"
+  />
+  <body>
+    <section class="navbar-container">
+      <nav class="navbar">
+        <!-- Logo -->
+        <div class="logo">
+          <img src="../static/images/Logo.svg" alt="CUBIspace Logo" />
+        </div>
+
+        <!-- Navigation Links -->
+        <ul class="nav-links">
+          <li><a href="https://www.cubispace.com/">Home</a></li>
+          <li><a href="https://www.cubispace.com/coworking-in-jankipuram-lucknow/">About Us</a></li>
+        </ul>
+
+        <!-- CTA Button -->
+        <button class="book-btn">Book an experience</button>
+      </nav>
+    </section>
+    <section class="hero">
+      <div class="hero-content">
+        <h1>
+          <span>Cubispace</span> <br />
+          Making space for Life in Work
+        </h1>
+        <p>
+          Having a cool work-life is everyone’s desire whether it be a
+          solopreneur or a team-player. Establishing a workspace that suits all,
+          we plan on fulfilling everything that a professional needs from a
+          workplace.
+        </p>
+      </div>
+    </section>
+
+    <div class="container">
+      <!-- Left Section (70%) -->
+      <div class="left-section">
+        <h1>SEATING OPTION</h1>
+        <!-- <h5></h5> -->
+        <div class="seating-option">
+          <img
+            src="../static/images/IMG_5464.JPG"
+            alt="Dedicated Desks"
+          />
+          <div class="seating-details">
+            <div class="seating-info">
+              <h2>Meeting Room</h2>
+              <p>
+                Dedicated desks and storage units exclusively reserved for you.
+              </p>
+              <ul>
+                <li>
+                  <img src="./static/checked.png" alt="" id="checked" />
+                  Reserved desk, shared amenities
+                </li>
+              </ul>
+              <p>
+                <img src="./static/seat.png" alt="" id="seat" />
+                Seating: 1 - 25+ Seats
+              </p>
+            </div>
+            <div>
+              <span class="price-range"
+                >Price range <br />₹999/hr</span
+              >
+              <button class="quote-btn">Get Quote →</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="price-note">
+          *Prices mentioned above are starting prices &amp; subject to
+          availability
+        </p>
+
+        <div class="gallery-container">
+          <button id="prevBtn">❮ </button>
+          <img class="slide-img" id="galleryImage" src="images/image1.jpg" alt="Gallery Image" />
+          <button id="nextBtn">❯</button>
+        </div>
+      
+        <div class="time-section">
+          <h3 class="section-title">
+            <i class="fas fa-clock"></i> Office Timing
+          </h3>
+          <div class="office-timing">
+            <div class="timing-card">
+              <i class="fa-solid fa-calendar-days"></i>
+              <div class="timing-details">
+                <span>Mon - Fri</span>
+                <p>09:00 AM - 06:00 PM</p>
+              </div>
+            </div>
+            <div class="timing-card">
+              <i class="fa-solid fa-calendar-days"></i>
+              <div class="timing-details">
+                <span>Sat</span>
+                <p>09:00 AM - 06:00 PM</p>
+              </div>
+            </div>
+            <div class="timing-card closed">
+              <i class="fa-solid fa-calendar-days"></i>
+              <div class="timing-details">
+                <span>Sun</span>
+                <p>Closed</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="advantage-box">
+          <h2>Cubispace Advantage</h2>
+        
+          <div class="item"><i class="fas fa-tags"></i>Lowest Price Guaranteed</div>
+          <div class="item"><i class="fas fa-clock-rotate-left"></i>Free Rescheduling</div>
+        
+          <div class="item"><i class="fas fa-calendar-xmark"></i>Free Cancellation</div>
+          <div class="item"><i class="fas fa-bolt"></i>Instant Confirmations</div>
+        
+        </div>
+
+        <h3>About</h3>
+        <h4>Business Address Only - Center 57 | 1 sq ft</h4>
+        <br />
+        <p class="about-text">
+          Located in the prime area of the royal city Lucknow, the first-born of
+          Cubispace family holds a special space and is spread over 8000 sq ft.
+        </p>
+        <br />
+        <p class="about-text">
+          The convenient location and an array of amenities makes people feel
+          like their own hub and matches with everyone’s vibes.
+        </p>
+        <br />
+        <p class="about-text">
+          The nearby affluent areas of Aliganj, Vikas Nagar, Mahanagar, New
+          Lucknow University Campus, IIM College, and Sitapur Road will give you
+          the promise of safety. With biophilic elements placed all over the
+          space, the focus and zeal this place radiates will lead you on the
+          path of growth.
+        </p>
+        <br />
+
+        <section class="section">
+          <div class="section-title">Amenities</div>
+          <div class="card-grid">
+            <div class="card">
+              <i class="fas fa-wifi"></i>
+              <h3>High Speed WiFi</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-print"></i>
+              <h3>Printer</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-broom"></i>
+              <h3>Housekeeping</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-coffee"></i>
+              <h3>Tea/Coffee</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-door-open"></i>
+              <h3>Meeting Rooms</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-car"></i>
+              <h3>Car / Bike Parking</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-concierge-bell"></i>
+              <h3>Reception</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-phone"></i>
+              <h3>Phone Booth</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-chair"></i>
+              <h3>Ergo Workstations</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-utensils"></i>
+              <h3>Pantry</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-snowflake"></i>
+              <h3>Air Conditioning</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-couch"></i>
+              <h3>Lounge</h3>
+            </div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-title">Community Events</div>
+          <div class="card-grid">
+            <div class="card">
+              <i class="fas fa-lightbulb"></i>
+              <h3>Innovation & Creativity</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-chalkboard-teacher"></i>
+              <h3>Workshop & Training</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-users"></i>
+              <h3>Meeting & Gatherings</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-network-wired"></i>
+              <h3>Networking Events</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-people-arrows"></i>
+              <h3>Community Building</h3>
+            </div>
+            <div class="card">
+              <i class="fas fa-heart"></i>
+              <h3>Health & Wellness</h3>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="right-section-mobile">
+        <h3>CubiSpace</h3>
+        <p>1 - 25+ Seater Room</p>
+        <!-- <h4>Starting Price</h4> -->
+        <div class="button">
+          <button class="tour-btn">Schedule a Tour</button>
+        <button class="book-btn">Request to Book</button>
+        </div>
+        <!-- <div class="actions">
+          <button class="favorite-btn">Favorite</button>
+          <button class="share-btn">Share</button>
+        </div> -->
+      </div>
+
+
+      <!-- Right Section (30%) -->
+      <div class="right-section">
+        <h3>CubiSpace</h3>
+        <p>1 - 25+ Seater Room</p>
+        <!-- <h4>Starting Price</h4> -->
+        <button class="tour-btn">Schedule a Tour</button>
+        <button class="book-btn">Request to Book</button>
+        <!-- <div class="actions">
+          <button class="favorite-btn">Favorite</button>
+          <button class="share-btn">Share</button>
+        </div> -->
+        <p class="time-counter">⚠️ Limited Time Available (time counter)</p>
+      </div>
+    </div>
+
+    <section class="space-location">
+      <div class="content">
+        <h1>Best Coworking Spaces in Jankipuram, Lucknow</h1>
+        <p class="description">
+          Located in the prime area of the royal city Lucknow, the first-born of
+          Cubispace family holds a special space and is spread over 8000 sq. ft.
+          The convenient location and an array of amenities makes people feel
+          like their own hub and matches with everyone’s vibes. The nearby
+          affluent areas of Aliganj, Vikas Nagar, Mahanagar, New Lucknow
+          University Campus, IIM College, and Sitapur Road will give you the
+          promise of safety. With biophilic elements placed all over the space,
+          the focus and zeal this place radiates will lead you on the path of
+          growth.
+        </p>
+
+        <div class="stats">
+          <div class="stat">
+            <h3>19 KM</h3>
+            <p>Chaudhary Charan Singh International Airport</p>
+          </div>
+          <div class="stat">
+            <h3>5 KM</h3>
+            <p>Indira Nagar Metro Station</p>
+          </div>
+          <div class="stat">
+            <h3>11 KM</h3>
+            <p>Charbagh Railway Station</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="related-products">
+      <h2>Related Products</h2>
+      <div class="product-grid">
+        
+
+        <div class="product-card">
+          <img
+            src="https://lh3.googleusercontent.com/p/AF1QipO4mTf9e9w37XuKm69Jt9UF8KyA-RIxgaQYLm4Y=s1360-w1360-h1020"
+            alt="Product 2"
+          />
+          <h3>Day Pass</h3>
+          <button>Book Now</button>
+        </div>
+      </div>
+    </section>
+
+    <p class="more-info">
+      For More Info
+
+      <a href=""> Visit Findurspace</a>
+    </p>
+
+    <footer class="footer">
+      <img src="../static/images/Logo.svg" alt="" class="footer-logo" /> <br>
+
+      <div class="container">
+        <!-- Contact Section -->
+        <div class="footer-section contact">
+          <h3>Contact us</h3>
+          <p><i class="fas fa-phone"></i> 
+            +91 7897765559</p>
+          <p><i class="fas fa-envelope"></i> hello@cubispace.com</p>
+          <p>
+            <i class="fas fa-map-marker-alt"></i>2nd Floor, JSV Hyundai Building CP-53 Sitapur Road Yojna, Near Engineering College Chauraha, Lucknow.
+          </p>
+        </div>
+
+        <!-- Links Section -->
+        <div class="footer-section links">
+          <ul>
+            <li><a href="https://www.cubispace.com/blogs/">Blogs</a></li>
+            <li><a href="#">Gallery</a></li>
+            <li><a href="#">Cubi Rules</a></li>
+            <li><a href="https://www.cubispace.com/terms-and-conditions/">T&C</a></li>
+            <li><a href="https://www.cubispace.com/frequently-asked-questionsfaqs/">FAQs</a></li>
+            <li><a href="http://cubispace.com/privacy-policy/">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <!-- Social Media Section -->
+        <!-- <div class="footer-section social">
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a>
+        </div> -->
+
+        <!-- Newsletter Subscription -->
+        <div class="footer-section newsletter">
+          <h3>Powered By</h3>
+          <img src="../static/images/1Asset 3-8.png" alt="" class=""  />
+          
+        </div>
+      </div>
+
+      <!-- Copyright -->
+      <div class="footer-bottom">
+        <h5>CubiSpace © 2021 All Right Reserved
+        </h5>
+        <p>  Powered By Findurspace</p>
+      </div>
+    </footer>
+  </body>
+  <script>
+    const images = [
+    "https://lh3.googleusercontent.com/p/AF1QipMIlyKRQOGp_CRsc8xTmseXT0nDvc8CEKii5kBm=s1360-w1360-h1020",
+    "https://lh3.googleusercontent.com/p/AF1QipOtRcMmXyfGGqJJ747z61V2RNuhH5-O4hNmFzol=s1360-w1360-h1020",
+    "https://lh3.googleusercontent.com/p/AF1QipM5yMTNyswN_plSo0tXFlAwjB2bRY-zkm3EvQLL=s1360-w1360-h1020",
+];
+
+let currentIndex = 0;
+const galleryImage = document.getElementById("galleryImage");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function updateImage() {
+    galleryImage.src = images[currentIndex];
+}
+
+nextBtn.addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateImage();
+});
+
+prevBtn.addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateImage();
+});
+
+// Initialize with first image
+updateImage();
+
+  </script>
+</html>

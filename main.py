@@ -8,6 +8,7 @@ from core.routes import core_bp  # Importing routes from core/routes.py
 from admin.admin import admin_bp
 from operators.operators import operators_bp
 from admin import admin_bp
+import re
 
 # Load environment variables
 load_dotenv()
@@ -38,6 +39,25 @@ app.config['db'] = db  # Store the db instance in app config for global use
 app.register_blueprint(core_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(operators_bp)
+
+# ✅ Register Jinja filter here
+def split_camel_case(s):
+    return re.sub(r'(?<!^)(?=[A-Z])', ' ', s)
+
+app.jinja_env.filters['split_camel_case'] = split_camel_case
+
+# In your app factory or utils file
+def format_inr(value):
+    if value is None:
+        return "0"
+    return f"{value:,.0f}".replace(",", "X").replace("X", ",").replace(",", ",").replace(",", ",").replace(",", ",")
+
+app.jinja_env.filters['inr'] = format_inr
+
+@app.template_filter('indian_number_format')
+def indian_number_format(value):
+    return "{:,}".format(value).replace(",", "_").replace("_", ",")
+
 
 if __name__ == '__main__':
     # Debug mode based on environment variables

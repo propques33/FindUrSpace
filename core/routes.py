@@ -6,6 +6,7 @@ from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversi
 from bson.regex import Regex
 import threading
 import io
+import re
 import os
 import pandas as pd
 import requests
@@ -124,6 +125,18 @@ def outerpage():
         filter_micromarket = user_preferences.get('micromarket')
         filter_inventory_type = user_preferences.get('inventory_type')
 
+    # Normalize inventory type to match DB values (e.g., 'Daypass' → 'Day pass')
+    normalized_inventory_type = None
+    if filter_inventory_type:
+        for record in db.fillurdetails.find({"status": 'new'}):
+            for inventory in record.get('inventory', []):
+                db_type = inventory.get('type', '')
+                if db_type.replace(" ", "").lower() == filter_inventory_type.replace(" ", "").lower():
+                    normalized_inventory_type = db_type
+                    break
+            if normalized_inventory_type:
+                break
+
     # Pagination Variables
     cards_per_page = 6
     # page = request.args.get('page', 1, type=int)
@@ -146,7 +159,7 @@ def outerpage():
             continue  # Skip records without an inventory field
 
         for inventory in record['inventory']:
-            if filter_inventory_type and inventory['type'] != filter_inventory_type:
+            if normalized_inventory_type and inventory['type'] != normalized_inventory_type:
                 continue  # Skip inventories that don't match the preferred type
 
             #Generate random star rating and reviews count
@@ -166,46 +179,30 @@ def outerpage():
                 })
             # Meeting Rooms as separate cards for each room
             elif inventory['type'] == "Meeting rooms" and 'room_details' in inventory:
-                seating_capacities = []
-                first_room_price = None
-                first_room_images = []
-
-                for index, room in enumerate(inventory['room_details']):
-                    seating_capacities.append(str(room['seating_capacity']))
-                    if index == 0:  # Take price & images from the first room
-                        first_room_price = room.get('price', 0)
-                        first_room_images = room.get('images', [])
-
-                all_cards.append({
-                    'record': record,
-                    'inventory': inventory,
-                    'type': ", ".join(seating_capacities) + " Seater Meeting Room",
-                    'price': first_room_price,
-                    'images': first_room_images,
-                    'star_rating': star_rating,  # Pass random rating
-                    'review_count': review_count  # Pass random reviews count
-                })
-            # Private Cabins as separate cards for each cabin
-            elif inventory['type'] == "Private cabin"  and 'room_details' in inventory:
-                seating_capacities = []
-                first_cabin_price = None
-                first_cabin_images = []
-
-                for index, cabin in enumerate(inventory['room_details']):
-                    seating_capacities.append(str(cabin['seating_capacity']))
-                    if index == 0:  # Take price & images from the first cabin
-                        first_cabin_price = cabin.get('price', 0)
-                        first_cabin_images = cabin.get('images', [])
-
-                all_cards.append({
+                for room in inventory['room_details']:
+                    all_cards.append({
                         'record': record,
                         'inventory': inventory,
-                        'type': ", ".join(seating_capacities) + " Seater Private Cabin",
-                        'price': first_cabin_price,
-                        'images': first_cabin_images,
-                        'star_rating': star_rating,  # Pass random rating
-                        'review_count': review_count  # Pass random reviews count
-                    })    
+                        'type': f"{room['seating_capacity']} Seater Meeting Room",
+                        'price': room.get('price', 0),
+                        'images': room.get('images', []),
+                        'star_rating': round(random.uniform(3.5, 5.0), 1),
+                        'review_count': random.randint(10, 500),
+                        'room_number': room.get('room_number')
+                    })
+            # Private Cabins as separate cards for each cabin
+            elif inventory['type'] == "Private cabin" and 'room_details' in inventory:
+                for cabin in inventory['room_details']:
+                    all_cards.append({
+                        'record': record,
+                        'inventory': inventory,
+                        'type': f"{cabin['seating_capacity']} Seater Private Cabin",
+                        'price': cabin.get('price', 0),
+                        'images': cabin.get('images', []),
+                        'star_rating': round(random.uniform(3.5, 5.0), 1),
+                        'review_count': random.randint(10, 500),
+                        'room_number': cabin.get('room_number')
+                    })  
 
     # Pagination Logic
     total_cards = len(all_cards)
@@ -235,11 +232,15 @@ def get_user_by_contact():
         })
     return jsonify({})
 
-
-@core_bp.route('/<city>/<micromarket>/<coworking_name>')
+def split_camel_case(s):
+    return re.sub(r'(?<!^)(?=[A-Z])', ' ', s)
+    
+@core_bp.route('/flexspace/<city>/<micromarket>/<coworking_name>')
 def innerpage(city, micromarket, coworking_name):
+    from bson import ObjectId
     db = current_app.config['db']
-    inventory_type = request.args.get('inventoryType', None)  # Capture inventoryType from the URL
+    raw_inventory_type = request.args.get('inventoryType', None)
+    seating = request.args.get('seating', request.args.get('seats', None))
     contact = request.args.get('contact', None)  # Capture contact from the URL
 
     # Fetch the property details from the database using city, micromarket, and coworking_name
@@ -253,6 +254,15 @@ def innerpage(city, micromarket, coworking_name):
         return "Property not found", 404
 
     # property_id = property_data["_id"]
+
+    # Normalize inventoryType from raw URL (e.g. Meetingrooms → Meeting rooms)
+    inventory_type = None
+    if raw_inventory_type:
+        for inventory in property_data.get('inventory', []):
+            db_inventory_type = inventory.get("type", "")
+            if db_inventory_type.replace(" ", "").lower() == raw_inventory_type.replace(" ", "").lower():
+                inventory_type = db_inventory_type
+                break
 
     # Fetch user details if contact is provided
     user_data = None
@@ -298,49 +308,109 @@ def innerpage(city, micromarket, coworking_name):
 
 
     # Extract the relevant inventory based on inventoryType
+    # selected_inventory = None
+    # inventory_images = []  
+    # if inventory_type:
+    #     for inventory in property_data.get('inventory', []):
+    #         if inventory.get('type') == inventory_type:
+    #             selected_inventory = inventory
+                
+    #             if 'images' in inventory and inventory['images']:
+    #                 inventory_images.extend(inventory['images'])
+
+    #             if 'room_details' in inventory:
+    #                 for room in inventory['room_details']:
+    #                     inventory_images.extend(room.get('images', []))
+
+    #             break  
+
+    # Selected Inventory + Image Logic
+    property_images = property_data.get('property_images', [])
+
     selected_inventory = None
-    inventory_images = []  # Store images from inventory
+    selected_room = None
+    inv_imgs = []
+
+    seat_count = 1  # default
+    total_price = 0  # default
     if inventory_type:
         for inventory in property_data.get('inventory', []):
             if inventory.get('type') == inventory_type:
-                selected_inventory = inventory
-                # If inventory has images directly
-                if 'images' in inventory and inventory['images']:
-                    inventory_images.extend(inventory['images'])
-
-                # If meeting rooms or private cabins, fetch images from room_details
-                if 'room_details' in inventory:
+                if seating and 'room_details' in inventory:
                     for room in inventory['room_details']:
-                        inventory_images.extend(room.get('images', []))
+                        if str(room.get('seating_capacity')) == str(seating):
+                            selected_inventory = inventory
+                            selected_room = room
+                            inv_imgs = room.get('images', [])[:2] if room.get('images') else []
+                            seat_count = int(seating)
+                            break
+                else:
+                    selected_inventory = inventory
+                    inv_imgs = inventory.get('images', [])[:2] if inventory.get('images') else []
+                    seat_count = int(seating) if seating else inventory.get('count', 1)
+                break
 
-                break  # Stop searching once inventory is found
+    # Calculate total price only for relevant types
+    if inventory_type in ["Meeting rooms", "Private cabin"]:
+        price_per_seat = selected_inventory.get('price_per_seat', 0) if selected_inventory else 0
+        total_price = price_per_seat * seat_count
 
-    # Append property images after inventory images
-    property_images = property_data.get('property_images', [])
+    combined_images = inv_imgs + property_images
+    seen = set()
+    inventory_images = []
+    for img in combined_images:
+        if img and img not in seen:
+            seen.add(img)
+            inventory_images.append(img)
 
-     # Define inventory categories
     meeting_group = ["Day pass", "Meeting rooms"]
     desk_group = ["Dedicated desk", "Private cabin", "Virtual office"]
 
-    # Fetch **Other Inventory** Cards (Exclude the selected one)
     other_inventories = []
     for inventory in property_data.get('inventory', []):
-        if inventory.get('type') == inventory_type:
-            continue  # Skip the current inventory type
         
-        # **Ensure only the same category inventories are shown**
+        if inventory.get('type') == inventory_type:
+            # Handle other seating variants (for Meeting rooms & Private cabin)
+            if 'room_details' in inventory:
+                for room in inventory['room_details']:
+                    if str(room.get("seating_capacity")) == str(seat_count):
+                        continue  # Skip the same seat count
+
+                    # Include other seating variants
+                    first_image = room['images'][0] if room.get('images') else None
+                    other_inventories.append({
+                        "type": inventory_type,
+                        "price": room.get('price', 0),
+                        "price_label": "/hour" if inventory_type == "Meeting rooms" else "/seat/month",
+                        "first_image": first_image,
+                        "coworking_name": property_data.get("coworking_name", "N/A"),
+                        "micromarket": property_data.get("micromarket", "N/A"),
+                        "city": property_data.get("city", "N/A"),
+                        "star_rating": round(random.uniform(3.5, 5.0), 1),
+                        "review_count": random.randint(10, 500),
+                        "seating_capacity": room.get("seating_capacity")
+                    })
+            continue  # Skip rest of loop
+ 
+
         if (inventory_type in desk_group and inventory['type'] not in desk_group) or \
            (inventory_type in meeting_group and inventory['type'] not in meeting_group):
-            continue  # Skip unrelated inventory types
+            continue  
 
-        # Generate random star rating and reviews count (like outerpage)
-        star_rating = round(random.uniform(3.5, 5.0), 1)  # Between 3.5 and 5.0
-        review_count = random.randint(10, 500)  # Between 10 and 500
+        star_rating = round(random.uniform(3.5, 5.0), 1)  
+        review_count = random.randint(10, 500)  
 
-        # Determine the first image for this inventory
-        first_image = inventory.get('images', [])[0] if inventory.get('images') else None
+        first_image = None
 
-        # Get inventory details
+        if inventory.get('images'):
+            first_image = inventory['images'][0]
+
+        elif inventory.get('room_details'):
+            for room in inventory['room_details']:
+                if room.get('images'):
+                    first_image = room['images'][0]
+                    break
+
         coworking_name = property_data.get("coworking_name", "N/A")
         micromarket = property_data.get("micromarket", "N/A")
         city = property_data.get("city", "N/A")
@@ -377,7 +447,8 @@ def innerpage(city, micromarket, coworking_name):
         'innerpage.html',
         property=property_data,
         inventoryType=inventory_type,
-        selected_inventory=selected_inventory , # Pass the selected inventory to the template
+        selected_inventory=selected_inventory ,
+        selected_room=selected_room,  # Pass the selected inventory to the template
         contact=contact,  # Pass contact for user tracking
         user_data=user_data or {},  # Pass user details if needed
         seats=seats,
@@ -388,8 +459,15 @@ def innerpage(city, micromarket, coworking_name):
         amenities=amenities,  # Pass amenities dynamically
         other_inventories=other_inventories,  # Pass the other inventory data to template
         time_slots=time_slots,
-        is_user_complete=is_user_complete   # Pass time slots to the template
+        is_user_complete=is_user_complete,
+        total_price=total_price,
+        seat_count=seat_count   # Pass time slots to the template
     )
+
+@core_bp.route('/<city>/<micromarket>/<coworking_name>')
+def innerpage_direct(city, micromarket, coworking_name):
+    return innerpage(city, micromarket, coworking_name)
+
 
 @core_bp.route('/schedule_tour', methods=['POST'])
 def schedule_tour():
@@ -412,6 +490,9 @@ def schedule_tour():
     gstin = data.get("gstin", None)  # Optional
     num_seats = data.get("numSeats")
     budget = data.get("budget")
+    seat_count = int(num_seats) if num_seats and str(num_seats).isdigit() and int(num_seats) > 1 else ""
+
+
 
     # Check if user exists
     user = db.users.find_one({"contact": contact})
@@ -450,6 +531,12 @@ def schedule_tour():
     except:
         return jsonify({"success": False, "message": "Invalid user or property ID"}), 400
 
+    if inventory_type in ["Meeting rooms", "Private cabin"] and seat_count:
+        formatted_inventory_type = f"{seat_count} Seater {inventory_type}"
+    else:
+        formatted_inventory_type = inventory_type
+
+
     # Prepare document for MongoDB
     visit_data = {
         "user_id": user_id,
@@ -458,7 +545,7 @@ def schedule_tour():
         "email": email,
         "company": company,
         "contact": contact,
-        "inventory_type": inventory_type,
+        "inventory_type": formatted_inventory_type,
         "date": datetime.strptime(date, "%Y-%m-%d"),
         "time": time,
         "message": message,
@@ -482,9 +569,17 @@ def submit_purchase():
     db = current_app.config['db']  # Access the MongoDB database
     booking_collection = db["booking"]  # Reference the 'booking' collection
 
+
     try:
         data = request.json
         contact = data.get("phone")
+        inventory_type = data.get("inventoryType")
+        # Fix seat_count and inventory formatting
+        seat_count = int(data.get("quantity", 0))
+        formatted_inventory_type = inventory_type
+
+        if inventory_type in ["Meeting rooms", "Private cabin"] and seat_count > 1:
+            formatted_inventory_type = f"{seat_count} Seater {inventory_type}"
 
         if not contact:
             return jsonify({"success": False, "message": "Phone number is required"}), 400
@@ -537,7 +632,7 @@ def submit_purchase():
         booking = {
             "user_id": user_id,  # Store user_id if found
             "property_id": data["property_id"],  # Store property ID
-            "inventoryType": data["inventoryType"],
+            "inventoryType": formatted_inventory_type,
             "quantity": data["quantity"],
             "totalPrice": data["totalPrice"],
             "fullName": data["fullName"],
@@ -933,7 +1028,8 @@ def submit_preferences():
     )
     gsheet_thread.start()
 
-    return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.','redirect_url': url_for('core_bp.outerpage', contact=contact)})
+    return jsonify({'status': 'success'})
+    # return jsonify({'status': 'success', 'message': 'Preferences saved. Redirecting to the report.','redirect_url': url_for('core_bp.outerpage', contact=contact)})
 
 # Helper function to format input for case-insensitive, trimmed match
 def format_query_param(param):
@@ -999,29 +1095,33 @@ def terms_and_conditions():
 def freq_asked_ques():
     return render_template('FAQs.html')
 
-@core_bp.route('/managed-offices/ahmedabad')
+@core_bp.route('/managed-office-space/ahmedabad')
 def ahmedabad():
     return render_template('ahmedabad.html')
 
-@core_bp.route('/managed-offices/bangalore')
+@core_bp.route('/managed-office-space/bangalore')
 def bangalore():
     return render_template('bangalore.html')
 
-@core_bp.route('/managed-offices/hyderabad')
+@core_bp.route('/managed-office-space/hyderabad')
 def hyderabad():
     return render_template('hyderabad.html')
 
-@core_bp.route('/managed-offices/indore')
+@core_bp.route('/managed-office-space/indore')
 def indore():
     return render_template('indore.html')
 
-@core_bp.route('/managed-offices/lucknow')
+@core_bp.route('/managed-office-space/lucknow')
 def lucknow():
     return render_template('lucknow.html')
 
-@core_bp.route('/managed-offices/mumbai')
+@core_bp.route('/managed-office-space/mumbai')
 def mumbai():
     return render_template('mumbai.html')
+
+@core_bp.route('/managed-offices/<city>')
+def redirect_old_managed_office(city):
+    return redirect(url_for(f'core_bp.{city}'))
 
 @core_bp.route('/user1')
 def user1():
@@ -1872,3 +1972,8 @@ def register_or_update_user():
         })
 
     return jsonify({'success': True})
+
+@core_bp.app_errorhandler(404)
+def page_not_found(e):
+    flash("Page not found. Redirected to homepage.", "warning")
+    return redirect(url_for('core_bp.index'))

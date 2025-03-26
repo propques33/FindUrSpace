@@ -1,0 +1,242 @@
+{
+  "_id": {
+    "$oid": "67d97597b7d102cce7d52805"
+  },
+  "owner": {
+    "name": "Aman Rathore",
+    "phone": "9893034016",
+    "email": "aman.sales@workdesq.com"
+  },
+  "coworking_name": "Workdesq Coworking",
+  "city": "Indore",
+  "micromarket": "Mahalaxmi Nagar, Indore",
+  "address": "Workdesq, 649-650, Sector A, Mahalaxmi Nagar, Indore, 452010 (Above American Opticals)",
+  "distance": {
+    "metro": 1.5,
+    "airport": 20,
+    "bus": 0.5,
+    "railway": 7.5
+  },
+  "total_seats": 124,
+  "current_vacancy": 42,
+  "center_manager": {
+    "name": "Aman Rathore",
+    "contact": "9893034016"
+  },
+  "property_images": [
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/Workdesq Coworking/1/d7e7bb3e76364fd6bd8ff67977353b42_DSC03355.JPG.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/Workdesq Coworking/1/a87ad7be42a44fb4b25de23e9b3f1137_DSC03375.JPG.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/Workdesq Coworking/1/da5c503f2fa7439f812d7146616630f8_DSC03382.JPG.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/Workdesq Coworking/1/7cadcc8e59ac4d21bbdf7afcf2254b49_DSC03430.JPG.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/Workdesq Coworking/1/26b3102d37554093b586f90c0a15125c_DSC03461.JPG.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/Workdesq Coworking/1/0fc509c7dee74b8ea2e3cf00da35e4ff_DSC03466.JPG.webp"
+  ],
+  "workspace_type": "Coworking Spaces",
+  "hear_from": null,
+  "workspace_tool": null,
+  "notification_preference": [],
+  "space_description": "",
+  "date": {
+    "$date": "2025-03-18T13:31:03.052Z"
+  },
+  "inventory": [
+    {
+      "type": "Day pass",
+      "count": 20,
+      "price_per_seat": 500,
+      "images": [
+        "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/inventory/Workdesq Coworking/1/inventory_1/c53b7ba404754fdab2aa08092a166b42_DSC03461.JPG.webp",
+        "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/inventory/Workdesq Coworking/1/inventory_1/133da21ffec2485693ef0eb717c40e3d_DSC03478.JPG.webp"
+      ]
+    },
+    {
+      "type": "Dedicated desk",
+      "count": 20,
+      "price_per_seat": 6000,
+      "images": [
+        "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/inventory/Workdesq Coworking/1/inventory_2/1bb7016a693247b5b678eaf21e1adcb2_DSC03425.JPG.webp",
+        "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/inventory/Workdesq Coworking/1/inventory_2/a5e3df16aeb648ec9632847c857b5f30_DSC03430.JPG.webp",
+        "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/inventory/Workdesq Coworking/1/inventory_2/b452681448524a909e27b718702794b8_DSC03434.JPG.webp"
+      ]
+    },
+    {
+      "type": "Meeting rooms",
+      "room_count": 1,
+      "price_per_seat": 500,
+      "opening_time": "09:00",
+      "closing_time": "21:00",
+      "room_details": [
+        {
+          "room_number": 1,
+          "seating_capacity": 8,
+          "price": 500,
+          "images": [
+            "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/meeting_rooms/Workdesq Coworking/1/inventory_3/room_1/99fe0a69f3fa4580810b1a3f5bb9b655_DSC03387.JPG.webp",
+            "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/meeting_rooms/Workdesq Coworking/1/inventory_3/room_1/48eb32ecfb9f408abd3f387e73d1fe84_Workdesq_Office_Picture_10.jpeg.webp"
+          ]
+        }
+      ],
+      "images": []
+    },
+    {
+      "type": "Private cabin",
+      "room_count": 1,
+      "price_per_seat": 7333,
+      "opening_time": "09:00",
+      "closing_time": "21:00",
+      "room_details": [
+        {
+          "room_number": 1,
+          "seating_capacity": 3,
+          "price": 7333,
+          "images": [
+            "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/private_cabin/Workdesq Coworking/1/inventory_4/room_1/1f6b1a89ca8941489873c1f973cb7199_DSC03375.JPG.webp",
+            "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/private_cabin/Workdesq Coworking/1/inventory_4/room_1/f5eace8d908049c9b16ff179daf3b054_DSC03450.JPG.webp"
+          ]
+        }
+      ],
+      "images": []
+    }
+  ],
+  "amenities": [
+    "Air Conditioning",
+    "Car / Bike Parking",
+    "Ergo Workstations",
+    "High Speed WiFi",
+    "Housekeeping",
+    "Lounge",
+    "Meeting Rooms",
+    "Pantry",
+    "Phone Booth",
+    "Printer",
+    "Reception",
+    "Tea/Coffee"
+  ],
+  "office_timings": {
+    "open_from": "Monday",
+    "open_to": "Saturday",
+    "opening_time": "09:00",
+    "closing_time": "21:00"
+  },
+  "status": "new"
+}
+
+
+{
+  "_id": {
+    "$oid": "67da86abb7d102cce7d5280a"
+  },
+  "owner": {
+    "name": "Chandramohan",
+    "phone": "7825889977",
+    "email": "cm.worqspot@gmail.com"
+  },
+  "coworking_name": "WORQSPOT ",
+  "city": "Mumbai",
+  "micromarket": "Cbd Belapur",
+  "address": "th Floor,Tower no. 7 International Infotech Park, Vashi Railway Station Complex, Sector 30, Vashi, Navi Mumbai,(700403).",
+  "distance": {
+    "metro": 11,
+    "airport": 10,
+    "bus": 2,
+    "railway": 0
+  },
+  "total_seats": 123,
+  "current_vacancy": 38,
+  "center_manager": {
+    "name": "Supriya Ambawade",
+    "contact": "7825889977"
+  },
+  "property_images": [
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/2598b01439c246f5a8d7314ac664ebb5_M__5W_cabin_photo_6.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/8d8d4a8dba8d422e80f42883eda0f262_M__5W_cabin_photo_5.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/91a269577f53483381d96b9c146fac2c_M__5W_cabin_photo_4.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/4f48180aae864973b7fe6f544e51d7ba_M__5W_cabin_photo_3.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/29d07cbbe3674e71b4769b1485135363_M__5W_cabin_photo_2.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/34107e26ab7b4276aae27bb30eac8ff3_M__5W_cabin_photo_1.jpg.webp"
+  ],
+  "workspace_type": "Coworking Spaces",
+  "hear_from": null,
+  "workspace_tool": null,
+  "notification_preference": [],
+  "space_description": "We are a community of bold minds who have decided to work under the same roof. Our workspace and the people around us inspire us to take action, to grow, to do better. By saying that our coworking space is sustainable and comfy we confirm that you will get 100% satisfaction from working here and making the best out of this experience.",
+  "date": {
+    "$date": "2025-03-19T08:56:11.553Z"
+  },
+  "inventory": [
+    {
+      "type": "Day pass",
+      "count": 20,
+      "price_per_seat": 500,
+      "images": [
+        "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/2598b01439c246f5a8d7314ac664ebb5_M__5W_cabin_photo_6.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/8d8d4a8dba8d422e80f42883eda0f262_M__5W_cabin_photo_5.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/91a269577f53483381d96b9c146fac2c_M__5W_cabin_photo_4.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/4f48180aae864973b7fe6f544e51d7ba_M__5W_cabin_photo_3.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/29d07cbbe3674e71b4769b1485135363_M__5W_cabin_photo_2.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/34107e26ab7b4276aae27bb30eac8ff3_M__5W_cabin_photo_1.jpg.webp"
+      ]
+    },
+    {
+      "type": "Meeting rooms",
+      "room_count": 1,
+      "price_per_seat": 500,
+      "opening_time": "09:00",
+      "closing_time": "21:00",
+      "room_details": [
+        {
+          "room_number": 1,
+          "seating_capacity": 8,
+          "price": 500,
+          "images": [
+            "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/2598b01439c246f5a8d7314ac664ebb5_M__5W_cabin_photo_6.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/8d8d4a8dba8d422e80f42883eda0f262_M__5W_cabin_photo_5.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/91a269577f53483381d96b9c146fac2c_M__5W_cabin_photo_4.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/4f48180aae864973b7fe6f544e51d7ba_M__5W_cabin_photo_3.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/29d07cbbe3674e71b4769b1485135363_M__5W_cabin_photo_2.jpg.webp",
+    "https://findurspace.blr1.digitaloceanspaces.com/findurspace/findurspace/property/WORQSPOT /1/34107e26ab7b4276aae27bb30eac8ff3_M__5W_cabin_photo_1.jpg.webp"
+          ]
+        }
+      ],
+      "images": []
+    },
+    {
+      "type": "Private cabin",
+      "room_count": 2,
+      "price_per_seat": 8500,
+      "opening_time": "09:00",
+      "closing_time": "21:00",
+      "room_details": [
+        {
+          "room_number": 1,
+          "seating_capacity": 5,
+          "price": 8500,
+          "images": []
+        },
+        {
+          "room_number": 2,
+          "seating_capacity": 6,
+          "price": 8500,
+          "images": []
+        }
+      ],
+      "images": []
+    }
+  ],
+  "amenities": [
+    "Air Conditioning",
+    "High Speed WiFi",
+    "Housekeeping",
+    "Meeting Rooms",
+    "Pantry",
+    "Printer",
+    "Reception",
+    "Tea/Coffee"
+  ],
+  "office_timings": {
+    "open_from": "Monday",
+    "open_to": "Saturday",
+    "opening_time": "09:00",
+    "closing_time": "21:00"
+  }
+}

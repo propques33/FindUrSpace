@@ -48,6 +48,38 @@
         &noscript=1"/>
         </noscript>
     <!-- End Facebook Pixel Code -->
+
+    <!-- Google Tag Manager -->
+<script>
+
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MX8P4NN6');
+
+</script>
+<!-- End Google Tag Manager -->
+
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+ fbq('init', '3647529905577467'); 
+fbq('track', 'PageView');
+</script>
+<noscript>
+ <img height="1" width="1" 
+src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
+&noscript=1"/>
+</noscript>
+<!-- End Facebook Pixel Code -->
 </head>
 
     <!-- Slick Carousel CSS -->
@@ -130,7 +162,7 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <!-- Add an icon before FindUrSpace -->
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{ url_for('core_bp.index') }}">
                 <img src="../static/images/logo.png" alt="Icon" loading="lazy" width="70" height="60" class="d-inline-block align-text-top">
                 <span style="font-size: 1.5rem; font-weight: bold;">FindUrSpace</span>
             </a>
@@ -177,7 +209,13 @@
                           <option value="Meeting rooms">Meeting Rooms</option>
                           <option value="Day pass">Day Pass</option>
                       </select>
-                  </div>
+                    </div>
+                    <div class="mb-3" id="seatingSection" style="display: none;">
+                      <label for="seatingSelect" class="form-label">Select Seating Capacity</label>
+                      <select class="form-control" id="seatingSelect" required>
+                        <option value="">Select</option>
+                      </select>
+                    </div>
                     <button type="submit" class="btn btn-primary w-100 bk">Book Now</button>
                 </form>
             </div>
@@ -248,6 +286,255 @@
     </div>
 </section>
  
+<section class="discover-coworking-section"></section>
+    <div class="container text-center">
+        <h2 id="headn">Featured Coworkings Spaces</h2>
+        <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.</p>
+
+            <div class="cities-wrapper" id="featured-cities-wrapper">
+                <div class="card">
+                    <div class="top-section" id="card1">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://www.cubispace.com/" target="_blank">
+  <button>
+    <span id="fon">Cubispace</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">Jankipuram,</span>
+                          <span class="regular-text">Lucknow</span>
+                        </div>
+                      </div>
+                      <!-- New Book Now Button -->
+                      <div class="book-now-container">
+                        <button 
+                          class="book-now-btn" 
+                          data-space-name="Cubispace" 
+                          data-micromarket="Aliganj" 
+                          data-city="Lucknow">
+                          Book Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="top-section" id="card2">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://www.workdesq.com/our-package/" target="_blank">
+  <button>
+    <span id="fon">Workdesq</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">MahaLaxmi Nagar,</span>
+                          <span class="regular-text">Indore</span>
+                        </div>
+                      </div>
+                      <!-- New Book Now Button -->
+                      <div class="book-now-container">
+                        <button 
+                          class="book-now-btn" 
+                          data-space-name="Workdesq" 
+                          data-micromarket="MahalaxmiNagar" 
+                          data-city="Indore">
+                          Book Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="card">
+                    <div class="top-section" id="card3">
+                      <div class="border"> 
+<div class="loader">
+  <svg
+    viewBox="0 0 256 256"
+    class="star star1"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star2"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+  <svg
+    viewBox="0 0 256 256"
+    class="star star3"
+    height="32"
+    width="32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
+    ></path>
+  </svg>
+</div>
+
+                      </div>
+                    </div>
+                    <div class="bottom-section">
+                      <span class="title">
+<a href="https://worqspot.com/" target="_blank">
+  <button>
+    <span id="fon">Worqspot</span>
+    <span class="icon">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 448 512"
+        class="svg-icon"
+      >
+        <path
+          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+        ></path>
+      </svg>
+    </span>
+  </button>
+</a>
+
+                      </span>
+                      <div class="row row1">
+                        <div class="item">
+                          <span class="big-text">Vashi,</span>
+                          <span class="regular-text">Mumbai</span>
+                        </div>
+                      </div>
+                      <!-- New Book Now Button -->
+                      <div class="book-now-container">
+                        <button 
+                          class="book-now-btn" 
+                          data-space-name="Worqspot" 
+                          data-micromarket="CbdBelapur" 
+                          data-city="Mumbai">
+                          Book Now
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+</section>
 
     <!-- How it Works Section -->
     <section class="how-it-works-section" id="2">
@@ -451,258 +738,6 @@
       </div>
   </div>
 </section>
-
-<section class="discover-coworking-section"></section>
-    <div class="container text-center">
-        <h2 id="headn">Featured Coworkings Spaces</h2>
-        <p>Explore the top coworking spaces across the city, tailored to freelancers, startups, and corporates. Updated in real-time, these are the most popular spots, from serene desks to collaborative environments, curated for productivity.</p>
-
-            <div class="cities-wrapper" id="featured-cities-wrapper">
-                <div class="card">
-                    <div class="top-section" id="card1">
-                      <div class="border"> 
-<div class="loader">
-  <svg
-    viewBox="0 0 256 256"
-    class="star star1"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star2"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star3"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-</div>
-
-                      </div>
-                    </div>
-                    <div class="bottom-section">
-                      <span class="title">
-<a href="https://www.cubispace.com/" target="_blank">
-  <button>
-    <span id="fon">Cubispace</span>
-    <span class="icon">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 448 512"
-        class="svg-icon"
-      >
-        <path
-          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-        ></path>
-      </svg>
-    </span>
-  </button>
-</a>
-
-                      </span>
-                      <div class="row row1">
-                        <div class="item">
-                          <span class="big-text">Jankipuram,</span>
-                          <span class="regular-text">Lucknow</span>
-                        </div>
-                      </div>
-                      <!-- New Book Now Button -->
-                      <div class="book-now-container">
-                        <button 
-                          class="book-now-btn" 
-                          data-space-name="Cubispace" 
-                          data-micromarket="Aliganj" 
-                          data-city="Lucknow">
-                          Book Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="card">
-                    <div class="top-section" id="card2">
-                      <div class="border"> 
-<div class="loader">
-  <svg
-    viewBox="0 0 256 256"
-    class="star star1"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star2"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star3"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-</div>
-
-                      </div>
-                    </div>
-                    <div class="bottom-section">
-                      <span class="title">
-<a href="https://www.workdesq.com/our-package/" target="_blank">
-  <button>
-    <span id="fon">Workdesq</span>
-    <span class="icon">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 448 512"
-        class="svg-icon"
-      >
-        <path
-          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-        ></path>
-      </svg>
-    </span>
-  </button>
-</a>
-
-                      </span>
-                      <div class="row row1">
-                        <div class="item">
-                          <span class="big-text">MahaLaxmi,</span>
-                          <span class="regular-text">Indore</span>
-                        </div>
-                      </div>
-                      <!-- New Book Now Button -->
-                      <div class="book-now-container">
-                        <button 
-                          class="book-now-btn" 
-                          data-space-name="Workdesq Coworking" 
-                          data-micromarket="Mahalaxmi Nagar, Indore" 
-                          data-city="Indore">
-                          Book Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="card">
-                    <div class="top-section" id="card3">
-                      <div class="border"> 
-<div class="loader">
-  <svg
-    viewBox="0 0 256 256"
-    class="star star1"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star2"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-  <svg
-    viewBox="0 0 256 256"
-    class="star star3"
-    height="32"
-    width="32"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M234.5,114.38l-45.1,39.36,13.51,58.6a16,16,0,0,1-23.84,17.34l-51.11-31-51,31a16,16,0,0,1-23.84-17.34L66.61,153.8,21.5,114.38a16,16,0,0,1,9.11-28.06l59.46-5.15,23.21-55.36a15.95,15.95,0,0,1,29.44,0h0L166,81.17l59.44,5.15a16,16,0,0,1,9.11,28.06Z"
-    ></path>
-  </svg>
-</div>
-
-                      </div>
-                    </div>
-                    <div class="bottom-section">
-                      <span class="title">
-<a href="https://worqspot.com/" target="_blank">
-  <button>
-    <span id="fon">Worqspot</span>
-    <span class="icon">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 448 512"
-        class="svg-icon"
-      >
-        <path
-          d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-        ></path>
-      </svg>
-    </span>
-  </button>
-</a>
-
-                      </span>
-                      <div class="row row1">
-                        <div class="item">
-                          <span class="big-text">Vashi,</span>
-                          <span class="regular-text">Mumbai</span>
-                        </div>
-                      </div>
-                      <!-- New Book Now Button -->
-                      <div class="book-now-container">
-                        <button 
-                          class="book-now-btn" 
-                          data-space-name="WORQSPOT" 
-                          data-micromarket="Cbd Belapur" 
-                          data-city="Mumbai">
-                          Book Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-
 
     <!-- Overall Presence section -->
     <section class="presence-section" id="4">
@@ -1060,6 +1095,10 @@
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
 </body>
     
 </html>

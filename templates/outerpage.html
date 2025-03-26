@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Coworking Space Card</title>
+    <title>Find the Best Coworking in Just 5 Minutes</title>
+    <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
     <link rel="stylesheet" href="../static/css/outer.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=social_distance" />
     <!-- Google Icons -->
@@ -53,6 +54,38 @@
         &noscript=1"/>
         </noscript>
     <!-- End Facebook Pixel Code -->
+
+    <!-- Google Tag Manager -->
+<script>
+
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MX8P4NN6');
+
+</script>
+<!-- End Google Tag Manager -->
+
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+ fbq('init', '3647529905577467'); 
+fbq('track', 'PageView');
+</script>
+<noscript>
+ <img height="1" width="1" 
+src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
+&noscript=1"/>
+</noscript>
+<!-- End Facebook Pixel Code -->
   </head>
   <body>
     <!-- Signup Modal -->
@@ -98,7 +131,7 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <!-- Add an icon before FindUrSpace -->
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="{{ url_for('core_bp.index') }}">
                 <img src="../static/images/logo.png" alt="Icon" loading="lazy" width="70" height="60" class="d-inline-block align-text-top">
                 <span style="font-size: 1.5rem; font-weight: bold;">FindUrSpace</span>
             </a>
@@ -155,12 +188,18 @@
             <div class="card-con1">
               <h3 class="price">
                 <span class="material-symbols-outlined icon">currency_rupee</span>
-                {{ card.price|int }}
-                {% if card.type == "Day pass" %} / Day
-                {% elif card.type == "Dedicated desk" %} / Month
-                {% elif card.type == "Virtual office" %} / Year
-                {% elif "Meeting Room" in card.type %} / Hour
-                {% elif "Private Cabin" in card.type %} / Month
+                {% if "Meeting Room" in card.type or "Private Cabin" in card.type %}
+                  {% set seating_capacity = card.type.split(' ')[0] | int %}
+                  {{ (card.price * seating_capacity) | int | inr }}
+                  {% if "Meeting Room" in card.type %} / Hour
+                  {% else %} / Month
+                  {% endif %}
+                {% else %}
+                  {{ card.price | int | inr }}
+                  {% if card.type == "Day pass" %} / Day
+                  {% elif card.type == "Dedicated desk" %} / Month
+                  {% elif card.type == "Virtual office" %} / Year
+                  {% endif %}
                 {% endif %}
               </h3>
               <div class="rating rat" >
@@ -188,7 +227,12 @@
                 {{ card.record.micromarket }}, {{ card.record.city }}
               </p>
             </div>
-            <a href="{{ url_for('core_bp.innerpage', city=card.record.city, micromarket=card.record.micromarket, coworking_name=card.record.coworking_name, inventoryType=card.inventory.type, contact=contact) }}" class="btn">View Details</a>
+            {% set inventory_slug = card.inventory.type.replace(' ', '') %}
+            {% if "Meeting Room" in card.type or "Private Cabin" in card.type %}
+              <a href="{{ url_for('core_bp.innerpage', city=card.record.city, micromarket=card.record.micromarket, coworking_name=card.record.coworking_name, inventoryType=inventory_slug, contact=contact, seats=card.type.split(' ')[0]) }}" class="btn">View Details</a>
+            {% else %}
+              <a href="/{{ card.record.city }}/{{ card.record.micromarket }}/{{ card.record.coworking_name }}?inventoryType={{ inventory_slug }}&contact={{ contact }}" class="btn">View Details</a>
+            {% endif %}
           </div>
         </div>
       {% endfor %}
@@ -206,17 +250,17 @@
 <!-- Dynamic Pagination -->
 <div class="pagination">
   {% if page > 1 %}
-    <a href="{{ url_for('core_bp.outerpage', page=page-1,contact=contact, location=location, area=area, inventoryType=inventoryType) }}" class="page prev">
+    <a href="{{ url_for('core_bp.outerpage', page=page-1,contact=contact, location=location, area=area, inventoryType=inventoryType.replace(' ', '')) }}" class="page prev">
       <span class="material-symbols-outlined">chevron_left</span>
     </a>
   {% endif %}
   {% for p in range(1, total_pages + 1) %}
-    <a href="{{ url_for('core_bp.outerpage', page=p, contact=contact, location=location, area=area, inventoryType=inventoryType) }}" class="page {% if p == page %} active {% endif %}">
+    <a href="{{ url_for('core_bp.outerpage', page=p, contact=contact, location=location, area=area, inventoryType=inventoryType.replace(' ', '')) }}" class="page {% if p == page %} active {% endif %}">
       {{ p }}
     </a>
   {% endfor %}
   {% if page < total_pages %}
-    <a href="{{ url_for('core_bp.outerpage', page=page+1,contact=contact, location=location, area=area, inventoryType=inventoryType) }}" class="page next">
+    <a href="{{ url_for('core_bp.outerpage', page=page+1,contact=contact, location=location, area=area,inventoryType=inventoryType.replace(' ', '')) }}" class="page next">
       <span class="material-symbols-outlined">chevron_right</span>
     </a>
   {% endif %}
@@ -654,7 +698,12 @@ document.querySelector('.footer-bottom p').innerHTML =
       alert("Error saving user info");
     }
   });
-</script>
 
+  
+</script>
+<!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
   </body>
 </html>

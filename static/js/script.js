@@ -495,9 +495,11 @@ function submitUserPreferences() {
         if (data.status === 'success') {
             // Redirect with query parameters for filtering
             console.log("Submission successful:", data);
-            const redirectUrl = `/outerpage?contact=${encodeURIComponent(contact)}&location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(inventoryType)}`;
-            // const redirectUrl = `/thankyou`;
+            const cleanedInventory = inventoryType.replace(/\s+/g, '');
+            // const redirectUrl = `/outerpage?contact=${encodeURIComponent(contact)}&location=${encodeURIComponent(location)}&area=${encodeURIComponent(area)}&inventoryType=${encodeURIComponent(cleanedInventory)}`;
+            const redirectUrl = `/thankyou`;
             window.location.href = redirectUrl;
+            // window.location.href = '/thankyou';
         } else {
             alert(data.message);
         }
@@ -981,8 +983,40 @@ document.addEventListener("DOMContentLoaded", function () {
             selectedSpace.micromarket = this.getAttribute("data-micromarket") || "";
 
             document.getElementById("bookNowModalLabel").innerText = `Book for ${selectedSpace.coworkingName}`;
+            document.getElementById("inventoryType").value = "";
+            document.getElementById("seatingSelect").innerHTML = '<option value="">Select</option>';
+            document.getElementById("seatingSection").style.display = "none";
+
             $('#bookNowModal').modal('show');
         });
+    });
+
+    // Handle seating visibility based on inventory type
+    document.getElementById("inventoryType").addEventListener("change", function () {
+        const invType = this.value.trim();
+        const seatingSelect = document.getElementById("seatingSelect");
+        const seatingSection = document.getElementById("seatingSection");
+
+        seatingSelect.innerHTML = '<option value="">Select</option>';
+
+        if (invType === "Meeting rooms") {
+            seatingSection.style.display = "block";
+
+            let seatOptions = [];
+            const space = selectedSpace.coworkingName;
+
+            if (space === "Cubispace") seatOptions = [4, 6, 25];
+            else if (space === "Workdesq" || space === "Worqspot") seatOptions = [8];
+
+            seatOptions.forEach(seat => {
+                const option = document.createElement("option");
+                option.value = seat;
+                option.text = `${seat} Seater`;
+                seatingSelect.appendChild(option);
+            });
+        } else {
+            seatingSection.style.display = "none";
+        }
     });
 
     document.getElementById("bookNowForm").addEventListener("submit", function (e) {
@@ -990,6 +1024,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const contact = document.getElementById("contactNumber").value.trim();
         const inventory = document.getElementById("inventoryType").value.trim();
+        const seating = document.getElementById("seatingSelect").value.trim();
 
         if (!contact || !inventory || !selectedSpace.coworkingName) {
             alert("Please fill all fields.");
@@ -1004,7 +1039,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 const payload = {
                     coworking_name: selectedSpace.coworkingName,
                     contact: contact,
-                    inventory: inventory
+                    inventory: inventory,
+                    seating: seating || null
                 };
 
                 return fetch(endpoint, {
@@ -1017,7 +1053,17 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 if (data.success) {
                     // Construct new redirect URL with proper casing (no lowercase/slug format)
-                    const url = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}?inventoryType=${encodeURIComponent(inventory)}&contact=${encodeURIComponent(contact)}`;
+                    let basePath = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}`;
+                    const sanitizedInventory = inventory.replace(/\s/g, '').toLowerCase();
+                    if (["daypass", "meetingrooms"].includes(sanitizedInventory)) {
+                        basePath = `/flexspace${basePath}`;
+                    }
+
+                    let url = `${basePath}?inventoryType=${encodeURIComponent(sanitizedInventory)}&contact=${encodeURIComponent(contact)}`;
+                    if (seating) {
+                        url += `&seats=${encodeURIComponent(seating)}`;
+                    }
+
                     window.location.href = url;
                 } else {
                     alert(data.message || "Submission failed.");

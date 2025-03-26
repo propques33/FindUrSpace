@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>{{ property.coworking_name }}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/Asset 6.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/inner.css') }}">
-
     <!-- <link rel="stylesheet" href="../static/css/inner.css" /> -->
     <!-- Google Fonts -->
     <link
@@ -25,6 +25,38 @@
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
 
+    <!-- Google Tag Manager -->
+<script>
+
+(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-MX8P4NN6');
+
+</script>
+<!-- End Google Tag Manager -->
+
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+ fbq('init', '3647529905577467'); 
+fbq('track', 'PageView');
+</script>
+<noscript>
+ <img height="1" width="1" 
+src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
+&noscript=1"/>
+</noscript>
+<!-- End Facebook Pixel Code -->
+
     <!-- Mapbox JS -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
   </head>
@@ -32,12 +64,13 @@
     <input type="hidden" id="currentInventoryType" value="{{ inventoryType }}">
 
     <input type="hidden" id="userContact" value="{{ contact }}">
+    <input type="hidden" id="seatCountHidden" value="{{ seat_count }}">
 
 <!-- Navbar Section -->
 <nav class="navbar">
     <div class="navbar-container">
         <!-- Logo -->
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="{{ url_for('core_bp.index') }}">
             <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Icon" width="70" height="60">
             <span>FindUrSpace</span>
         </a>
@@ -100,6 +133,8 @@
   </div>
 </div>
 
+<div id="modalOverlay" class="modal-overlay"></div>
+
 
 <!-- Contact Number Modal -->
 <div id="contactModal" class="modal">
@@ -152,26 +187,33 @@
     </div>
 
     <!-- Image Gallery -->
-    <section class="unique-image-gallery">
-      <div class="unique-gallery-container">
-        <div class="unique-main-image">
-          
-          {% if inventory_images %}
-                <img src="{{ inventory_images[0] }}" alt="Workspace Image" class="unique-image-click"/>
-            {% elif property_images %}
-                <img src="{{ property_images[0] }}" alt="Workspace Image" class="unique-image-click"/>
-            {% else %}
-                <img src="https://via.placeholder.com/800x400" alt="No Image Available" class="unique-image-click"/>
-            {% endif %}
-        </div>
-        <div class="unique-thumbnail-container">
-          {% set all_images = (inventory_images + property_images)[:3] %}
-            {% for img in all_images %}
-                <img src="{{ img }}" alt="Thumbnail Image" class="unique-image-click"/>
-            {% endfor %}
-        </div>
+    <!-- Image Gallery -->
+<section class="unique-image-gallery">
+  <div class="unique-gallery-container">
+    <div class="unique-main-image">
+      {% if inventory_images %}
+      <div class="watermarked-wrapper">
+        <img src="{{ inventory_images[0] }}" alt="Main Image" class="unique-image-click main-gallery-img"/>
+        <div class="img-watermark">FindurSpace</div>
       </div>
-    </section>
+      {% else %}
+      <div class="watermarked-wrapper">
+        <img src="https://via.placeholder.com/800x400" alt="No Image" class="unique-image-click main-gallery-img"/>
+        <div class="img-watermark">FindurSpace</div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="unique-thumbnail-container">
+      {% for img in inventory_images[1:] %}
+      <div class="watermarked-wrapper">
+        <img src="{{ img }}" alt="Thumbnail" class="unique-image-click"/>
+        <div class="img-watermark">FindurSpace</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
     <div class="listing-container">
       <!-- Left Section -->
       <div>
@@ -180,20 +222,20 @@
         </div>
         <div class="rating-location">
           <!-- <span class="star-icon">⭐ 4.3</span> -->
-          <span>📍 {{ property.micromarket }}, {{ property.city }}</span>
+          <span>📍 {{ property.micromarket | split_camel_case }}, {{ property.city }}</span>
         </div>
       </div>
 
       <!-- Right Section (Price) -->
-      <div class="price">Starting from<br/>
+      <div class="price">{{ inventoryType }}<br/>
         <span>{% if inventoryType == "Dedicated desk" %}
             ₹{{ selected_inventory.price_per_seat| int  }} /seat/month
         {% elif inventoryType == "Day pass" %}
             ₹{{ selected_inventory.price_per_seat| int  }} /seat/day
         {% elif inventoryType == "Meeting rooms" %}
-            ₹{{ selected_inventory.price_per_seat| int  }} /hour
+            ₹{{ total_price| int }} /hour
         {% elif inventoryType == "Private cabin" %}
-            ₹{{ selected_inventory.price_per_seat| int  }} /seat/month
+            ₹{{ total_price| int }} /seat/month
         {% elif inventoryType == "Virtual office" %}
             ₹{{ selected_inventory.price_per_seat| int  }} /year
         {% else %}
@@ -208,8 +250,7 @@
           {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
             {{ inventoryType }}
           {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
-              {% set seating_capacities = selected_inventory.room_details | map(attribute='seating_capacity') | list %}
-              {{ seating_capacities | join(", ") }} Seater {{ inventoryType }}
+              {{ seat_count }} Seater {{ inventoryType }}
           {% endif %}
         </h1>
         <h5>SEATING OPTION</h5>
@@ -228,8 +269,7 @@
                 {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
                     {{ inventoryType }}
                 {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
-                    {% set seating_capacities = selected_inventory.room_details | map(attribute='seating_capacity') | list %}
-                    {{ seating_capacities | join(", ") }} Seater {{ inventoryType }}
+                    {{ seat_count }} Seater {{ inventoryType }}
                 {% endif %}
               </h2>
               <p>
@@ -268,15 +308,15 @@
             </div>
             <div>
               <span class="price-range"
-                >Starting Price <br />
+                >{{ inventoryType }}<br />
                 {% if inventoryType == "Dedicated desk" %}
                     ₹{{ selected_inventory.price_per_seat| int }} /seat/month
                 {% elif inventoryType == "Day pass" %}
                     ₹{{ selected_inventory.price_per_seat| int }} /seat/day
                 {% elif inventoryType == "Meeting rooms" %}
-                    ₹{{ selected_inventory.price_per_seat| int }} /hour
+                    ₹{{ selected_inventory.price_per_seat|int }} x {{ seat_count }} seat(s) = ₹{{ total_price| int }} /hour
                 {% elif inventoryType == "Private cabin" %}
-                    ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+                    ₹{{ selected_inventory.price_per_seat|int }} x {{ seat_count }} seat(s) = ₹{{ total_price| int }} /seat/month
                 {% elif inventoryType == "Virtual office" %}
                     ₹{{ selected_inventory.price_per_seat| int }} /year
                 {% else %}
@@ -299,7 +339,7 @@
         <h3>Select your preference</h3>
 
         <!-- Updated Cart Summary UI -->
-        <div id="cartSummary" class="cart-summary" style="display: none;">
+        <div id="cartSummary" class="cart-summary">
             <div class="cart-header">
                 <h4>Your Selection</h4>
             </div>
@@ -504,7 +544,11 @@
             <div class="left1">
                 <span>{{ inventoryType }}</span>
                 <div>
-                    <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
+                    {% if inventoryType == "Day pass" %}
+                      <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
+                    {% else %}
+                      <div class="price1">₹{{ selected_inventory.price_per_seat * seat_count | int }}</div>
+                    {% endif %}
                 </div>
             </div>
             <div class="quantity1">
@@ -533,9 +577,9 @@
         {% elif inventoryType == "Day pass" %}
             ₹{{ selected_inventory.price_per_seat| int }} /seat/day
         {% elif inventoryType == "Meeting rooms" %}
-            ₹{{ selected_inventory.price_per_seat| int }} /hour
+            ₹{{ total_price| int }} /hour
         {% elif inventoryType == "Private cabin" %}
-            ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+            ₹{{ total_price| int }} /seat/month
         {% elif inventoryType == "Virtual office" %}
             ₹{{ selected_inventory.price_per_seat| int }} /year
         {% else %}
@@ -770,7 +814,13 @@
           </div>
 
           <!-- Coworking Name -->
-          <p class="room-title">{{ inventory.coworking_name }}</p>
+          <p class="room-title">
+            {% if inventory.seating_capacity %}
+              {{ inventory.seating_capacity }} Seater {{ inventory.type }}
+            {% else %}
+              {{ inventory.type }} - {{ inventory.coworking_name }}
+            {% endif %}
+          </p>
 
           <!-- Location (Micromarket, City) -->
           <p class="room-location">
@@ -778,7 +828,7 @@
           </p>
 
           <!-- View Details Button -->
-          <a href="{{ url_for('core_bp.innerpage', city=property.city, micromarket=property.micromarket, coworking_name=property.coworking_name, inventoryType=inventory.type, contact=contact) }}" 
+          <a href="{{ url_for('core_bp.innerpage', city=property.city, micromarket=property.micromarket, coworking_name=property.coworking_name, inventoryType=inventory.type, seating=inventory.seating_capacity if inventory.seating_capacity else '', contact=contact) }}"
             class="view-details-btn">
             View Details →
           </a>
@@ -1068,6 +1118,7 @@ const popup = document.getElementById("unique-image-popup");
           currentIndex = index;
           updatePopup();
           popup.style.display = "flex";
+           document.getElementById("modalOverlay").style.display = "block"; // Show overlay
         });
       });
 
@@ -1083,7 +1134,10 @@ const popup = document.getElementById("unique-image-popup");
         currentIndex = (currentIndex + 1) % images.length;
         updatePopup();
       });
-      closeBtn.addEventListener("click", () => (popup.style.display = "none"));
+      closeBtn.addEventListener("click", () => {
+  popup.style.display = "none";
+  document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
+});
 
 
 
@@ -1161,10 +1215,18 @@ document.querySelector('.footer-bottom p').innerHTML =
 
       // Close Popup when clicking outside the content
       window.addEventListener("click", (event) => {
-        if (event.target === popupContainer) {
-          popupContainer.style.display = "none";
-        }
-      });
+  const overlay = document.getElementById("modalOverlay");
+  if (event.target === overlay) {
+    [
+      "tourModal", "timeModal", "detailsModal", "buyNowModal", 
+      "signUpModal", "contactModal", "thankYouModal", "unique-image-popup"
+    ].forEach(modalId => {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.style.display = "none";
+    });
+    overlay.style.display = "none";
+  }
+});
 
 
   document.querySelectorAll('.faq-question').forEach(question => {
@@ -1211,6 +1273,13 @@ function hideModal(modalId) {
 // Open Date Selection Modal
 function openTourModal() {
   showModal("tourModal");
+
+  // Set tour date input to only allow from tomorrow
+const tourDateInput = document.getElementById("tourDate");
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+tourDateInput.min = tomorrow.toISOString().split("T")[0];
+
    // Fetch user data from the backend
     let userData = {{ user_data | tojson | safe }};
     
@@ -1240,6 +1309,7 @@ function closeTimeModal() {
 
 function openSignUpModal() {
   document.getElementById("signUpModal").style.display = "flex";
+  document.getElementById("modalOverlay").style.display = "block"; // Show overlay
   getLocation(); // Autofill location if enabled
 }
 
@@ -1288,6 +1358,16 @@ function generateTimeSlots1() {
 // Confirm Date and Open Time Selection
 function confirmTour() {
   const selectedDate = document.getElementById("tourDate").value;
+  const today = new Date();
+const selected = new Date(selectedDate);
+today.setHours(0, 0, 0, 0);
+selected.setHours(0, 0, 0, 0);
+
+if (selected <= today) {
+  alert("Please select a date from tomorrow onward.");
+  return;
+}
+
   if (selectedDate) {
     document.getElementById("selectedDateText").textContent = new Date(selectedDate).toDateString();
     closeTourModal();
@@ -1377,10 +1457,12 @@ function submitTourRequest() {
 // Function to close Thank You Modal
 function closeThankYouModal() {
   hideModal("thankYouModal");
+  document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
 }
 
 function closeThankYouModal() {
     document.getElementById("thankYouModal").style.display = "none";
+    document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
     document.getElementById("thankYouTitle").innerText = "";
     document.getElementById("thankYouMessage").innerText = "";
     document.getElementById("thankYouDetails").style.display = "none"; // Reset
@@ -1466,9 +1548,11 @@ document.addEventListener("DOMContentLoaded", function () {
     <script>
 let passQuantity = 1;
 let pricePerSeat = {{ selected_inventory.price_per_seat | int }};
+let seatCount = {{ seat_count if seat_count else 1 }};
 let totalPrice = pricePerSeat;
 let selectedBundle = 0;
 let inventoryType = "{{ inventoryType }}"; 
+
 
 function updateCartSummary() {
     let cartSummaries = document.querySelectorAll("#cartSummary"); // Select all cart summary sections
@@ -1480,21 +1564,29 @@ function updateCartSummary() {
 
     cartSummaries.forEach(cart => cart.style.display = "block"); // Show cart summary
 
-    totalPassDisplays.forEach(total => {
-        if (inventoryType === "Meeting rooms") {
-            total.innerText = `${passQuantity} Hours`;  
-        } else {
-            total.innerText = `${passQuantity} Day(s)`;  
-        }
-    });
-
-    totalPriceDisplays.forEach(price => {
-        price.innerText = `₹${totalPrice}`;
-    });
-
     quantityDisplays.forEach(qty => {
         qty.innerText = passQuantity; // Update quantity in UI
     });
+
+    let calculatedTotal = 0;
+
+    if (inventoryType === "Meeting rooms" || inventoryType === "Private cabin") {
+        calculatedTotal = pricePerSeat * passQuantity * seatCount;
+    } else {
+        calculatedTotal = pricePerSeat * passQuantity;
+    }
+
+    totalPrice = calculatedTotal; // Store for use elsewhere
+
+    totalPassDisplays.forEach(total => {
+        total.innerText = (inventoryType === "Meeting rooms") ? `${passQuantity} Hour(s)` : `${passQuantity} Day(s)`;
+    });
+
+    totalPriceDisplays.forEach(price => {
+        price.innerText = `₹${calculatedTotal}`;
+    });
+
+
 }
 
 
@@ -1516,10 +1608,18 @@ function decreaseQuantity() {
 
 // Function to add bundles
 function addBundle(quantity) {
-    passQuantity = quantity;
-    totalPrice = passQuantity * pricePerSeat;
-
     let inventoryType = "{{ inventoryType }}";
+    passQuantity = quantity;
+    let calculatedTotal = 0;
+
+    if (inventoryType === "Meeting rooms" || inventoryType === "Private cabin") {
+        calculatedTotal = pricePerSeat * quantity * seatCount;
+    } else {
+        calculatedTotal = pricePerSeat * quantity;
+    }
+
+    totalPrice = calculatedTotal;
+
 
     let selectionText = (inventoryType === "Meeting rooms") ? "Meeting Room Hours: " : "Day Passes: ";
 
@@ -1534,6 +1634,10 @@ function addBundle(quantity) {
     document.querySelectorAll("#cartSummary").forEach(cart => {
         cart.style.display = "block";
     });
+
+    document.querySelectorAll("#passQuantity").forEach(qty => {
+        qty.innerText = passQuantity;
+    });
 }
 
 
@@ -1547,14 +1651,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="bundle1">
                     <div>
                         <strong>2 Hours</strong>
-                        <div class="price1">₹${2 * pricePerSeat}</div>
+                        <div class="price1">₹${2 * pricePerSeat * seatCount}</div>
                     </div>
                     <button class="btn1 btn-add1" onclick="addBundle(2)">Add</button>
                 </div>
                 <div class="bundle1">
                     <div>
                         <strong>4 Hours</strong>
-                        <div class="price1">₹${4 * pricePerSeat}</div>
+                        <div class="price1">₹${4 * pricePerSeat * seatCount}</div>
                     </div>
                     <button class="btn1 btn-add1" onclick="addBundle(4)">Add</button>
                 </div>
@@ -1585,7 +1689,15 @@ document.addEventListener("DOMContentLoaded", function () {
 function openBuyNowModal() {
     document.getElementById("modalPassQuantity").innerText = passQuantity;
     document.getElementById("modalTotalPrice").innerText = totalPrice;
+
+    // ✅ Set min date to tomorrow
+    const dateInput = document.getElementById("buyNowDate");
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split("T")[0];
+
     document.getElementById("buyNowModal").style.display = "flex";
+    document.getElementById("modalOverlay").style.display = "block"; // Show overlay
 
     // Show time selection only if inventoryType is "Meeting rooms"
     let inventoryType = "{{ inventoryType }}";
@@ -1600,8 +1712,10 @@ function openBuyNowModal() {
 
 // Function to close Buy Now Modal
 function closeBuyNowModal() {
-    document.getElementById("buyNowModal").style.display = "none";
+  document.getElementById("buyNowModal").style.display = "none";
+  document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
 }
+
 
 // Function to generate time slots from 9 AM to 6 PM in 1-hour intervals
 // Function to generate time slots in dropdown
@@ -1634,6 +1748,15 @@ function submitPurchase() {
     let company = document.getElementById("companyBuy").value;
     let gstin = document.getElementById("gstinBuy").value; // Capture GSTIN
     let selectedDate = document.getElementById("buyNowDate").value;
+    let today = new Date();
+    let selected = new Date(selectedDate);
+    today.setHours(0, 0, 0, 0);
+    selected.setHours(0, 0, 0, 0);
+
+    if (selected <= today) {
+      alert("Please select a date from tomorrow onward.");
+      return;
+    }
     let selectedTime = document.getElementById("timeSlotDropdown").value; // Ensure time is captured correctly
 
     if (!fullName || !email || !phone || !selectedDate) {
@@ -1694,10 +1817,12 @@ function submitPurchase() {
 // Function to close Thank You Modal
 function closeThankYouModal() {
     document.getElementById("thankYouModal").style.display = "none";
+    document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
 }
 
 function showThankYouModal(isBooking,contact) {
     document.getElementById("thankYouModal").style.display = "flex";
+    document.getElementById("modalOverlay").style.display = "block";
     let seeDetailsBtn = document.getElementById("seeDetailsBtn");
 
     if (isBooking) {
@@ -1816,6 +1941,7 @@ function openSignUpModal() {
 
 function closeSignUpModal() {
   document.getElementById("signUpModal").style.display = "none";
+  document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
 }
 
 // Get Location Info
@@ -1875,12 +2001,19 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.removeItem("showThankYou");
     }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    updateCartSummary(); // <-- This line ensures cart is shown even at quantity = 1
+});
 </script>
 
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
+  <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     
   </body>
 </html>
