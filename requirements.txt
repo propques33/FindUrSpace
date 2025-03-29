@@ -12,6 +12,7 @@ python-dotenv
 OTPLessAuthSDK
 apscheduler
 PyPDF2
+razorpay
  
 gspread
 google-auth
