@@ -6,6 +6,7 @@
     <title>{{ property.coworking_name }}</title>
     <link rel="icon" href="{{ url_for('static', filename='images/Asset 6.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/inner.css') }}">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <!-- <link rel="stylesheet" href="../static/css/inner.css" /> -->
     <!-- Google Fonts -->
     <link
@@ -65,6 +66,16 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 
     <input type="hidden" id="userContact" value="{{ contact }}">
     <input type="hidden" id="seatCountHidden" value="{{ seat_count }}">
+
+    <div id="couponSuccessPopup" class="coupon-popup">
+      <div class="coupon-popup-content">
+        <span class="close-popup" onclick="closeCouponPopup()">&times;</span>
+        <i class="fas fa-check-circle success-icon"></i>
+        <p id="couponPopupMessage">Coupon applied successfully!</p>
+      </div>
+    </div>
+
+    <div id="couponOverlay" class="modal-overlay" style="display: none;"></div>
 
 <!-- Navbar Section -->
 <nav class="navbar">
@@ -177,14 +188,21 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     </div>
 
     <!-- Coupon Section -->
-    <div class="coupon-container">
-      <div class="coupon-main">
-        <img src="{{ url_for('static', filename='images/6951444_3537439.jpg') }}" alt="Coupon 1" />
-        <img src="{{ url_for('static', filename='images/c1.jpg') }}" alt="Coupon 2" />
-        <img src="{{ url_for('static', filename='images/c4.jpg') }}" alt="Coupon 3" />
-        <img src="{{ url_for('static', filename='images/6951444_3537439.jpg') }}" alt="Coupon 1" />
-      </div>
-    </div>
+    {% if inventoryType in ["Day pass", "Meeting rooms"] %}
+<!-- Coupon Section -->
+<div class="coupon-container">
+  <div class="coupon-main">
+    <img src="{{ url_for('static', filename='images/flat100.jpg') }}" alt="Coupon Flat100" />
+    {% if inventoryType == "Day pass" %}
+      <img src="{{ url_for('static', filename='images/day200.jpg') }}" alt="Coupon Day200" />
+      <img src="{{ url_for('static', filename='images/day500.jpg') }}" alt="Coupon Day500" />
+    {% elif inventoryType == "Meeting rooms" %}
+      <img src="{{ url_for('static', filename='images/meet300.jpg') }}" alt="Coupon Meet300" />
+      <img src="{{ url_for('static', filename='images/meet500.jpg') }}" alt="Coupon Meet500" />
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 
     <!-- Image Gallery -->
     <!-- Image Gallery -->
@@ -314,9 +332,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 {% elif inventoryType == "Day pass" %}
                     ₹{{ selected_inventory.price_per_seat| int }} /seat/day
                 {% elif inventoryType == "Meeting rooms" %}
-                    ₹{{ selected_inventory.price_per_seat|int }} x {{ seat_count }} seat(s) = ₹{{ total_price| int }} /hour
+                    ₹{{ total_price|int }} /hour
                 {% elif inventoryType == "Private cabin" %}
-                    ₹{{ selected_inventory.price_per_seat|int }} x {{ seat_count }} seat(s) = ₹{{ total_price| int }} /seat/month
+                    ₹{{ total_price|int }} /month
                 {% elif inventoryType == "Virtual office" %}
                     ₹{{ selected_inventory.price_per_seat| int }} /year
                 {% else %}
@@ -339,7 +357,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <h3>Select your preference</h3>
 
         <!-- Updated Cart Summary UI -->
-        <div id="cartSummary" class="cart-summary">
+        <div class="cart-summary">
             <div class="cart-header">
                 <h4>Your Selection</h4>
             </div>
@@ -347,6 +365,26 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
                 <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
             </div>
+
+            {% if inventoryType in ["Day pass", "Meeting rooms"] %}
+            <div class="coupon-section" style="margin-top: 10px;">
+              <label for="coupon-select" style="font-weight: 600;">Apply Coupon</label>
+              <select class="coupon-select" style="margin-top: 5px;">
+                <option value="">-- Select Coupon --</option>
+                <option value="FLAT100">FLAT100</option>
+                {% if inventoryType == "Day pass" %}
+                  <option value="DAY200">DAY200</option>
+                  <option value="DAY500">DAY500</option>
+                {% elif inventoryType == "Meeting rooms" %}
+                  <option value="MEET300">MEET300</option>
+                  <option value="MEET500">MEET500</option>
+                {% endif %}
+              </select>
+              <button style="margin-top: 8px;" onclick="applyCoupon()">Apply</button>
+              <p class="coupon-message" style="margin-top: 5px; font-size: 14px;"></p>
+            </div>
+            {% endif %}
+      
             <div class="cart-footer">
                 <button class="btn-cart-checkout" onclick="openBuyNowModal()">Proceed to Buy</button>
             </div>
@@ -526,7 +564,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <h3>Select your preference</h3>
 
         <!-- Updated Cart Summary UI -->
-        <div id="cartSummary" class="cart-summary" style="display: none;">
+        <div class="cart-summary" style="display: none;">
             <div class="cart-header">
                 <h4>Your Selection</h4>
             </div>
@@ -534,6 +572,24 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 <p><strong></strong> <span id="totalPasses">1</span></p>
                 <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
             </div>
+            {% if inventoryType in ["Day pass", "Meeting rooms"] %}
+            <div class="coupon-section" style="margin-top: 10px;">
+              <label for="couponSelect" style="font-weight: 600;">Apply Coupon</label>
+              <select class="coupon-select" style="margin-top: 5px;">
+                <option value="">-- Select Coupon --</option>
+                <option value="FLAT100">FLAT100</option>
+                {% if inventoryType == "Day pass" %}
+                  <option value="DAY200">DAY200</option>
+                  <option value="DAY500">DAY500</option>
+                {% elif inventoryType == "Meeting rooms" %}
+                  <option value="MEET300">MEET300</option>
+                  <option value="MEET500">MEET500</option>
+                {% endif %}
+              </select>
+              <button style="margin-top: 8px;" onclick="applyCoupon()">Apply</button>
+              <p class="coupon-message" style="margin-top: 5px; font-size: 14px;"></p>
+            </div>
+            {% endif %}
             <div class="cart-footer">
                 <button class="btn-cart-checkout" onclick="openBuyNowModal()">Proceed to Buy</button>
             </div>
@@ -547,7 +603,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                     {% if inventoryType == "Day pass" %}
                       <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
                     {% else %}
-                      <div class="price1">₹{{ selected_inventory.price_per_seat * seat_count | int }}</div>
+                      <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -1552,10 +1608,80 @@ let seatCount = {{ seat_count if seat_count else 1 }};
 let totalPrice = pricePerSeat;
 let selectedBundle = 0;
 let inventoryType = "{{ inventoryType }}"; 
+let appliedCoupon = null;
+let discountedTotal = null;
+
+function showCouponSuccessPopup(message) {
+  const popup = document.getElementById("couponSuccessPopup");
+  const overlay = document.getElementById("couponOverlay"); // New line
+  const msgBox = document.getElementById("couponPopupMessage");
+
+  msgBox.innerText = message;
+  popup.style.display = "block";
+  overlay.style.display = "block"; // Show overlay
+
+  setTimeout(() => {
+    popup.style.display = "none";
+    overlay.style.display = "none"; // Hide overlay
+  }, 5000); // Auto close
+}
+
+function closeCouponPopup() {
+  document.getElementById("couponSuccessPopup").style.display = "none";
+  document.getElementById("modalOverlay").style.display = "none"; // Hides the overlay
+}
+
+
+function applyCoupon() {
+  document.querySelectorAll(".cart-summary").forEach(cart => {
+    const select = cart.querySelector(".coupon-select");
+    const msg = cart.querySelector(".coupon-message");
+    const selectedCoupon = select.value;
+
+    let valid = false;
+    let discount = 0;
+    let message = "";
+
+    if (selectedCoupon === "FLAT100") {
+      valid = true;
+      discount = 100;
+      message = "FLAT100 applied successfully!";
+    } else if (selectedCoupon === "DAY200" && inventoryType === "Day pass" && passQuantity >= 5) {
+      valid = true;
+      discount = 200;
+      message = "DAY200 applied successfully!";
+    } else if (selectedCoupon === "DAY500" && inventoryType === "Day pass" && passQuantity >= 10) {
+      valid = true;
+      discount = 500;
+      message = "DAY500 applied successfully!";
+    } else if (selectedCoupon === "MEET300" && inventoryType === "Meeting rooms" && passQuantity >= 5) {
+      valid = true;
+      discount = 300;
+      message = "MEET300 applied successfully!";
+    } else if (selectedCoupon === "MEET500" && inventoryType === "Meeting rooms" && passQuantity >= 10) {
+      valid = true;
+      discount = 500;
+      message = "MEET500 applied successfully!";
+    } else {
+      msg.innerText = "Invalid or not applicable for selected quantity.";
+      msg.style.color = "red";
+      return;
+    }
+
+    appliedCoupon = selectedCoupon;
+    discountedTotal = totalPrice - discount;
+    updateCartSummary();
+    msg.innerText = message;
+    msg.style.color = "green";
+
+    showCouponSuccessPopup(message);
+  });
+}
+
 
 
 function updateCartSummary() {
-    let cartSummaries = document.querySelectorAll("#cartSummary"); // Select all cart summary sections
+    let cartSummaries = document.querySelectorAll(".cart-summary"); // Select all cart summary sections
     let totalPassDisplays = document.querySelectorAll("#totalPasses"); // Total quantity displays
     let totalPriceDisplays = document.querySelectorAll("#totalPrice"); // Total price displays
     let quantityDisplays = document.querySelectorAll("#passQuantity"); // Ensure UI reflects changes
@@ -1571,7 +1697,7 @@ function updateCartSummary() {
     let calculatedTotal = 0;
 
     if (inventoryType === "Meeting rooms" || inventoryType === "Private cabin") {
-        calculatedTotal = pricePerSeat * passQuantity * seatCount;
+        calculatedTotal = pricePerSeat * passQuantity ;
     } else {
         calculatedTotal = pricePerSeat * passQuantity;
     }
@@ -1583,9 +1709,13 @@ function updateCartSummary() {
     });
 
     totalPriceDisplays.forEach(price => {
-        price.innerText = `₹${calculatedTotal}`;
-    });
-
+    if (discountedTotal !== null) {
+        price.innerHTML = `<span style="text-decoration: line-through; color: #999;">₹${calculatedTotal}</span> 
+            <span style="font-weight: bold; color: green; margin-left: 8px;">₹${discountedTotal}</span>`;
+    } else {
+        price.innerHTML = `<span style="font-weight: bold;">₹${calculatedTotal}</span>`;
+    }
+});
 
 }
 
@@ -1613,7 +1743,7 @@ function addBundle(quantity) {
     let calculatedTotal = 0;
 
     if (inventoryType === "Meeting rooms" || inventoryType === "Private cabin") {
-        calculatedTotal = pricePerSeat * quantity * seatCount;
+        calculatedTotal = pricePerSeat * quantity ;
     } else {
         calculatedTotal = pricePerSeat * quantity;
     }
@@ -1631,7 +1761,7 @@ function addBundle(quantity) {
         element.innerText = "₹" + totalPrice;
     });
 
-    document.querySelectorAll("#cartSummary").forEach(cart => {
+    document.querySelectorAll(".cart-summary").forEach(cart => {
         cart.style.display = "block";
     });
 
@@ -1651,14 +1781,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 <div class="bundle1">
                     <div>
                         <strong>2 Hours</strong>
-                        <div class="price1">₹${2 * pricePerSeat * seatCount}</div>
+                        <div class="price1">₹${2 * pricePerSeat }</div>
                     </div>
                     <button class="btn1 btn-add1" onclick="addBundle(2)">Add</button>
                 </div>
                 <div class="bundle1">
                     <div>
                         <strong>4 Hours</strong>
-                        <div class="price1">₹${4 * pricePerSeat * seatCount}</div>
+                        <div class="price1">₹${4 * pricePerSeat }</div>
                     </div>
                     <button class="btn1 btn-add1" onclick="addBundle(4)">Add</button>
                 </div>
@@ -1688,7 +1818,8 @@ document.addEventListener("DOMContentLoaded", function () {
 <script>
 function openBuyNowModal() {
     document.getElementById("modalPassQuantity").innerText = passQuantity;
-    document.getElementById("modalTotalPrice").innerText = totalPrice;
+    document.getElementById("modalTotalPrice").innerText = discountedTotal !== null ? discountedTotal : totalPrice;
+
 
     // ✅ Set min date to tomorrow
     const dateInput = document.getElementById("buyNowDate");
@@ -1748,6 +1879,7 @@ function submitPurchase() {
     let company = document.getElementById("companyBuy").value;
     let gstin = document.getElementById("gstinBuy").value; // Capture GSTIN
     let selectedDate = document.getElementById("buyNowDate").value;
+    let selectedTime = document.getElementById("timeSlotDropdown").value;
     let today = new Date();
     let selected = new Date(selectedDate);
     today.setHours(0, 0, 0, 0);
@@ -1757,7 +1889,6 @@ function submitPurchase() {
       alert("Please select a date from tomorrow onward.");
       return;
     }
-    let selectedTime = document.getElementById("timeSlotDropdown").value; // Ensure time is captured correctly
 
     if (!fullName || !email || !phone || !selectedDate) {
         alert("Please fill in all required fields (Name, Email, Phone, Date).");
@@ -1772,40 +1903,121 @@ function submitPurchase() {
         return;
     }
     let propertyId = "{{ property['_id'] }}";
-    let purchaseData = {
-        inventoryType: inventoryType,
-        quantity: passQuantity,
-        totalPrice: totalPrice,
-        fullName: fullName,
-        email: email,
-        phone: phone,
-        company: company,
-        gstin: gstin || null,  // Include GSTIN (if provided)
-        date: selectedDate,
-        time: inventoryType === "Meeting rooms" ? selectedTime : null,
-        property_id: propertyId // Pass the property ID
-    };
-
-    // Send AJAX request to store data in the database
-    fetch("/submit_purchase", {
+    let finalAmount = discountedTotal !== null ? discountedTotal : totalPrice;
+    // Step 1: Create Razorpay order
+    fetch("/create_order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(purchaseData)
+        body: JSON.stringify({
+            amount: finalAmount,
+            receipt: "order_rcptid_" + new Date().getTime()
+        })
     })
     .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeBuyNowModal(); // Close Buy Now Modal
-            localStorage.setItem("showThankYou", "booking"); // or "tour" for tour request
-            window.location.reload();
-            // Show Thank You Modal
-        } else {
-            alert("Purchase Failed: " + data.message);
+    .then(orderData => {
+        if (!orderData.success) {
+            alert("Failed to create order. Try again later.");
+            return;
         }
+
+        // Step 2: Razorpay Checkout Options
+        const options = {
+            key: "{{ razorpay_key }}",
+            amount: orderData.amount,
+            currency: "INR",
+            name: "FindurSpace",
+            description: "Workspace Booking",
+            order_id: orderData.id,
+            prefill: {
+                name: fullName,
+                email: email,
+                contact: phone
+            },
+            theme: {
+                color: "#3a86ff"
+            },
+            handler: function (response) {
+                // Step 3: On successful payment, store booking
+                const purchaseData = {
+                    inventoryType: inventoryType,
+                    quantity: passQuantity,
+                    totalPrice: finalAmount,
+                    coupon: appliedCoupon,
+                    fullName: fullName,
+                    email: email,
+                    phone: phone,
+                    company: company,
+                    gstin: gstin || null,
+                    date: selectedDate,
+                    time: inventoryType === "Meeting rooms" ? selectedTime : null,
+                    property_id: propertyId,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    status: "Paid"
+                };
+
+                fetch("/submit_purchase", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(purchaseData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        closeBuyNowModal();
+                        localStorage.setItem("showThankYou", "booking");
+                        window.location.reload();
+                    } else {
+                        alert("Payment captured but booking failed.");
+                    }
+                })
+                .catch(err => {
+                    console.error("Booking DB Error:", err);
+                    alert("Something went wrong while saving your booking.");
+                });
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        
+        // ✅ Handle payment failure and store failed booking
+      rzp.on('payment.failed', function (response) {
+        const failedPayload = {
+          inventoryType,
+          quantity: passQuantity,
+          totalPrice: finalAmount,
+          fullName,
+          email,
+          phone,
+          company,
+          gstin: gstin || null,
+          date: selectedDate,
+          time: inventoryType === "Meeting Room" ? selectedTime : null,
+          property_id: propertyId,
+          razorpay_payment_id: response.error.metadata.payment_id,
+          razorpay_order_id: response.error.metadata.order_id,
+          status: "Failed"
+        };
+
+        fetch("/submit_purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(failedPayload)
+      })
+      .then(() => {
+        alert("Payment failed or was cancelled.");
+      })
+      .catch(() => {
+        alert("Something went wrong after payment failure.");
+      });
+    });
+
+        rzp.open();
     })
     .catch(error => {
-        console.error("Error:", error);
-        alert("Something went wrong.");
+        console.error("Razorpay Order Error:", error);
+        alert("Could not initiate payment. Please try again.");
     });
 }
 

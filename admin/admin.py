@@ -1053,7 +1053,8 @@ def admin_bookings():
     db = current_app.config['db']  # Access MongoDB
 
     # Fetch all bookings from the 'bookings' collection
-    bookings_cursor = db.booking.find()
+    # Fetch all bookings, sorted by date descending
+    bookings_cursor = db.booking.find().sort('date', -1)
     bookings = list(bookings_cursor)
 
     # Convert ObjectId to string for template rendering

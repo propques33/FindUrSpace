@@ -986,6 +986,7 @@ document.addEventListener("DOMContentLoaded", function () {
             document.getElementById("inventoryType").value = "";
             document.getElementById("seatingSelect").innerHTML = '<option value="">Select</option>';
             document.getElementById("seatingSection").style.display = "none";
+            document.getElementById("seatingSelect").removeAttribute("required");
 
             $('#bookNowModal').modal('show');
         });
@@ -1001,12 +1002,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (invType === "Meeting rooms") {
             seatingSection.style.display = "block";
+            seatingSelect.setAttribute("required", "required");
 
             let seatOptions = [];
             const space = selectedSpace.coworkingName;
 
-            if (space === "Cubispace") seatOptions = [4, 6, 25];
-            else if (space === "Workdesq" || space === "Worqspot") seatOptions = [8];
+            if (space === "Cubispace") {
+                seatOptions = [4, 6, 25];
+            } else if (space === "Workdesq") {
+                seatOptions = [4, 8];
+            } else if (space === "Worqspot") {
+                seatOptions = [6, 12];
+            }
 
             seatOptions.forEach(seat => {
                 const option = document.createElement("option");
@@ -1016,6 +1023,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         } else {
             seatingSection.style.display = "none";
+            seatingSelect.removeAttribute("required");
         }
     });
 
@@ -1052,6 +1060,11 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    if (!selectedSpace.city || !selectedSpace.micromarket || !selectedSpace.coworkingName) {
+                        alert("Missing location information. Please try again.");
+                        return;
+                      }
+                    
                     // Construct new redirect URL with proper casing (no lowercase/slug format)
                     let basePath = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}`;
                     const sanitizedInventory = inventory.replace(/\s/g, '').toLowerCase();

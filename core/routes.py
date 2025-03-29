@@ -242,6 +242,7 @@ def innerpage(city, micromarket, coworking_name):
     raw_inventory_type = request.args.get('inventoryType', None)
     seating = request.args.get('seating', request.args.get('seats', None))
     contact = request.args.get('contact', None)  # Capture contact from the URL
+    razorpay_key = current_app.config.get("RAZORPAY_KEY_ID")
 
     # Fetch the property details from the database using city, micromarket, and coworking_name
     property_data = db.fillurdetails.find_one({
@@ -352,8 +353,10 @@ def innerpage(city, micromarket, coworking_name):
 
     # Calculate total price only for relevant types
     if inventory_type in ["Meeting rooms", "Private cabin"]:
-        price_per_seat = selected_inventory.get('price_per_seat', 0) if selected_inventory else 0
-        total_price = price_per_seat * seat_count
+        if selected_room and 'price' in selected_room:
+            total_price = selected_room['price']
+        else:
+            total_price = selected_inventory.get('price_per_seat', 0)
 
     combined_images = inv_imgs + property_images
     seen = set()
@@ -453,6 +456,7 @@ def innerpage(city, micromarket, coworking_name):
         user_data=user_data or {},  # Pass user details if needed
         seats=seats,
         budget=budget,
+        razorpay_key=razorpay_key,
         inventory_images=inventory_images,  # Pass inventory-specific images
         property_images=property_images,  # Pass all property images
         office_timings=property_data.get("office_timings", {}),
@@ -642,9 +646,16 @@ def submit_purchase():
             "gstin": data.get("gstin", None),  # Store GSTIN if provided
             "date": booking_date,
             "time": booking_time,  # Only applicable for Meeting Rooms
-            "status": "pending",  # Default status
+            "status": data.get("status", "Paid") ,  # Default status
             "created_at": datetime.utcnow()
         }
+
+        # Store Razorpay payment details if present
+        booking.update({
+            "razorpay_payment_id": data.get("razorpay_payment_id"),
+            "razorpay_order_id": data.get("razorpay_order_id"),
+            "razorpay_signature": data.get("razorpay_signature"),
+        })
 
         # Insert into MongoDB
         booking_collection.insert_one(booking)
@@ -1977,3 +1988,274 @@ def register_or_update_user():
 def page_not_found(e):
     flash("Page not found. Redirected to homepage.", "warning")
     return redirect(url_for('core_bp.index'))
+
+@core_bp.route('/cubispace')
+def cubispace():
+    from bson import ObjectId
+    db = current_app.config['db']  # Get MongoDB database from app context
+    collection = db.fillurdetails  # Access the 'fillurdetails' collection
+    razorpay_key = current_app.config.get("RAZORPAY_KEY_ID")
+
+    contact = request.args.get('contact')
+    inventory_type = request.args.get('inventory')
+    seater = request.args.get('seater')
+
+    property_data = collection.find_one({"coworking_name": "Cubispace"})
+    if not property_data:
+        return "Property not found", 404
+
+    selected_inventory = None
+    total_price = None
+    display_inventory_type = ""
+    selected_price_value = 0
+
+    # Define display-friendly names
+    inventory_map = {
+        "daypass": "Day Pass",
+        "meetingroom": "Meeting Room"
+    }
+
+    # Price logic (hardcoded)
+    price_map = {
+        "daypass": {
+            "label": "500 /seat/day",
+            "value": 500
+        },
+        "meetingroom": {
+            "4": {"label": "500 /hour", "value": 500},
+            "6": {"label": "700 /hour", "value": 700},
+            "25": {"label": "1000 /hour", "value": 1000}
+        }
+    }
+
+    # Extract office timings
+    office_timings = property_data.get("office_timings", {
+        "opening_time": "09:00",
+        "closing_time": "21:00"
+    })
+
+    meeting_timings = None
+
+    if inventory_type:
+        inventory_key = inventory_type.lower()
+        display_inventory_type = inventory_map.get(inventory_key, inventory_type.title())
+
+        for item in property_data.get('inventory', []):
+            if inventory_type.lower() in item.get('type', '').lower():
+                selected_inventory = item
+                break
+
+        if inventory_key == 'meetingroom' and seater:
+            price_info = price_map['meetingroom'].get(seater)
+            if price_info:
+                total_price = price_info["label"]
+                selected_price_value = price_info["value"]
+        elif inventory_key == 'daypass':
+            price_info = price_map['daypass']
+            total_price = price_info["label"]
+            selected_price_value = price_info["value"]
+        else:
+            selected_price_value = 0
+
+    return render_template(
+        "cubispace.html",
+        property=property_data,
+        inventoryType=display_inventory_type,
+        selected_inventory=selected_inventory,
+        total_price=total_price,
+        price_value=selected_price_value,
+        seater=seater,
+        razorpay_key=razorpay_key,
+        contact=contact,
+        office_timings=property_data.get("office_timings", {}),
+        meeting_timings=meeting_timings  # Pass meeting room timing to frontend
+    )
+
+@core_bp.route('/workdesq')
+def workdesq():
+    from bson import ObjectId
+    db = current_app.config['db']  # Get MongoDB database from app context
+    collection = db.fillurdetails  # Access the 'fillurdetails' collection
+    razorpay_key = current_app.config.get("RAZORPAY_KEY_ID")
+
+    contact = request.args.get('contact')
+    inventory_type = request.args.get('inventory')
+    seater = request.args.get('seater')
+
+    property_data = collection.find_one({"coworking_name": "Workdesq"})
+    if not property_data:
+        return "Property not found", 404
+
+    selected_inventory = None
+    total_price = None
+    selected_price_value = 0
+    display_inventory_type = ""
+
+    # Define display-friendly names
+    inventory_map = {
+        "daypass": "Day Pass",
+        "meetingroom": "Meeting Room"
+    }
+
+    # Price logic (hardcoded)
+    price_map = {
+        "daypass": {
+            "label": "500 /seat/day",
+            "value": 500
+        },
+        "meetingroom": {
+            "4": {"label": "499 /hour", "value": 499},
+            "8": {"label": "800 /hour", "value": 800}
+        }
+    }
+
+    # Extract office timings
+    office_timings = property_data.get("office_timings", {
+        "opening_time": "09:00",
+        "closing_time": "21:00"
+    })
+
+    meeting_timings = None
+
+    if inventory_type:
+        inventory_key = inventory_type.lower()
+        display_inventory_type = inventory_map.get(inventory_key, inventory_type.title())
+
+        for item in property_data.get('inventory', []):
+            if inventory_type.lower() in item.get('type', '').lower():
+                selected_inventory = item
+                break
+
+        if inventory_key == 'meetingroom' and seater:
+            price_info = price_map['meetingroom'].get(seater)
+            if price_info:
+                total_price = price_info["label"]
+                selected_price_value = price_info["value"]
+                meeting_timings = {
+                    "opening_time": "09:00",
+                    "closing_time": "21:00"
+                }
+        elif inventory_key == 'daypass':
+            price_info = price_map['daypass']
+            total_price = price_info["label"]
+            selected_price_value = price_info["value"]
+
+    return render_template(
+        "workdesq.html",
+        property=property_data,
+        inventoryType=display_inventory_type,
+        selected_inventory=selected_inventory,
+        total_price=total_price,
+        price_value=selected_price_value,
+        seater=seater,
+        razorpay_key=razorpay_key,
+        contact=contact,
+        office_timings=property_data.get("office_timings", {}),
+        meeting_timings=meeting_timings  # Pass meeting room timing to frontend
+    )
+
+@core_bp.route('/worqspot')
+def worqspot():
+    from bson import ObjectId
+    db = current_app.config['db']  # Get MongoDB database from app context
+    collection = db.fillurdetails  # Access the 'fillurdetails' collection
+    razorpay_key = current_app.config.get("RAZORPAY_KEY_ID")
+
+    contact = request.args.get('contact')
+    inventory_type = request.args.get('inventory')
+    seater = request.args.get('seater')
+
+    property_data = collection.find_one({"coworking_name": "Worqspot"})
+    if not property_data:
+        return "Property not found", 404
+
+    selected_inventory = None
+    total_price = None
+    display_inventory_type = ""
+    selected_price_value = 0
+
+    # Define display-friendly names
+    inventory_map = {
+        "daypass": "Day Pass",
+        "meetingroom": "Meeting Room"
+    }
+
+    price_map = {
+        "daypass": {
+            "label": "600 /seat/day",
+            "value": 600
+        },
+        "meetingroom": {
+            "6": {"label": "600 /hour", "value": 600},
+            "12": {"label": "1200 /hour", "value": 1200}
+        }
+    }
+
+    # Extract office timings
+    office_timings = property_data.get("office_timings", {
+        "opening_time": "09:00",
+        "closing_time": "21:00"
+    })
+
+    meeting_timings = None
+
+    if inventory_type:
+        inventory_key = inventory_type.lower()
+        display_inventory_type = inventory_map.get(inventory_key, inventory_type.title())
+
+        for item in property_data.get('inventory', []):
+            if inventory_type.lower() in item.get('type', '').lower():
+                selected_inventory = item
+                break
+
+        if inventory_key == 'meetingroom' and seater:
+            price_info = price_map['meetingroom'].get(seater)
+            if price_info:
+                total_price = price_info["label"]
+                selected_price_value = price_info["value"]
+                meeting_timings = {
+                    "opening_time": "09:00",
+                    "closing_time": "21:00"
+                }
+        elif inventory_key == 'daypass':
+            price_info = price_map['daypass']
+            total_price = price_info["label"]
+            selected_price_value = price_info["value"]
+
+    return render_template(
+        "worqspot.html",
+        property=property_data,
+        inventoryType=display_inventory_type,
+        selected_inventory=selected_inventory,
+        total_price=total_price,
+        price_value=selected_price_value,
+        seater=seater,
+        razorpay_key=razorpay_key,
+        contact=contact,
+        office_timings=property_data.get("office_timings", {}),
+        meeting_timings=meeting_timings  # Pass meeting room timing to frontend
+    )
+
+@core_bp.route('/create_order', methods=['POST'])
+def create_order():
+    client = current_app.config['razorpay_client']
+    try:
+        data = request.json
+        amount = int(data.get("amount", 0)) * 100  # Convert to paise
+        receipt_id = data.get("receipt", f"receipt_{datetime.now().timestamp()}")
+
+        razorpay_order = client.order.create({
+            "amount": amount,
+            "currency": "INR",
+            "receipt": receipt_id,
+            "payment_capture": 1
+        })
+
+        return jsonify({
+            "success": True,
+            "id": razorpay_order["id"],
+            "amount": razorpay_order["amount"],
+            "currency": razorpay_order["currency"]
+        })
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500

@@ -55,7 +55,6 @@
                         <th>Owner Email</th>
                         <th>Center Manager Name</th>
                         <th>Center Manager Contact</th>
-                        <th>Action</th>
                         <th>Payment Status</th>
                     </tr>
                 </thead>
@@ -79,24 +78,23 @@
                         <td>{{ booking.owner_email }}</td>
                         <td>{{ booking.center_manager_name }}</td>
                         <td>{{ booking.center_manager_contact }}</td>
-                         <td id="action-{{ booking._id }}">
-                            <div class="btn-container">
-                                {% if booking.status == "pending" %}
-                                    <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking._id }}', 'approved')">Approve</button>
-                                    <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking._id }}', 'declined')">Decline</button>
-                                {% elif booking.status == "approved" %}
-                                    <button class="btn btn-primary btn-sm" onclick="updatePaymentStatus('{{ booking._id }}')">Pay Now</button>
-                                {% elif booking.status == "paid" %}
-                                    <span class="badge bg-primary">Paid</span>
-                                {% endif %}
-                            </div>
-                        </td>
                         <td id="status-{{ booking._id }}">
-                            <span class="badge {% if booking.status == 'approved' %} bg-success 
-                                              {% elif booking.status == 'paid' %} bg-primary 
-                                              {% elif booking.status == 'declined' %} bg-danger 
-                                              {% else %} bg-warning {% endif %}">
-                                {{ booking.status.capitalize() }}
+                            {% set status = booking.status.lower() %}
+                            <span class="badge 
+                                {% if status == 'paid' %}
+                                    bg-primary
+                                {% elif status == 'failed' %}
+                                    bg-danger
+                                {% else %}
+                                    bg-warning
+                                {% endif %}">
+                                {% if status == 'paid' %}
+                                    Paid
+                                {% elif status == 'failed' %}
+                                    Payment Failed
+                                {% else %}
+                                    Payment Pending
+                                {% endif %}
                             </span>
                         </td>
                     </tr>
@@ -147,7 +145,8 @@
                     let actionCell = document.getElementById(`action-${bookingId}`);
 
                     statusCell.innerHTML = `<span class="badge bg-primary">Paid</span>`;
-                    actionCell.innerHTML = `<span class="badge bg-primary">Paid</span>`; // Replaces Pay Now button with badge
+                    actionCell.innerHTML = `<span class="badge bg-primary">Paid</span>`;
+
                 } else {
                     alert("Failed to update payment status.");
                 }

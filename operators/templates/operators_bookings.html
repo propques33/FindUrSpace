@@ -125,17 +125,10 @@
                                 <td>₹{{ booking.totalPrice }}</td>
                                  <!-- Status & Action Buttons -->
                                  <!-- Status & Action Buttons -->
-                                <td id="booking-status-{{ booking._id }}">
-                                    {% if booking.status.lower() == "pending" %}
-                                        <div id="booking-actions-{{ booking._id }}">
-                                            <button class="btn btn-success btn-sm" onclick="updateBookingStatus('{{ booking._id }}', 'approved')">Approve</button>
-                                            <button class="btn btn-danger btn-sm" onclick="updateBookingStatus('{{ booking._id }}', 'declined')">Decline</button>
-                                        </div>
-                                    {% else %}
-                                        <span class="badge {{ 'bg-success' if booking.status == 'approved' else 'bg-danger' }}">
-                                            {{ booking.status.capitalize() }}
-                                        </span>
-                                    {% endif %}
+                                <td>
+                                    <span class="badge {{ booking.status_class }}">
+                                        {{ booking.display_status }}
+                                    </span>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -145,35 +138,6 @@
             </div>
         </div>
     </div>
-
-    <!-- JavaScript to Update Booking Status -->
-    <script>
-function updateBookingStatus(bookingId, status) {
-    fetch('/operators/update_booking_status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ booking_id: bookingId, status: status })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert(data.message);
-
-            // Replace buttons with updated status
-            let statusCell = document.getElementById(`booking-status-${bookingId}`);
-            if (statusCell) {
-                statusCell.innerHTML = `<span class="badge ${status === 'approved' ? 'bg-success' : 'bg-danger'}">
-                    ${status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>`;
-            }
-        } else {
-            alert("Failed to update status.");
-        }
-    })
-    .catch(error => console.error('Error:', error));
-}
-</script>
-
 
 
 </body>

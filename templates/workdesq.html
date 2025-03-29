@@ -3,15 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workdesq </title>
+    <title>Workdesq | Booking</title>
     <link rel="stylesheet" href="../static/css/workdesq.css">
-     <!-- Font Awesome -->
+    <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Font Awesome -->
   <link
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
 />
 </head>
 <body>
+    <div id="buyNowModal" class="modal">
+  <div class="modal-content" id="buyNowModal1">
+    <span class="close1" onclick="closeBuyNowModal()">&times;</span>
+    <h3 class="modal-title" style="margin-top:10px;">Confirm Your Purchase</h3>
+
+    <div class="modal-section">
+        <label for="buyNowDate">Select Date</label>
+        <input type="date" id="buyNowDate">
+    </div>
+
+    <div id="timeSelectionContainer" class="modal-section" style="display: none;">
+        <label for="timeSlotDropdown">Select Timing</label>
+        <select id="timeSlotDropdown">
+            <option value="">Select Time Slot</option>
+        </select>
+    </div>
+
+    <div class="modal-form">
+        <label for="fullNameBuy">Full Name</label>
+        <input type="text" id="fullNameBuy" value="{{ user_data.get('name', '') if user_data else '' }}" placeholder="Your Name">
+
+        <label for="emailBuy">Email</label>
+        <input type="email" id="emailBuy" value="{{ user_data.get('email', '') if user_data else '' }}" placeholder="Your Email">
+
+        <label for="phoneBuy">Phone</label>
+        <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') if user_data else '' }}" placeholder="Your Phone">
+
+        <label for="companyBuy">Company</label>
+        <input type="text" id="companyBuy" value="{{ user_data.get('company', '') if user_data else '' }}" placeholder="Your Company">
+
+        <label for="gstinBuy">GSTIN (Optional)</label>
+        <input type="text" id="gstinBuy" placeholder="Enter GSTIN (if applicable)">
+    </div>
+
+    <div class="modal-info">
+        <div class="modal-row">
+            <span class="modal-label">Selected Inventory:</span>
+            <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
+        </div>
+        <div class="modal-row">
+            <span class="modal-label">Total Day Passes:</span>
+            <span class="modal-value" id="modalPassQuantity">1</span>
+        </div>
+        <div class="modal-row">
+            <span class="modal-label">Total Price:</span>
+            <span class="modal-value">₹<span id="modalTotalPrice">{{ selected_inventory.price_per_seat | int if selected_inventory else 0 }}</span></span>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="modal-btn-confirm" onclick="submitPurchase()">Confirm Purchase</button>
+    </div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div id="modalOverlay" class="modal-overlay" onclick="closeBuyNowModal()"></div>
+
+<!-- Thank You Modal -->
+<div id="thankYouModal" class="modal">
+  <div class="modal-content thank-you-content">
+    <span class="close1" id="cl" onclick="closeThankYouModal()">&times;</span>
+    <div class="checkmark">
+      <i class="fas fa-check-circle"></i>
+    </div>
+    <h3 id="thankYouTitle">Booking Scheduled Successfully!</h3>
+    <p id="thankYouMessage">Your booking has been scheduled successfully.</p>
+    
+  </div>
+</div>
+
+<!-- Background Overlay -->
+<div id="thankYouOverlay" class="modal-overlay"></div>
+
+     <!-- Modal HTML -->
+<!-- Modal HTML -->
+<div id="popupModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2 class="modal-title">Book Your Space</h2>
+    <form id="popupForm">
+      <div class="form-group">
+        <label for="contact">Contact Number</label>
+        <input type="tel" id="contact" name="contact" placeholder="Enter your number" required />
+      </div>
+
+      <div class="form-group">
+        <label for="inventory">Inventory Type</label>
+        <select id="inventory" name="inventory" required>
+          <option value="">Select</option>
+          <option value="daypass">Day Pass</option>
+          <option value="meetingroom">Meeting Room</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="seaterGroup" style="display:none;">
+        <label for="seater">Seats</label>
+        <select id="seater" name="seater">
+            <option value="">Select</option>
+            <option value="4">4 Seater</option>
+            <option value="8">8 Seater</option>
+        </select>
+        </div>
+
+
+      <button type="submit" class="submit-btn">Submit</button>
+    </form>
+  </div>
+</div>
     <nav class="navbar">
         <div class="logo">
             <img src="../static/images/workdesq-logo-1.png" alt="Workdesq Logo"> 
@@ -22,7 +133,7 @@
             <li><a href="https://www.workdesq.com/meeting-and-event/">Meeting And Event</a></li>
             <li><a href="#">Contact</a></li>
         </ul>
-        <a href="#" class="book-now">Book Now</a>
+        <a href="#" class="book-now" id="bookNowBtn">Book Now</a>
     </nav>
 
     <section class="hero">
@@ -39,87 +150,118 @@
           </p>
         </div>
       </section>
+
+      <h1 class="st">SEATING OPTION</h1>
+        <!-- <h5></h5> -->
+        <div class="seating-option">
+          <img
+            src="{{ selected_inventory.images[0] if selected_inventory and selected_inventory.images else property.property_images[0] }}" alt="{{ inventoryType }}"
+            alt="selected inventory image"
+          />
+          <div class="seating-details">
+            <div class="seating-info">
+              <h2 id="dynamicInventoryType">{{ inventoryType }}</h2>
+              <p>
+                {% if inventoryType == "Day Pass" %}
+                    Flexible workspace for a day with shared amenities.
+                {% elif inventoryType == "Meeting Room" %}
+                    Private rooms for client meetings, brainstorming, or presentations.
+                {% else %}
+                    Contact for more details on this workspace.
+                {% endif %}
+              </p>
+            </div>
+            <div>
+              <span class="price-range"
+                >Price range <br />
+                {% if inventoryType == "Day Pass" %}
+                    ₹500 /seat/day
+                {% elif inventoryType == "Meeting Room" %}
+                    ₹{{ total_price }} 
+                {% else %}
+                    Contact for pricing
+                {% endif %}
+              </span
+              >
+            </div>
+          </div>
+        </div>
   
       <div class="container">
         <!-- Left Section (70%) -->
         <div class="left-section">
-          <h1>SEATING OPTION</h1>
-          <!-- <h5></h5> -->
-          <div class="seating-option">
-            <img
-              src="../static/images/DSC_3338-1-1-scaled.jpg"
-              alt="Dedicated Desks"
-            />
-            <div class="seating-details">
-              <div class="seating-info">
-                <h2>Meeting Room</h2>
-                <p>
-                  Dedicated desks and storage units exclusively reserved for you.
-                </p>
-                <ul>
-                  <li>
-                    <img src="../static/images/checked.png" alt="" id="checked" />
-                    Reserved desk, shared amenities
-                  </li>
-                </ul>
-                <p>
-                  <img src="../static/images/seat.png" alt="" id="seat" />
-                  Seating: 1 - 8+ Seats
-                </p>
-              </div>
-              <div>
-                <span class="price-range"
-                  >Price range <br />₹499/hr</span
-                >
-                <button class="quote-btn">Get Quote →</button>
-              </div>
-            </div>
-          </div>
-  
-          <p class="price-note">
-            *Prices mentioned above are starting prices &amp; subject to
-            availability
-          </p>
   
           <div class="gallery-container">
-            <button id="prevBtn">❮ </button>
-            <img class="slide-img" id="galleryImage" src="images/image1.jpg" alt="Gallery Image" />
-            <button id="nextBtn"> ❯</button>
+            <button id="prevBtn">❮</button>
+            <img class="slide-img" id="galleryImage" src="{{ property.property_images[0] }}" alt="Gallery Image" />
+            <button id="nextBtn">❯</button>
           </div>
         
-          <div class="time-section">
-            <h3 class="section-title">
-              <i class="fas fa-clock"></i> Office Timing
-            </h3>
-            <div class="office-timing">
-              <div class="timing-card">
-                <i class="fa-solid fa-calendar-days"></i>
-                <div class="timing-details">
-                  <span>Mon - Fri</span>
-                  <p>09:00 AM - 06:00 PM</p>
-                </div>
-              </div>
-              <div class="timing-card">
-                <i class="fa-solid fa-calendar-days"></i>
-                <div class="timing-details">
-                  <span>Sat</span>
-                  <p>09:00 AM - 06:00 PM</p>
-                </div>
-              </div>
-              <div class="timing-card closed">
-                <i class="fa-solid fa-calendar-days"></i>
-                <div class="timing-details">
-                  <span>Sun</span>
-                  <p>Closed</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {% if inventoryType == "Meeting Room" %}
+  <div class="time-section">
+    <h3 class="section-title"><i class="fas fa-clock"></i> Meeting Room Timing</h3>
+    <div class="office-timing">
+      <div class="timing-card">
+        <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
+        <div class="timing-details">
+          <span>Mon - Fri</span>
+          <p>09:00 - 21:00</p>
+        </div>
+      </div>
+      <div class="timing-card">
+        <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
+        <div class="timing-details">
+          <span>Sat</span>
+          <p>09:00 - 21:00</p>
+        </div>
+      </div>
+      <div class="timing-card closed">
+        <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
+        <div class="timing-details">
+          <span>Sun</span>
+          <p>Closed</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+
+<div class="time-section">
+  <h3 class="section-title"><i class="fas fa-clock"></i> Office Timing</h3>
+  <div class="office-timing">
+
+    <div class="timing-card">
+      <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
+      <div class="timing-details">
+        <span>Mon - Fri</span>
+        <p>{{ office_timings.opening_time }} - {{ office_timings.closing_time }}</p>
+      </div>
+    </div>
+
+    <div class="timing-card">
+      <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
+      <div class="timing-details">
+        <span>Sat</span>
+        <p>{{ office_timings.opening_time }} - {{ office_timings.closing_time }}</p>
+      </div>
+    </div>
+
+    <div class="timing-card closed">
+      <img src="{{ url_for('static', filename='images/calender.png') }}" alt="Calendar Icon" />
+      <div class="timing-details">
+        <span>Sun</span>
+        <p>Closed</p>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 
 
+<h2>Workdesq Advantage</h2>
           <div class="advantage-box">
-            <h2>Workdesq Advantage</h2>
           
             <div class="item"><i class="fas fa-tags"></i>Lowest Price Guaranteed</div>
             <div class="item"><i class="fas fa-clock-rotate-left"></i>Free Rescheduling</div>
@@ -231,37 +373,72 @@
             </div>
           </section>
         </div>
+        {% if inventoryType in ["Day Pass", "Meeting Room"] %}
+        <div class="container1" id="snt">
+            <h3>Select your preference</h3>
 
-        <div class="right-section-mobile">
-          <h3>Workdesq</h3>
-          <p>1 - 25+ Seater Room</p>
-          <!-- <h4>Starting Price</h4> -->
-          <div class="button">
-            <button class="tour-btn">Schedule a Tour</button>
-          <button class="book-btn">Request to Book</button>
-          </div>
-          <!-- <div class="actions">
-            <button class="favorite-btn">Favorite</button>
-            <button class="share-btn">Share</button>
-          </div> -->
+            <div id="cartSummary" class="cart-summary">
+                <div class="cart-header">
+                <h4>Your Selection</h4>
+                </div>
+                <div class="cart-details">
+                <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
+                <p><strong>Total Price:</strong> <span id="totalPrice">₹500</span></p>
+                </div>
+                {% if inventoryType.lower() in ["day pass", "meeting room"] %}
+            <div class="coupon-section" style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+                <label for="coupon-select" style="font-weight: 600; display: block; margin-bottom: 6px;">Apply Coupon</label>
+                <div style="width:100%;display: flex;flex-direction: column; gap: 10px; align-items: center;">
+                    <select class="coupon-select" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-width: 160px; width:100%;">
+                    <option value="">-- Select Coupon --</option>
+                    <option value="FLAT100">FLAT100</option>
+                    {% if inventoryType == "Day Pass" %}
+                        <option value="DAY200">DAY200</option>
+                        <option value="DAY500">DAY500</option>
+                    {% elif inventoryType == "Meeting Room" %}
+                        <option value="MEET300">MEET300</option>
+                        <option value="MEET500">MEET500</option>
+                    {% endif %}
+                    </select>
+                    <button type="button" style="padding: 8px 12px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; width:100%;" onclick="applyCoupon()">Apply</button>
+                </div>
+                <p class="coupon-message" style="margin-top: 8px; font-size: 14px;"></p>
+            </div>
+            {% endif %}
+                <div class="cart-footer">
+                <button class="btn-cart-checkout" onclick="openBuyNowModal()">Proceed to Buy</button>
+                </div>
+            </div>
+
+            <div class="pass-card1">
+                <div class="left1">
+                <span>{{ inventoryType }}</span>
+                <div>
+                    <div class="price1" id="pr">₹<span id="pricePerSeatDisplay">500</span></div>
+                </div>
+                </div>
+                <div class="quantity1">
+                <button onclick="decreaseQuantity()">-</button>
+                <span id="passQuantity">1</span>
+                <button onclick="increaseQuantity()">+</button>
+                </div>
+            </div>
+
+            <div class="bundle1" id="bundleOffers"></div>
         </div>
-  
-  
-        <!-- Right Section (30%) -->
-        <div class="right-section">
-          <h3>Workdesq</h3>
-          <!-- <p>Host</p> -->
-          <h4>Starting Price</h4>
-          <button class="tour-btn">Schedule a Tour</button>
-          <button class="book-btn">Request to Book</button>
-          <div class="actions">
-            <button class="favorite-btn">Favorite</button>
-            <button class="share-btn">Share</button>
-          </div>
-          <p class="time-counter">⚠️ Limited Time Available (time counter)</p>
-        </div>
+        {% endif %}
       </div>
   
+      <div id="couponSuccessPopup" class="coupon-popup">
+      <div class="coupon-popup-content">
+        <span class="close-popup" onclick="closeCouponPopup()">&times;</span>
+        <i class="fas fa-check-circle success-icon"></i>
+        <p id="couponPopupMessage">Coupon applied successfully!</p>
+      </div>
+    </div>
+
+    <div id="couponOverlay" class="modal-overlay" style="display: none;"></div>
+
       <section class="space-location">
         <div class="content">
           <h1>A Premium coworking space in Indore        </h1>
@@ -286,27 +463,44 @@
         </div>
       </section>
   
-      <section class="related-products">
-        <h2>Related Products</h2>
-        <div class="product-grid">
-          
-  
-          <div class="product-card">
-            <img
-              src="https://www.workdesq.com/wp-content/uploads/2024/01/DSC_3303-1-scaled.jpg"
-              alt="Product 2"
-            />
-            <h3>Day Pass</h3>
-            <button >Book Now</button>
-          </div>
-        </div>
-      </section>
-  
-      <p class="more-info">
-        For More Info
-  
-        <a href=""> Visit Findurspace</a>
-      </p>
+      {% if contact %}
+<section class="related-products">
+  <h2>Related Products</h2>
+  <div class="product-grid">
+
+    {% if inventoryType != "Day Pass" %}
+    <div class="product-card">
+      <img src="{{ property.property_images[0] }}" alt="Day Pass">
+      <h3>Day Pass</h3>
+      <a href="{{ url_for('core_bp.workdesq') }}?contact={{ contact }}&inventory=daypass">
+        <button>Book Now</button>
+      </a>
+    </div>
+    {% endif %}
+
+    {% if inventoryType != "Meeting Room" or seater != "4" %}
+    <div class="product-card">
+    <img src="{{ property.property_images[1] }}" alt="4 Seater Meeting Room">
+    <h3>4 Seater Meeting Room</h3>
+    <a href="{{ url_for('core_bp.workdesq') }}?contact={{ contact }}&inventory=meetingroom&seater=4">
+        <button>Book Now</button>
+    </a>
+    </div>
+    {% endif %}
+
+    {% if inventoryType != "Meeting Room" or seater != "8" %}
+    <div class="product-card">
+    <img src="{{ property.property_images[2] }}" alt="8 Seater Meeting Room">
+    <h3>8 Seater Meeting Room</h3>
+    <a href="{{ url_for('core_bp.workdesq') }}?contact={{ contact }}&inventory=meetingroom&seater=8">
+        <button>Book Now</button>
+    </a>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endif %}
   
       <footer class="footer">
         <img src="../static/images/workdesq-logo-1.png" alt="" class="footer-logo" />
@@ -352,34 +546,570 @@
       </footer>
 </body>
 <script>
-    const images = [
-    "https://www.workdesq.com/wp-content/uploads/2024/01/DSC_3338-1-1-scaled.jpg",
-    "https://www.workdesq.com/wp-content/uploads/2024/01/DSC_3373-scaled.jpg",
-    "https://www.workdesq.com/wp-content/uploads/2024/01/DSC_3323-scaled.jpg",
-];
+    const images = {{ property.property_images|tojson }};
+    let currentIndex = 0;
 
-let currentIndex = 0;
 const galleryImage = document.getElementById("galleryImage");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
 
-function updateImage() {
+  function updateImage() {
     galleryImage.src = images[currentIndex];
-}
+  }
 
-nextBtn.addEventListener("click", () => {
+  nextBtn.addEventListener("click", () => {
     currentIndex = (currentIndex + 1) % images.length;
     updateImage();
-});
+  });
 
-prevBtn.addEventListener("click", () => {
+  prevBtn.addEventListener("click", () => {
     currentIndex = (currentIndex - 1 + images.length) % images.length;
     updateImage();
-});
+  });
 
-// Initialize with first image
-updateImage();
+  updateImage();
 
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("popupModal");
+  const inventorySelect = document.getElementById("inventory");
+  const seaterGroup = document.getElementById("seaterGroup");
+  const contactInput = document.getElementById("contact");
+  const seaterSelect = document.getElementById("seater");
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const contact = urlParams.get("contact");
+  const inventory = urlParams.get("inventory");
+  const seater = urlParams.get("seater");
+
+  const invTypeEl = document.getElementById("dynamicInventoryType");
+  const snt = document.getElementById("snt");
+    const inventoryParam = urlParams.get("inventory");
+    const seaterParam = urlParams.get("seater");
+
+    if (inventoryParam === "meetingroom" && seaterParam) {
+    invTypeEl.textContent = `${seaterParam} Seater Meeting Room`;
+    } else if (inventoryParam === "daypass") {
+    invTypeEl.textContent = "Day Pass";
+    }
+
+    // Show preference section if applicable
+  if (snt && (inventory === "meetingroom" || inventory === "daypass")) {
+    snt.style.display = "block";
+  }
+
+  if (!contact || !inventory || (inventory === "meetingroom" && !seater)) {
+          modal.style.display = "flex";
+        } else {
+          contactInput.value = contact;
+          inventorySelect.value = inventory;
+          if (inventory === "meetingroom") {
+            seaterGroup.style.display = "block";
+            seaterSelect.value = seater;
+          }
+        }
+
+  inventorySelect.addEventListener("change", () => {
+    seaterGroup.style.display = inventorySelect.value === "meetingroom" ? "block" : "none";
+  });
+
+  // Block outside click unless form is filled
+  window.onclick = (e) => {
+          if (e.target === modal) {
+            const contactVal = contactInput.value.trim();
+            const inventoryVal = inventorySelect.value;
+            const seaterVal = seaterSelect.value;
+            const isIncomplete = !contactVal || !inventoryVal || (inventoryVal === "meetingroom" && !seaterVal);
+            if (isIncomplete) alert("Please fill all required fields.");
+          }
+        };
+
+  // Prevent close button from closing modal
+  document.querySelector(".close").onclick = (e) => {
+          const contactVal = contactInput.value.trim();
+          const inventoryVal = inventorySelect.value;
+          const seaterVal = seaterSelect.value;
+          const isIncomplete = !contactVal || !inventoryVal || (inventoryVal === "meetingroom" && !seaterVal);
+          if (isIncomplete) {
+            alert("Please fill all required fields.");
+            e.preventDefault();
+          }
+        };
+
+
+  // Form submission
+  document.getElementById("popupForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          const contactVal = contactInput.value.trim();
+          const inventoryVal = inventorySelect.value;
+          const seaterVal = seaterSelect.value;
+
+          if (!contactVal || !inventoryVal || (inventoryVal === "meetingroom" && !seaterVal)) {
+            alert("Please fill all required fields.");
+            return;
+          }
+
+          const url = new URL(window.location.href.split("?")[0]);
+          url.searchParams.set("contact", contactVal);
+          url.searchParams.set("inventory", inventoryVal);
+          if (inventoryVal === "meetingroom") {
+            url.searchParams.set("seater", seaterVal);
+          }
+
+          window.location.href = url.toString();
+        });
+      });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let passQuantity = 1;
+    const inventoryType = "{{ inventoryType }}";
+    let pricePerSeat = {{ price_value | int }};
+
+    
+
+    // Update base price display if element exists
+    const priceDisplay = document.getElementById("pricePerSeatDisplay");
+    if (priceDisplay) {
+      priceDisplay.innerText = pricePerSeat;
+    }
+
+    function updateCartSummary() {
+      const cart = document.querySelector("#cartSummary");
+      if (cart) cart.style.display = "block";
+
+      document.querySelector("#passQuantity").innerText = passQuantity;
+      document.querySelector("#totalPasses").innerText = `${passQuantity}`;
+      document.querySelector("#totalPrice").innerText = `₹${pricePerSeat * passQuantity}`;
+    }
+
+    function increaseQuantity() {
+      passQuantity++;
+      updateCartSummary();
+    }
+
+    function decreaseQuantity() {
+      if (passQuantity > 1) {
+        passQuantity--;
+        updateCartSummary();
+      }
+    }
+
+    function addBundle(quantity) {
+      passQuantity = quantity;
+      updateCartSummary();
+    }
+
+    // Attach functions to global scope for inline button calls
+    window.increaseQuantity = increaseQuantity;
+    window.decreaseQuantity = decreaseQuantity;
+    window.addBundle = addBundle;
+
+    // Auto-render bundles
+    updateCartSummary();
+
+    const bundleOffers = document.getElementById("bundleOffers");
+    if (bundleOffers) {
+      let bundleHTML = "";
+
+      if (inventoryType === "Meeting Room") {
+        bundleHTML = `
+          <div class="bundle1">
+            <div><strong>2 Hours</strong><div class="price1">₹${2 * pricePerSeat}</div></div>
+            <button class="btn1 btn-add1" onclick="addBundle(2)">Add</button>
+          </div>
+          <div class="bundle1">
+            <div><strong>4 Hours</strong><div class="price1">₹${4 * pricePerSeat}</div></div>
+            <button class="btn1 btn-add1" onclick="addBundle(4)">Add</button>
+          </div>`;
+      } else if (inventoryType === "Day Pass") {
+        bundleHTML = `
+          <div class="bundle1">
+            <div><strong>5 Days</strong><div class="price1">₹${5 * pricePerSeat}</div></div>
+            <button class="btn1 btn-add1" onclick="addBundle(5)">Add</button>
+          </div>
+          <div class="bundle1">
+            <div><strong>10 Days</strong><div class="price1">₹${10 * pricePerSeat}</div></div>
+            <button class="btn1 btn-add1" onclick="addBundle(10)">Add</button>
+          </div>`;
+      }
+
+      bundleOffers.innerHTML = bundleHTML;
+    }
+
+    // Update label
+    const label = inventoryType === "Meeting Room" ? "Meeting Room Hours:" : "Day Passes:";
+    const labelEl = document.getElementById("selectionLabel");
+    if (labelEl) {
+      labelEl.innerText = label;
+    }
+  });
+</script>
+<script>
+let passQuantity = 1;
+let pricePerSeat = {{ price_value | int }};
+let totalPrice = pricePerSeat;
+
+function openBuyNowModal() {
+    // Read quantity and total from preference section
+    passQuantity = parseInt(document.getElementById("passQuantity").innerText);
+    totalPrice = passQuantity * pricePerSeat;// adjust if dynamic pricing needed
+
+    // Use discounted total if available
+    const finalPrice = discountedTotal !== null ? discountedTotal : totalPrice;
+
+    document.getElementById("modalPassQuantity").innerText = passQuantity;
+    document.getElementById("modalTotalPrice").innerText = finalPrice;
+
+    const dateInput = document.getElementById("buyNowDate");
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.min = tomorrow.toISOString().split("T")[0];
+
+    document.getElementById("buyNowModal").style.display = "flex";
+    document.getElementById("modalOverlay").style.display = "block";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const inventory = urlParams.get("inventory");
+
+    if (inventory === "meetingroom") {
+        document.getElementById("timeSelectionContainer").style.display = "block";
+        generateTimeSlots();
+    } else {
+        document.getElementById("timeSelectionContainer").style.display = "none";
+    }
+}
+
+function closeBuyNowModal() {
+    document.getElementById("buyNowModal").style.display = "none";
+    document.getElementById("modalOverlay").style.display = "none";
+}
+
+function generateTimeSlots() {
+  const timeSlotDropdown = document.getElementById("timeSlotDropdown");
+  timeSlotDropdown.innerHTML = `<option value="">Select Time Slot</option>`;
+
+  const startHour = 9;
+  const endHour = 21;
+
+  for (let hour = startHour; hour < endHour; hour++) {
+    const startTime = formatHour(hour);
+    const endTime = formatHour(hour + 1);
+    const label = `${startTime} to ${endTime}`;
+
+    const option = document.createElement("option");
+    option.value = label;
+    option.textContent = label;
+    timeSlotDropdown.appendChild(option);
+  }
+}
+
+function formatHour(hour) {
+  const period = hour >= 12 ? "PM" : "AM";
+  const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+  return `${formattedHour}:00 ${period}`;
+}
+
+// function submitPurchase() {
+//     const fullName = document.getElementById("fullNameBuy").value;
+//     const email = document.getElementById("emailBuy").value;
+//     const phone = document.getElementById("phoneBuy").value;
+//     const company = document.getElementById("companyBuy").value;
+//     const gstin = document.getElementById("gstinBuy").value;
+//     const selectedDate = document.getElementById("buyNowDate").value;
+//     const selectedTime = document.getElementById("timeSlotDropdown").value;
+//     const inventoryType = "{{ inventoryType }}";
+//     const propertyId = "{{ property['_id'] }}";
+
+//     if (!fullName || !email || !phone || !selectedDate) {
+//         alert("Please fill all required fields.");
+//         return;
+//     }
+
+//     if (inventoryType === "Meeting Room" && !selectedTime) {
+//         alert("Please select a time slot.");
+//         return;
+//     }
+
+//     const payload = {
+//         inventoryType: inventoryType,
+//         quantity: passQuantity,
+//         totalPrice: discountedTotal !== null ? discountedTotal : totalPrice,
+//         fullName: fullName,
+//         email: email,
+//         phone: phone,
+//         company: company,
+//         gstin: gstin || null,
+//         date: selectedDate,
+//         time: inventoryType === "Meeting Room" ? selectedTime : null,
+//         property_id: propertyId
+//     };
+
+//     fetch("/submit_purchase", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(payload)
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         if (data.success) {
+//             closeBuyNowModal();
+//             document.getElementById("thankYouOverlay").style.display = "block"; // Show overlay
+//   document.getElementById("thankYouModal").style.display = "flex";    // Show modal
+//         } else {
+//             alert("Error: " + data.message);
+//         }
+//     })
+//     .catch(err => {
+//         console.error("Error submitting:", err);
+//         alert("Something went wrong.");
+//     });
+// }
+
+function submitPurchase() {
+  const fullName = document.getElementById("fullNameBuy").value;
+  const email = document.getElementById("emailBuy").value;
+  const phone = document.getElementById("phoneBuy").value;
+  const company = document.getElementById("companyBuy").value;
+  const gstin = document.getElementById("gstinBuy").value;
+  const selectedDate = document.getElementById("buyNowDate").value;
+  const selectedTime = document.getElementById("timeSlotDropdown").value;
+  const inventoryType = "{{ inventoryType }}";
+  const propertyId = "{{ property['_id'] }}";
+
+  if (!fullName || !email || !phone || !selectedDate) {
+    alert("Please fill all required fields.");
+    return;
+  }
+
+  if (inventoryType === "Meeting Room" && !selectedTime) {
+    alert("Please select a time slot.");
+    return;
+  }
+
+  const finalPrice = discountedTotal !== null ? discountedTotal : totalPrice;
+
+  // STEP 1: Call backend to create Razorpay order
+  fetch("/create_order", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      amount: finalPrice , // Razorpay expects amount in paise
+      currency: "INR",
+      receipt: `booking_${Date.now()}`,
+    }),
+  })
+    .then((res) => res.json())
+    .then((orderData) => {
+      if (!orderData.success) {
+        alert("Failed to initiate payment.");
+        return;
+      }
+
+      // STEP 2: Open Razorpay Payment UI
+      const options = {
+        key: "{{ razorpay_key }}", // passed from Flask context
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Workdesq",
+        description: "Booking Payment",
+        image: "../static/images/workdesq-logo-1.png",
+        order_id: orderData.id,
+        handler: function (response) {
+          // STEP 3: On payment success, confirm booking
+          const payload = {
+            inventoryType: inventoryType,
+            quantity: passQuantity,
+            totalPrice: finalPrice,
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            company: company,
+            gstin: gstin || null,
+            date: selectedDate,
+            time: inventoryType === "Meeting Room" ? selectedTime : null,
+            property_id: propertyId,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_signature: response.razorpay_signature,
+            status: "Paid"
+          };
+
+          fetch("/submit_purchase", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.success) {
+                closeBuyNowModal();
+                document.getElementById("thankYouOverlay").style.display = "block";
+                document.getElementById("thankYouModal").style.display = "flex";
+              } else {
+                alert("Booking failed: " + data.message);
+              }
+            });
+        },
+        prefill: {
+          name: fullName,
+          email: email,
+          contact: phone,
+        },
+        theme: {
+          color: "#3399cc",
+        },
+      };
+
+      const rzp = new Razorpay(options);
+      // ✅ Handle payment failure and store failed booking
+      rzp.on('payment.failed', function (response) {
+        const failedPayload = {
+          inventoryType,
+          quantity: passQuantity,
+          totalPrice: finalPrice,
+          fullName,
+          email,
+          phone,
+          company,
+          gstin: gstin || null,
+          date: selectedDate,
+          time: inventoryType === "Meeting Room" ? selectedTime : null,
+          property_id: propertyId,
+          razorpay_payment_id: response.error.metadata.payment_id,
+          razorpay_order_id: response.error.metadata.order_id,
+          status: "Failed"
+        };
+
+        fetch("/submit_purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(failedPayload)
+      })
+      .then(() => {
+        alert("Payment failed or was cancelled.");
+      })
+      .catch(() => {
+        alert("Something went wrong after payment failure.");
+      });
+    });
+      rzp.open();
+    })
+    .catch((err) => {
+      console.error("Error in payment:", err);
+      alert("Payment initiation failed.");
+    });
+}
+
+
+function closeThankYouModal() {
+  document.getElementById("thankYouModal").style.display = "none";
+  document.getElementById("thankYouOverlay").style.display = "none";
+}
+</script>
+
+<script>
+let discountedTotal = null;
+
+// Function to show success popup
+function applyCoupon() {
+  const inventoryType = "{{ inventoryType }}";
+  const quantity = parseInt(document.getElementById("passQuantity").innerText);
+  const couponDropdown = document.querySelector(".coupon-select");
+  const selectedCoupon = couponDropdown.value;
+  const messageEl = document.querySelector(".coupon-message");
+
+  let valid = false;
+  let discount = 0;
+  let message = "";
+
+  switch (selectedCoupon) {
+    case "FLAT100":
+      valid = true;
+      discount = 100;
+      message = "Flat ₹100 off applied!";
+      break;
+    case "DAY200":
+      if (inventoryType === "Day Pass" && quantity >= 5) {
+        valid = true;
+        discount = 200;
+        message = "₹200 off for 5+ Day Passes!";
+      }
+      break;
+    case "DAY500":
+      if (inventoryType === "Day Pass" && quantity >= 10) {
+        valid = true;
+        discount = 500;
+        message = "₹500 off for 10+ Day Passes!";
+      }
+      break;
+    case "MEET300":
+      if (inventoryType === "Meeting Room" && quantity >= 5) {
+        valid = true;
+        discount = 300;
+        message = "₹300 off for 2+ Meeting Hours!";
+      }
+      break;
+    case "MEET500":
+      if (inventoryType === "Meeting Room" && quantity >= 10) {
+        valid = true;
+        discount = 500;
+        message = "₹500 off for 4+ Meeting Hours!";
+      }
+      break;
+    default:
+      break;
+  }
+
+  if (valid) {
+    discountedTotal = pricePerSeat * quantity - discount;
+    document.getElementById("totalPrice").innerHTML = `
+      <span style="text-decoration:line-through; color:#999;">₹${pricePerSeat * quantity}</span>
+      <span style="margin-left:8px; color:green;">₹${discountedTotal}</span>
+    `;
+    document.getElementById("modalTotalPrice").innerText = discountedTotal;
+    messageEl.innerText = message;
+    messageEl.style.color = "green";
+    showCouponSuccessPopup(message);
+  } else {
+    discountedTotal = null;
+    messageEl.innerText = "Invalid coupon or not eligible.";
+    messageEl.style.color = "red";
+  }
+}
+
+function showCouponSuccessPopup(message) {
+  const popup = document.getElementById("couponSuccessPopup");
+  const overlay = document.getElementById("couponOverlay");
+  const msgBox = document.getElementById("couponPopupMessage");
+
+  msgBox.innerText = message;
+  popup.style.display = "block";
+  overlay.style.display = "block";
+
+  setTimeout(() => {
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  }, 5000);
+}
+
+function closeCouponPopup() {
+  document.getElementById("couponSuccessPopup").style.display = "none";
+  document.getElementById("couponOverlay").style.display = "none";
+}
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const bookNowBtn = document.getElementById('bookNowBtn');
+    const popupModal = document.getElementById('popupModal');
+
+    if (bookNowBtn && popupModal) {
+      bookNowBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        popupModal.style.display = 'flex';
+      });
+    }
+  });
 </script>
 
 </html>

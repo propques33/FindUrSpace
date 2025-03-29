@@ -68,17 +68,27 @@ def bookings():
     bookings = []
     
     for booking in bookings_cursor:
-        # Fetch property details from fillurdetails
         property_details = property_map.get(booking['property_id'], {})
         booking['micromarket'] = property_details.get('micromarket', 'N/A')
         booking['city'] = property_details.get('city', 'N/A')
 
-        # Convert ObjectId fields to string
         booking['_id'] = str(booking['_id'])
         booking['property_id'] = str(booking['property_id'])
         booking['user_id'] = str(booking['user_id'])
-        booking['date'] = booking['date'].strftime('%d %b %Y')  # Format date
+        booking['date'] = booking['date'].strftime('%d %b %Y')
         booking['created_at'] = booking['created_at'].strftime('%d %b %Y %I:%M %p')
+
+        # 🔽 Add display status and badge class based on status
+        status = booking.get('status', '').lower()
+        if status == 'paid':
+            booking['display_status'] = 'Booking Confirmed'
+            booking['status_class'] = 'bg-success'
+        elif status == 'failed':
+            booking['display_status'] = 'Payment Failed'
+            booking['status_class'] = 'bg-danger'
+        else:
+            booking['display_status'] = 'Payment Pending'
+            booking['status_class'] = 'bg-warning'
 
         bookings.append(booking)
 

@@ -96,21 +96,24 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                                     <td>{{ booking.inventoryType }}</td>
                                     <td>{{ booking.quantity }}</td>
                                     <td>
-                                        <span class="status-box {% if booking.status == 'pending' %}yellow-box
-                                            {% elif booking.status == 'approved' %}yellow-box
-                                            {% elif booking.status == 'paid' %}green-box
-                                            {% elif booking.status == 'declined' %}red-box{% endif %}">
-                                            {% if booking.status == 'pending' %}
-                                                Waiting for Approval
-                                            {% elif booking.status == 'approved' %}
-                                                Payment Pending
-                                            {% elif booking.status == 'paid' %}
+                                        <span class="status-box 
+                                            {% if booking.status|lower == 'paid' %}
+                                                green-box
+                                            {% elif booking.status|lower == 'failed' %}
+                                                red-box
+                                            {% else %}
+                                                yellow-box
+                                            {% endif %}">
+                                            
+                                            {% if booking.status|lower == 'paid' %}
                                                 Booking Confirmed
-                                            {% elif booking.status == 'declined' %}
-                                                Declined
+                                            {% elif booking.status|lower == 'failed' %}
+                                                Payment Failed
+                                            {% else %}
+                                                Payment Pending
                                             {% endif %}
                                         </span>
-                                    </td>
+                                        </td>
                                     <td>₹{{ booking.totalPrice }}</td>
                                     <td>{{ booking.date.strftime('%d %B %Y') }}</td>
                                     <td>

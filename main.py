@@ -8,6 +8,7 @@ from core.routes import core_bp  # Importing routes from core/routes.py
 from admin.admin import admin_bp
 from operators.operators import operators_bp
 from admin import admin_bp
+import razorpay  # ✅ Import Razorpay
 import re
 
 # Load environment variables
@@ -34,6 +35,13 @@ mail = Mail(app)
 # MongoDB setup
 db = get_db()
 app.config['db'] = db  # Store the db instance in app config for global use
+
+# ✅ Razorpay setup
+app.config['RAZORPAY_KEY_ID'] = os.environ.get('RAZORPAY_KEY_ID')
+app.config['RAZORPAY_KEY_SECRET'] = os.environ.get('RAZORPAY_KEY_SECRET')
+app.config['razorpay_client'] = razorpay.Client(
+    auth=(app.config['RAZORPAY_KEY_ID'], app.config['RAZORPAY_KEY_SECRET'])
+)
 
 # Register routes (from core/routes.py)
 app.register_blueprint(core_bp)
