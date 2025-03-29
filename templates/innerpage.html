@@ -1631,6 +1631,20 @@ function closeCouponPopup() {
   document.getElementById("modalOverlay").style.display = "none"; // Hides the overlay
 }
 
+function resetCoupon() {
+  appliedCoupon = null;
+  discountedTotal = null;
+
+  // Clear all coupon messages
+  document.querySelectorAll(".coupon-message").forEach(msg => {
+    msg.innerText = "";
+  });
+
+  // Reset dropdown selection
+  document.querySelectorAll(".coupon-select").forEach(select => {
+    select.value = "";
+  });
+}
 
 function applyCoupon() {
   document.querySelectorAll(".cart-summary").forEach(cart => {
@@ -1722,6 +1736,7 @@ function updateCartSummary() {
 
 // Function to increase quantity
 function increaseQuantity() {
+    resetCoupon(); // 🔁 Reset coupon
     passQuantity++;
     totalPrice = passQuantity * pricePerSeat;
     updateCartSummary();
@@ -1730,6 +1745,7 @@ function increaseQuantity() {
 // Function to decrease quantity (minimum 1)
 function decreaseQuantity() {
     if (passQuantity > 1) {
+        resetCoupon(); // 🔁 Reset coupon
         passQuantity--;
         totalPrice = passQuantity * pricePerSeat;
         updateCartSummary();
@@ -1738,6 +1754,7 @@ function decreaseQuantity() {
 
 // Function to add bundles
 function addBundle(quantity) {
+   resetCoupon(); // 🔁 Reset coupon
     let inventoryType = "{{ inventoryType }}";
     passQuantity = quantity;
     let calculatedTotal = 0;

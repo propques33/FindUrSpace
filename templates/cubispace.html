@@ -733,11 +733,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function increaseQuantity() {
+      resetCoupon(); 
       passQuantity++;
       updateCartSummary();
     }
 
     function decreaseQuantity() {
+      resetCoupon(); // 🔁 Reset coupon
       if (passQuantity > 1) {
         passQuantity--;
         updateCartSummary();
@@ -745,6 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function addBundle(quantity) {
+      resetCoupon(); // 🔁 Reset coupon
       passQuantity = quantity;
       updateCartSummary();
     }
@@ -1127,6 +1130,22 @@ function applyCoupon() {
     messageEl.style.color = "red";
   }
 }
+
+function resetCoupon() {
+  appliedCoupon = null;
+  discountedTotal = null;
+
+  // Clear all coupon messages
+  document.querySelectorAll(".coupon-message").forEach(msg => {
+    msg.innerText = "";
+  });
+
+  // Reset dropdown selection
+  document.querySelectorAll(".coupon-select").forEach(select => {
+    select.value = "";
+  });
+}
+
 
 function showCouponSuccessPopup(message) {
   const popup = document.getElementById("couponSuccessPopup");
