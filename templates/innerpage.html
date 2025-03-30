@@ -209,7 +209,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     </div>
 </div>
 
-<input type="hidden" id="isVerified" value="{{ is_verified|lower }}">
+
 
 <!-- Background Overlay -->
 <div id="modalOverlay" class="modal-overlay"></div>
@@ -729,7 +729,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <input type="email" id="emailBuy" value="{{ user_data.get('email', '') }}" placeholder="Your Email">
 
         <label for="phoneBuy">Phone</label>
-        <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone">
+        <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone" disabled readonly>
 
         <label for="companyBuy">Company</label>
         <input type="text" id="companyBuy" value="{{ user_data.get('company', '') }}" placeholder="Your Company">
@@ -1980,11 +1980,23 @@ document.addEventListener("DOMContentLoaded", function () {
 function openBuyNowModal() {
   // Auto-fill phone
     const verifiedPhone = sessionStorage.getItem("verifiedContact");
+    
     if (verifiedPhone) {
       const phoneInput = document.getElementById("phoneBuy");
       phoneInput.value = verifiedPhone;
       phoneInput.readOnly = true;
     }
+
+    let urlParams = new URLSearchParams(window.location.search);
+    let contact = urlParams.get("contact");
+    if (contact) {
+  const phoneInputBuy = document.getElementById("phoneBuy");
+  if (phoneInputBuy && !phoneInputBuy.value) {
+    phoneInputBuy.value = contact;
+    phoneInputBuy.readOnly = true;
+    phoneInputBuy.disabled = true;
+  }
+}
 
     document.getElementById("modalPassQuantity").innerText = passQuantity;
     document.getElementById("modalTotalPrice").innerText = discountedTotal !== null ? discountedTotal : totalPrice;
@@ -2262,9 +2274,24 @@ document.addEventListener("DOMContentLoaded", function () {
 window.onload = function () {
   let urlParams = new URLSearchParams(window.location.search);
   let contact = urlParams.get("contact");
-  let isVerified = document.getElementById("isVerified").value === "true";
+
+  const sessionVerified = sessionStorage.getItem("otp_verified_modal") === "true";
+  const sessionContact = sessionStorage.getItem("user_contact_modal");
+
+  // ✅ Reset session if contact in URL has changed
+  if (contact && sessionContact && contact !== sessionContact) {
+    sessionStorage.removeItem("otp_verified_modal");
+    sessionStorage.removeItem("user_contact_modal");
+    sessionStorage.removeItem("bookNowModalShown"); // So modal opens again
+  }
+
+const isVerifiedFromServer = document.getElementById("isVerified").value === "true";
+  let isVerified =
+    (sessionVerified && sessionContact === contact) ||
+    (isVerifiedFromServer && sessionContact === contact);
 
   if (!isVerified || !contact) {
+    if (!sessionStorage.getItem("bookNowModalShown")) {
     setTimeout(() => {
       // Pre-fill selectedSpace manually if modal opens on load
       selectedSpace = {
@@ -2277,8 +2304,17 @@ window.onload = function () {
       let modalInstance = new bootstrap.Modal(modalElement); // ✅ Correct usage
       modalInstance.show(); // ✅ Proper way to show the modal
       document.getElementById("modalOverlay").style.display = "block"; // Optional if you're using custom overlay
+      sessionStorage.setItem("bookNowModalShown", "true");
+
+      // Clear all fields and enable contact input for fresh start
+        document.getElementById("contactNumber").value = contact || "";
+        document.getElementById("contactNumber").disabled = false;
+        document.getElementById("inventoryStep").style.display = "none";
+        document.getElementById("otpStep").style.display = "none";
+        document.querySelector(".verifybt1").style.display = "inline-block";
     }, 300);
   }
+}
 };
 
 
@@ -2596,6 +2632,10 @@ async function verifyModalOtp() {
 
     if (result.success) {
         alert("OTP Verified!");
+
+        // ✅ Store verification in sessionStorage (this is the required step)
+        sessionStorage.setItem("otp_verified_modal", "true");
+        sessionStorage.setItem("user_contact_modal", phone);
 
         // ✅ Disable contact number input
         document.getElementById("contactNumber").readOnly = true;
