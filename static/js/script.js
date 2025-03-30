@@ -1088,3 +1088,59 @@ document.addEventListener("DOMContentLoaded", function () {
             });
     });
 });
+
+async function initiateModalOtp() {
+    const contact = document.getElementById('contactNumber').value.trim();
+
+    if (!/^\d{10}$/.test(contact)) {
+        alert("Please enter a valid 10-digit number.");
+        return;
+    }
+
+    await OTPlessSdk(); // Load SDK
+
+    const response = await OTPlessSignin.initiate({
+        channel: "PHONE",
+        phone: contact,
+        countryCode: "+91",
+        expiry: "60"
+    });
+
+    if (response.success) {
+        document.getElementById("otpStep").style.display = "block";
+        alert("OTP sent!");
+    } else {
+        alert("Failed to send OTP.");
+    }
+}
+
+async function verifyModalOtp() {
+    const contact = document.getElementById('contactNumber').value.trim();
+    const otp = document.getElementById('otpInputModal').value.trim();
+
+    if (!/^\d{6}$/.test(otp)) {
+        alert("Enter a valid 6-digit OTP.");
+        return;
+    }
+
+    await OTPlessSdk(); // Load SDK
+
+    const response = await OTPlessSignin.verify({
+        channel: "PHONE",
+        phone: contact,
+        otp: otp,
+        countryCode: "+91"
+    });
+
+    if (response.success) {
+        alert("OTP Verified!");
+        document.getElementById("contactNumber").disabled = true;
+        document.getElementById("otpStep").style.display = "none";
+        document.getElementById("inventoryStep").style.display = "block";
+
+        sessionStorage.setItem("otp_verified_modal", "true");
+        sessionStorage.setItem("user_contact_modal", contact);
+    } else {
+        alert("OTP verification failed.");
+    }
+}

@@ -198,25 +198,35 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
             </div>
             <div class="modal-body">
                 <form id="bookNowForm">
-                    <div class="mb-3">
-                        <label for="contactNumber" class="form-label">Contact Number</label>
-                        <input type="tel" class="form-control" id="contactNumber" required>
+                    <!-- Step 1: Contact Number Input -->
+                    <div class="mb-3" id="contactStep">
+                      <label for="contactNumber" class="form-label">Contact Number</label>
+                      <input type="tel" class="form-control" id="contactNumber" required>
+                      <button type="button" class="btn btn-secondary mt-2 verifybt1" onclick="initiateModalOtp()">Click to Verify</button>
                     </div>
-                    <div class="mb-3">
-                      <label for="inventoryType" class="form-label">Inventory Type</label>
-                      <select class="form-control" id="inventoryType" required>
+                    <!-- Step 2: OTP Input (Initially Hidden) -->
+                    <div class="mb-3" id="otpStep" style="display: none;">
+                      <input type="text" class="form-control" id="otpInputModal" placeholder="Enter OTP">
+                      <button type="button" class="btn btn-primary mt-2 verifybt2" onclick="verifyModalOtp()">Verify OTP</button>
+                    </div>
+                    <!-- Step 3: Inventory Type and Seating (Initially Hidden) -->
+                    <div id="inventoryStep" style="display: none;">
+                      <div class="mb-3">
+                        <label for="inventoryType" class="form-label">Inventory Type</label>
+                        <select class="form-control" id="inventoryType" required>
                           <option value="">Select</option>
                           <option value="Meeting rooms">Meeting Rooms</option>
                           <option value="Day pass">Day Pass</option>
-                      </select>
+                        </select>
+                      </div>
+                      <div class="mb-3" id="seatingSection" style="display: none;">
+                        <label for="seatingSelect" class="form-label">Select Seating Capacity</label>
+                        <select class="form-control" id="seatingSelect">
+                          <option value="">Select</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-primary w-100 bk mt-2">Book Now</button>
                     </div>
-                    <div class="mb-3" id="seatingSection" style="display: none;">
-                      <label for="seatingSelect" class="form-label">Select Seating Capacity</label>
-                      <select class="form-control" id="seatingSelect" required>
-                        <option value="">Select</option>
-                      </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 bk">Book Now</button>
                 </form>
             </div>
         </div>

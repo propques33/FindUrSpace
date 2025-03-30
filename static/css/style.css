@@ -2049,6 +2049,24 @@ h1, h2, h3, p, span, a {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Return to normal shadow */
 }
 
+.verifybt1{
+    position:relative;
+    width:100%;
+    background-color: #151D31;
+    color:white;
+    padding:8px 0px;
+    font-size:16px;
+}
+
+.verifybt2{
+    position:relative;
+    width:100%;
+    background-color:#0033cc;
+    color:white;
+    padding:8px 0px;
+    font-size:16px;
+}
+
 .verifybt{
     position:relative;
 }
