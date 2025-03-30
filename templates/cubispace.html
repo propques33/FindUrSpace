@@ -6,6 +6,9 @@
     <title>CubiSpace | Booking</title>
     <link rel="stylesheet" href="../static/css/cubispace.css">
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
+    <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
     <!-- Include OTPless Headless SDK -->
     <script src="https://otpless.com/v4/headless.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -28,7 +31,7 @@
 
     <div class="modal-section">
         <label for="buyNowDate">Select Date</label>
-        <input type="date" id="buyNowDate">
+        <input type="text" id="buyNowDate" placeholder="Select a date" readonly>
     </div>
 
     <div id="timeSelectionContainer" class="modal-section" style="display: none;">
@@ -71,7 +74,7 @@
     </div>
 
     <div class="modal-footer">
-        <button class="modal-btn-confirm" onclick="submitPurchase()">Confirm Purchase</button>
+        <button class="modal-btn-confirm" onclick="submitPurchase()">Complete Puchase</button>
     </div>
   </div>
 </div>
@@ -110,7 +113,7 @@
       <div class="form-group" id="otpSection" style="display: none;">
         <label for="otpInput">Enter OTP</label>
         <input type="text" id="otpInput" placeholder="6-digit OTP" />
-        <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="submit-btn" style="margin-top: 8px;">Verify OTP</button>
+        <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="submit-btn" style="margin-top: 8px; width:100%;">Verify OTP</button>
       </div>
 
       <!-- Inventory selection (initially hidden) -->
@@ -602,6 +605,9 @@
         <p>  Powered By Findurspace</p>
       </div>
     </footer>
+    <!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
   </body>
 
   <script>
@@ -784,6 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resetCoupon(); 
       passQuantity++;
       updateCartSummary();
+      updateCouponColors(); // 🔁 call here
     }
 
     function decreaseQuantity() {
@@ -791,6 +798,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (passQuantity > 1) {
         passQuantity--;
         updateCartSummary();
+        updateCouponColors(); // 🔁 call here
       }
     }
 
@@ -798,6 +806,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resetCoupon(); // 🔁 Reset coupon
       passQuantity = quantity;
       updateCartSummary();
+      updateCouponColors(); // 🔁 call here
     }
 
     // Attach functions to global scope for inline button calls
@@ -807,6 +816,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Auto-render bundles
     updateCartSummary();
+    updateCouponColors(); // 🔁 call here
 
     const bundleOffers = document.getElementById("bundleOffers");
     if (bundleOffers) {
@@ -870,9 +880,20 @@ function openBuyNowModal() {
     document.getElementById("modalTotalPrice").innerText = finalPrice;
 
     const dateInput = document.getElementById("buyNowDate");
+
+    // Set min to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     dateInput.min = tomorrow.toISOString().split("T")[0];
+
+    // Disable Sundays using input event
+    dateInput.addEventListener("input", function () {
+      const selected = new Date(this.value);
+      if (selected.getDay() === 0) { // Sunday = 0
+        alert("Booking not available on Sundays. Please choose another date.");
+        this.value = ""; // Clear the invalid selection
+      }
+    });
 
     document.getElementById("buyNowModal").style.display = "flex";
     document.getElementById("modalOverlay").style.display = "block";
@@ -887,6 +908,18 @@ function openBuyNowModal() {
         document.getElementById("timeSelectionContainer").style.display = "none";
     }
 }
+
+// Initialize flatpickr on date field
+flatpickr("#buyNowDate", {
+  dateFormat: "Y-m-d",
+  minDate: "today",
+  disable: [
+    function(date) {
+      // Disable Sundays
+      return date.getDay() === 0;
+    }
+  ]
+});
 
 function closeBuyNowModal() {
     document.getElementById("buyNowModal").style.display = "none";
@@ -1133,6 +1166,7 @@ function applyCoupon() {
   let valid = false;
   let discount = 0;
   let message = "";
+  let errorColor = "red";
 
   switch (selectedCoupon) {
     case "FLAT100":
@@ -1140,69 +1174,125 @@ function applyCoupon() {
       discount = 100;
       message = "Flat ₹100 off applied!";
       break;
+
     case "DAY200":
       if (inventoryType === "Day Pass" && quantity >= 5) {
         valid = true;
         discount = 200;
         message = "₹200 off for 5+ Day Passes!";
+      } else {
+        message = "Coupon Applicable on 5 Day Passes.";
       }
       break;
+
     case "DAY500":
       if (inventoryType === "Day Pass" && quantity >= 10) {
         valid = true;
         discount = 500;
         message = "₹500 off for 10+ Day Passes!";
+      } else {
+        message = "Coupon Applicable on 10 Day Passes.";
       }
       break;
+
     case "MEET300":
-      if (inventoryType === "Meeting Room" && quantity >= 5) {
+      if (inventoryType === "Meeting Room" && quantity >= 2) {
         valid = true;
         discount = 300;
         message = "₹300 off for 2+ Meeting Hours!";
+      } else {
+        message = "Coupon Applicable on 2 Meeting Hours.";
       }
       break;
+
     case "MEET500":
-      if (inventoryType === "Meeting Room" && quantity >= 10) {
+      if (inventoryType === "Meeting Room" && quantity >= 4) {
         valid = true;
         discount = 500;
         message = "₹500 off for 4+ Meeting Hours!";
+      } else {
+        message = "Coupon Applicable on 4 Meeting Hours.";
       }
       break;
+
     default:
+      message = "Invalid or unsupported coupon.";
       break;
   }
 
   if (valid) {
     discountedTotal = pricePerSeat * quantity - discount;
+
     document.getElementById("totalPrice").innerHTML = `
       <span style="text-decoration:line-through; color:#999;">₹${pricePerSeat * quantity}</span>
       <span style="margin-left:8px; color:green;">₹${discountedTotal}</span>
     `;
+
     document.getElementById("modalTotalPrice").innerText = discountedTotal;
+
     messageEl.innerText = message;
     messageEl.style.color = "green";
     showCouponSuccessPopup(message);
   } else {
     discountedTotal = null;
-    messageEl.innerText = "Invalid coupon or not eligible.";
-    messageEl.style.color = "red";
+    messageEl.innerText = message;
+    messageEl.style.color = errorColor;
   }
 }
 
-function resetCoupon() {
-  appliedCoupon = null;
-  discountedTotal = null;
+function updateCouponColors() {
+  const inventoryType = "{{ inventoryType }}";
+  const quantity = parseInt(document.getElementById("passQuantity").innerText);
+  const couponOptions = document.querySelectorAll(".coupon-select option");
 
-  // Clear all coupon messages
-  document.querySelectorAll(".coupon-message").forEach(msg => {
-    msg.innerText = "";
+  couponOptions.forEach((option) => {
+    const code = option.value;
+    let isValid = false;
+
+    switch (code) {
+      case "FLAT100":
+        isValid = true;
+        break;
+      case "DAY200":
+        isValid = inventoryType === "Day Pass" && quantity >= 5;
+        break;
+      case "DAY500":
+        isValid = inventoryType === "Day Pass" && quantity >= 10;
+        break;
+      case "MEET300":
+        isValid = inventoryType === "Meeting Room" && quantity >= 2;
+        break;
+      case "MEET500":
+        isValid = inventoryType === "Meeting Room" && quantity >= 4;
+        break;
+      default:
+        break;
+    }
+
+    option.style.color = isValid ? "green" : (code ? "red" : "#000");
   });
+}
+
+
+function resetCoupon() {
+  discountedTotal = null;
 
   // Reset dropdown selection
   document.querySelectorAll(".coupon-select").forEach(select => {
     select.value = "";
   });
+
+  // Reset price display
+  const quantity = parseInt(document.getElementById("passQuantity").innerText);
+  document.getElementById("totalPrice").innerText = `₹${pricePerSeat * quantity}`;
+
+  // Clear all coupon messages
+  document.querySelectorAll(".coupon-message").forEach(msg => {
+    msg.innerText = "";
+    msg.style.color = "";
+  });
 }
+
 
 
 function showCouponSuccessPopup(message) {

@@ -1769,6 +1769,51 @@ body {
     }
 }
 
+@media (max-width: 768px) {
+  .container1 {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    order:-1;
+    position: relative;
+    top:350px;
+  }
+}
+
+@media (max-width: 600px) {
+  .container1 {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    order:-1;
+    position: relative;
+    top:250px;
+  }
+}
+
+@media (max-width: 500px) {
+  .container1 {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    order:-1;
+    position: relative;
+    top:200px;
+  }
+}
+
+@media (max-width: 450px) {
+  .container1 {
+    width: 100%;
+    display: block;
+    padding: 10px;
+    order:-1;
+    position: relative;
+    top:160px;
+  }
+}
+
+
 #buyNowModal{
     background: #fff;
 }
