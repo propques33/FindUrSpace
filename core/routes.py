@@ -244,6 +244,15 @@ def innerpage(city, micromarket, coworking_name):
     contact = request.args.get('contact', None)  # Capture contact from the URL
     razorpay_key = current_app.config.get("RAZORPAY_KEY_ID")
 
+    # Session validation for OTP verification
+    verified_contact = session.get('verified_contact')
+    is_verified = verified_contact == contact if contact else False
+
+    # Invalidate session if someone manually changes contact in URL
+    if contact and verified_contact and verified_contact != contact:
+        session['verified_contact'] = None
+        is_verified = False
+
     # Fetch the property details from the database using city, micromarket, and coworking_name
     property_data = db.fillurdetails.find_one({
         "city": {'$regex': f'^{city}$', '$options': 'i'},
@@ -465,8 +474,23 @@ def innerpage(city, micromarket, coworking_name):
         time_slots=time_slots,
         is_user_complete=is_user_complete,
         total_price=total_price,
-        seat_count=seat_count   # Pass time slots to the template
+        seat_count=seat_count ,
+        is_verified=is_verified   # Pass time slots to the template
     )
+
+@core_bp.route('/store_verified_contact', methods=['POST'])
+def store_verified_contact():
+    data = request.get_json()
+    contact = data.get("contact")
+
+    if not contact:
+        return jsonify({"success": False, "message": "Contact number missing"}), 400
+
+    # ✅ Store in session
+    session['verified_contact'] = contact
+
+    return jsonify({"success": True, "message": "Contact verified and stored in session"})
+
 
 @core_bp.route('/<city>/<micromarket>/<coworking_name>')
 def innerpage_direct(city, micromarket, coworking_name):

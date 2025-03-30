@@ -6,6 +6,8 @@
     <title>CubiSpace | Booking</title>
     <link rel="stylesheet" href="../static/css/cubispace.css">
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
+    <!-- Include OTPless Headless SDK -->
+    <script src="https://otpless.com/v4/headless.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   </head>
   <!-- Font Awesome -->
@@ -44,7 +46,7 @@
         <input type="email" id="emailBuy" value="{{ user_data.get('email', '') if user_data else '' }}" placeholder="Your Email">
 
         <label for="phoneBuy">Phone</label>
-        <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') if user_data else '' }}" placeholder="Your Phone">
+        <input type="text" id="phoneBuy" readonly disabled value="{{ user_data.get('contact', '') if user_data else '' }}" placeholder="Your Phone">
 
         <label for="companyBuy">Company</label>
         <input type="text" id="companyBuy" value="{{ user_data.get('company', '') if user_data else '' }}" placeholder="Your Company">
@@ -93,7 +95,7 @@
 <!-- Background Overlay -->
 <div id="thankYouOverlay" class="modal-overlay"></div>
     
-    <!-- Modal HTML -->
+        <!-- Modal HTML -->
 <div id="popupModal" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
@@ -102,9 +104,17 @@
       <div class="form-group">
         <label for="contact">Contact Number</label>
         <input type="tel" id="contact" name="contact" placeholder="Enter your number" required />
+        <button type="button" onclick="initiateOtp()" id="sendOtpBtn" class="submit-btn" style="margin-top: 8px;">Send OTP</button>
       </div>
 
-      <div class="form-group">
+      <div class="form-group" id="otpSection" style="display: none;">
+        <label for="otpInput">Enter OTP</label>
+        <input type="text" id="otpInput" placeholder="6-digit OTP" />
+        <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="submit-btn" style="margin-top: 8px;">Verify OTP</button>
+      </div>
+
+      <!-- Inventory selection (initially hidden) -->
+      <div class="form-group" id="inventorySection" style="display: none;">
         <label for="inventory">Inventory Type</label>
         <select id="inventory" name="inventory" required>
           <option value="">Select</option>
@@ -121,10 +131,9 @@
             <option value="6">6 Seater</option>
             <option value="25">25 Seater</option>
         </select>
-        </div>
+      </div>
 
-
-      <button type="submit" class="submit-btn">Submit</button>
+      <button type="submit" class="submit-btn" id="submitBtn" style="display: none;">Submit</button>
     </form>
   </div>
 </div>
@@ -628,12 +637,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const seaterSelect = document.getElementById("seater");
 
   const urlParams = new URLSearchParams(window.location.search);
-  const contact = urlParams.get("contact");
+  const urlContact = urlParams.get("contact");
+  const verifiedContact = sessionStorage.getItem("verifiedContact");
+
   const inventory = urlParams.get("inventory");
   const seater = urlParams.get("seater");
 
   const invTypeEl = document.getElementById("dynamicInventoryType");
   const snt = document.getElementById("snt");
+  // Check contact tampering
+  const contactTampered = urlContact && verifiedContact && urlContact !== verifiedContact;
+
+  if (contactTampered || !verifiedContact) {
+  modal.style.display = "flex";
+  sessionStorage.removeItem("verifiedContact"); 
+  sessionStorage.removeItem("otpVerified");
+} else {
+  // ✅ Verified contact - proceed to prefill
+  contactInput.value = verifiedContact;
+  inventorySelect.value = inventory;
+
+  if (inventory === "meetingroom") {
+    seaterGroup.style.display = "block";
+    seaterSelect.value = seater;
+  }
+
+  if (snt && (inventory === "meetingroom" || inventory === "daypass")) {
+    snt.style.display = "block";
+  }
+}
+
     const inventoryParam = urlParams.get("inventory");
     const seaterParam = urlParams.get("seater");
 
@@ -648,15 +681,24 @@ document.addEventListener("DOMContentLoaded", () => {
     snt.style.display = "block";
   }
 
+  const otpVerified = sessionStorage.getItem("otpVerified") === "true";
+
   if (!contact || !inventory || (inventory === "meetingroom" && !seater)) {
           modal.style.display = "flex";
         } else {
-          contactInput.value = contact;
-          inventorySelect.value = inventory;
-          if (inventory === "meetingroom") {
-            seaterGroup.style.display = "block";
-            seaterSelect.value = seater;
-          }
+          // contactInput.value = contact;
+          contactInput.value = sessionStorage.getItem("verifiedContact") || "";
+          if (isOtpVerified) {
+  inventorySelect.value = inventory;
+
+  if (inventory === "meetingroom") {
+    seaterGroup.style.display = "block";
+    seaterSelect.value = seater;
+  }
+
+  inventorySection.style.display = "block";
+  submitBtn.style.display = "inline-block";
+}
         }
 
   inventorySelect.addEventListener("change", () => {
@@ -699,8 +741,14 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
+          if (!isOtpVerified) {
+            alert("Please verify OTP before proceeding.");
+            return;
+          }
+
           const url = new URL(window.location.href.split("?")[0]);
-          url.searchParams.set("contact", contactVal);
+          const verifiedContact = sessionStorage.getItem("verifiedContact");
+          url.searchParams.set("contact", verifiedContact);
           url.searchParams.set("inventory", inventoryVal);
           if (inventoryVal === "meetingroom") {
             url.searchParams.set("seater", seaterVal);
@@ -803,6 +851,14 @@ let pricePerSeat = {{ price_value | int }};
 let totalPrice = pricePerSeat;// will update dynamically
 
 function openBuyNowModal() {
+  // Auto-fill phone
+    const verifiedPhone = sessionStorage.getItem("verifiedContact");
+    if (verifiedPhone) {
+      const phoneInput = document.getElementById("phoneBuy");
+      phoneInput.value = verifiedPhone;
+      phoneInput.readOnly = true;
+    }
+
     // Read quantity and total from preference section
     passQuantity = parseInt(document.getElementById("passQuantity").innerText);
     totalPrice = passQuantity * pricePerSeat; // adjust if dynamic pricing needed
@@ -921,7 +977,9 @@ function formatHour(hour) {
 function submitPurchase() {
   const fullName = document.getElementById("fullNameBuy").value;
   const email = document.getElementById("emailBuy").value;
-  const phone = document.getElementById("phoneBuy").value;
+  const phone = sessionStorage.getItem("verifiedContact") || document.getElementById("phoneBuy").value;
+document.getElementById("phoneBuy").value = phone;
+document.getElementById("phoneBuy").readOnly = true;
   const company = document.getElementById("companyBuy").value;
   const gstin = document.getElementById("gstinBuy").value;
   const selectedDate = document.getElementById("buyNowDate").value;
@@ -1179,6 +1237,102 @@ function closeCouponPopup() {
       });
     }
   });
+</script>
+<script>
+  let isOtpVerified = false; // ✅ Track OTP status
+  // Load OTPless SDK
+  let OTPlessSignin = null;
+
+
+async function OTPlessSdk() {
+    return new Promise((resolve) => {
+      if (window.OTPless && OTPlessSignin) return resolve();
+
+      const script = document.createElement("script");
+      script.src = "https://otpless.com/v4/headless.js";
+      script.id = "otpless-sdk";
+      script.setAttribute("data-appid", "DMQXR10UUDL7DTU6326R");
+
+      script.onload = () => {
+        if (window.OTPless) {
+          OTPlessSignin = new OTPless();
+          resolve();
+        }
+      };
+
+      document.head.appendChild(script);
+    });
+  }
+
+
+async function initiateOtp() {
+    const phone = document.getElementById("contact").value.trim();
+    if (!/^\d{10}$/.test(phone)) return alert("Enter valid 10-digit number");
+
+    await OTPlessSdk();
+
+    const res = await OTPlessSignin.initiate({
+      channel: "PHONE",
+      phone,
+      countryCode: "+91",
+      expiry: "60"
+    });
+
+    if (res.success) {
+      document.getElementById("otpSection").style.display = "block";
+      alert("OTP sent!");
+    } else {
+      alert("OTP sending failed");
+    }
+  }
+
+async function verifyOtp() {
+  const phone = document.getElementById("contact").value.trim();
+  const otp = document.getElementById("otpInput").value.trim();
+
+  if (!/^\d{6}$/.test(otp)) return alert("Invalid OTP format");
+
+  await OTPlessSdk();
+
+  const result = await OTPlessSignin.verify({
+    channel: "PHONE",
+    phone,
+    otp,
+    countryCode: "+91"
+  });
+
+  if (result.success) {
+    isOtpVerified = true;
+    window.verifiedContact = phone; 
+    // ✅ Save in sessionStorage
+  sessionStorage.setItem("verifiedContact", phone);
+  sessionStorage.setItem("otpVerified", "true");
+
+    alert("OTP verified!");
+
+    // ✅ Lock contact input
+    document.getElementById("contact").readOnly = true;
+
+    // ✅ Hide OTP section and buttons
+    document.getElementById("sendOtpBtn").style.display = "none";
+    document.getElementById("verifyOtpBtn").style.display = "none";
+    document.getElementById("otpSection").style.display = "none";
+
+    // ✅ Show inventory selection
+    document.getElementById("inventorySection").style.display = "block";
+    document.getElementById("submitBtn").style.display = "inline-block";
+
+  } else {
+    isOtpVerified = false;
+    alert("OTP verification failed.");
+  }
+}
+
+  // Make global
+window.initiateOtp = initiateOtp;
+window.verifyOtp = verifyOtp;
+
+
 </script>
 
 </html>

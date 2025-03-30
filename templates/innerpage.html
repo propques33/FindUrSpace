@@ -8,6 +8,8 @@
     <link rel="icon" href="{{ url_for('static', filename='images/Asset 6.png') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/inner.css') }}">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+     <!-- Include OTPless Headless SDK -->
+    <script src="https://otpless.com/v4/headless.js"></script>
     <!-- <link rel="stylesheet" href="../static/css/inner.css" /> -->
     <!-- Google Fonts -->
     <link
@@ -64,6 +66,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
   </head>
   <body>
     <input type="hidden" id="currentInventoryType" value="{{ inventoryType }}">
+    <input type="hidden" id="isVerified" value="{{ is_verified | lower }}">
 
     <input type="hidden" id="userContact" value="{{ contact }}">
     <input type="hidden" id="seatCountHidden" value="{{ seat_count }}">
@@ -148,7 +151,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 <div id="modalOverlay" class="modal-overlay"></div>
 
 
-<!-- Contact Number Modal -->
+<!-- Contact Number Modal
 <div id="contactModal" class="modal">
   <div class="modal-content">
     <h3>Enter Your Contact Number</h3>
@@ -156,7 +159,52 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <input type="tel" id="userContactInput" placeholder="Enter your contact number" />
     <button onclick="submitContact()">Submit</button>
   </div>
+</div> -->
+<!-- Book Now Modal -->
+<div class="modal fade" id="bookNowModal" tabindex="-1" aria-labelledby="bookNowModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bookNowModalLabel">Book Now</h5>
+            </div>
+            <div class="modal-body">
+                <form id="bookNowForm">
+                    <!-- Step 1: Contact Number Input -->
+                    <div class="mb-3" id="contactStep">
+                      <label for="contactNumber" class="form-label">Contact Number</label>
+                      <input type="tel" class="form-control" id="contactNumber" required>
+                      <button type="button" class="btn btn-secondary mt-2 verifybt1" onclick="initiateModalOtp()">Click to Verify</button>
+                    </div>
+                    <!-- Step 2: OTP Input (Initially Hidden) -->
+                    <div class="mb-3" id="otpStep" style="display: none;">
+                      <input type="text" class="form-control" id="otpInputModal" placeholder="Enter OTP">
+                      <button type="button" class="btn btn-primary mt-2 verifybt2" onclick="verifyModalOtp()">Verify OTP</button>
+                    </div>
+                    <!-- Step 3: Inventory Type and Seating (Initially Hidden) -->
+                    <div id="inventoryStep" style="display: none;">
+                      <div class="mb-3">
+                        <label for="inventoryType" class="form-label">Inventory Type</label>
+                        <select class="form-control" id="inventoryType" required>
+                          <option value="">Select</option>
+                          <option value="Meeting rooms">Meeting Rooms</option>
+                          <option value="Day pass">Day Pass</option>
+                        </select>
+                      </div>
+                      <div class="mb-3" id="seatingSection" style="display: none;">
+                        <label for="seatingSelect" class="form-label">Select Seating Capacity</label>
+                        <select class="form-control" id="seatingSelect">
+                          <option value="">Select</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="btn btn-primary w-100 bk mt-2">Book Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<input type="hidden" id="isVerified" value="{{ is_verified|lower }}">
 
 <!-- Background Overlay -->
 <div id="modalOverlay" class="modal-overlay"></div>
@@ -1154,6 +1202,8 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 
 </div>
 
+ <!-- Include OTPless Headless SDK -->
+    <script src="https://otpless.com/v4/headless.js"></script>
     <script>
       function getBaseUrl() {
     // Get base URL dynamically (works for both local & deployed)
@@ -2096,16 +2146,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
-    let urlParams = new URLSearchParams(window.location.search);
-    let contact = urlParams.get("contact");
+window.onload = function () {
+  let urlParams = new URLSearchParams(window.location.search);
+  let contact = urlParams.get("contact");
+  let isVerified = document.getElementById("isVerified").value === "true";
 
-    if (!contact) {
-        // Show the contact modal if contact is missing
-        document.getElementById("contactModal").style.display = "block";
-        document.getElementById("modalOverlay").style.display = "block";
-    }
-});
+  if (!isVerified || !contact) {
+    setTimeout(() => {
+      // Pre-fill selectedSpace manually if modal opens on load
+      selectedSpace = {
+        coworkingName: "{{ property.coworking_name }}",
+        city: "{{ property.city }}",
+        micromarket: "{{ property.micromarket }}"
+      };
+
+      let modalElement = document.getElementById("bookNowModal");
+      let modalInstance = new bootstrap.Modal(modalElement); // ✅ Correct usage
+      modalInstance.show(); // ✅ Proper way to show the modal
+      document.getElementById("modalOverlay").style.display = "block"; // Optional if you're using custom overlay
+    }, 300);
+  }
+};
+
 
 function submitContact() {
   let contactInput = document.getElementById("userContactInput").value.trim();
@@ -2237,7 +2299,242 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
+<script>
+  let OTPlessSignin = null;  // Declare globally
+  // Load OTPless SDK
 
+async function OTPlessSdk() {
+    return new Promise((resolve) => {
+        if (window.OTPless && OTPlessSignin) return resolve();
+
+        const script = document.createElement("script");
+        script.src = "https://otpless.com/v4/headless.js";
+        script.id = "otpless-sdk";
+        script.setAttribute("data-appid", "DMQXR10UUDL7DTU6326R"); // ✅ Replace with YOUR live App ID
+
+        script.onload = () => {
+            if (window.OTPless) {
+                OTPlessSignin = new OTPless(); // ✅ Avoid callback issues
+                resolve();
+            } else {
+                console.error("OTPless SDK failed to load.");
+            }
+        };
+        document.head.appendChild(script);
+    });
+}
+
+
+let selectedSpace = {
+        coworkingName: "",
+        city: "",
+        micromarket: ""
+    };
+
+document.addEventListener("DOMContentLoaded", function () {
+    
+
+    
+
+    // Handle seating visibility based on inventory type
+    document.getElementById("inventoryType").addEventListener("change", function () {
+        const invType = this.value.trim();
+        const seatingSelect = document.getElementById("seatingSelect");
+        const seatingSection = document.getElementById("seatingSection");
+
+        seatingSelect.innerHTML = '<option value="">Select</option>';
+
+        if (invType === "Meeting rooms") {
+            seatingSection.style.display = "block";
+            seatingSelect.setAttribute("required", "required");
+
+            let seatOptions = [];
+            const space = selectedSpace.coworkingName;
+
+            if (space === "Cubispace") {
+                seatOptions = [4, 6, 25];
+            } else if (space === "Workdesq") {
+                seatOptions = [4, 8];
+            } else if (space === "Worqspot") {
+                seatOptions = [6, 12];
+            }
+
+            seatOptions.forEach(seat => {
+                const option = document.createElement("option");
+                option.value = seat;
+                option.text = `${seat} Seater`;
+                seatingSelect.appendChild(option);
+            });
+        } else {
+            seatingSection.style.display = "none";
+            seatingSelect.removeAttribute("required");
+        }
+    });
+
+    document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const contact = document.getElementById("contactNumber").value.trim();
+        const inventory = document.getElementById("inventoryType").value.trim();
+        const seating = document.getElementById("seatingSelect").value.trim();
+
+        if (!contact || !inventory || !selectedSpace.coworkingName) {
+            alert("Please fill all fields.");
+            return;
+        }
+
+        // Submit to backend (MongoDB logic)
+        fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
+            .then(response => response.json())
+            .then(data => {
+                const endpoint = data.exists ? "/update_inventory" : "/submit_booking_form";
+                const payload = {
+                    coworking_name: selectedSpace.coworkingName,
+                    contact: contact,
+                    inventory: inventory,
+                    seating: seating || null
+                };
+
+                return fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    if (!selectedSpace.city || !selectedSpace.micromarket || !selectedSpace.coworkingName) {
+                        alert("Missing location information. Please try again.");
+                        return;
+                      }
+                    
+                    // Construct new redirect URL with proper casing (no lowercase/slug format)
+                    let basePath = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}`;
+                    const sanitizedInventory = inventory.replace(/\s/g, '').toLowerCase();
+                    if (["daypass", "meetingrooms"].includes(sanitizedInventory)) {
+                        basePath = `/flexspace${basePath}`;
+                    }
+
+                    let url = `${basePath}?inventoryType=${encodeURIComponent(sanitizedInventory)}&contact=${encodeURIComponent(contact)}`;
+                    if (seating) {
+                        url += `&seats=${encodeURIComponent(seating)}`;
+                    }
+
+                    window.location.href = url;
+                } else {
+                    alert(data.message || "Submission failed.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
+    });
+});
+
+async function initiateModalOtp() {
+    const contact = document.getElementById('contactNumber').value.trim();
+
+    if (!/^\d{10}$/.test(contact)) {
+        alert("Please enter a valid 10-digit number.");
+        return;
+    }
+
+    await OTPlessSdk(); // Load SDK
+
+    const response = await OTPlessSignin.initiate({
+        channel: "PHONE",
+        phone: contact,
+        countryCode: "+91",
+        expiry: "60"
+    });
+
+    if (response.success) {
+        document.getElementById("otpStep").style.display = "block";
+        alert("OTP sent!");
+    } else {
+        alert("Failed to send OTP.");
+    }
+}
+
+async function verifyModalOtp() {
+    const phone = document.getElementById("contactNumber").value.trim();
+    const otp = document.getElementById("otpInputModal").value.trim();
+
+    if (!/^\d{6}$/.test(otp)) {
+        alert("Invalid OTP format.");
+        return;
+    }
+
+    await OTPlessSdk(); // Ensure SDK is fully loaded
+
+    if (!OTPlessSignin) {
+        alert("OTP system not ready. Try again.");
+        return;
+    }
+
+    const result = await OTPlessSignin.verify({
+        channel: "PHONE",
+        phone: phone,
+        otp: otp,
+        countryCode: "+91"
+    });
+
+    if (result.success) {
+        alert("OTP Verified!");
+
+        // ✅ Disable contact number input
+        document.getElementById("contactNumber").readOnly = true;
+        document.getElementById("contactNumber").disabled = true;
+
+        // ✅ Hide "Click to Verify" button
+        document.querySelector(".verifybt1").style.display = "none";
+
+        // ✅ Hide OTP input section
+        document.getElementById("otpStep").style.display = "none";
+
+        // ✅ Show next step (inventory selection)
+        document.getElementById("inventoryStep").style.display = "block";
+    // ✅ Send contact to backend to store in session
+        fetch("/store_verified_contact", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ contact: phone })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                console.warn("Session store failed:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Error storing contact in session:", error);
+        });
+
+    } else {
+        alert("OTP verification failed.");
+        console.error(result);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const isOtpVerified = sessionStorage.getItem("otp_verified_modal");
+    const verifiedContact = sessionStorage.getItem("user_contact_modal");
+
+    if (isOtpVerified === "true" && verifiedContact) {
+        // Auto-fill and skip OTP step
+        document.getElementById("contactNumber").value = verifiedContact;
+        document.getElementById("contactNumber").disabled = true;
+        document.getElementById("otpStep").style.display = "none";
+        document.getElementById("inventoryStep").style.display = "block";
+        document.querySelector(".verifybt1").style.display = "none";
+    }
+});
+
+</script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Google Tag Manager (noscript) -->
