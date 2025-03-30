@@ -1004,6 +1004,14 @@ button.secondary-btn:hover {
   }
 }
 
+@media screen and (max-width: 480px) {
+  .listing-container {
+    display:flex;
+    flex-direction: column;;
+    gap:30px;
+  }
+}
+
 
 .iminv{
     height:150px;
