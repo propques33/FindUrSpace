@@ -207,7 +207,11 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                     <!-- Step 2: OTP Input (Initially Hidden) -->
                     <div class="mb-3" id="otpStep" style="display: none;">
                       <input type="text" class="form-control" id="otpInputModal" placeholder="Enter OTP">
-                      <button type="button" class="btn btn-primary mt-2 verifybt2" onclick="verifyModalOtp()">Verify OTP</button>
+                      <div id="otpMessage" class="alert alert-info mt-2" style="display: none;"></div> <!-- Message here -->
+                      <div class="btm">
+                        <button type="button" id="resendOtpBtn" class="btn btn-secondary" disabled>Resend OTP in 60 sec</button>
+                        <button type="button" class="btn btn-primary verifybt2" onclick="verifyModalOtp()">Verify OTP</button>
+                      </div>
                     </div>
                     <!-- Step 3: Inventory Type and Seating (Initially Hidden) -->
                     <div id="inventoryStep" style="display: none;">
@@ -937,10 +941,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
           <p class="fot-link">Product Help</p>
           <ul>
               <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">FAQ</a></li>
-              <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
-              <li><a href="#">Support</a></li>
-              <li><a href="#">Terms & Conditions</a></li>
-              <li><a href="#6">Contact</a></li>
+              <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Terms & Conditions</a></li>
+              <li><a href="{{ url_for('core_bp.privacy_policy') }}">Privacy Policy</a></li>
+              <li><a href="{{ url_for('core_bp.refund') }}">Cancellation & Refund Policy</a></li>
           </ul>
       </div>
       <div class="footer-section contact">

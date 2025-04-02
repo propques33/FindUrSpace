@@ -8,7 +8,7 @@
     <script src="https://otpless.com/v4/headless.js"></script>
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
     <!-- Flatpickr CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
      <!-- Font Awesome -->
@@ -190,9 +190,13 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
       </div>
 
       <div class="form-group" id="otpSection" style="display: none;">
+        <div id="otpMessage" class="otp-alert otp-info">Waiting for OTP input...</div>
         <label for="otpInput">Enter OTP</label>
         <input type="text" id="otpInput" placeholder="6-digit OTP" />
-        <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="submit-btn" style="margin-top: 8px;width:100%;">Verify OTP</button>
+        <div style="display: flex; gap: 10px; margin-top: 8px;">
+          <button type="button" onclick="resendOtp()" id="resendOtpBtn" class="submit-btn" style="flex: 1; background-color: #ccc; color: #666; cursor: not-allowed;" disabled>Resend OTP (60s)</button>
+          <button type="button" onclick="verifyOtp()" id="verifyOtpBtn" class="submit-btn" style="flex: 1;">Verify OTP</button>
+        </div>
       </div>
 
       <!-- Inventory selection (initially hidden) -->
@@ -269,7 +273,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
               <span class="price-range"
                 >Price range <br />
                 {% if inventoryType == "Day Pass" %}
-                    ₹500 /seat/day
+                    ₹600 /seat/day
                 {% elif inventoryType == "Meeting Room" %}
                     ₹{{ total_price }} 
                 {% else %}
@@ -607,13 +611,11 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
           <!-- Links Section -->
           <div class="footer-section links">
             <ul>
-              <li><a href="#">Blogs</a></li>
-              <li><a href="#">Gallery</a></li>
-              <li><a href="#">Cubi Rules</a></li>
-              <li><a href="#">T&C</a></li>
-              <li><a href="#">FAQs</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
+              <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">FAQ</a></li>
+              <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Terms & Conditions</a></li>
+              <li><a href="{{ url_for('core_bp.privacy_policy') }}">Privacy Policy</a></li>
+              <li><a href="{{ url_for('core_bp.refund') }}">Cancellation & Refund Policy</a></li>
+           </ul>
           </div>
   
      
@@ -1035,8 +1037,8 @@ function submitPurchase() {
   const fullName = document.getElementById("fullNameBuy").value;
   const email = document.getElementById("emailBuy").value;
   const phone = sessionStorage.getItem("verifiedContact") || document.getElementById("phoneBuy").value;
-document.getElementById("phoneBuy").value = phone;
-document.getElementById("phoneBuy").readOnly = true;
+  document.getElementById("phoneBuy").value = phone;
+  document.getElementById("phoneBuy").readOnly = true;
   const company = document.getElementById("companyBuy").value;
   const gstin = document.getElementById("gstinBuy").value;
   const selectedDate = document.getElementById("buyNowDate").value;
@@ -1055,6 +1057,9 @@ document.getElementById("phoneBuy").readOnly = true;
   }
 
   const finalPrice = discountedTotal !== null ? discountedTotal : totalPrice;
+
+  // ✅ FIX: Capture latest quantity
+  passQuantity = parseInt(document.getElementById("passQuantity").innerText);
 
   // STEP 1: Call backend to create Razorpay order
   fetch("/create_order", {
@@ -1126,7 +1131,38 @@ document.getElementById("phoneBuy").readOnly = true;
         theme: {
           color: "#3399cc",
         },
-      };
+        modal: {
+      // ✅ Handle modal close without payment
+            ondismiss: function () {
+              const cancelPayload = {
+                inventoryType,
+                quantity: passQuantity,
+                totalPrice: finalPrice,
+                fullName,
+                email,
+                phone,
+                company,
+                gstin: gstin || null,
+                date: selectedDate,
+                time: inventoryType === "Meeting Room" ? selectedTime : null,
+                property_id: propertyId,
+                status: "Cancelled"
+              };
+
+              fetch("/submit_purchase", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cancelPayload)
+              })
+              .then(() => {
+                alert("Payment window closed. Booking info saved as cancelled.");
+              })
+              .catch(() => {
+                alert("Failed to save cancelled booking.");
+              });
+            }
+            }
+          };
 
       const rzp = new Razorpay(options);
       // ✅ Handle payment failure and store failed booking
@@ -1374,7 +1410,7 @@ async function OTPlessSdk() {
     });
   }
 
-
+let resendTimer;
 async function initiateOtp() {
     const phone = document.getElementById("contact").value.trim();
     if (!/^\d{10}$/.test(phone)) return alert("Enter valid 10-digit number");
@@ -1389,18 +1425,22 @@ async function initiateOtp() {
     });
 
     if (res.success) {
-      document.getElementById("otpSection").style.display = "block";
-      alert("OTP sent!");
-    } else {
-      alert("OTP sending failed");
-    }
+    document.getElementById("otpSection").style.display = "block";
+    showOtpMessage("OTP sent successfully!", "success");
+    startResendCountdown();
+  } else {
+    showOtpMessage("Failed to send OTP. Try again.", "danger");
+  }
   }
 
 async function verifyOtp() {
   const phone = document.getElementById("contact").value.trim();
   const otp = document.getElementById("otpInput").value.trim();
 
-  if (!/^\d{6}$/.test(otp)) return alert("Invalid OTP format");
+  if (!/^\d{6}$/.test(otp)) {
+  showOtpMessage("Invalid OTP format", "danger");
+  return;
+}
 
   await OTPlessSdk();
 
@@ -1418,7 +1458,8 @@ async function verifyOtp() {
   sessionStorage.setItem("verifiedContact", phone);
   sessionStorage.setItem("otpVerified", "true");
 
-    alert("OTP verified!");
+    // Inside result.success block:
+    showOtpMessage("OTP verified!", "success");
 
     // ✅ Lock contact input
     document.getElementById("contact").readOnly = true;
@@ -1434,11 +1475,79 @@ async function verifyOtp() {
 
   } else {
     isOtpVerified = false;
-    alert("OTP verification failed.");
+    // Inside result.error:
+    showOtpMessage("OTP verification failed.", "danger");
   }
 }
 
-  // Make global
+async function resendOtp() {
+  const phone = document.getElementById("contact").value.trim();
+  if (!/^\d{10}$/.test(phone)) return showOtpMessage("Enter valid 10-digit number", "danger");
+
+  await OTPlessSdk();
+  const res = await OTPlessSignin.initiate({
+    channel: "PHONE",
+    phone,
+    countryCode: "+91",
+    expiry: "60"
+  });
+
+  if (res.success) {
+    showOtpMessage("OTP resent successfully!", "success");
+    startResendCountdown();
+  } else {
+    showOtpMessage("Failed to resend OTP", "danger");
+  }
+}
+
+function startResendCountdown() {
+  let counter = 60;
+  const resendBtn = document.getElementById("resendOtpBtn");
+
+  resendBtn.disabled = true;
+  resendBtn.style.backgroundColor = "#ccc";
+  resendBtn.style.color = "#666";
+  resendBtn.style.cursor = "not-allowed";
+  resendBtn.textContent = `Resend OTP (${counter}s)`;
+
+  clearInterval(resendTimer);
+  resendTimer = setInterval(() => {
+    counter--;
+    resendBtn.textContent = `Resend OTP (${counter}s)`;
+
+    if (counter <= 0) {
+      clearInterval(resendTimer);
+      resendBtn.disabled = false;
+      resendBtn.textContent = "Resend OTP";
+      resendBtn.style.backgroundColor = "#4CAF50";
+      resendBtn.style.color = "#fff";
+      resendBtn.style.cursor = "pointer";
+    }
+  }, 1000);
+}
+
+
+
+function showOtpMessage(msg, type = "info") {
+  const el = document.getElementById("otpMessage");
+  el.textContent = msg;
+  el.style.display = "block";
+
+  el.classList.remove("otp-success", "otp-error", "otp-info");
+
+  switch (type) {
+    case "success":
+      el.classList.add("otp-success");
+      break;
+    case "danger":
+      el.classList.add("otp-error");
+      break;
+    default:
+      el.classList.add("otp-info");
+  }
+}
+
+// Make global
 window.initiateOtp = initiateOtp;
 window.verifyOtp = verifyOtp;
 

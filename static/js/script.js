@@ -3,6 +3,9 @@
 let currentStep = 1;
 let OTPlessSignin = null;
 let userContact = ""; // Store contact globally
+let resendTimer;
+let countdown = 60;
+
 
 // Load OTPless SDK
 async function OTPlessSdk() {
@@ -28,7 +31,7 @@ async function initiateOtp() {
     const contact = contactField.value.trim();
 
     if (!/^\d{10}$/.test(contact)) {
-        alert('Please enter a valid 10-digit contact number.');
+        showOtpMessage("Enter a valid 10-digit phone number", "danger");
         contactField.focus();
         return;
     }
@@ -1087,6 +1090,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 alert("An error occurred. Please try again.");
             });
     });
+
+    document.getElementById("resendOtpBtn").addEventListener("click", async function () {
+        if (this.disabled) return;
+
+        const contact = document.getElementById('contactNumber').value.trim();
+        if (!/^\d{10}$/.test(contact)) {
+            alert("Please enter a valid 10-digit number.");
+            return;
+        }
+
+        await OTPlessSdk();
+        const response = await OTPlessSignin.initiate({
+            channel: "PHONE",
+            phone: contact,
+            countryCode: "+91",
+            expiry: "60"
+        });
+
+        if (response.success) {
+            showOtpMessage("OTP resent successfully.", "info");
+            startResendCountdown();
+        } else {
+            showOtpMessage("Failed to resend OTP. Try again later.", "danger");
+        }
+    });
 });
 
 async function initiateModalOtp() {
@@ -1108,9 +1136,10 @@ async function initiateModalOtp() {
 
     if (response.success) {
         document.getElementById("otpStep").style.display = "block";
-        alert("OTP sent!");
+        showOtpMessage("OTP sent successfully.", "success");
+        startResendCountdown();
     } else {
-        alert("Failed to send OTP.");
+        showOtpMessage("Failed to send OTP. Please try again.", "danger");
     }
 }
 
@@ -1133,7 +1162,7 @@ async function verifyModalOtp() {
     });
 
     if (response.success) {
-        alert("OTP Verified!");
+        showOtpMessage("OTP verified successfully!", "success");
         document.getElementById("contactNumber").disabled = true;
         document.getElementById("otpStep").style.display = "none";
         document.getElementById("inventoryStep").style.display = "block";
@@ -1141,6 +1170,48 @@ async function verifyModalOtp() {
         sessionStorage.setItem("otp_verified_modal", "true");
         sessionStorage.setItem("user_contact_modal", contact);
     } else {
-        alert("OTP verification failed.");
+        showOtpMessage("OTP verification failed. Please check and try again.", "danger");
     }
 }
+
+function startResendCountdown() {
+    const resendBtn = document.getElementById("resendOtpBtn");
+    resendBtn.disabled = true;
+    resendBtn.innerText = `Resend OTP in 60 sec`;
+    countdown = 60;
+
+    resendTimer = setInterval(() => {
+        countdown--;
+        resendBtn.innerText = `Resend OTP in ${countdown} sec`;
+        if (countdown <= 0) {
+            clearInterval(resendTimer);
+            resendBtn.disabled = false;
+            resendBtn.innerText = "Resend OTP";
+        }
+    }, 1000);
+}
+
+function showOtpMessage(text, type = "info") {
+    const msgDiv = document.getElementById("otpMessage");
+
+    // Set content and class
+    msgDiv.className = `alert alert-${type} mt-2`;
+    msgDiv.innerText = text;
+    msgDiv.style.display = "block";
+    msgDiv.style.opacity = 0;
+
+    // Fade in effect
+    setTimeout(() => {
+        msgDiv.style.transition = "opacity 0.5s ease-in-out";
+        msgDiv.style.opacity = 1;
+    }, 50);
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        msgDiv.style.opacity = 0;
+        setTimeout(() => {
+            msgDiv.style.display = "none";
+        }, 500); // Wait for fade-out to complete
+    }, 5000);
+}
+

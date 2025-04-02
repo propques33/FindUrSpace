@@ -178,12 +178,17 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                     <div class="mb-3" id="contactStep">
                       <label for="contactNumber" class="form-label">Contact Number</label>
                       <input type="tel" class="form-control" id="contactNumber" required>
-                      <button type="button" class="btn btn-secondary mt-2 verifybt1" onclick="initiateModalOtp()">Click to Verify</button>
+                      <button type="button" class="btn btn-secondary verifybt1" onclick="initiateModalOtp()">Click to Verify</button>
                     </div>
                     <!-- Step 2: OTP Input (Initially Hidden) -->
                     <div class="mb-3" id="otpStep" style="display: none;">
-                      <input type="text" class="form-control" id="otpInputModal" placeholder="Enter OTP">
-                      <button type="button" class="btn btn-primary mt-2 verifybt2" onclick="verifyModalOtp()">Verify OTP</button>
+                      <div id="otpMessage" class="otp-status-message" style="display:none;"></div>
+                      
+                      <div class="otp-flex-container">
+                        <input type="text" class="form-control" id="otpInputModal" placeholder="Enter OTP">
+                        <button type="button" class="btn btn-primary verifybt2" onclick="verifyModalOtp()">Verify OTP</button>
+                        <button id="resendOtpBtn" class="btn btn-outline-secondary" onclick="resendOtp()" disabled>Resend OTP in 60 sec</button>
+                      </div>
                     </div>
                     <!-- Step 3: Inventory Type and Seating (Initially Hidden) -->
                     <div id="inventoryStep" style="display: none;">
@@ -1145,10 +1150,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 <p class="fot-link">Product Help</p>
                 <ul>
                     <li><a href="{{ url_for('core_bp.freq_asked_ques') }}">FAQ</a></li>
-                    <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Privacy Policy</a></li>
-                    <li><a href="#">Support</a></li>
-                    <li><a href="#">Terms & Conditions</a></li>
-                    <li><a href="{{ url_for('core_bp.index') }}">Contact</a></li>
+                    <li><a href="{{ url_for('core_bp.terms_and_conditions') }}">Terms & Conditions</a></li>
+                    <li><a href="{{ url_for('core_bp.privacy_policy') }}">Privacy Policy</a></li>
+                    <li><a href="{{ url_for('core_bp.refund') }}">Cancellation & Refund Policy</a></li>
                 </ul>
             </div>
             <div class="footer-section contact">
@@ -1700,6 +1704,10 @@ function showCouponSuccessPopup(message) {
 function closeCouponPopup() {
   document.getElementById("couponSuccessPopup").style.display = "none";
   document.getElementById("modalOverlay").style.display = "none"; // Hides the overlay
+  document.getElementById("couponOverlay").style.display = "none"; 
+
+  popup.style.display = "none";
+  overlay.style.display = "none"; // Show overlay
 }
 
 function resetCoupon() {
@@ -2097,12 +2105,17 @@ function submitPurchase() {
     }
     let propertyId = "{{ property['_id'] }}";
     let finalAmount = discountedTotal !== null ? discountedTotal : totalPrice;
+
+    // ✅ FIX: Capture latest quantity
+    passQuantity = parseInt(document.getElementById("passQuantity").innerText);
+
     // Step 1: Create Razorpay order
     fetch("/create_order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             amount: finalAmount,
+            currency: "INR",
             receipt: "order_rcptid_" + new Date().getTime()
         })
     })
@@ -2117,7 +2130,7 @@ function submitPurchase() {
         const options = {
             key: "{{ razorpay_key }}",
             amount: orderData.amount,
-            currency: "INR",
+            currency: orderData.currency,
             name: "FindurSpace",
             description: "Workspace Booking",
             order_id: orderData.id,
@@ -2169,6 +2182,37 @@ function submitPurchase() {
                     console.error("Booking DB Error:", err);
                     alert("Something went wrong while saving your booking.");
                 });
+            },
+            modal: {
+            // ✅ Handle modal close without payment
+            ondismiss: function () {
+              const cancelPayload = {
+                inventoryType,
+                quantity: passQuantity,
+                totalPrice: finalAmount,
+                fullName,
+                email,
+                phone,
+                company,
+                gstin: gstin || null,
+                date: selectedDate,
+                time: inventoryType === "Meeting Room" ? selectedTime : null,
+                property_id: propertyId,
+                status: "Exit"
+              };
+
+              fetch("/submit_purchase", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cancelPayload)
+              })
+              .then(() => {
+                alert("Payment window closed. Booking info saved as exit.");
+              })
+              .catch(() => {
+                alert("Failed to save cancelled booking.");
+              });
+              }
             }
         };
 
@@ -2323,7 +2367,7 @@ function submitContact() {
   let phoneRegex = /^[6-9]\d{9}$/;
 
   if (!phoneRegex.test(contactInput)) {
-    alert("Please enter a valid 10-digit phone number.");
+    showOtpMessage("Enter a valid 10-digit phone number", "danger");
     return;
   }
 
@@ -2586,7 +2630,7 @@ async function initiateModalOtp() {
     const contact = document.getElementById('contactNumber').value.trim();
 
     if (!/^\d{10}$/.test(contact)) {
-        alert("Please enter a valid 10-digit number.");
+        showOtpMessage("Enter a valid 10-digit phone number", "danger");
         return;
     }
 
@@ -2601,10 +2645,17 @@ async function initiateModalOtp() {
 
     if (response.success) {
         document.getElementById("otpStep").style.display = "block";
-        alert("OTP sent!");
+        showOtpMessage("OTP sent successfully", "success");
+        countdown = 60;
+        startOtpTimer();
     } else {
-        alert("Failed to send OTP.");
+        showOtpMessage("Failed to send OTP", "danger");
     }
+}
+
+async function resendOtp() {
+  countdown = 60;
+  await initiateModalOtp(); // Just reuse the existing flow
 }
 
 async function verifyModalOtp() {
@@ -2612,7 +2663,7 @@ async function verifyModalOtp() {
     const otp = document.getElementById("otpInputModal").value.trim();
 
     if (!/^\d{6}$/.test(otp)) {
-        alert("Invalid OTP format.");
+        showOtpMessage("Please enter a valid 6-digit OTP", "danger");
         return;
     }
 
@@ -2631,7 +2682,6 @@ async function verifyModalOtp() {
     });
 
     if (result.success) {
-        alert("OTP Verified!");
 
         // ✅ Store verification in sessionStorage (this is the required step)
         sessionStorage.setItem("otp_verified_modal", "true");
@@ -2668,10 +2718,31 @@ async function verifyModalOtp() {
         });
 
     } else {
-        alert("OTP verification failed.");
+        showOtpMessage("OTP verification failed. Please try again.", "danger");
         console.error(result);
     }
 }
+
+let otpTimer;
+let countdown = 60;
+
+function startOtpTimer() {
+  const btn = document.getElementById("resendOtpBtn");
+  btn.disabled = true;
+  btn.innerText = `Resend OTP in ${countdown} sec`;
+
+  otpTimer = setInterval(() => {
+    countdown--;
+    if (countdown <= 0) {
+      clearInterval(otpTimer);
+      btn.disabled = false;
+      btn.innerText = "Resend OTP";
+    } else {
+      btn.innerText = `Resend OTP in ${countdown} sec`;
+    }
+  }, 1000);
+}
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const isOtpVerified = sessionStorage.getItem("otp_verified_modal");
@@ -2686,6 +2757,19 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelector(".verifybt1").style.display = "none";
     }
 });
+
+function showOtpMessage(message, type = "info") {
+  const msgDiv = document.getElementById("otpMessage");
+  if (!msgDiv) return;
+
+  msgDiv.className = `otp-status-message ${type}`;
+  msgDiv.innerText = message;
+  msgDiv.style.display = "block";
+
+  setTimeout(() => {
+    msgDiv.style.display = "none";
+  }, 5000);
+}
 
 </script>
 

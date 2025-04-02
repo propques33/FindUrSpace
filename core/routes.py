@@ -1122,9 +1122,17 @@ def get_micromarkets():
 #         current_app.logger.error(f"Error in get_prices: {str(e)}")
 #         return jsonify({'prices': [], 'error': 'An error occurred while fetching prices'}), 500
     
-@core_bp.route('/tc')
+@core_bp.route('/terms-and-conditions')
 def terms_and_conditions():
     return render_template('T&C.html')
+
+@core_bp.route('/privacy-policy')
+def privacy_policy():
+    return render_template('privacy-polciy.html')
+
+@core_bp.route('/cancellation-and-refund-policy')
+def refund():
+    return render_template('refund.html')
 
 @core_bp.route('/faqs')
 def freq_asked_ques():

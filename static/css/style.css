@@ -3226,3 +3226,14 @@ footer {
     padding:10px 0px;
     font-size: 18px;
 }
+
+.btm{
+    display:flex;
+    flex-direction: row;
+    gap:5px;
+    margin-top: 10px;
+}
+.btm button{
+    width:50%;
+    font-size: 16px;
+}
