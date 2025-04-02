@@ -1882,11 +1882,14 @@ def submit_booking_form():
 
     try:
         data = request.json
-
+        recaptcha_token = data.get('recaptcha_token')
         # Extract form data
         coworking_name = data.get("coworking_name")
         contact = data.get("contact")
         inventory = data.get("inventory")
+
+        if not verify_recaptcha(recaptcha_token):
+            return jsonify({"success": False, "message": "reCAPTCHA verification failed."}), 400
 
         # Validate required fields
         if not all([coworking_name, contact, inventory]):
@@ -2291,3 +2294,13 @@ def create_order():
         })
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
+
+def verify_recaptcha(token):
+    secret_key = "6LftXgcrAAAAAM4DVdF2-d4TpUEUVooghR_dF_9e"
+    verify_url = "https://www.google.com/recaptcha/api/siteverify"
+    data = {'secret': secret_key, 'response': token}
+
+    response = requests.post(verify_url, data=data)
+    result = response.json()
+
+    return result.get("success", False) and result.get("score", 0) >= 0.5
