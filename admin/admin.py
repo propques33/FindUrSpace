@@ -1190,3 +1190,28 @@ def update_visit_status():
         return jsonify({'status': 'success', 'new_status': new_status})
     else:
         return jsonify({'status': 'error', 'message': 'Failed to update status'})
+
+
+@admin_bp.route('/users', methods=['GET'])
+def view_users():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']
+    users_cursor = db.users.find().sort('created_at', -1)
+
+    users = []
+    for user in users_cursor:
+        users.append({
+            'name': user.get('name', 'N/A'),
+            'company': user.get('company', 'N/A'),
+            'email': user.get('email', 'N/A'),
+            'contact': user.get('contact', 'N/A'),
+            'inventory': ", ".join(user.get('inventory', [])),
+            'coworking_name': user.get('coworking_name', 'N/A'),
+            'location': user.get('location', 'N/A'),
+            'created_at': user.get('created_at') or datetime.utcnow()
+        })
+
+    return render_template('view_users.html', users=users)
+

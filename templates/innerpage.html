@@ -2687,6 +2687,12 @@ async function verifyModalOtp() {
         sessionStorage.setItem("otp_verified_modal", "true");
         sessionStorage.setItem("user_contact_modal", phone);
 
+        fetch("/store_verified_user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contact: phone })
+        });
+
         // ✅ Disable contact number input
         document.getElementById("contactNumber").readOnly = true;
         document.getElementById("contactNumber").disabled = true;

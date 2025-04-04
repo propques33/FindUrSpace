@@ -1882,14 +1882,10 @@ def submit_booking_form():
 
     try:
         data = request.json
-        recaptcha_token = data.get('recaptcha_token')
         # Extract form data
         coworking_name = data.get("coworking_name")
         contact = data.get("contact")
         inventory = data.get("inventory")
-
-        if not verify_recaptcha(recaptcha_token):
-            return jsonify({"success": False, "message": "reCAPTCHA verification failed."}), 400
 
         # Validate required fields
         if not all([coworking_name, contact, inventory]):
@@ -2295,12 +2291,58 @@ def create_order():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
-def verify_recaptcha(token):
-    secret_key = "6LftXgcrAAAAAM4DVdF2-d4TpUEUVooghR_dF_9e"
-    verify_url = "https://www.google.com/recaptcha/api/siteverify"
-    data = {'secret': secret_key, 'response': token}
 
-    response = requests.post(verify_url, data=data)
-    result = response.json()
+@core_bp.route("/store_verified_user", methods=["POST"])
+def store_verified_user():
+    db = current_app.config['db']
+    data = request.get_json()
+    contact = data.get("contact")
 
-    return result.get("success", False) and result.get("score", 0) >= 0.5
+    if not contact:
+        return jsonify({"success": False, "message": "Contact missing"})
+
+    existing_user = db.users.find_one({"contact": contact})
+    if not existing_user:
+        db.users.insert_one({"contact": contact})  # insert new user with only contact
+
+    return jsonify({"success": True})
+
+@core_bp.route('/save_user_contact', methods=['POST'])
+def save_user_contact():
+    db = current_app.config['db']
+    data = request.json
+    phone = data.get('phone')
+    
+    if not phone:
+        return jsonify(success=False, message="Phone number missing"), 400
+
+    users = db.users  # Create or use the `users` collection
+    users.update_one(
+        {"phone": phone},
+        {"$setOnInsert": {"phone": phone}},
+        upsert=True
+    )
+    return jsonify(success=True)
+
+@core_bp.route('/update_user_details', methods=['POST'])
+def update_user_details():
+    db = current_app.config['db']
+    data = request.json
+
+    phone = data.get('phone')
+    if not phone:
+        return jsonify(success=False, message="Missing phone"), 400
+
+    update_fields = {
+        "inventory_type": data.get('inventory_type'),
+        "seater": data.get('seater'),
+        "timestamp": datetime.datetime.utcnow()
+    }
+
+    users = db.users
+    users.update_one(
+        {"phone": phone},
+        {"$set": update_fields}
+    )
+
+    return jsonify(success=True)

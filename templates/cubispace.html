@@ -1106,6 +1106,16 @@
                 url.searchParams.set("seater", seaterVal);
               }
 
+              fetch('/update_user_details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  phone: verifiedContact,
+                  inventory_type: inventoryVal,
+                  seater: seaterVal || null
+                })
+              });
+
               window.location.href = url.toString();
             });
           });
@@ -1786,9 +1796,15 @@
         // ✅ Save in sessionStorage
         sessionStorage.setItem("verifiedContact", phone);
         sessionStorage.setItem("otpVerified", "true");
-
+      
         // Inside result.success block:
         showOtpMessage("OTP verified!", "success");
+
+        fetch('/save_user_contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone })
+        });
 
         // ✅ Lock contact input
         document.getElementById("contact").readOnly = true;

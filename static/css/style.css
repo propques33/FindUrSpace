@@ -3195,7 +3195,7 @@ footer {
     text-decoration-line: none;
 }
 
-.book-now-btn {
+.book-now-btn1 {
     width:300px;
     display: flex;
     justify-content: center;
@@ -3212,7 +3212,7 @@ footer {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.book-now-btn:hover{
+.book-now-btn1:hover{
     background-color: #151D31;
     color: white;
     border:2px solid white;

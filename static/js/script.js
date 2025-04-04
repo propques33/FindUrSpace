@@ -1042,7 +1042,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        
         // Submit to backend (MongoDB logic)
         fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
             .then(response => response.json())
