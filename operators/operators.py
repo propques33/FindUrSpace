@@ -619,48 +619,48 @@ def show_agreement():
         return render_template('show_agreement.html', uploaded_pdfs=None)
 
 # Step 1: Start OAuth Flow
-@operators_bp.route('/google-login')
-def google_login():
-    scope = "https://www.googleapis.com/auth/calendar"
-    params = {
-        "client_id": GOOGLE_CLIENT_ID,
-        "redirect_uri": REDIRECT_URI,
-        "response_type": "code",
-        "scope": scope,
-        "access_type": "offline",
-        "prompt": "consent"
-    }
-    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
-    return redirect(auth_url)
+# @operators_bp.route('/google-login')
+# def google_login():
+#     scope = "https://www.googleapis.com/auth/calendar"
+#     params = {
+#         "client_id": GOOGLE_CLIENT_ID,
+#         "redirect_uri": REDIRECT_URI,
+#         "response_type": "code",
+#         "scope": scope,
+#         "access_type": "offline",
+#         "prompt": "consent"
+#     }
+#     auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
+#     return redirect(auth_url)
 
 # Step 2: Callback handler
-@operators_bp.route('/oauth2callback')
-def oauth2callback():
-    code = request.args.get("code")
-    if not code:
-        return "Authorization failed.", 400
+# @operators_bp.route('/oauth2callback')
+# def oauth2callback():
+#     code = request.args.get("code")
+#     if not code:
+#         return "Authorization failed.", 400
 
-    # Exchange code for token
-    token_url = "https://oauth2.googleapis.com/token"
-    data = {
-        "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
-    response = requests.post(token_url, data=data)
-    if response.status_code != 200:
-        return "Failed to get token", 400
+#     # Exchange code for token
+#     token_url = "https://oauth2.googleapis.com/token"
+#     data = {
+#         "code": code,
+#         "client_id": GOOGLE_CLIENT_ID,
+#         "client_secret": GOOGLE_CLIENT_SECRET,
+#         "redirect_uri": REDIRECT_URI,
+#         "grant_type": "authorization_code",
+#     }
+#     response = requests.post(token_url, data=data)
+#     if response.status_code != 200:
+#         return "Failed to get token", 400
 
-    token_data = response.json()
-    access_token = token_data["access_token"]
-    refresh_token = token_data.get("refresh_token")
+#     token_data = response.json()
+#     access_token = token_data["access_token"]
+#     refresh_token = token_data.get("refresh_token")
 
-    # Save tokens in session (or database)
-    session['google_access_token'] = access_token
-    session['google_refresh_token'] = refresh_token
-    session['operator_phone'] = "GoogleUser"
-    session['role'] = "owner"  # or detect dynamically
+#     # Save tokens in session (or database)
+#     session['google_access_token'] = access_token
+#     session['google_refresh_token'] = refresh_token
+#     session['operator_phone'] = "GoogleUser"
+#     session['role'] = "owner"  # or detect dynamically
 
-    return redirect(url_for('operators.inventory'))
+#     return redirect(url_for('operators.inventory'))
