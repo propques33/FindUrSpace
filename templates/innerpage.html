@@ -2174,13 +2174,10 @@ function submitPurchase() {
                         closeBuyNowModal();
                         localStorage.setItem("showThankYou", "booking");
                         window.location.reload();
-                    } else {
-                        alert("Payment captured but booking failed.");
                     }
                 })
                 .catch(err => {
                     console.error("Booking DB Error:", err);
-                    alert("Something went wrong while saving your booking.");
                 });
             },
             modal: {
@@ -2207,10 +2204,10 @@ function submitPurchase() {
                 body: JSON.stringify(cancelPayload)
               })
               .then(() => {
-                alert("Payment window closed. Booking info saved as exit.");
+                console.log("Payment window closed. Booking info saved as exit.");
               })
               .catch(() => {
-                alert("Failed to save cancelled booking.");
+                console.log("Failed to save cancelled booking.");
               });
               }
             }
@@ -2243,10 +2240,10 @@ function submitPurchase() {
         body: JSON.stringify(failedPayload)
       })
       .then(() => {
-        alert("Payment failed or was cancelled.");
+        console.log("Payment failed or was cancelled.");
       })
       .catch(() => {
-        alert("Something went wrong after payment failure.");
+         console.log("Something went wrong after payment failure.");
       });
     });
 
@@ -2254,7 +2251,7 @@ function submitPurchase() {
     })
     .catch(error => {
         console.error("Razorpay Order Error:", error);
-        alert("Could not initiate payment. Please try again.");
+         console.log("Could not initiate payment. Please try again.");
     });
 }
 

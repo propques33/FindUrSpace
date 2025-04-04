@@ -1206,7 +1206,7 @@ function updateSpaceDetails(spaceCount) {
                                 data-parsley-type="number" data-parsley-trigger="change"
                                 aria-label="Total Seats" onchange="updateCurrentVacancy(${spaceCount})">
                         </div>
-                        <div class="mb-3 w-100">
+                        <div class="mb-3 w-100" id="current_vacancy_container_${spaceCount}" style="display: none;">
                             <input type="number" class="form-control" name="current_vacancy[]" placeholder="This value is automatically calculated" min="0" readonly
                                 value="0" id="current_vacancy_${spaceCount}" aria-label="Current Vacancy">
                             <small class="text-muted">This value will be automatically calculated based on the inventory.</small>
@@ -2005,97 +2005,190 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
         });
     }
 
-// Function to generate seating capacity and price inputs based on the number of rooms/cabins
-function generateRoomDetails(spaceId, inventoryCount, roomType,numberOfRooms) {
-    const additionalFieldsContainer = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
+function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms) {
+    const container = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
+    const existingInputs = container.querySelectorAll('input');
 
-    // Clear any previously generated fields
-    additionalFieldsContainer.innerHTML = '';
-    
+    // 🔁 Store existing values in a dictionary
+    const preservedData = {};
+    existingInputs.forEach((input) => {
+        if (input.name) preservedData[input.name] = input.value;
+    });
 
-    // Add back the "Number of Meeting Rooms" input so it stays visible
-    let numberOfRoomsInput = document.getElementById(`number_of_rooms_${spaceId}_${inventoryCount}`);
-    if (!numberOfRoomsInput) {
-        numberOfRoomsInput = document.createElement('input');
-        numberOfRoomsInput.type = 'number';
-        numberOfRoomsInput.className = 'form-control mt-2';
-        numberOfRoomsInput.name = `number_of_rooms_${spaceId}_${inventoryCount}`;
-        numberOfRoomsInput.id = `number_of_rooms_${spaceId}_${inventoryCount}`;
-        numberOfRoomsInput.placeholder = roomType === 'Meeting rooms' ? 'Number of Meeting Rooms' : 'Number of Private Cabins';
-        numberOfRoomsInput.min = '1';
-        numberOfRoomsInput.required = true;
-        numberOfRoomsInput.setAttribute('data-parsley-required-message', 'Please enter the number of rooms.');
-        numberOfRoomsInput.setAttribute('data-parsley-type', 'number');
+    container.innerHTML = '';
 
-        additionalFieldsContainer.appendChild(numberOfRoomsInput);
-    }
+    // Create label
+    const numberOfRoomsLabel = document.createElement('label');
+    numberOfRoomsLabel.setAttribute('for', `number_of_rooms_${spaceId}_${inventoryCount}`);
+    numberOfRoomsLabel.className = 'form-label fw-bold mt-3';
+    numberOfRoomsLabel.textContent = roomType === 'Meeting rooms' ? 'Number of Meeting Rooms *' : 'Number of Private Cabins *';
 
-    // Preserve value and make it readonly
+    // Recreate number input field
+    const numberOfRoomsInput = document.createElement('input');
+    numberOfRoomsInput.type = 'number';
+    numberOfRoomsInput.className = 'form-control mt-2';
+    numberOfRoomsInput.name = `number_of_rooms_${spaceId}_${inventoryCount}`;
+    numberOfRoomsInput.id = `number_of_rooms_${spaceId}_${inventoryCount}`;
+    numberOfRoomsInput.placeholder = roomType === 'Meeting rooms' ? 'Number of Meeting Rooms' : 'Number of Private Cabins';
+    numberOfRoomsInput.min = '1';
+    numberOfRoomsInput.required = true;
     numberOfRoomsInput.value = numberOfRooms;
-    numberOfRoomsInput.readOnly = true;
+    numberOfRoomsInput.setAttribute('data-parsley-required-message', 'Please enter the number of rooms.');
+    numberOfRoomsInput.setAttribute('data-parsley-type', 'number');
 
-    if (numberOfRooms >= 0) {
-        for (let i = 1; i <= numberOfRooms; i++) {
-            // Add Heading for each room/cabin
-            const heading = document.createElement('h6');
-            heading.className = 'mt-3';
-            heading.textContent = `${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i}`;
-            additionalFieldsContainer.appendChild(heading);
+    numberOfRoomsInput.addEventListener('input', function () {
+        const val = parseInt(this.value) || 0;
+        generateRoomDetails(spaceId, inventoryCount, roomType, val);
+    });
 
-            // Create a flex container for inputs
-            const inputContainer = document.createElement('div');
-            inputContainer.className = 'd-flex gap-3 mb-3 room-details wrap';
-
-            // Conditionally create Seating Capacity input
-            // Seating Capacity
-            const seatingCapacityInput = document.createElement('input');
-            seatingCapacityInput.type = 'number';
-            seatingCapacityInput.className = 'form-control';
-            seatingCapacityInput.name = `seating_capacity_${spaceId}_${inventoryCount}_${i}`;
-            seatingCapacityInput.placeholder = `Seating Capacity`;
-            seatingCapacityInput.min = '1';
-            seatingCapacityInput.required = true;
-            seatingCapacityInput.setAttribute('data-parsley-required-message', 'Please enter seating capacity.');
-            seatingCapacityInput.setAttribute('data-parsley-type', 'number');
-            inputContainer.appendChild(seatingCapacityInput);
-
-            console.log(`Seating Capacity Field Created: seating_capacity_${spaceId}_${inventoryCount}_${i}`); // Debug
-
-            additionalFieldsContainer.appendChild(inputContainer);
-            // Price
-            // const priceInput = document.createElement('input');
-            // priceInput.type = 'number';
-            // priceInput.className = 'form-control';
-            // priceInput.name = `price_${spaceId}_${inventoryCount}_${i}`;
-            // priceInput.placeholder = roomType === 'Meeting rooms' ? `Price per Hour` : `Price per Seat per Month`;
-            // priceInput.min = '1';
-            // priceInput.required = true;
-            // priceInput.setAttribute('data-parsley-required-message', 'Please enter the price.');
-            // priceInput.setAttribute('data-parsley-type', 'number');
-            // inputContainer.appendChild(priceInput);
-
-            // console.log(`Price Field Created: price_${spaceId}_${inventoryCount}_${i}`); // Debug
-
-            // Separate Image Upload for each Room/Cabin
-            const imageUploadContainer = document.createElement('div');
-            imageUploadContainer.innerHTML = `
-                <h6>Upload Images for ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i} (Min 2)</h6>
-                <div class="mb-3">
-                    <input type="file" class="form-control" name="${roomType === 'Meeting rooms' ? 'meeting_room_images' : 'private_cabin_images'}_${spaceId}_${inventoryCount}_${i}[]" accept="image/png, image/jpeg, image/jpg" multiple
-                        required data-parsley-mincheck="2"
-                        data-parsley-required-message="Please upload at least 2 images for this ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'}."
-                        onchange="previewRoomImages(event, ${spaceId}, ${inventoryCount}, ${i}, '${roomType}')">
-                </div>
-                <div id="roomImagePreview_${spaceId}_${inventoryCount}_${i}" class="d-flex flex-wrap"></div>
-            `;
-            // Append the input container to the fields container
-            additionalFieldsContainer.appendChild(imageUploadContainer);
+    numberOfRoomsInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = parseInt(this.value) || 0;
+            generateRoomDetails(spaceId, inventoryCount, roomType, val);
         }
+    });
+
+    // Append label and input
+    container.appendChild(numberOfRoomsLabel);
+    container.appendChild(numberOfRoomsInput);
+
+    // 🔁 Generate fields based on current number of rooms
+    for (let i = 1; i <= numberOfRooms; i++) {
+        const heading = document.createElement('h6');
+        heading.className = 'mt-3';
+        heading.textContent = `${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i}`;
+        container.appendChild(heading);
+
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'd-flex gap-3 mb-3 room-details wrap';
+
+        const seatingInput = document.createElement('input');
+        seatingInput.type = 'number';
+        seatingInput.className = 'form-control';
+        seatingInput.name = `seating_capacity_${spaceId}_${inventoryCount}_${i}`;
+        seatingInput.placeholder = `Seating Capacity`;
+        seatingInput.min = '1';
+        seatingInput.required = true;
+        seatingInput.setAttribute('data-parsley-required-message', 'Please enter seating capacity.');
+        seatingInput.setAttribute('data-parsley-type', 'number');
+
+        // ✅ Restore value if it exists
+        if (preservedData[seatingInput.name]) {
+            seatingInput.value = preservedData[seatingInput.name];
+        }
+
+        inputContainer.appendChild(seatingInput);
+        container.appendChild(inputContainer);
+
+        const imageUploadContainer = document.createElement('div');
+        imageUploadContainer.innerHTML = `
+            <h6>Upload Images for ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i} (Min 2)</h6>
+            <div class="mb-3">
+                <input type="file" class="form-control" name="${roomType === 'Meeting rooms' ? 'meeting_room_images' : 'private_cabin_images'}_${spaceId}_${inventoryCount}_${i}[]" accept="image/png, image/jpeg, image/jpg" multiple
+                    required data-parsley-mincheck="2"
+                    data-parsley-required-message="Please upload at least 2 images."
+                    onchange="previewRoomImages(event, ${spaceId}, ${inventoryCount}, ${i}, '${roomType}')">
+            </div>
+            <div id="roomImagePreview_${spaceId}_${inventoryCount}_${i}" class="d-flex flex-wrap"></div>
+        `;
+        container.appendChild(imageUploadContainer);
     }
 
-    // Refresh Parsley validation after changes
     $('#listSpaceForm').parsley().refresh();
 }
+
+// Function to generate seating capacity and price inputs based on the number of rooms/cabins
+// function generateRoomDetails(spaceId, inventoryCount, roomType,numberOfRooms) {
+//     const additionalFieldsContainer = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
+
+//     // Clear any previously generated fields
+//     additionalFieldsContainer.innerHTML = '';
+    
+
+//     // Add back the "Number of Meeting Rooms" input so it stays visible
+//     let numberOfRoomsInput = document.getElementById(`number_of_rooms_${spaceId}_${inventoryCount}`);
+//     if (!numberOfRoomsInput) {
+//         numberOfRoomsInput = document.createElement('input');
+//         numberOfRoomsInput.type = 'number';
+//         numberOfRoomsInput.className = 'form-control mt-2';
+//         numberOfRoomsInput.name = `number_of_rooms_${spaceId}_${inventoryCount}`;
+//         numberOfRoomsInput.id = `number_of_rooms_${spaceId}_${inventoryCount}`;
+//         numberOfRoomsInput.placeholder = roomType === 'Meeting rooms' ? 'Number of Meeting Rooms' : 'Number of Private Cabins';
+//         numberOfRoomsInput.min = '1';
+//         numberOfRoomsInput.required = true;
+//         numberOfRoomsInput.setAttribute('data-parsley-required-message', 'Please enter the number of rooms.');
+//         numberOfRoomsInput.setAttribute('data-parsley-type', 'number');
+
+//         additionalFieldsContainer.appendChild(numberOfRoomsInput);
+//     }
+
+//     // Preserve value and make it readonly
+//     numberOfRoomsInput.value = numberOfRooms;
+//     numberOfRoomsInput.display = block;
+
+//     if (numberOfRooms >= 0) {
+//         for (let i = 1; i <= numberOfRooms; i++) {
+//             // Add Heading for each room/cabin
+//             const heading = document.createElement('h6');
+//             heading.className = 'mt-3';
+//             heading.textContent = `${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i}`;
+//             additionalFieldsContainer.appendChild(heading);
+
+//             // Create a flex container for inputs
+//             const inputContainer = document.createElement('div');
+//             inputContainer.className = 'd-flex gap-3 mb-3 room-details wrap';
+
+//             // Conditionally create Seating Capacity input
+//             // Seating Capacity
+//             const seatingCapacityInput = document.createElement('input');
+//             seatingCapacityInput.type = 'number';
+//             seatingCapacityInput.className = 'form-control';
+//             seatingCapacityInput.name = `seating_capacity_${spaceId}_${inventoryCount}_${i}`;
+//             seatingCapacityInput.placeholder = `Seating Capacity`;
+//             seatingCapacityInput.min = '1';
+//             seatingCapacityInput.required = true;
+//             seatingCapacityInput.setAttribute('data-parsley-required-message', 'Please enter seating capacity.');
+//             seatingCapacityInput.setAttribute('data-parsley-type', 'number');
+//             inputContainer.appendChild(seatingCapacityInput);
+
+//             console.log(`Seating Capacity Field Created: seating_capacity_${spaceId}_${inventoryCount}_${i}`); // Debug
+
+//             additionalFieldsContainer.appendChild(inputContainer);
+//             // Price
+//             // const priceInput = document.createElement('input');
+//             // priceInput.type = 'number';
+//             // priceInput.className = 'form-control';
+//             // priceInput.name = `price_${spaceId}_${inventoryCount}_${i}`;
+//             // priceInput.placeholder = roomType === 'Meeting rooms' ? `Price per Hour` : `Price per Seat per Month`;
+//             // priceInput.min = '1';
+//             // priceInput.required = true;
+//             // priceInput.setAttribute('data-parsley-required-message', 'Please enter the price.');
+//             // priceInput.setAttribute('data-parsley-type', 'number');
+//             // inputContainer.appendChild(priceInput);
+
+//             // console.log(`Price Field Created: price_${spaceId}_${inventoryCount}_${i}`); // Debug
+
+//             // Separate Image Upload for each Room/Cabin
+//             const imageUploadContainer = document.createElement('div');
+//             imageUploadContainer.innerHTML = `
+//                 <h6>Upload Images for ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i} (Min 2)</h6>
+//                 <div class="mb-3">
+//                     <input type="file" class="form-control" name="${roomType === 'Meeting rooms' ? 'meeting_room_images' : 'private_cabin_images'}_${spaceId}_${inventoryCount}_${i}[]" accept="image/png, image/jpeg, image/jpg" multiple
+//                         required data-parsley-mincheck="2"
+//                         data-parsley-required-message="Please upload at least 2 images for this ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'}."
+//                         onchange="previewRoomImages(event, ${spaceId}, ${inventoryCount}, ${i}, '${roomType}')">
+//                 </div>
+//                 <div id="roomImagePreview_${spaceId}_${inventoryCount}_${i}" class="d-flex flex-wrap"></div>
+//             `;
+//             // Append the input container to the fields container
+//             additionalFieldsContainer.appendChild(imageUploadContainer);
+//         }
+//     }
+
+//     // Refresh Parsley validation after changes
+//     $('#listSpaceForm').parsley().refresh();
+// }
 
 
 function previewRoomImages(event, spaceId, inventoryId, roomId, roomType) {
@@ -2916,6 +3009,17 @@ function getCurrentLocation(spaceId) {
     }
 }
 
+</script>
+<script>
+document.addEventListener('keydown', function(event) {
+    const isInput = ['input', 'select'].includes(event.target.tagName.toLowerCase());
+    const isTextarea = event.target.tagName.toLowerCase() === 'textarea';
+
+    if (event.key === 'Enter' && isInput && !isTextarea) {
+        event.preventDefault();
+        return false;
+    }
+});
 </script>
 <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
