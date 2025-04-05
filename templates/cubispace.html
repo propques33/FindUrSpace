@@ -245,23 +245,36 @@
         </div>
 
         <div class="modal-info">
-          <div class="modal-row">
-            <span class="modal-label">Selected Inventory:</span>
-            <span class="modal-value"
-              ><strong>{{ inventoryType }}</strong></span
-            >
-          </div>
-          <div class="modal-row">
-            <span class="modal-label">Total Day Passes:</span>
-            <span class="modal-value" id="modalPassQuantity">1</span>
-          </div>
-          <div class="modal-row">
-            <span class="modal-label">Total Price:</span>
-            <span class="modal-value"
-              >₹<span id="modalTotalPrice">{{ price_value }}</span></span
-            >
-          </div>
-        </div>
+  <div class="modal-row">
+    <span class="modal-label">Selected Inventory:</span>
+    <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Total Quantity:</span>
+    <span class="modal-value" id="modalPassQuantity">1</span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Inventory Price:</span>
+    <span class="modal-value">₹<span id="modalBasePrice">0</span></span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">+ 18% GST:</span>
+    <span class="modal-value">₹<span id="modalGST">0</span></span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Net Price after GST:</span>
+    <span class="modal-value">₹<span id="modalPriceWithGST">0</span></span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Discount Applied:</span>
+    <span class="modal-value">- ₹<span id="modalDiscount">0</span></span>
+  </div>
+  <div class="modal-row" style="font-weight: bold;">
+    <span class="modal-label">Final Payable Amount:</span>
+    <span class="modal-value">₹<span id="modalTotalPrice">0</span></span>
+  </div>
+</div>
+
 
         <div class="modal-footer">
           <button class="modal-btn-confirm" onclick="submitPurchase()">
@@ -1225,15 +1238,30 @@
           phoneInput.readOnly = true;
         }
 
-        // Read quantity and total from preference section
         passQuantity = parseInt(document.getElementById("passQuantity").innerText);
-        totalPrice = passQuantity * pricePerSeat; // adjust if dynamic pricing needed
+const basePrice = pricePerSeat * passQuantity;
+const gstAmount = Math.round(basePrice * 0.18);
+const priceWithGST = basePrice + gstAmount;
 
-        // Use discounted total if available
-        const finalPrice = discountedTotal !== null ? discountedTotal : totalPrice;
+// Determine discount based on coupon
+let appliedCoupon = document.querySelector(".coupon-select")?.value || "";
+let discount = 0;
 
-        document.getElementById("modalPassQuantity").innerText = passQuantity;
-        document.getElementById("modalTotalPrice").innerText = finalPrice;
+if (appliedCoupon === "FLAT100") discount = 100;
+if (appliedCoupon === "DAY200" && passQuantity >= 5) discount = 200;
+if (appliedCoupon === "DAY500" && passQuantity >= 10) discount = 500;
+if (appliedCoupon === "MEET300" && passQuantity >= 2) discount = 300;
+if (appliedCoupon === "MEET500" && passQuantity >= 4) discount = 500;
+
+const finalAmount = priceWithGST - discount;
+
+// Update Modal Values
+document.getElementById("modalPassQuantity").innerText = passQuantity;
+document.getElementById("modalBasePrice").innerText = basePrice;
+document.getElementById("modalGST").innerText = gstAmount;
+document.getElementById("modalPriceWithGST").innerText = priceWithGST;
+document.getElementById("modalDiscount").innerText = discount;
+document.getElementById("modalTotalPrice").innerText = finalAmount;
 
         const dateInput = document.getElementById("buyNowDate");
 
@@ -1386,17 +1414,31 @@
         return;
       }
 
-      const finalPrice = discountedTotal !== null ? discountedTotal : totalPrice;
-
-      // ✅ FIX: Capture latest quantity
       passQuantity = parseInt(document.getElementById("passQuantity").innerText);
+const basePrice = pricePerSeat * passQuantity;
+const gstAmount = Math.round(basePrice * 0.18);
+const priceWithGST = basePrice + gstAmount;
+
+// Calculate discount again based on coupon
+let appliedCoupon = document.querySelector(".coupon-select")?.value || "";
+let discount = 0;
+
+if (appliedCoupon === "FLAT100") discount = 100;
+if (appliedCoupon === "DAY200" && passQuantity >= 5) discount = 200;
+if (appliedCoupon === "DAY500" && passQuantity >= 10) discount = 500;
+if (appliedCoupon === "MEET300" && passQuantity >= 2) discount = 300;
+if (appliedCoupon === "MEET500" && passQuantity >= 4) discount = 500;
+
+const finalAmount = priceWithGST - discount;
+
+      
 
       // STEP 1: Call backend to create Razorpay order
       fetch("/create_order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: finalPrice , // Razorpay expects amount in paise
+          amount: finalAmount , // Razorpay expects amount in paise
           currency: "INR",
           receipt: `booking_${Date.now()}`,
         }),
@@ -1404,7 +1446,7 @@
         .then((res) => res.json())
         .then((orderData) => {
           if (!orderData.success) {
-            alert("Failed to initiate payment.");
+            console.log("Failed to initiate payment.");
             return;
           }
 
@@ -1422,7 +1464,7 @@
               const payload = {
                 inventoryType: inventoryType,
                 quantity: passQuantity,
-                totalPrice: finalPrice,
+                totalPrice: finalAmount,
                 fullName: fullName,
                 email: email,
                 phone: phone,
@@ -1449,7 +1491,7 @@
                     document.getElementById("thankYouOverlay").style.display = "block";
                     document.getElementById("thankYouModal").style.display = "flex";
                   } else {
-                    alert("Booking failed: " + data.message);
+                    console.log("Booking failed: " + data.message);
                   }
                 });
             },
@@ -1485,10 +1527,10 @@
                 body: JSON.stringify(cancelPayload)
               })
               .then(() => {
-                alert("Payment window closed. Booking info saved as exit.");
+                console.log("Payment window closed. Booking info saved as exit.");
               })
               .catch(() => {
-                alert("Failed to save cancelled booking.");
+                console.log("Failed to save cancelled booking.");
               });
               }
             }
@@ -1520,17 +1562,17 @@
             body: JSON.stringify(failedPayload)
           })
           .then(() => {
-            alert("Payment failed or was cancelled.");
+            console.log("Payment failed or was cancelled.");
           })
           .catch(() => {
-            alert("Something went wrong after payment failure.");
+            console.log("Something went wrong after payment failure.");
           });
         });
           rzp.open();
         })
         .catch((err) => {
           console.error("Error in payment:", err);
-          alert("Payment initiation failed.");
+          console.log("Payment initiation failed.");
         });
     }
 

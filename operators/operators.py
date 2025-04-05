@@ -629,7 +629,11 @@ def calendar_auth():
                 "redirect_uris": ["http://127.0.0.1:5000/operators/calendar/callback"],
             }
         },
-        scopes=["https://www.googleapis.com/auth/calendar.readonly"],
+        scopes=[
+            "https://www.googleapis.com/auth/calendar.readonly",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "openid"
+        ],
     )
     flow.redirect_uri = "http://127.0.0.1:5000/operators/calendar/callback"
     authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
@@ -649,7 +653,11 @@ def calendar_callback():
                 "redirect_uris": ["http://127.0.0.1:5000/operators/calendar/callback"],
             }
         },
-        scopes=["https://www.googleapis.com/auth/calendar.readonly"],
+        scopes=[
+            "https://www.googleapis.com/auth/calendar.readonly",
+            "https://www.googleapis.com/auth/userinfo.email",
+            "openid"
+        ],
         state=session['oauth_state']
     )
     flow.redirect_uri = "http://127.0.0.1:5000/operators/calendar/callback"
@@ -670,16 +678,19 @@ def calendar_callback():
 
     # Store in MongoDB
     db = current_app.config['db']
-    db.calendar.insert_one({
-        'email': email,
-        'token': credentials.token,
-        'refresh_token': credentials.refresh_token,
-        'token_uri': credentials.token_uri,
-        'client_id': credentials.client_id,
-        'client_secret': credentials.client_secret,
-        'scopes': credentials.scopes,
-        'fetched_at': datetime.datetime.utcnow()
-    })
+    db.calendar.update_one(
+        {'email': email},
+        {'$set': {
+            'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes,
+            'fetched_at': datetime.datetime.utcnow()
+        }},
+        upsert=True
+    )
 
     return redirect(url_for('operators.calendar_events'))
 

@@ -744,19 +744,32 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     </div>
 
     <div class="modal-info">
-        <div class="modal-row">
-            <span class="modal-label">Selected Inventory:</span>
-            <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
-        </div>
-        <div class="modal-row">
-            <span class="modal-label">Total Day Passes:</span>
-            <span class="modal-value" id="modalPassQuantity">1</span>
-        </div>
-        <div class="modal-row">
-            <span class="modal-label">Total Price:</span>
-            <span class="modal-value">₹<span id="modalTotalPrice">{{ price_value }}</span></span>
-        </div>
-    </div>
+  <div class="modal-row">
+    <span class="modal-label">Selected Inventory:</span>
+    <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Total Passes:</span>
+    <span class="modal-value" id="modalPassQuantity">1</span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Inventory Price:</span>
+    <span class="modal-value">₹<span id="modalInventoryPrice"></span></span>
+  </div>
+  <div class="modal-row">
+    <span class="modal-label">Net Payable (incl. 18% GST):</span>
+    <span class="modal-value">₹<span id="modalNetPayable"></span></span>
+  </div>
+  <div class="modal-row" id="discountRow" style="display: none;">
+    <span class="modal-label">Discount Applied:</span>
+    <span class="modal-value">- ₹<span id="modalDiscountAmount"></span></span>
+  </div>
+  <div class="modal-row" style="font-weight: bold;">
+    <span class="modal-label">Total Payable:</span>
+    <span class="modal-value">₹<span id="modalFinalAmount"></span></span>
+  </div>
+</div>
+
 
     <div class="modal-footer">
         <button class="modal-btn-confirm" onclick="submitPurchase()" style="margin-bottom:20px;">Complete Puchase</button>
@@ -2007,7 +2020,26 @@ function openBuyNowModal() {
 }
 
     document.getElementById("modalPassQuantity").innerText = passQuantity;
-    document.getElementById("modalTotalPrice").innerText = discountedTotal !== null ? discountedTotal : totalPrice;
+   const basePrice = totalPrice;
+const gstAmount = Math.round(basePrice * 0.18);
+const netPayable = basePrice + gstAmount;
+
+let discountAmount = 0;
+let finalAmount = netPayable;
+
+if (appliedCoupon) {
+  discountAmount = 100; // or dynamic based on coupon
+  finalAmount = netPayable - discountAmount;
+}
+
+document.getElementById("modalInventoryPrice").innerText = basePrice;
+document.getElementById("modalNetPayable").innerText = netPayable;
+document.getElementById("modalDiscountAmount").innerText = discountAmount;
+document.getElementById("modalFinalAmount").innerText = finalAmount;
+
+
+// Show discount row if coupon applied
+document.getElementById("discountRow").style.display = discountAmount > 0 ? "flex" : "none";
 
 
     const dateInput = document.getElementById("buyNowDate");
@@ -2104,7 +2136,16 @@ function submitPurchase() {
         return;
     }
     let propertyId = "{{ property['_id'] }}";
-    let finalAmount = discountedTotal !== null ? discountedTotal : totalPrice;
+    let basePrice = totalPrice;
+let gstAmount = Math.round(basePrice * 0.18);
+let netPayable = basePrice + gstAmount;
+
+let discountAmount = 0;
+if (appliedCoupon === "FLAT100") discountAmount = 100;
+// Add more coupon logic if needed
+
+let finalAmount = netPayable - discountAmount;
+
 
     // ✅ FIX: Capture latest quantity
     passQuantity = parseInt(document.getElementById("passQuantity").innerText);
