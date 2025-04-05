@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Calendar Events</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Upcoming Calendar Events</h1>
+    {% if events %}
+        <ul>
+            {% for event in events %}
+                <li>
+                    <strong>{{ event.summary }}</strong><br>
+                    Start: {{ event.start.dateTime or event.start.date }}<br>
+                    End: {{ event.end.dateTime or event.end.date }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming events found.</p>
+    {% endif %}
+</body>
+</html>

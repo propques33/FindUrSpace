@@ -28,6 +28,12 @@ app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = 'findurspace1@gmail.com'
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # Fetch from environment variable
 app.config['MAIL_DEFAULT_SENDER'] = 'findurspace1@gmail.com'
+app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
+app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
+app.config['API_KEY'] = os.environ.get('API_KEY')
+
+
+
 
 # Initialize Flask-Mail
 mail = Mail(app)

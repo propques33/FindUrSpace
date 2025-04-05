@@ -105,16 +105,11 @@
                 <label for="mobile">Mobile Number</label>
                 <input type="text" class="form-control" name="mobile" id="mobile" required>
             </div>
-            <!-- <div class="text-center mt-3">
-                <a href="{{ url_for('operators.google_login') }}" class="btn btn-danger w-100">
-                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20" style="margin-right: 8px;">
-                    Login with Google
-                </a>
-            </div> -->
 
             <button type="submit" class="btn btn-primary btn-block w-100">Login</button>
 
         </form>
+        <a class="btn btn-primary w-100" href="{{ url_for('operators.calendar_auth') }}">Authorize Google Calendar</a>
         <!-- List Your Space Link -->
         <div class="register-link">
             <p>Is your space not registered? <a href="/list-your-space">List your space</a></p>

@@ -4,13 +4,12 @@ import datetime
 from bson.json_util import dumps
 import requests, os
 from urllib.parse import urlencode
+from google.oauth2 import id_token
+from google.auth.transport import requests as grequests
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
 
-# Config (usually keep in .env or config.py)
-GOOGLE_CLIENT_ID = '878564663179-qibfk32p968ejitsoo8bstt644k5ekmt.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = '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'
-GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
-REDIRECT_URI = "http://localhost:5000/oauth2callback"  # Update as needed
-
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Define blueprint for operators
 operators_bp = Blueprint('operators', __name__, url_prefix='/operators', template_folder='templates')
 
@@ -618,49 +617,111 @@ def show_agreement():
         # No uploaded images found, display a fallback message
         return render_template('show_agreement.html', uploaded_pdfs=None)
 
-# Step 1: Start OAuth Flow
-@operators_bp.route('/google-login')
-def google_login():
-    scope = "https://www.googleapis.com/auth/calendar"
-    params = {
-        "client_id": GOOGLE_CLIENT_ID,
-        "redirect_uri": REDIRECT_URI,
-        "response_type": "code",
-        "scope": scope,
-        "access_type": "offline",
-        "prompt": "consent"
-    }
-    auth_url = "https://accounts.google.com/o/oauth2/v2/auth?" + urlencode(params)
-    return redirect(auth_url)
+@operators_bp.route('/calendar/auth')
+def calendar_auth():
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": current_app.config['GOOGLE_CLIENT_ID'],
+                "client_secret": current_app.config['GOOGLE_CLIENT_SECRET'],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": ["http://127.0.0.1:5000/operators/calendar/callback"],
+            }
+        },
+        scopes=["https://www.googleapis.com/auth/calendar.readonly"],
+    )
+    flow.redirect_uri = "http://127.0.0.1:5000/operators/calendar/callback"
+    authorization_url, state = flow.authorization_url(access_type='offline', include_granted_scopes='true')
+    session['oauth_state'] = state
+    return redirect(authorization_url)
 
-# Step 2: Callback handler
-@operators_bp.route('/oauth2callback')
-def oauth2callback():
-    code = request.args.get("code")
-    if not code:
-        return "Authorization failed.", 400
 
-    # Exchange code for token
-    token_url = "https://oauth2.googleapis.com/token"
-    data = {
-        "code": code,
-        "client_id": GOOGLE_CLIENT_ID,
-        "client_secret": GOOGLE_CLIENT_SECRET,
-        "redirect_uri": REDIRECT_URI,
-        "grant_type": "authorization_code",
-    }
-    response = requests.post(token_url, data=data)
-    if response.status_code != 200:
-        return "Failed to get token", 400
+@operators_bp.route('/calendar/callback')
+def calendar_callback():
+    flow = Flow.from_client_config(
+        {
+            "web": {
+                "client_id": current_app.config['GOOGLE_CLIENT_ID'],
+                "client_secret": current_app.config['GOOGLE_CLIENT_SECRET'],
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+                "redirect_uris": ["http://127.0.0.1:5000/operators/calendar/callback"],
+            }
+        },
+        scopes=["https://www.googleapis.com/auth/calendar.readonly"],
+        state=session['oauth_state']
+    )
+    flow.redirect_uri = "http://127.0.0.1:5000/operators/calendar/callback"
+    authorization_response = request.url
+    flow.fetch_token(authorization_response=authorization_response)
+    credentials = flow.credentials
 
-    token_data = response.json()
-    access_token = token_data["access_token"]
-    refresh_token = token_data.get("refresh_token")
+    # Get Gmail ID (email) using Google token
+    session_req = requests.Session()
+    token_req = session_req.get(
+        'https://www.googleapis.com/oauth2/v1/userinfo',
+        params={'alt': 'json'},
+        headers={'Authorization': f'Bearer {credentials.token}'}
+    )
 
-    # Save tokens in session (or database)
-    session['google_access_token'] = access_token
-    session['google_refresh_token'] = refresh_token
-    session['operator_phone'] = "GoogleUser"
-    session['role'] = "owner"  # or detect dynamically
+    email = token_req.json().get('email', 'unknown')
+    session['user_email'] = email 
 
-    return redirect(url_for('operators.inventory'))
+    # Store in MongoDB
+    db = current_app.config['db']
+    db.calendar.insert_one({
+        'email': email,
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes,
+        'fetched_at': datetime.datetime.utcnow()
+    })
+
+    return redirect(url_for('operators.calendar_events'))
+
+@operators_bp.route('/calendar/events')
+def calendar_events():
+
+    db = current_app.config['db']
+
+    # ✅ Get email from session or hardcode for now (if needed)
+    email = session.get('user_email')  # You should ideally store this in session during callback
+    if not email:
+        return "Email not found in session. Cannot fetch calendar."
+    
+    # ✅ Fetch credentials from MongoDB
+    record = db.calendar.find_one({'email': email})
+    if not record:
+        return "No calendar credentials found for this user."
+    
+    from google.oauth2.credentials import Credentials
+    creds = Credentials(
+        token=record['token'],
+        refresh_token=record['refresh_token'],
+        token_uri=record['token_uri'],
+        client_id=record['client_id'],
+        client_secret=record['client_secret'],
+        scopes=record['scopes']
+    )
+
+    service = build('calendar', 'v3', credentials=creds)
+
+    # ✅ Get upcoming events
+    now = datetime.datetime.utcnow().isoformat() + 'Z'
+    events_result = service.events().list(
+        calendarId='primary',
+        timeMin=now,
+        maxResults=10,
+        singleEvents=True,
+        orderBy='startTime'
+    ).execute()
+
+    events = events_result.get('items', [])
+    if not events:
+        return "No upcoming events found."
+    
+    return render_template('calendar_events.html', events=events)
