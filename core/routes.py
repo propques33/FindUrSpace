@@ -18,6 +18,7 @@ from integrations.otplessauth import OtpLessAuth
 from integrations.gsheet_updater import handle_new_user_entry
 import random  # Import random module at the top
 from datetime import datetime, timedelta
+from flask_mail import Message
 
 
 # Function to handle Google Sheet updates in the background
@@ -1558,6 +1559,18 @@ def list_your_space():
 
                 # Insert into MongoDB
                 db.fillurdetails.insert_one(property_details)
+
+                try:
+                    mail = current_app.extensions['mail']  # Get mail instance
+                    message = Message(
+                        subject="Thanks for listing your space!",
+                        recipients=[owner_email],
+                        html="<p>Hello! How are you?</p>"
+                    )
+                    mail.send(message)
+                    print(f"Email sent to {owner_email}")
+                except Exception as email_error:
+                    print(f"Email sending failed: {email_error}")
 
             flash("Property details submitted successfully.", 'success')
             return redirect(url_for('core_bp.thank_you'))
