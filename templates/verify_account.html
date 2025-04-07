@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Account - FindUrSpace</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f2f5f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .verify-container {
+            max-width: 600px;
+            margin: 70px auto;
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .logo img {
+            height: 50px;
+            margin-bottom: 15px;
+        }
+
+        .brand-text {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1c1c1c;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-weight: 700;
+            font-size: 24px;
+            color: #212529;
+            margin-bottom: 15px;
+        }
+
+        .highlight-message {
+            font-weight: 600;
+            color: #2b4eff;
+            margin-bottom: 10px;
+        }
+
+        .info-text {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 25px;
+        }
+
+        .btn-primary {
+            background-color: #2b4eff;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 10px;
+            transition: 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1e3fcc;
+        }
+
+        .small-note {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 20px;
+        }
+
+        .back-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 8px 18px;
+    font-size: 14px;
+    color: #2b4eff;
+    border: 1px solid #dbe2f1;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background-color: #f5f8ff;
+}
+
+.back-link:hover {
+    background-color: #e3ebff;
+    border-color: #c3d4ff;
+    color: #1a3ac2;
+}
+    </style>
+</head>
+<body>
+
+    <div class="verify-container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='images/logo.webp') }}" alt="FindUrSpace Logo">
+        </div>
+
+        <h2>Verify Your Google Account</h2>
+        <div class="highlight-message">We've sent a verification link to your email.</div>
+        <p class="info-text">Please check your inbox and confirm your account to continue.</p>
+        <p class="info-text">Alternatively, you can authorize your Google Calendar below.</p>
+
+        <a href="{{ url_for('operators.calendar_auth', email=request.args.get('email', ''), next='thank_you') }}" class="btn btn-primary">
+            Authorize Google Account
+        </a>
+
+        <div class="small-note">
+            Didn’t receive the email? Check your spam folder or resubmit the form.
+        </div>
+
+        <a href="{{ url_for('core_bp.index') }}" class="back-link">← Back to Home</a>
+    </div>
+
+</body>
+</html>

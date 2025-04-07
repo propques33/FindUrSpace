@@ -1562,10 +1562,16 @@ def list_your_space():
 
                 try:
                     mail = current_app.extensions['mail']  # Get mail instance
+                    auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
                     message = Message(
                         subject="Thanks for listing your space!",
                         recipients=[owner_email],
-                        html="<p>Hello! How are you?</p>"
+                        html=f"""
+                            <p>Hi {name},</p>
+                            <p>Thanks for listing your space on FindUrSpace.</p>
+                            <p>To sync your calendar and manage bookings seamlessly, please <a href="{auth_link}">click here to authorize your Google Calendar</a>.</p>
+                            <p>– Team FindUrSpace</p>
+                        """
                     )
                     mail.send(message)
                     print(f"Email sent to {owner_email}")
@@ -1573,13 +1579,18 @@ def list_your_space():
                     print(f"Email sending failed: {email_error}")
 
             flash("Property details submitted successfully.", 'success')
-            return redirect(url_for('core_bp.thank_you'))
+            return redirect(url_for('core_bp.verify_account', email=owner_email))
+            # return redirect(url_for('core_bp.thank_you'))
 
         except Exception as e:
             flash(f"Failed to submit property details: {str(e)}", 'error')
             print(f"Error: {e}")
 
     return render_template('FillUrDetails.html')
+
+@core_bp.route('/verify-your-account')
+def verify_account():
+    return render_template('verify_account.html')
 
     #             # Validate city and micromarket
     #             if not city or not micromarket:

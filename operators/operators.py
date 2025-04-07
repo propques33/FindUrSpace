@@ -619,6 +619,14 @@ def show_agreement():
 
 @operators_bp.route('/calendar/auth')
 def calendar_auth():
+    email = request.args.get('email')  # ✅ Step 1: Get email from query param
+    next_page = request.args.get('next')  # ✅ Get optional redirect
+    
+    if email:
+        session['user_email'] = email
+    if next_page:
+        session['post_auth_redirect'] = next_page 
+
     flow = Flow.from_client_config(
         {
             "web": {
@@ -665,16 +673,19 @@ def calendar_callback():
     flow.fetch_token(authorization_response=authorization_response)
     credentials = flow.credentials
 
-    # Get Gmail ID (email) using Google token
-    session_req = requests.Session()
-    token_req = session_req.get(
-        'https://www.googleapis.com/oauth2/v1/userinfo',
-        params={'alt': 'json'},
-        headers={'Authorization': f'Bearer {credentials.token}'}
-    )
-
-    email = token_req.json().get('email', 'unknown')
-    session['user_email'] = email 
+    
+    # ✅ Use email from session (provided earlier)
+    email = session.get('user_email')
+    if not email:
+        # fallback if session lost
+        session_req = requests.Session()
+        token_req = session_req.get(
+            'https://www.googleapis.com/oauth2/v1/userinfo',
+            params={'alt': 'json'},
+            headers={'Authorization': f'Bearer {credentials.token}'}
+        )
+        email = token_req.json().get('email', 'unknown')
+        session['user_email'] = email
 
     # Store in MongoDB
     db = current_app.config['db']
@@ -692,7 +703,12 @@ def calendar_callback():
         upsert=True
     )
 
-    return redirect(url_for('operators.calendar_events'))
+    # ✅ Conditional redirect based on 'next'
+    redirect_target = session.pop('post_auth_redirect', None)
+    if redirect_target == 'thank_you':
+        return redirect(url_for('core_bp.thank_you'))
+
+    return redirect(url_for('operators.operators_login'))
 
 @operators_bp.route('/calendar/events')
 def calendar_events():
