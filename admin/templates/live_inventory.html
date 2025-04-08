@@ -288,10 +288,8 @@
                     <tr>
                         <th>Select</th>
                         <th>Date</th>
-                        <th>Owner Name</th>
                         <th>Coworking Name</th>
-                        <th>Micromarket</th>
-                        <th id="sort-city">City &#x25B2;&#x25BC;</th> <!-- Arrow icons indicate sorting -->
+                        <th>Micromarket,City</th>
                         <th>Total Seats</th>
                         <th>Available Seats</th>
                         <th>Details</th>
@@ -539,16 +537,26 @@
                         ? '<span style="color: green;">Completed</span>'
                         : '<span style="color: red;">Pending</span>';
 
+                    // Inventory details formatted
+                    let inventoryHTML = '';
+                    space.inventory?.forEach(item => {
+                        if (item.type === 'Private cabin' || item.type === 'Meeting rooms') {
+                            item.room_details?.forEach(room => {
+                                inventoryHTML += `<div>${item.type} - ${room.seating_capacity} seater @ ₹${room.price}</div>`;
+                            });
+                        } else {
+                            inventoryHTML += `<div>${item.type} - ${item.count} seats @ ₹${item.price_per_seat}</div>`;
+                        }
+                    });
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>
                             <input type="checkbox" class="select-property" data-property-id="${space._id || ''}">
                         </td>
                         <td>${formattedDate || 'N/A'}</td>
-                        <td>${space.owner?.name || 'N/A'}</td>
                         <td>${space.coworking_name || 'N/A'}</td>
-                        <td>${space.micromarket || 'N/A'}</td>
-                        <td>${space.city || 'N/A'}</td>
+                        <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
                         <td>${space.total_seats || 'N/A'}</td>
                         <td>${space.current_vacancy || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
@@ -623,31 +631,186 @@
 
             closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
-            // Display Modal with Details
-            function displayCoworkingModal(space) {
-                document.getElementById('coworking-name').textContent = space.coworking_name;
-                document.getElementById('owner-info-name').textContent = space.owner.name;
-                document.getElementById('owner-info-phone').textContent = space.owner.phone;
-                document.getElementById('owner-info-email').textContent = space.owner.email;
-                document.getElementById('center-manager-name').textContent = space.center_manager.name;
-                document.getElementById('center-manager-contact').textContent = space.center_manager.contact;
-                document.getElementById('city-info').textContent = space.city;
-                document.getElementById('micromarket-info').textContent = space.micromarket;
-                document.getElementById('total-seats-info').textContent = space.total_seats;
-                document.getElementById('vacancy-info').textContent = space.current_vacancy;
+//             function displayCoworkingModal(space) {
+//     const modalContent = document.querySelector('.modal-content');
+//     modalContent.innerHTML = `
+//         <h2>${space.coworking_name || ''}</h2>
 
-                const inventoryList = document.getElementById('inventory-list');
-                inventoryList.innerHTML = ''; // Clear previous inventory
+//         <h3>Owner Information</h3>
+//         <p><strong>Name:</strong> ${space.owner?.name || 'N/A'}</p>
+//         <p><strong>Phone:</strong> ${space.owner?.phone || 'N/A'}</p>
+//         <p><strong>Email:</strong> ${space.owner?.email || 'N/A'}</p>
 
-                space.inventory.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = `${item.type}: ${item.count} seats at ${item.price_per_seat} per seat`;
-                    inventoryList.appendChild(li);
-                });
+//         <h3>Center Manager</h3>
+//         <p><strong>Name:</strong> ${space.center_manager?.name || 'N/A'}</p>
+//         <p><strong>Contact:</strong> ${space.center_manager?.contact || 'N/A'}</p>
 
-                // Show modal
-                coworkingModal.classList.add("show");
+//         <h3>General Details</h3>
+//         <p><strong>City:</strong> ${space.city}</p>
+//         <p><strong>Micromarket:</strong> ${space.micromarket}</p>
+//         <p><strong>Address:</strong> ${space.address || 'N/A'}</p>
+//         <p><strong>Total Seats:</strong> ${space.total_seats}</p>
+//         <p><strong>Current Vacancy:</strong> ${space.current_vacancy}</p>
+//         <p><strong>Status:</strong> ${space.status || 'N/A'}</p>
+
+//         <h3>Space Description</h3>
+//         <p>${space.space_description || 'N/A'}</p>
+
+//         <h3>Distance from Key Locations (in km)</h3>
+//         <p><strong>Metro:</strong> ${space.distance?.metro || 'N/A'}</p>
+//         <p><strong>Bus:</strong> ${space.distance?.bus || 'N/A'}</p>
+//         <p><strong>Railway:</strong> ${space.distance?.railway || 'N/A'}</p>
+//         <p><strong>Airport:</strong> ${space.distance?.airport || 'N/A'}</p>
+
+//         <h3>Office Timings</h3>
+//         <p><strong>Open:</strong> ${space.office_timings?.open_from} to ${space.office_timings?.open_to}</p>
+//         <p><strong>Timings:</strong> ${space.office_timings?.opening_time} - ${space.office_timings?.closing_time}</p>
+
+//         <h3>Amenities</h3>
+//         <ul>
+//             ${(space.amenities || []).map(item => `<li>${item}</li>`).join('')}
+//         </ul>
+
+//         <h3>Inventory</h3>
+//         ${(space.inventory || []).map(item => {
+//             if (item.room_details) {
+//                 return `
+//                     <h4>${item.type} (${item.room_count} rooms)</h4>
+//                     ${item.room_details.map(room => `
+//                         <div style="margin-bottom:10px;">
+//                             <strong>Room ${room.room_number}:</strong><br/>
+//                             ${room.seating_capacity}-seater @ ₹${room.price}<br/>
+//                             ${(room.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
+//                         </div>
+//                     `).join('')}
+//                 `;
+//             } else {
+//                 return `
+//                     <div style="margin-bottom:10px;">
+//                         <strong>${item.type}:</strong> ${item.count} seats @ ₹${item.price_per_seat}<br/>
+//                         ${(item.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
+//                     </div>
+//                 `;
+//             }
+//         }).join('')}
+
+//         <h3>Property Images</h3>
+//         ${(space.property_images || []).map(img => `<img src="${img}" width="120" style="margin:5px;">`).join('')}
+//     `;
+
+//     coworkingModal.classList.add('show');
+// }
+function displayCoworkingModal(space) {
+    const modalContent = document.querySelector('.modal-content');
+
+    const owner = space.owner || {};
+    const manager = space.center_manager || {};
+    const distance = space.distance || {};
+    const timings = space.office_timings || {};
+    const amenities = space.amenities || [];
+    const propertyImages = space.property_images || space.layout_images || [];
+
+    // Inventory Handling
+    let inventoryHtml = '';
+    if (space.inventory && Array.isArray(space.inventory)) {
+        inventoryHtml = space.inventory.map(item => {
+            // Determine pricing label based on inventory type
+        let priceLabel = 'Contact for pricing';
+        if (item.price_per_seat) {
+            if (item.type === 'Dedicated desk') {
+                priceLabel = `₹${item.price_per_seat} /seat/month`;
+            } else if (item.type === 'Day pass') {
+                priceLabel = `₹${item.price_per_seat} /seat/day`;
+            } else if (item.type === 'Virtual office') {
+                priceLabel = `₹${item.price_per_seat} /year`;
+            } else if (item.type === 'Serviced offices') {
+                priceLabel = `₹${item.price_per_seat} /seat/month`;
+            } else if (item.type === 'Meeting rooms') {
+                priceLabel = `₹${item.price_per_seat} /hour`;
+            } else if (item.type === 'Private cabin') {
+                priceLabel = `₹${item.price_per_seat} /seat/month`;
             }
+        }
+
+            // If room_details exist (new structure)
+        if (item.room_details && Array.isArray(item.room_details)) {
+            return `
+                <h4>${item.type} (${item.room_count || item.room_details.length} rooms)</h4>
+                ${item.room_details.map(room => `
+                    <div style="margin-bottom:10px;">
+                        <strong>Room ${room.room_number || ''}:</strong><br/>
+                        ${room.seating_capacity || 'N/A'}-seater @ ₹${room.price || item.price_per_seat} /hour<br/>
+                        ${(room.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
+                    </div>
+                `).join('')}
+            `;
+        } else {
+                // Old structure
+            return `
+                <div style="margin-bottom:10px;">
+                    <strong>${item.type}:</strong> ${item.count} seats<br/>
+                    <span>${priceLabel}</span><br/>
+                    ${(item.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
+                </div>
+            `;
+            }
+        }).join('');
+    }
+
+    // Property Images
+    const imagesHtml = propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('');
+
+    modalContent.innerHTML = `
+        <h2>${space.coworking_name || 'N/A'}</h2>
+
+        <h3>Owner Information</h3>
+        <p><strong>Name:</strong> ${owner.name || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${owner.phone || 'N/A'}</p>
+        <p><strong>Email:</strong> ${owner.email || 'N/A'}</p>
+
+        <h3>Center Manager</h3>
+        <p><strong>Name:</strong> ${manager.name || 'N/A'}</p>
+        <p><strong>Contact:</strong> ${manager.contact || 'N/A'}</p>
+
+        <h3>General Info</h3>
+        <p><strong>City:</strong> ${space.city}</p>
+        <p><strong>Micromarket:</strong> ${space.micromarket}</p>
+        <p><strong>Address:</strong> ${space.address}</p>
+        <p><strong>Total Seats:</strong> ${space.total_seats}</p>
+        <p><strong>Available Seats:</strong> ${space.current_vacancy}</p>
+
+        <h3>Description</h3>
+        <p>${space.space_description || 'N/A'}</p>
+
+        ${Object.keys(distance).length ? `
+        <h3>Distances (in km)</h3>
+        <p><strong>Metro:</strong> ${distance.metro || 'N/A'}</p>
+        <p><strong>Bus:</strong> ${distance.bus || 'N/A'}</p>
+        <p><strong>Railway:</strong> ${distance.railway || 'N/A'}</p>
+        <p><strong>Airport:</strong> ${distance.airport || 'N/A'}</p>
+        ` : ''}
+
+        ${Object.keys(timings).length ? `
+        <h3>Office Timings</h3>
+        <p><strong>Open Days:</strong> ${timings.open_from} to ${timings.open_to}</p>
+        <p><strong>Time:</strong> ${timings.opening_time} - ${timings.closing_time}</p>
+        ` : ''}
+
+        ${amenities.length ? `
+        <h3>Amenities</h3>
+        <ul>${amenities.map(a => `<li>${a}</li>`).join('')}</ul>
+        ` : ''}
+
+        <h3>Inventory</h3>
+        ${inventoryHtml}
+
+        <h3>Images</h3>
+        ${imagesHtml}
+    `;
+
+    coworkingModal.classList.add('show');
+}
+
 
 
             // Sorting function

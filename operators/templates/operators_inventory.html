@@ -1,282 +1,307 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Operator Inventory</title>
-    <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
-    <!-- Bootstrap 5.3 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/operator.css') }}">
-    <style>
-        body {
-            font-family: 'Report School Regular', Arial, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Operator Inventory</title>
+  <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f9fc;
+      color: #333;
+    }
 
-        .property-card {
-            background-color: #f9f9f9;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 30px;
-            box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 10px 0px;
-            padding: 20px;
-        }
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin: 30px 0 15px;
+      color: #0044cc;
+    }
 
-        .property-header {
-            font-family: 'Report School Bold', Arial, sans-serif;
-            font-size: 1.8rem;
-            color: #ff6600;
-            margin-bottom: 10px;
-        }
+    .property-header {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #0044cc;
+    }
 
-        .property-content {
-            display: flex;
-            flex-wrap: wrap;
-        }
+    .card-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
 
-        .image-container {
-            flex: 1;
-            min-width: 200px;
-            max-width: 300px;
-            margin-right: 20px;
-        }
+    .card-grid .card {
+      flex: 0 0 auto;
+      width: 150px;
+      padding: 12px;
+      background-color: white;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
 
-        .details-container {
-            flex: 2;
-            color: #333;
-        }
+    .card-grid .card i {
+      font-size: 24px;
+      color: #0044cc;
+    }
 
-        .details-container p {
-            margin-bottom: 8px;
-        }
+    .inventory-table th {
+      background-color: #e9f2ff;
+    }
 
-        .inventory-table {
-            margin-top: 20px;
-        }
+    .room-details {
+      background: #eef2f8;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
 
-        .inventory-table th, .inventory-table td {
-            text-align: center;
-            border: 1px solid #ddd;
-        }
+    .room-type-label {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-top: 20px;
+      color: #ff6600;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 4px;
+    }
 
-        .btn-edit {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-            margin-top: 15px;
-        }
+    .btn-show-images {
+      background-color: #0044cc;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+    }
 
-        .btn-edit:hover {
-            background-color: #0056b3;
-            color: white;
-        }
+    .modal-img {
+      width: 100%;
+      border-radius: 6px;
+    }
 
-        .carousel-item img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 10px;
-        }
+    .info-card {
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
 
-        .carousel-indicators {
-            position: static;
-            margin-top: 10px;
-        }
+    #sidebar-wrapper {
+      width: 250px;
+      position: fixed;
+      height: 100vh;
+      z-index: 1000;
+      background-color: #fff;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    }
 
-        .carousel-indicators button {
-            background-color: #ff6600;
-        }
+    #page-content-wrapper {
+      margin-left: 250px;
+      padding: 20px;
+    }
 
-        /* Zoom modal styles */
-        .modal-img {
-            width: 100%;
-            height: auto;
-        }
-
-        /* Professional Blue Theme for Buttons */
-.button-common {
-    display: inline-block;
-    color: white;
-    font-weight: bold;
-    font-size: 1.1rem;
-    padding: 12px 30px;
-    border-radius: 50px;
-    text-decoration: none;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    border: 2px solid transparent;
+    .modal-dialog.custom-modal {
+  max-width: 600px;
 }
 
-/* Add Coworking Space Button */
-.add-space-button {
-    background-color: #0044cc; /* Primary Blue */
-    border-color: #0044cc;
-}
 
-.add-space-button:hover {
-    background-color: #003399; /* Darker Blue on Hover */
-    border-color: #003399;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px); /* Subtle Lift */
-}
+    @media (max-width: 768px) {
+      #sidebar-wrapper {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
 
-/* Edit Button */
-.btn-edit {
-    background-color: #0056b3; /* Medium Blue */
-    border-color: 2px solid #0056b3;
-    font-size: 1rem;
-    padding: 10px 20px;
-    font-weight: bold;
-    color: white;
-    border-radius: 8px;
-    transition: all 0.3s ease-in-out;
-    text-decoration: none;
-}
-
-.btn-edit:hover {
-    background-color: #004494; /* Darker Medium Blue */
-    border-color: #004494;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    transform: translateY(-2px); /* Subtle Lift */
-}
-
-/* Consistent Focus Outline for Accessibility */
-.button-common:focus,
-.btn-edit:focus {
-    outline: 2px dashed #6699ff;
-    outline-offset: 4px;
-}
-    </style>
+      #page-content-wrapper {
+        margin-left: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-    {% include 'operators_navigation.html' %}
+<div id="sidebar-wrapper">
+  {% include 'operators_navigation.html' %}
+</div>
 
-    <div id="page-content-wrapper">
-        <div class="container">
-            <h2 class="text-dark my-4">Your Space Details</h2>
+<div id="page-content-wrapper">
+  <div class="container my-4">
+    <h2 class="mb-4">Your Space Details</h2>
 
-            <!-- Add Coworking Space Button -->
-            {% if role == 'owner' %}
-            <div class="text-end">
-                <a href="{{ url_for('operators.add_space') }}" class="add-space-button button-common ">+ Add Coworking Space</a>
-            </div>
-            {% endif %}
-            
-            <!-- List of coworking spaces -->
-            {% if inventory %}
-                {% for space in inventory %}
-                <div class="property-card">
-                    <!-- Coworking Name as Card Heading -->
-                    <div class="property-header">
-                        {{ space['coworking_name'] }}
-                    </div>
-
-                    <!-- Card Content (Images on the left, Info on the right) -->
-                    <div class="property-content">
-                        <!-- Image container with Bootstrap Carousel -->
-                        <div id="carousel-{{ loop.index }}" class="carousel slide image-container" data-bs-ride="carousel">
-                            <div class="carousel-inner">
-                                {% for image in space['layout_images'] %}
-                                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                    <img src="{{ image }}" alt="Layout Image" data-bs-toggle="modal" data-bs-target="#imageModal-{{ loop.index }}-{{ loop.index0 }}">
-                                </div>
-                                {% endfor %}
-                            </div>
-
-                            <!-- Indicators -->
-                            <div class="carousel-indicators">
-                                {% for image in space['layout_images'] %}
-                                <button type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}" aria-current="true"></button>
-                                {% endfor %}
-                            </div>
-
-                            <!-- Controls -->
-                            <button class="carousel-control-prev" type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide="prev">
-                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Previous</span>
-                            </button>
-                            <button class="carousel-control-next" type="button" data-bs-target="#carousel-{{ loop.index }}" data-bs-slide="next">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
-                        </div>
-
-                        <!-- Details container -->
-                        <div class="details-container">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Center Manager Name:</strong> {{ space['center_manager_name'] }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Center Manager Contact:</strong> {{ space['center_manager_contact'] }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Micromarket:</strong> {{ space['micromarket'] }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>City:</strong> {{ space['city'] }}</p>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p><strong>Total Seats:</strong> {{ space['total_seats'] }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <p><strong>Current Vacancy:</strong> {{ space['current_vacancy'] }}</p>
-                                </div>
-                            </div>
-
-                            <!-- Inventory Table -->
-                            <table class="table inventory-table">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Count</th>
-                                        <th>Price per Seat</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in space['inventory'] %}
-                                    <tr>
-                                        <td>{{ item['type'] }}</td>
-                                        <td>{{ item['count'] }}</td>
-                                        <td>{{ item['price_per_seat'] }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-
-                            <!-- Edit Button -->
-                            <div class="text-right">
-                                <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-edit" style="background-color: #007bff; color: #f9f9f9;">Edit</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Zoom Modal for each image -->
-                {% for image in space['layout_images'] %}
-                <div class="modal fade" id="imageModal-{{ loop.index }}-{{ loop.index0 }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                <img src="{{ image }}" class="modal-img" alt="Zoomed Layout Image">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-
-                {% endfor %}
-            {% else %}
-            <p class="text-muted">No coworking spaces available to display.</p>
-            {% endif %}
+    {% for space in inventory %}
+    <div class="info-card">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <div class="property-header">{{ space['coworking_name'] }}</div>
+          <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ space['micromarket'] }}, {{ space['city'] }}</p>
+          <p class="text-secondary">{{ space['address'] }}</p>
         </div>
-    </div>
+        <a href="{{ url_for('operators.edit_space', space_id=space['_id']) }}" class="btn btn-outline-primary btn-sm">
+          <i class="fas fa-edit me-1"></i>Edit
+        </a>
+      </div>
 
-    <!-- Bootstrap 5.3 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+      <!-- Center Manager -->
+      <div class="mb-3">
+        <i class="fas fa-user-tie me-1 text-info"></i> <strong>{{ space['center_manager_name'] }}</strong>
+        <span class="ms-2"><i class="fas fa-phone me-1"></i>{{ space['center_manager_contact'] }}</span>
+      </div>
+
+      <!-- Image Carousel -->
+      <div id="property-carousel-{{ loop.index }}" class="carousel slide mb-4" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          {% for img in space['property_images'] %}
+          <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <img src="{{ img }}" class="d-block w-100 rounded" style="height: 300px; object-fit: cover;" alt="Image">
+          </div>
+          {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#property-carousel-{{ loop.index }}" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#property-carousel-{{ loop.index }}" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+
+      <!-- Seats Info -->
+      <div class="row text-center mb-4">
+        <div class="col-md-6">
+          <div class="bg-light p-3 rounded shadow-sm">
+            <h6><i class="fas fa-chair me-1"></i>Total Seats</h6>
+            <h4 class="text-success">{{ space['total_seats'] }}</h4>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="bg-light p-3 rounded shadow-sm">
+            <h6><i class="fas fa-door-open me-1"></i>Current Vacancy</h6>
+            <h4 class="text-danger">{{ space['current_vacancy'] }}</h4>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inventory Section -->
+      <h5 class="section-title">Inventory</h5>
+      <table class="table table-bordered inventory-table">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Seats</th>
+            <th>Price</th>
+            <th>Images</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in space['inventory'] %}
+          <tr>
+            <td>{{ item.type }}</td>
+            <td>{{ item.count or item.room_count or 'N/A' }}</td>
+            <td>
+              {% if item.type == "Day pass" %}
+                ₹{{ item.price_per_seat }} /seat/day
+              {% elif item.type == "Dedicated desk" %}
+                ₹{{ item.price_per_seat }} /seat/month
+              {% elif item.type == "Meeting rooms" %}
+                ₹{{ item.price_per_seat }} /hour
+              {% elif item.type == "Private cabin" %}
+                ₹{{ item.price_per_seat }} /seat/month
+              {% else %}
+                Contact
+              {% endif %}
+            </td>
+            <td>
+              {% if item.images|length > 0 %}
+              <button class="btn-show-images" data-bs-toggle="modal" data-bs-target="#inventoryModal-{{ loop.index }}">Show Images</button>
+
+              <!-- Modal for Item Images -->
+              <!-- Modal for Item Images -->
+<!-- Modal for Item Images -->
+<!-- Modal for Item Images -->
+<div class="modal fade" id="inventoryModal-{{ loop.index }}" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-body p-0">
+        <div id="carouselInventory-{{ loop.index }}" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            {% for img in item.images %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+              <img src="{{ img }}" class="w-100" style="height: 400px; object-fit: cover;" />
+            </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselInventory-{{ loop.index }}" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselInventory-{{ loop.index }}" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+              {% else %} N/A {% endif %}
+            </td>
+          </tr>
+
+          {% if item.room_details %}
+          <tr>
+            <td colspan="4">
+              <div class="room-details">
+                <div class="room-type-label">{{ item.type }} Details</div>
+                {% for room in item.room_details %}
+                <div class="mb-3">
+                  <strong>Room {{ room.room_number }}</strong> – Seats: {{ room.seating_capacity }}, ₹{{ room.price }}
+                  <div class="row mt-2">
+                    {% for img in room.images %}
+                    <div class="col-md-3">
+                      <img src="{{ img }}" class="img-fluid rounded" />
+                    </div>
+                    {% endfor %}
+                  </div>
+                  <hr/>
+                </div>
+                {% endfor %}
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Amenities Section -->
+      <h5 class="section-title">Amenities</h5>
+      <div class="card-grid">
+        {% set icons = {
+          "High Speed WiFi": "fas fa-wifi", "Printer": "fas fa-print", "Housekeeping": "fas fa-broom",
+          "Tea/Coffee": "fas fa-coffee", "Meeting Rooms": "fas fa-door-open", "Car / Bike Parking": "fas fa-car",
+          "Reception": "fas fa-concierge-bell", "Phone Booth": "fas fa-phone", "Ergo Workstations": "fas fa-chair",
+          "Pantry": "fas fa-utensils", "Air Conditioning": "fas fa-snowflake", "Lounge": "fas fa-couch",
+          "24/7 Access": "fas fa-clock", "Security": "fas fa-shield-alt", "Cafeteria": "fas fa-utensils",
+          "Power Backup": "fas fa-battery-full", "Event Space": "fas fa-users", "Lockers": "fas fa-lock",
+          "Parking": "fas fa-parking"
+        } %}
+        {% for amenity in space.amenities %}
+        <div class="card">
+          <i class="{{ icons.get(amenity, 'fas fa-building') }}"></i>
+          <h6 class="mt-2">{{ amenity }}</h6>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Office Timings -->
+      <h5 class="section-title">Office Timings</h5>
+      <p><i class="fas fa-clock me-1"></i>{{ space.office_timings.open_from }} to {{ space.office_timings.open_to }} | {{ space.office_timings.opening_time }} - {{ space.office_timings.closing_time }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

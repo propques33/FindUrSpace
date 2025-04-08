@@ -19,6 +19,8 @@ from integrations.gsheet_updater import handle_new_user_entry
 import random  # Import random module at the top
 from datetime import datetime, timedelta
 from flask_mail import Message
+from google.oauth2.credentials import Credentials
+from googleapiclient.discovery import build
 
 
 # Function to handle Google Sheet updates in the background
@@ -261,6 +263,50 @@ def innerpage(city, micromarket, coworking_name):
         "coworking_name": {'$regex': f'^{coworking_name}$', '$options': 'i'}
     })
 
+    events = []  # default
+    calendar_creds = property_data.get("google_calendar")
+
+    if calendar_creds:
+        try:
+            creds = Credentials(
+                token=calendar_creds['token'],
+                refresh_token=calendar_creds.get('refresh_token'),
+                token_uri=calendar_creds['token_uri'],
+                client_id=calendar_creds['client_id'],
+                client_secret=calendar_creds['client_secret'],
+                scopes=calendar_creds['scopes']
+            )
+
+            service = build('calendar', 'v3', credentials=creds)
+            now = datetime.utcnow().isoformat() + 'Z'
+
+            events_result = service.events().list(
+                calendarId='primary',
+                timeMin=now,
+                maxResults=50,
+                singleEvents=True,
+                orderBy='startTime'
+            ).execute()
+
+            events = events_result.get('items', [])
+
+        except Exception as e:
+            print(f"Calendar fetch failed: {e}")
+
+         # Step 1: Extract today's booked slots (start times only)
+        booked_slots_today = []
+        today_date = datetime.now().date()
+
+        for event in events:
+            try:
+                start = event.get('start', {}).get('dateTime')
+                if start:
+                    start_dt = datetime.fromisoformat(start)
+                    if start_dt.date() == today_date:
+                        booked_slots_today.append(start_dt.strftime("%I:%M %p"))
+            except Exception as e:
+                print("Error processing calendar event:", e)
+
     if not property_data:
         return "Property not found", 404
 
@@ -476,7 +522,9 @@ def innerpage(city, micromarket, coworking_name):
         is_user_complete=is_user_complete,
         total_price=total_price,
         seat_count=seat_count ,
-        is_verified=is_verified   # Pass time slots to the template
+        is_verified=is_verified,
+        events=events,
+        booked_slots_today=booked_slots_today   # Pass time slots to the template
     )
 
 @core_bp.route('/store_verified_contact', methods=['POST'])
@@ -1564,13 +1612,36 @@ def list_your_space():
                     mail = current_app.extensions['mail']  # Get mail instance
                     auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
                     message = Message(
-                        subject="Thanks for listing your space!",
+                        subject="Connect Your Google Calendar – Final Step!",
                         recipients=[owner_email],
                         html=f"""
                             <p>Hi {name},</p>
-                            <p>Thanks for listing your space on FindUrSpace.</p>
-                            <p>To sync your calendar and manage bookings seamlessly, please <a href="{auth_link}">click here to authorize your Google Calendar</a>.</p>
-                            <p>– Team FindUrSpace</p>
+
+                            <p>Welcome to <strong>Find Ur Space</strong> — we’re thrilled to have your workspace listed and ready to go!</p>
+
+                            <p>Your office is now <strong>live</strong> and visible to thousands of professionals searching for flexible and productive spaces.</p>
+
+                            <p>To make booking seamless and real-time, there’s just one small step left:</p>
+
+                            <p style="font-size: 18px;">
+                                👉 <a href="{auth_link}" style="color: #2b4eff; text-decoration: underline;"><strong>Connect Your Google Calendar Now</strong></a>
+                            </p>
+
+                            <p style="font-size: 14px; color: #555;">(So we can show real-time seat availability to users)</p>
+
+                            <p>This ensures:</p>
+                            <ul>
+                                <li>✅ Instant bookings without manual follow-ups</li>
+                                <li>✅ Zero double-bookings or scheduling conflicts</li>
+                                <li>✅ Full control — you can update availability anytime</li>
+                                <li>✅ A smoother, faster experience for your potential customers</li>
+                            </ul>
+
+                            <p>Please verify your Gmail account to connect your calendar — takes less than 30 seconds.</p>
+
+                            <p>If you have any questions or need help, we’re just an email away.</p>
+
+                            <p style="margin-top: 30px;">Thanks,<br><strong>Team Find Ur Space</strong></p>
                         """
                     )
                     mail.send(message)

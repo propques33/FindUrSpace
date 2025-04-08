@@ -911,6 +911,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       </section> -->
     </div>
 
+    {% if other_inventories %}
     <div class="room-listings-container">
       <!-- Updated Heading -->
   <h2 class="section-title">Other Similar Options</h2>
@@ -969,6 +970,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     </div>
  
 </div>
+{% else %}
+    <div class="margin-top:24px;"></div>
+{% endif %} 
 
     <!-- <div class="reviews-container">
   <h2 class="reviews-title">Customer Reviews</h2>
@@ -1139,6 +1143,23 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <button type="submit" class="submit-btn">Submit Review</button>
   </form>
 </section> -->
+{% if events %}
+    <div class="mt-5 p-4 bg-light rounded">
+        <h4 class="mb-3">Upcoming Events</h4>
+        <ul class="list-group">
+            {% for event in events %}
+                <li class="list-group-item">
+                    <strong>{{ event.summary }}</strong><br>
+                    Start: {{ event.start.dateTime or event.start.date }}<br>
+                    End: {{ event.end.dateTime or event.end.date }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% else %}
+    <div class="mt-5 text-muted">No upcoming events found.</div>
+{% endif %}
+
   <footer>
         <div class="footer-container">
             <div class="footer-section logo-section">
@@ -2085,24 +2106,30 @@ function closeBuyNowModal() {
 // Function to generate time slots in dropdown
 function generateTimeSlots() {
     let timeSlotDropdown = document.getElementById("timeSlotDropdown");
-    timeSlotDropdown.innerHTML = `<option value="">Select Time Slot</option>`; // Reset dropdown
+    timeSlotDropdown.innerHTML = `<option value="">Select Time Slot</option>`; // Reset
 
-    let timeSlots = JSON.parse('{{ time_slots | tojson | safe }}'); // Ensure time slots are available
+    let allSlots = JSON.parse('{{ time_slots | tojson | safe }}');
+    let booked = JSON.parse('{{ booked_slots_today | tojson | safe }}');
 
-    if (timeSlots.length === 0) {
-        console.error("No time slots available!"); // Debugging log
+    // Filter out booked slots
+    let availableSlots = allSlots.filter(slot => !booked.includes(slot));
+
+    if (availableSlots.length === 0) {
+        let option = document.createElement("option");
+        option.value = "";
+        option.textContent = "No available slots today";
+        timeSlotDropdown.appendChild(option);
         return;
     }
 
-    timeSlots.forEach(time => {
+    availableSlots.forEach(time => {
         let option = document.createElement("option");
         option.value = time;
         option.textContent = time;
         timeSlotDropdown.appendChild(option);
     });
-
-    console.log("Time Slots Generated:", timeSlots); // Debugging log
 }
+
 
 // Function to handle purchase submission
 function submitPurchase() {
