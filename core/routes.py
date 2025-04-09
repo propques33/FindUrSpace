@@ -263,49 +263,49 @@ def innerpage(city, micromarket, coworking_name):
         "coworking_name": {'$regex': f'^{coworking_name}$', '$options': 'i'}
     })
 
-    events = []  # default
-    calendar_creds = property_data.get("google_calendar")
+    # events = []  # default
+    # calendar_creds = property_data.get("google_calendar")
 
-    if calendar_creds:
-        try:
-            creds = Credentials(
-                token=calendar_creds['token'],
-                refresh_token=calendar_creds.get('refresh_token'),
-                token_uri=calendar_creds['token_uri'],
-                client_id=calendar_creds['client_id'],
-                client_secret=calendar_creds['client_secret'],
-                scopes=calendar_creds['scopes']
-            )
+    # if calendar_creds:
+    #     try:
+    #         creds = Credentials(
+    #             token=calendar_creds['token'],
+    #             refresh_token=calendar_creds.get('refresh_token'),
+    #             token_uri=calendar_creds['token_uri'],
+    #             client_id=calendar_creds['client_id'],
+    #             client_secret=calendar_creds['client_secret'],
+    #             scopes=calendar_creds['scopes']
+    #         )
 
-            service = build('calendar', 'v3', credentials=creds)
-            now = datetime.utcnow().isoformat() + 'Z'
+    #         service = build('calendar', 'v3', credentials=creds)
+    #         now = datetime.utcnow().isoformat() + 'Z'
 
-            events_result = service.events().list(
-                calendarId='primary',
-                timeMin=now,
-                maxResults=50,
-                singleEvents=True,
-                orderBy='startTime'
-            ).execute()
+    #         events_result = service.events().list(
+    #             calendarId='primary',
+    #             timeMin=now,
+    #             maxResults=50,
+    #             singleEvents=True,
+    #             orderBy='startTime'
+    #         ).execute()
 
-            events = events_result.get('items', [])
+    #         events = events_result.get('items', [])
 
-        except Exception as e:
-            print(f"Calendar fetch failed: {e}")
+    #     except Exception as e:
+    #         print(f"Calendar fetch failed: {e}")
 
          # Step 1: Extract today's booked slots (start times only)
-        booked_slots_today = []
-        today_date = datetime.now().date()
+        # booked_slots_today = []
+        # today_date = datetime.now().date()
 
-        for event in events:
-            try:
-                start = event.get('start', {}).get('dateTime')
-                if start:
-                    start_dt = datetime.fromisoformat(start)
-                    if start_dt.date() == today_date:
-                        booked_slots_today.append(start_dt.strftime("%I:%M %p"))
-            except Exception as e:
-                print("Error processing calendar event:", e)
+        # for event in events:
+        #     try:
+        #         start = event.get('start', {}).get('dateTime')
+        #         if start:
+        #             start_dt = datetime.fromisoformat(start)
+        #             if start_dt.date() == today_date:
+        #                 booked_slots_today.append(start_dt.strftime("%I:%M %p"))
+        #     except Exception as e:
+        #         print("Error processing calendar event:", e)
 
     if not property_data:
         return "Property not found", 404
@@ -523,8 +523,8 @@ def innerpage(city, micromarket, coworking_name):
         total_price=total_price,
         seat_count=seat_count ,
         is_verified=is_verified,
-        events=events,
-        booked_slots_today=booked_slots_today   # Pass time slots to the template
+        # events=events,
+        # booked_slots_today=booked_slots_today   # Pass time slots to the template
     )
 
 @core_bp.route('/store_verified_contact', methods=['POST'])
