@@ -289,7 +289,7 @@
                         <th>Select</th>
                         <th>Date</th>
                         <th>Coworking Name</th>
-                        <th>Micromarket,City</th>
+                        <th id="sort-city">Micromarket,City</th>
                         <th>Total Seats</th>
                         <th>Available Seats</th>
                         <th>Details</th>
@@ -506,7 +506,7 @@
             closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
             let isAsc = true; // Track sorting order
-
+            
             function fetchInventory() {
                 const selectedCity = cityDropdown.value || ''; // Default to empty if no value
                 const selectedMicromarket = micromarketDropdown.value || '';

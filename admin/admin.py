@@ -897,7 +897,7 @@ def live_inventory():
     # Fetch all city names and normalize to lowercase
     cities = db.fillurdetails.distinct('city')
     micromarkets = db.fillurdetails.distinct('micromarket')
-
+    
     return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
 
 @admin_bp.route('/get_micromarkets_live/<city>', methods=['GET'])
