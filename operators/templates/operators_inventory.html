@@ -296,7 +296,11 @@
 
       <!-- Office Timings -->
       <h5 class="section-title">Office Timings</h5>
-      <p><i class="fas fa-clock me-1"></i>{{ space.office_timings.open_from }} to {{ space.office_timings.open_to }} | {{ space.office_timings.opening_time }} - {{ space.office_timings.closing_time }}</p>
+      {% if space.office_timings %}
+    <p><i class="fas fa-clock me-1"></i>{{ space.office_timings.open_from }} to {{ space.office_timings.open_to }} | {{ space.office_timings.opening_time }} - {{ space.office_timings.closing_time }}</p>
+{% else %}
+    <p><i class="fas fa-clock me-1"></i>Timing info not available</p>
+{% endif %}
     </div>
     {% endfor %}
   </div>

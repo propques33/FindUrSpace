@@ -19,6 +19,9 @@ ZOHO_CONTRACTS_API_URL = "https://contracts.zoho.com/api/v1/contracts"
 def operators_not_found():
     return render_template('operators_not_found.html')
 
+@operators_bp.route('/under-development')
+def operator_under_development():
+    return render_template('operator_under_development.html')
 
 @operators_bp.route('/login', methods=['GET', 'POST'])
 def operators_login():
@@ -26,25 +29,27 @@ def operators_login():
         return redirect(url_for('operators.inventory'))  # Redirect if already logged in
 
     if request.method == 'POST':
-        mobile = request.form.get('mobile')
-        role = request.form.get('role')
-        db = current_app.config['db']
+        try:
+            mobile = request.form.get('mobile')
+            role = request.form.get('role')
+            db = current_app.config['db']
 
-        if mobile:
-            # Check if the operator exists in the database
-            operator_as_owner = db.fillurdetails.find_one({'owner.phone': mobile})
-            operator_as_manager = db.fillurdetails.find_one({'center_manager.contact': mobile})
+            if mobile:
+                operator_as_owner = db.fillurdetails.find_one({'owner.phone': mobile})
+                operator_as_manager = db.fillurdetails.find_one({'center_manager.contact': mobile})
 
-            if operator_as_owner or operator_as_manager:
-                # User exists, log them in
-                session['operator_phone'] = mobile
-                session['role'] = 'owner' if operator_as_owner else 'center_manager'
-                return redirect(url_for('operators.inventory'))
-            else:
-                # Redirect to list-your-space page if user is not found
-                return redirect(url_for('list_your_space'))
+                if operator_as_owner or operator_as_manager:
+                    session['operator_phone'] = mobile
+                    session['role'] = 'owner' if operator_as_owner else 'center_manager'
+                    return redirect(url_for('operators.inventory'))
+                else:
+                    return redirect(url_for('core_bp.list_your_space'))
+        except Exception as e:
+            print(f"Login Error: {e}")
+            return redirect(url_for('operators.operator_under_development'))
 
-    return render_template('operators_login.html', error="Please enter your mobile number.")
+    return render_template('operators_login.html')
+
 
 
 @operators_bp.route('/bookings', methods=['GET'])

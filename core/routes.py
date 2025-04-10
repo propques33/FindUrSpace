@@ -1547,6 +1547,9 @@ def list_your_space():
                 # Get Space Description
                 space_description = request.form.get(f'space_description_{idx}')
 
+                # Get floors offered from checkbox inputs
+                floors_offered = request.form.getlist(f'offered_floors_{idx}[]')
+
                 # Create Document for MongoDB
                 property_details = {
                     'owner': {
@@ -1559,7 +1562,7 @@ def list_your_space():
                     'micromarket': micromarket,
                     'address': address, 
                     'distance': distance_data,
-                    'total_seats': int(total_seats or 0),
+                    'floors_offered': floors_offered,
                     'current_vacancy': int(current_vacancy or 0),
                     'center_manager': {
                         'name': center_manager_name,

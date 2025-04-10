@@ -47,6 +47,7 @@
 
     #no{
         flex-wrap:nowrap !important;
+        align-items: flex-start;
     }
     body {
         background-color: #ffffff; /* Light background */
@@ -1389,8 +1390,8 @@ function updateSpaceDetails(spaceCount) {
                         </div>
 
                         <div class="w-50">
-                            <label for="total_building_area_${spaceCount}" class="form-label">Total Building Area (sqft)</label>
-                            <input type="number" class="form-control" id="total_building_area_${spaceCount}" name="total_building_area_${spaceCount}" 
+                            <label for="total_building_area_${spaceCount}" class="form-label"> Building Area in Carpet Area (sqft)</label>
+                            <input type="number" onchange="calculateMinInventoryUnit(${spaceCount})" class="form-control" id="total_building_area_${spaceCount}" name="total_building_area_${spaceCount}" 
                                 placeholder="Enter total building area" min="0" required
                                 data-parsley-required-message="Please enter the total building area."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
@@ -1400,7 +1401,7 @@ function updateSpaceDetails(spaceCount) {
                     <!-- Floorplate Area & Min Inventory Unit -->
                     <div class="form-group mb-3 d-flex gap-3" id="no">
                         <div class="w-50">
-                            <label for="floorplate_area_${spaceCount}" class="form-label">Floorplate Area (sqft)</label>
+                            <label for="floorplate_area_${spaceCount}" class="form-label">Floorplate Area in Carpet Area (sqft)</label>
                             <input type="number" class="form-control" id="floorplate_area_${spaceCount}" name="floorplate_area_${spaceCount}" 
                                 placeholder="Enter floorplate area" min="0" required
                                 data-parsley-required-message="Please enter the floorplate area."
@@ -1408,10 +1409,10 @@ function updateSpaceDetails(spaceCount) {
                         </div>
 
                         <div class="w-50">
-                            <label for="min_inventory_unit_${spaceCount}" class="form-label">Min Inventory Unit</label>
-                            <input type="number" class="form-control" id="min_inventory_unit_${spaceCount}" name="min_inventory_unit_${spaceCount}" 
-                                placeholder="Enter min inventory unit" min="0" required
-                                data-parsley-required-message="Please enter the min inventory unit."
+                            <label for="total_rental_${spaceCount}" class="form-label">Total Rental Expectation</label>
+                            <input type="number" class="form-control" id="total_rental_${spaceCount}" name="total_rental_${spaceCount}" 
+                                placeholder="Enter total rental expectation" min="0" required
+                                data-parsley-required-message="Please enter the total rental expectation."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
                         </div>
                     </div>
@@ -1432,7 +1433,7 @@ function updateSpaceDetails(spaceCount) {
                 data-parsley-required-message="Please select the lease term."
                 data-parsley-trigger="change">
                 <option value="" disabled selected>Select Lease Term</option>
-                ${[...Array(11).keys()].map(i => `<option value="${(i+1) * 11}">${(i+1) * 11} months</option>`).join('')}
+                ${[...Array(8).keys()].map(i => `<option value="${(i+1) * 11}">${(i+1) * 11} months</option>`).join('')}
             </select>
         </div>
     </div>
@@ -1443,8 +1444,10 @@ function updateSpaceDetails(spaceCount) {
                             <label for="total_floors_${spaceCount}" class="form-label">Number of Floors</label>
                             <input type="number" class="form-control" id="total_floors_${spaceCount}" name="total_floors_${spaceCount}"
                                 placeholder="Enter total number of floors" min="0" required
+                                onchange="generateOfferedFloorsChecklist(${spaceCount})"
                                 data-parsley-required-message="Please enter the number of floors."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
+                            <div id="offered_floors_container_${spaceCount}" class="mt-2"></div>
                         </div>
 
                         <div class="w-50">
@@ -1459,18 +1462,6 @@ function updateSpaceDetails(spaceCount) {
                     <!-- Seating Capacity & Furnishing Level -->
                     <div class="form-group mb-3 d-flex gap-3" id="no">
                         <div class="w-50">
-                            <label for="seating_capacity_${spaceCount}" class="form-label">Total Seating Capacity</label>
-                            <select class="form-select" id="seating_capacity_${spaceCount}" name="seating_capacity_${spaceCount}" required
-                                data-parsley-required-message="Please select the seating capacity."
-                                data-parsley-trigger="change">
-                                <option value="" disabled selected>Select Seating Capacity</option>
-                                <option value="<25">Less than 25</option>
-                                <option value="25-50">25-50</option>
-                                <option value="50+">More than 50</option>
-                            </select>
-                        </div>
-
-                        <div class="w-50">
                             <label for="furnishing_level_${spaceCount}" class="form-label">Furnishing Level</label>
                             <select class="form-select" id="furnishing_level_${spaceCount}" name="furnishing_level_${spaceCount}" required
                                 data-parsley-required-message="Please select the furnishing level."
@@ -1481,34 +1472,29 @@ function updateSpaceDetails(spaceCount) {
                                 <option value="Ready to move in">Ready to move in</option>
                             </select>
                         </div>
-                    </div>
-
-                    <!-- Total Rental Expectation -->
-                    <div class="form-group mb-3">
-                        <div class="w-100">
-                            <label for="total_rental_${spaceCount}" class="form-label">Total Rental Expectation</label>
-                            <input type="number" class="form-control" id="total_rental_${spaceCount}" name="total_rental_${spaceCount}" 
-                                placeholder="Enter total rental expectation" min="0" required
-                                data-parsley-required-message="Please enter the total rental expectation."
-                                data-parsley-type="digits" data-parsley-trigger="change focusout">
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
+                        <div class="w-50">
                         <label for="lockin_period_${spaceCount}" class="form-label">Expected Lock-in Period (Months)</label>
                         <select class="form-select" id="lockin_period_${spaceCount}" name="lockin_period_${spaceCount}" required
                             data-parsley-required-message="Please select the lock-in period."
                             data-parsley-trigger="change">
                             <option  selected>No Lock-in Period</option>
-                            ${[...Array(12).keys()].map(i => `<option value="${i+1}">${i+1} Month${i > 0 ? 's' : ''}</option>`).join('')}
+                                    <option value="3 months">3 months</option>
+                                    <option value="6 months">6 months</option>
+                                    <option value="1 year">1 year</option>
+                                    <option value="2 years">2 years</option>
+                                    <option value="3 years">3 years</option>
+                                    <option value="4 years">4 years</option>
+                                    <option value="5 years">5 years</option>
                         </select>
+                        </div>
                     </div>
+
 
                     <!-- Type of Space Dropdown -->
                     <div class="form-group mb-3">
                         <div class="w-100">
                             <label for="space_type_${spaceCount}" class="form-label">Type of Space</label>
-                            <select class="form-select" id="space_type_${spaceCount}" name="space_type_${spaceCount}" required
+                            <select class="form-select" onchange="updateSpaceDetails(${spaceCount}); calculateMinInventoryUnit(${spaceCount})" id="space_type_${spaceCount}" name="space_type_${spaceCount}" required
                                 data-parsley-required-message="Please select the type of space."
                                 data-parsley-trigger="change" onchange="updateSpaceDetails(${spaceCount})">
                                 <option value="" disabled selected>Select Type of Space</option>
@@ -1524,6 +1510,10 @@ function updateSpaceDetails(spaceCount) {
                         <!-- This section will be dynamically updated with JS -->
                     </div>
 
+                    <div id="min_inventory_unit_wrapper_${spaceCount}" style="display: none;">
+    <label for="min_inventory_unit_${spaceCount}" class="form-label">Min Inventory Unit</label>
+    <input type="hidden" id="min_inventory_unit_${spaceCount}" name="min_inventory_unit_${spaceCount}">
+</div>
                     <!-- Managed Office Amenities -->
 <h5 class="amen">Managed Office Amenities</h5>
 <div id="managed_amenities_section_${spaceCount}" class="mb-3">
@@ -1617,6 +1607,36 @@ function updateSpaceDetails(spaceCount) {
             <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Event Space" id="event_space_${spaceCount}">
             <label for="event_space_${spaceCount}" class="form-check-label">Event Space</label>
         </div>
+        
+        <!-- New amenities below -->
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Lift" id="lift_${spaceCount}">
+            <label for="lift_${spaceCount}" class="form-check-label">Lift</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Fire Exit" id="fire_exit_${spaceCount}">
+            <label for="fire_exit_${spaceCount}" class="form-check-label">Fire Exit</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Washroom" id="washroom_${spaceCount}">
+            <label for="washroom_${spaceCount}" class="form-check-label">Washroom</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Occupancy Certificate" id="occupancy_certificate_${spaceCount}">
+            <label for="occupancy_certificate_${spaceCount}" class="form-check-label">Occupancy Certificate</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Fire NOC" id="fire_noc_${spaceCount}">
+            <label for="fire_noc_${spaceCount}" class="form-check-label">Fire NOC</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Lift NOC" id="lift_noc_${spaceCount}">
+            <label for="lift_noc_${spaceCount}" class="form-check-label">Lift NOC</label>
+        </div>
+        <div class="col-md-4-amen">
+            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Completion Certificate" id="completion_certificate_${spaceCount}">
+            <label for="completion_certificate_${spaceCount}" class="form-check-label">Completion Certificate</label>
+        </div>
     </div>
 </div>
                 </div>
@@ -1689,6 +1709,77 @@ function updateSpaceDetails(spaceCount) {
         // Refresh Parsley to recognize new fields
         $('#listSpaceForm').parsley().refresh();
     }
+
+
+    function calculateMinInventoryUnit(spaceId) {
+    const totalArea = parseFloat(document.getElementById(`total_building_area_${spaceId}`).value) || 0;
+    const spaceType = document.getElementById(`space_type_${spaceId}`).value;
+    const minUnitField = document.getElementById(`min_inventory_unit_${spaceId}`);
+
+    let billableArea = 0;
+    switch (spaceType) {
+        case 'economy':
+            billableArea = 30;
+            break;
+        case 'average':
+            billableArea = 45;
+            break;
+        case 'spacious':
+            billableArea = 60;
+            break;
+        default:
+            billableArea = 0;
+    }
+
+    if (billableArea > 0 && totalArea > 0) {
+        const minUnits = Math.floor(totalArea / billableArea);
+        minUnitField.value = minUnits;
+    } else {
+        minUnitField.value = '';
+    }
+}
+
+function generateOfferedFloorsChecklist(spaceId) {
+    const totalFloors = parseInt(document.getElementById(`total_floors_${spaceId}`).value) || 0;
+    const container = document.getElementById(`offered_floors_container_${spaceId}`);
+    container.innerHTML = '';
+
+    if (totalFloors > 0) {
+        const label = document.createElement('label');
+        label.className = 'form-label fw-bold mt-2';
+        label.textContent = 'Select Offered Floors';
+        container.appendChild(label);
+
+        const checklist = document.createElement('div');
+        checklist.className = 'd-flex flex-wrap gap-2';
+
+        for (let i = 1; i <= totalFloors; i++) {
+            const checkboxWrapper = document.createElement('div');
+            checkboxWrapper.className = 'form-check';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'form-check-input';
+            checkbox.name = `offered_floors_${spaceId}[]`;
+            checkbox.value = i;
+            checkbox.id = `offered_floor_${spaceId}_${i}`;
+            checkbox.required = true;
+
+            const label = document.createElement('label');
+            label.className = 'form-check-label';
+            label.setAttribute('for', checkbox.id);
+            label.textContent = `Floor ${i}`;
+
+            checkboxWrapper.appendChild(checkbox);
+            checkboxWrapper.appendChild(label);
+            checklist.appendChild(checkboxWrapper);
+        }
+
+        container.appendChild(checklist);
+    }
+}
+
+
 
     // Function to fetch and populate locations in the dropdown
 // function populateLocationsDropdown(spaceId, selectedCity = '', selectedMicromarket = '') {
