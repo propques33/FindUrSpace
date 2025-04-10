@@ -1187,33 +1187,33 @@ def refund():
 def freq_asked_ques():
     return render_template('FAQs.html')
 
-@core_bp.route('/managed-office-space/ahmedabad')
+@core_bp.route('/managed-offices/ahmedabad')
 def ahmedabad():
     return render_template('ahmedabad.html')
 
-@core_bp.route('/managed-office-space/bangalore')
+@core_bp.route('/managed-offices/bangalore')
 def bangalore():
     return render_template('bangalore.html')
 
-@core_bp.route('/managed-office-space/hyderabad')
+@core_bp.route('/managed-offices/hyderabad')
 def hyderabad():
     return render_template('hyderabad.html')
 
-@core_bp.route('/managed-office-space/indore')
+@core_bp.route('/managed-offices/indore')
 def indore():
     return render_template('indore.html')
 
-@core_bp.route('/managed-office-space/lucknow')
+@core_bp.route('/managed-offices/lucknow')
 def lucknow():
     return render_template('lucknow.html')
 
-@core_bp.route('/managed-office-space/mumbai')
+@core_bp.route('/managed-offices/mumbai')
 def mumbai():
     return render_template('mumbai.html')
 
-@core_bp.route('/managed-offices/<city>')
-def redirect_old_managed_office(city):
-    return redirect(url_for(f'core_bp.{city}'))
+# @core_bp.route('/managed-offices/<city>')
+# def redirect_old_managed_office(city):
+#     return redirect(url_for(f'core_bp.{city}'))
 
 @core_bp.route('/user1')
 def user1():
@@ -1608,50 +1608,50 @@ def list_your_space():
                 # Insert into MongoDB
                 db.fillurdetails.insert_one(property_details)
 
-                try:
-                    mail = current_app.extensions['mail']  # Get mail instance
-                    auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
-                    message = Message(
-                        subject="Connect Your Google Calendar – Final Step!",
-                        recipients=[owner_email],
-                        html=f"""
-                            <p>Hi {name},</p>
+                # try:
+                #     mail = current_app.extensions['mail']  # Get mail instance
+                #     auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
+                #     message = Message(
+                #         subject="Connect Your Google Calendar – Final Step!",
+                #         recipients=[owner_email],
+                #         html=f"""
+                #             <p>Hi {name},</p>
 
-                            <p>Welcome to <strong>Find Ur Space</strong> — we’re thrilled to have your workspace listed and ready to go!</p>
+                #             <p>Welcome to <strong>Find Ur Space</strong> — we’re thrilled to have your workspace listed and ready to go!</p>
 
-                            <p>Your office is now <strong>live</strong> and visible to thousands of professionals searching for flexible and productive spaces.</p>
+                #             <p>Your office is now <strong>live</strong> and visible to thousands of professionals searching for flexible and productive spaces.</p>
 
-                            <p>To make booking seamless and real-time, there’s just one small step left:</p>
+                #             <p>To make booking seamless and real-time, there’s just one small step left:</p>
 
-                            <p style="font-size: 18px;">
-                                👉 <a href="{auth_link}" style="color: #2b4eff; text-decoration: underline;"><strong>Connect Your Google Calendar Now</strong></a>
-                            </p>
+                #             <p style="font-size: 18px;">
+                #                 👉 <a href="{auth_link}" style="color: #2b4eff; text-decoration: underline;"><strong>Connect Your Google Calendar Now</strong></a>
+                #             </p>
 
-                            <p style="font-size: 14px; color: #555;">(So we can show real-time seat availability to users)</p>
+                #             <p style="font-size: 14px; color: #555;">(So we can show real-time seat availability to users)</p>
 
-                            <p>This ensures:</p>
-                            <ul>
-                                <li>✅ Instant bookings without manual follow-ups</li>
-                                <li>✅ Zero double-bookings or scheduling conflicts</li>
-                                <li>✅ Full control — you can update availability anytime</li>
-                                <li>✅ A smoother, faster experience for your potential customers</li>
-                            </ul>
+                #             <p>This ensures:</p>
+                #             <ul>
+                #                 <li>✅ Instant bookings without manual follow-ups</li>
+                #                 <li>✅ Zero double-bookings or scheduling conflicts</li>
+                #                 <li>✅ Full control — you can update availability anytime</li>
+                #                 <li>✅ A smoother, faster experience for your potential customers</li>
+                #             </ul>
 
-                            <p>Please verify your Gmail account to connect your calendar — takes less than 30 seconds.</p>
+                #             <p>Please verify your Gmail account to connect your calendar — takes less than 30 seconds.</p>
 
-                            <p>If you have any questions or need help, we’re just an email away.</p>
+                #             <p>If you have any questions or need help, we’re just an email away.</p>
 
-                            <p style="margin-top: 30px;">Thanks,<br><strong>Team Find Ur Space</strong></p>
-                        """
-                    )
-                    mail.send(message)
-                    print(f"Email sent to {owner_email}")
-                except Exception as email_error:
-                    print(f"Email sending failed: {email_error}")
+                #             <p style="margin-top: 30px;">Thanks,<br><strong>Team Find Ur Space</strong></p>
+                #         """
+                #     )
+                #     mail.send(message)
+                #     print(f"Email sent to {owner_email}")
+                # except Exception as email_error:
+                #     print(f"Email sending failed: {email_error}")
 
             flash("Property details submitted successfully.", 'success')
-            return redirect(url_for('core_bp.verify_account', email=owner_email))
-            # return redirect(url_for('core_bp.thank_you'))
+            # return redirect(url_for('core_bp.verify_account', email=owner_email))
+            return redirect(url_for('core_bp.thank_you'))
 
         except Exception as e:
             flash(f"Failed to submit property details: {str(e)}", 'error')
