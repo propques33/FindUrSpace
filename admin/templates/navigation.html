@@ -64,7 +64,6 @@
 
         .navbar ul li a span {
             margin-left: 10px;
-            white-space: nowrap;
             overflow: hidden;
             opacity: 1;
             transition: opacity 0.3s ease;
@@ -105,8 +104,9 @@
             <li><a href="{{ url_for('admin.leads_dashboard') }}"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
             <li><a href="{{ url_for('admin.view_users') }}"><i class="fas fa-users"></i><span>Users</span></a></li>
             <li><a href="{{ url_for('admin.view_leads') }}"><i class="fas fa-users"></i><span>View Leads</span></a></li>
-            <li><a href="{{ url_for('admin.live_inventory') }}"><i class="fas fa-clipboard-list"></i><span>Live Inventory</span></a></li>
-            <li><a href="{{ url_for('admin.listings') }}"><i class="fas fa-building"></i><span>Listings</span></a></li>
+            <li><a href="{{ url_for('admin.live_inventory') }}"><i class="fas fa-clipboard-list"></i><span>Coworking Space Inventory</span></a></li>
+            <li><a href="{{ url_for('admin.managed_inventory') }}"><i class="fas fa-clipboard-list"></i><span>Managed Office Inventory</span></a></li>
+            <!-- <li><a href="{{ url_for('admin.listings') }}"><i class="fas fa-building"></i><span>Listings</span></a></li> -->
             <li><a href="{{ url_for('admin.admin_bookings') }}"><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
             <li><a href="{{ url_for('admin.admin_visits') }}"><i class="fas fa-calendar-alt"></i><span>Visits</span></a></li>
             <li><a href="{{ url_for('admin.admin_logout') }}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>

@@ -900,6 +900,18 @@ def live_inventory():
     
     return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
 
+@admin_bp.route('/managed_inventory', methods=['GET'])
+def managed_inventory():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+    
+    db = current_app.config['db']
+    # Fetch all city names and normalize to lowercase
+    cities = db.fillurdetails.distinct('city')
+    micromarkets = db.fillurdetails.distinct('micromarket')
+    
+    return render_template('managed_inventory.html', cities=cities, micromarkets=micromarkets)
+
 @admin_bp.route('/get_micromarkets_live/<city>', methods=['GET'])
 def get_micromarkets_live(city):
     if 'admin' not in session:
@@ -928,20 +940,23 @@ def fetch_inventory():
     micromarket = request.args.get('micromarket')
     inventory_type = request.args.get('inventory_type')
     price = request.args.get('price')
-
+    workspace_type = request.args.get('workspace_type')  # NEW LINE
+    
     filters = {}
+
     if city:
         filters['city'] = city
     if micromarket:
         filters['micromarket'] = micromarket
     if inventory_type:
-        # Match inventory type within the inventory array
         filters['inventory.type'] = inventory_type
     if price:
         try:
             filters['price'] = {'$lte': int(price)}
         except ValueError:
             pass
+    if workspace_type:
+        filters['workspace_type'] = workspace_type  # NEW LINE
 
     # Fetch coworking space data
     coworking_list = list(fillurdetails_collection.find(filters, {'layout_images': 0, 'interactive_layout': 0}).sort('date', -1))
@@ -954,9 +969,7 @@ def fetch_inventory():
         # Determine agreement status
         owner_phone = coworking.get('owner', {}).get('phone')
         if owner_phone:
-            # Find all records with the same owner phone number
             related_entries = list(fillurdetails_collection.find({'owner.phone': owner_phone}, {'uploaded_pdfs': 1}))
-            # Check if any of the related entries have the `uploaded_pdfs` field
             coworking['agreement_status'] = 'Completed' if any(entry.get('uploaded_pdfs') for entry in related_entries) else 'Pending'
         else:
             coworking['agreement_status'] = 'Pending'

@@ -517,7 +517,7 @@
             let isAsc = true; // Track sorting order
             
             function fetchInventory() {
-                const workspaceType = 'Coworking Spaces';
+                const workspaceType = 'Managed Offices';
                 const selectedCity = cityDropdown.value || ''; // Default to empty if no value
                 const selectedMicromarket = micromarketDropdown.value || '';
                 const selectedInventoryType = document.getElementById('inventory-type').value || '';
@@ -560,40 +560,19 @@
                     });
 
                     const getInventoryDetails = (type) => {
-    const item = (space.inventory || []).find(i => i.type === type);
-    if (!item) return 'N/A';
+                        const item = (space.inventory || []).find(i => i.type === type);
+                        if (!item) return 'N/A';
 
-    // Label logic
-    let label = '';
-    switch (type) {
-        case 'Day pass':
-            label = '/seat/day';
-            break;
-        case 'Dedicated desk':
-        case 'Private cabin':
-        case 'Serviced offices':
-            label = '/seat/month';
-            break;
-        case 'Virtual office':
-            label = '/year';
-            break;
-        case 'Meeting rooms':
-            label = '/hour';
-            break;
-        default:
-            label = '';
-    }
+                        // For room-based inventories
+                        if (item.room_details) {
+                            return item.room_details.map(room => 
+                                `${room.seating_capacity}-seater @ ₹${room.price}`
+                            ).join('<br>');
+                        }
 
-    // Room-based
-    if (item.room_details && Array.isArray(item.room_details)) {
-        return item.room_details.map(room =>
-            `${room.seating_capacity}-seater @ ₹${room.price} ${label}`
-        ).join('<br>');
-    }
-
-    // Seat-based
-    return `${item.count} seats @ ₹${item.price_per_seat} ${label}`;
-};
+                        // For seat-based inventories
+                        return `${item.count} seats @ ₹${item.price_per_seat}`;
+                    };
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
