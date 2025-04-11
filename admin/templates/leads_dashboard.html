@@ -38,6 +38,14 @@
 <div class="content">
     <h1>Leads Dashboard</h1>
 
+   <form method="GET" action="{{ url_for('admin.leads_dashboard') }}" style="margin-bottom: 20px;">
+        <label for="start_date">From:</label>
+        <input type="date" name="start_date" id="start_date" value="{{ request.args.get('start_date', '') }}" required>
+        <label for="end_date">To:</label>
+        <input type="date" name="end_date" id="end_date" value="{{ request.args.get('end_date', '') }}" required>
+        <button type="submit">Filter</button>
+    </form>
+
     <!-- Separate KPI Containers -->
     <div class="kpi-container">
         {% for kpi_fig in kpi_figures %}

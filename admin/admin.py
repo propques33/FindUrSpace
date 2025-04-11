@@ -340,53 +340,59 @@ def leads_dashboard():
 
     db = current_app.config['db']
 
-    # Count of live inventory (all properties)
-    live_inventory_count = db.fillurdetails.count_documents({})
+    # --- Get and parse dates ---
+    start_date_str = request.args.get('start_date')
+    end_date_str = request.args.get('end_date')
 
-    # Fetch leads data from the 'leads_status' collection
-    leads_status = db.leads_status.find()
+    lead_filter = {}
+    property_filter = {}
 
-    # Count total number of leads
-    total_leads = db.leads_status.count_documents({})
+    if start_date_str and end_date_str:
+        try:
+            start = datetime.strptime(start_date_str, '%Y-%m-%d')
+            end = datetime.strptime(end_date_str, '%Y-%m-%d')
+            # Filter leads and inventory using the 'date' field
+            lead_filter['date'] = {'$gte': start, '$lte': end}
+            property_filter['date'] = {'$gte': start, '$lte': end}
+        except Exception as e:
+            print("Date filter error:", e)
 
-    # Aggregating opportunity status and stages
+    # Fetch from the correct collection
+    leads_data = db.properties.find(lead_filter)
+    total_leads = db.properties.count_documents(lead_filter)
+    live_inventory_count = db.fillurdetails.count_documents(property_filter)
+    # Reset counts
     status_counts = {'open': 0, 'closed': 0, 'won': 0}
-    stage_counts = {
-        'qualified': 0, 'follow-up': 0, 'visit done': 0,
-        'negotiation': 0, 'won': 0, 'lost': 0, 'unqualified': 0
-    }
+    stage_counts = {k: 0 for k in ['qualified', 'follow-up', 'visit done', 'negotiation', 'won', 'lost', 'unqualified']}
 
-    for lead in leads_status:
+    for lead in leads_data:
+        # Default logic: assume all are open unless marked otherwise
         status = lead.get('opportunity_status', 'open').lower()
         status_counts[status] = status_counts.get(status, 0) + 1
 
         stage = lead.get('opportunity_stage', 'visit done').lower()
         stage_counts[stage] = stage_counts.get(stage, 0) + 1
 
-    # Aggregating city-wise inventory count (convert city names to title case and normalize names)
+    # --- City-wise Inventory ---
     city_inventory = db.fillurdetails.aggregate([
+        {"$match": property_filter},
         {"$group": {"_id": {"$toUpper": "$city"}, "count": {"$sum": 1}}}
     ])
+
+    city_name_mapping = {"BANGALORE": "Bengaluru", "GURGAON": "Gurugram"}
     city_inventory_data = list(city_inventory)
-
-    # Convert city names to handle common names
-    city_name_mapping = {
-        "BANGALORE": "Bengaluru",
-        "GURGAON": "Gurugram"
-    }
-
     city_inventory_normalized = []
+
     for item in city_inventory_data:
         city = item['_id'].title()
-        city = city_name_mapping.get(city.upper(), city)  # Use normalized name if available
-        found = next((i for i in city_inventory_normalized if i['_id'] == city), None)
-        if found:
-            found['count'] += item['count']
+        city = city_name_mapping.get(city.upper(), city)
+        match = next((i for i in city_inventory_normalized if i['_id'] == city), None)
+        if match:
+            match['count'] += item['count']
         else:
             city_inventory_normalized.append({'_id': city, 'count': item['count']})
 
-    # Preparing KPI visualizations
-    kpi_figures = []
+    # --- KPI Cards ---
     kpis = [
         {"label": "Total Leads", "value": total_leads, "color": "#17becf"},
         {"label": "Open Leads", "value": status_counts.get('open', 0), "color": "#1f77b4"},
@@ -395,17 +401,18 @@ def leads_dashboard():
         {"label": "Live Inventory", "value": live_inventory_count, "color": "#e377c2"}
     ]
 
+    kpi_figures = []
     for kpi in kpis:
-        kpi_fig = go.Figure(go.Indicator(
+        fig = go.Figure(go.Indicator(
             mode="number",
             value=kpi['value'],
             title={"text": kpi['label']},
             number={'font': {'size': 40, 'color': kpi['color']}}
         ))
-        kpi_fig.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200)
-        kpi_figures.append(kpi_fig.to_html(full_html=False))
+        fig.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200)
+        kpi_figures.append(fig.to_html(full_html=False))
 
-    # Bar Chart for Opportunity Stages
+    # --- Bar Chart: Stages ---
     stage_bar_fig = go.Figure(go.Bar(
         x=list(stage_counts.keys()),
         y=list(stage_counts.values()),
@@ -413,17 +420,15 @@ def leads_dashboard():
     ))
     stage_bar_fig.update_layout(
         title='Opportunity Stage Distribution',
-        xaxis_title='Opportunity Stage',
+        xaxis_title='Stage',
         yaxis_title='Count',
         width=1200,
-        height=450,
-        margin=dict(l=40, r=40, t=60, b=40)
+        height=450
     )
 
-    # Bar Chart for Live Inventory by City
-    city_names = [item['_id'] for item in city_inventory_normalized]
-    city_counts = [item['count'] for item in city_inventory_normalized]
-
+    # --- Bar Chart: City Inventory ---
+    city_names = [x['_id'] for x in city_inventory_normalized]
+    city_counts = [x['count'] for x in city_inventory_normalized]
     city_bar_fig = go.Figure(go.Bar(
         x=city_names,
         y=city_counts,
@@ -432,19 +437,19 @@ def leads_dashboard():
     city_bar_fig.update_layout(
         title='Live Inventory by City',
         xaxis_title='City',
-        yaxis_title='Inventory Count',
+        yaxis_title='Count',
         width=1200,
-        height=450,
-        margin=dict(l=40, r=40, t=60, b=40),
+        height=450
     )
 
-    # Render the dashboard template with the new figures
     return render_template(
         'leads_dashboard.html',
         kpi_figures=kpi_figures,
         stage_bar_fig=stage_bar_fig.to_html(full_html=False),
         city_bar_fig=city_bar_fig.to_html(full_html=False)
     )
+
+
 
 @admin_bp.route('/upload_file', methods=['POST'])
 def upload_file():
@@ -940,7 +945,10 @@ def fetch_inventory():
     micromarket = request.args.get('micromarket')
     inventory_type = request.args.get('inventory_type')
     price = request.args.get('price')
-    workspace_type = request.args.get('workspace_type')  # NEW LINE
+    workspace_type = request.args.get('workspace_type')  # NEW 
+    building_area = request.args.get('building_area')
+    rental_range = request.args.get('rental_range')
+    seating_range = request.args.get('seating_range')
     
     filters = {}
 
@@ -955,6 +963,33 @@ def fetch_inventory():
             filters['price'] = {'$lte': int(price)}
         except ValueError:
             pass
+    if building_area:
+        try:
+            building_area = building_area.strip()
+            if building_area.endswith('+'):
+                min_val = int(building_area[:-1])  # Get all characters except '+'
+                filters['total_building_area'] = {'$gte': min_val}
+            else:
+                min_val, max_val = map(int, building_area.split('-'))
+                filters['total_building_area'] = {'$gte': min_val, '$lte': max_val}
+        except Exception as e:
+            print("Error parsing building_area filter:", building_area, e)
+
+    if rental_range:
+        if '+' in rental_range:
+            min_val = int(rental_range.replace('+', ''))
+            filters['total_rental'] = {'$gte': min_val}
+        else:
+            min_val, max_val = map(int, rental_range.split('-'))
+            filters['total_rental'] = {'$gte': min_val, '$lte': max_val}
+
+    if seating_range:
+        if '+' in seating_range:
+            min_val = int(seating_range.replace('+', ''))
+            filters['min_inventory_unit'] = {'$gte': min_val}
+        else:
+            min_val, max_val = map(int, seating_range.split('-'))
+            filters['min_inventory_unit'] = {'$gte': min_val, '$lte': max_val}
     if workspace_type:
         filters['workspace_type'] = workspace_type  # NEW LINE
 

@@ -272,18 +272,32 @@
             <option value="">Select Micromarket</option>
         </select>
 
-        <!-- New Inventory Type Dropdown -->
-    <select id="inventory-type" name="inventory_type">
-        <option value="">Select Inventory Type</option>
-        <option value="Conference rooms">Conference rooms</option>
-        <option value="Coworking space">Coworking space</option>
-        <option value="Day pass">Day pass</option>
-        <option value="Dedicated desk">Dedicated desk</option>
-        <option value="Meeting rooms">Meeting rooms</option>
-        <option value="Private cabins">Private cabins</option>
-        <option value="Serviced offices">Serviced offices</option>
-        <option value="Virtual office">Virtual office</option>
-    </select>
+        <!-- Building Area Filter -->
+<select id="building-area" name="building_area">
+    <option value="">Building Area</option>
+    <option value="0-2000">0–2000 sqft</option>
+    <option value="2000-5000">2000–5000 sqft</option>
+    <option value="5000-10000">5000–10000 sqft</option>
+    <option value="10000-1000000">10000+ sqft</option>
+</select>
+
+<!-- Rental Expectation Filter -->
+<select id="rental-range" name="rental_range">
+    <option value="">Rental Expectation</option>
+    <option value="0-10000">0–10,000</option>
+    <option value="10000-30000">10,000–30,000</option>
+    <option value="30000-50000">30,000–50,000</option>
+    <option value="50000-50000000">50,000+</option>
+</select>
+
+<!-- Seating Capacity Filter -->
+<select id="seating-range" name="seating_range">
+    <option value="">Seating Capacity</option>
+    <option value="0-50">0–50</option>
+    <option value="50-100">50–100</option>
+    <option value="100-200">100–200</option>
+    <option value="200-200000">200+</option>
+</select>
     </form>
 
         <div class="table-container">
@@ -292,15 +306,15 @@
                     <tr>
                         <th>Select</th>
                         <th>Date</th>
-                        <th>Coworking Name</th>
+                        <th>Building Name</th>
                         <th id="sort-city">Micromarket,City</th>
+                        <th>Contact</th>
                         <!-- <th>Total Seats</th> -->
-                        <th>Available Seats</th>
-                        <th>Contact Number</th>
-                        <th>Day Pass</th>
-                        <th>Meeting Rooms</th>
-                        <th>Private Cabin</th>
-                        <th>Dedicated Desk</th>
+                        <th>Total Building Area (sqft)</th>
+                        <th>Rental Expectation</th>
+                        <th>Security Deposit</th>
+                        <th>Furnishing Level</th>
+                        <th>Min Inventory Unit</th>
                         <th>Details</th>
                         <!-- <th>Actions</th> 
                         <th>Agreement Status</th> 
@@ -520,9 +534,11 @@
                 const workspaceType = 'Managed Offices';
                 const selectedCity = cityDropdown.value || ''; // Default to empty if no value
                 const selectedMicromarket = micromarketDropdown.value || '';
-                const selectedInventoryType = document.getElementById('inventory-type').value || '';
+                const buildingArea = document.getElementById('building-area').value;
+                const rentalRange = document.getElementById('rental-range').value;
+                const seatingRange = document.getElementById('seating-range').value;
 
-                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&inventory_type=${encodeURIComponent(selectedInventoryType)}&workspace_type=${encodeURIComponent(workspaceType)}`;
+                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&workspace_type=${encodeURIComponent(workspaceType)}&building_area=${buildingArea}&rental_range=${rentalRange}&seating_range=${seatingRange}`;
 
                 fetch(`/admin/fetch_inventory?${query}`)
                     .then(response => response.json())
@@ -547,32 +563,6 @@
                         ? '<span style="color: green;">Completed</span>'
                         : '<span style="color: red;">Pending</span>';
 
-                    // Inventory details formatted
-                    let inventoryHTML = '';
-                    space.inventory?.forEach(item => {
-                        if (item.type === 'Private cabin' || item.type === 'Meeting rooms') {
-                            item.room_details?.forEach(room => {
-                                inventoryHTML += `<div>${item.type} - ${room.seating_capacity} seater @ ₹${room.price}</div>`;
-                            });
-                        } else {
-                            inventoryHTML += `<div>${item.type} - ${item.count} seats @ ₹${item.price_per_seat}</div>`;
-                        }
-                    });
-
-                    const getInventoryDetails = (type) => {
-                        const item = (space.inventory || []).find(i => i.type === type);
-                        if (!item) return 'N/A';
-
-                        // For room-based inventories
-                        if (item.room_details) {
-                            return item.room_details.map(room => 
-                                `${room.seating_capacity}-seater @ ₹${room.price}`
-                            ).join('<br>');
-                        }
-
-                        // For seat-based inventories
-                        return `${item.count} seats @ ₹${item.price_per_seat}`;
-                    };
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -582,12 +572,12 @@
                         <td>${formattedDate || 'N/A'}</td>
                         <td>${space.coworking_name || 'N/A'}</td>
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
-                        <td>${space.current_vacancy || 'N/A'}</td>
                         <td>${space.owner?.phone || 'N/A'}</td>
-                        <td>${getInventoryDetails('Day pass')}</td>
-                        <td>${getInventoryDetails('Meeting rooms')}</td>
-                        <td>${getInventoryDetails('Private cabin')}</td>
-                        <td>${getInventoryDetails('Dedicated desk')}</td>
+                        <td>${space.total_building_area || 'N/A'}</td>
+                        <td>₹${space.total_rental?.toLocaleString() || 'N/A'}</td>
+                        <td>₹${space.security_deposit?.toLocaleString() || 'N/A'}</td>
+                        <td>${space.furnishing_level || 'N/A'}</td>
+                        <td>${space.min_inventory_unit || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
                     `;
                     // <td>${space.total_seats || 'N/A'}</td>
@@ -732,116 +722,57 @@
 // }
 function displayCoworkingModal(space) {
     const modalContent = document.querySelector('.modal-content');
-
-    const owner = space.owner || {};
-    const manager = space.center_manager || {};
-    const distance = space.distance || {};
-    const timings = space.office_timings || {};
-    const amenities = space.amenities || [];
     const propertyImages = space.property_images || space.layout_images || [];
 
-    // Inventory Handling
-    let inventoryHtml = '';
-    if (space.inventory && Array.isArray(space.inventory)) {
-        inventoryHtml = space.inventory.map(item => {
-            // Determine pricing label based on inventory type
-        let priceLabel = 'Contact for pricing';
-        if (item.price_per_seat) {
-    if (item.type === 'Dedicated desk') {
-        priceLabel = `₹${item.price_per_seat} /seat/month`;
-    } else if (item.type === 'Day pass') {
-        priceLabel = `₹${item.price_per_seat} /seat/day`;
-    } else if (item.type === 'Virtual office') {
-        priceLabel = `₹${item.price_per_seat} /year`;
-    } else if (item.type === 'Serviced offices') {
-        priceLabel = `₹${item.price_per_seat} /seat/month`;
-    } else if (item.type === 'Meeting rooms') {
-        priceLabel = `₹${item.price_per_seat} /hour`;
-    } else if (item.type === 'Private cabin') {
-        priceLabel = `₹${item.price_per_seat} /seat/month`;
-    }
-}
-
-            // If room_details exist (new structure)
-        if (item.room_details && Array.isArray(item.room_details)) {
-            return `
-                <h4>${item.type} (${item.room_count || item.room_details.length} rooms)</h4>
-                ${item.room_details.map(room => `
-                    <div style="margin-bottom:10px;">
-                        <strong>Room ${room.room_number || ''}:</strong><br/>
-                        ${room.seating_capacity || 'N/A'}-seater @ ₹${room.price || item.price_per_seat} /hour<br/>
-                        ${(room.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
-                    </div>
-                `).join('')}
-            `;
-        } else {
-                // Old structure
-            return `
-                <div style="margin-bottom:10px;">
-                    <strong>${item.type}:</strong> ${item.count} seats<br/>
-                    <span>${priceLabel}</span><br/>
-                    ${(item.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
-                </div>
-            `;
-            }
-        }).join('');
-    }
-
-    // Property Images
-    const imagesHtml = propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('');
-
     modalContent.innerHTML = `
-        <h2 style="display: flex; justify-content: space-between; align-items: center;">
-            ${space.coworking_name || 'N/A'}
-            ${
-                space.agreement_status === 'Completed'
-                ? `<span style="background-color: green; color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px;position:relative;right:50px;">Agreement Uploaded</span>`
-                : `<button class="upload-btn" data-property-id="${space._id}" style="margin-left:auto;position:relative;right:50px;">Upload Agreement</button>`
-            }
-        </h2>
+        <h2>${space.coworking_name || 'N/A'}</h2>
 
-        <h3>Owner Information</h3>
-        <p><strong>Name:</strong> ${owner.name || 'N/A'}</p>
-        <p><strong>Phone:</strong> ${owner.phone || 'N/A'}</p>
-        <p><strong>Email:</strong> ${owner.email || 'N/A'}</p>
+        <h3>Owner</h3>
+        <p><strong>Name:</strong> ${space.owner?.name}</p>
+        <p><strong>Phone:</strong> ${space.owner?.phone}</p>
+        <p><strong>Email:</strong> ${space.owner?.email}</p>
 
         <h3>Center Manager</h3>
-        <p><strong>Name:</strong> ${manager.name || 'N/A'}</p>
-        <p><strong>Contact:</strong> ${manager.contact || 'N/A'}</p>
+        <p><strong>Name:</strong> ${space.center_manager?.name}</p>
+        <p><strong>Contact:</strong> ${space.center_manager?.contact}</p>
 
-        <h3>General Info</h3>
+        <h3>General</h3>
         <p><strong>City:</strong> ${space.city}</p>
         <p><strong>Micromarket:</strong> ${space.micromarket}</p>
         <p><strong>Address:</strong> ${space.address}</p>
-        <p><strong>Available Seats:</strong> ${space.current_vacancy}</p>
+        <p><strong>Date:</strong> ${new Date(space.date).toLocaleString()}</p>
+
+        <h3>Building</h3>
+        <p><strong>Floors Offered:</strong> ${space.floors_offered?.join(', ')}</p>
+        <p><strong>Total Building Area:</strong> ${space.total_building_area} sqft</p>
+        <p><strong>Total Floors:</strong> ${space.total_floors}</p>
+        <p><strong>Floorplate Area:</strong> ${space.floorplate_area}</p>
+        <p><strong>Floors Occupied:</strong> ${space.floors_occupied}</p>
+        <p><strong>Furnishing Level:</strong> ${space.furnishing_level}</p>
+        <p><strong>Rent or Own:</strong> ${space.rent_or_own}</p>
+        <p><strong>Space Type:</strong> ${space.space_type}</p>
+
+        <h3>Commercials</h3>
+        <p><strong>Min Inventory Unit:</strong> ${space.min_inventory_unit}</p>
+        <p><strong>Total Rental:</strong> ₹${space.total_rental?.toLocaleString()}</p>
+        <p><strong>Security Deposit:</strong> ₹${space.security_deposit?.toLocaleString()}</p>
+        <p><strong>Lease Term:</strong> ${space.lease_term} months</p>
+        <p><strong>Lock-in Period:</strong> ${space.lockin_period} months</p>
+
+        <h3>Managed Office Amenities</h3>
+        <ul>${(space.managed_office_amenities || []).map(a => `<li>${a}</li>`).join('')}</ul>
+
+        <h3>Distances</h3>
+        <p><strong>Metro:</strong> ${space.distance?.metro} km</p>
+        <p><strong>Airport:</strong> ${space.distance?.airport} km</p>
+        <p><strong>Bus:</strong> ${space.distance?.bus} km</p>
+        <p><strong>Railway:</strong> ${space.distance?.railway} km</p>
 
         <h3>Description</h3>
         <p>${space.space_description || 'N/A'}</p>
 
-        ${Object.keys(distance).length ? `
-        <h3>Distances (in km)</h3>
-        <p><strong>Metro:</strong> ${distance.metro || 'N/A'}</p>
-        <p><strong>Bus:</strong> ${distance.bus || 'N/A'}</p>
-        <p><strong>Railway:</strong> ${distance.railway || 'N/A'}</p>
-        <p><strong>Airport:</strong> ${distance.airport || 'N/A'}</p>
-        ` : ''}
-
-        ${Object.keys(timings).length ? `
-        <h3>Office Timings</h3>
-        <p><strong>Open Days:</strong> ${timings.open_from} to ${timings.open_to}</p>
-        <p><strong>Time:</strong> ${timings.opening_time} - ${timings.closing_time}</p>
-        ` : ''}
-
-        ${amenities.length ? `
-        <h3>Amenities</h3>
-        <ul>${amenities.map(a => `<li>${a}</li>`).join('')}</ul>
-        ` : ''}
-
-        <h3>Inventory</h3>
-        ${inventoryHtml}
-
         <h3>Images</h3>
-        ${imagesHtml}
+        ${(propertyImages).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
 
 <h3>Upload Agreement / Delete Property</h3>
 <p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}</p>
@@ -889,7 +820,11 @@ function displayCoworkingModal(space) {
             sortCityButton.addEventListener('click', sortTableByCity);
 
             micromarketDropdown.addEventListener('change', fetchInventory);
-            inventoryTypeDropdown.addEventListener('change', fetchInventory); // Added for inventory type
+            document.getElementById('building-area').addEventListener('change', fetchInventory);
+            document.getElementById('rental-range').addEventListener('change', fetchInventory);
+            document.getElementById('seating-range').addEventListener('change', fetchInventory);
+
+           
 
             // Initial fetch
             fetchInventory();
