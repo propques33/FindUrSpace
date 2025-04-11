@@ -87,6 +87,10 @@
             right: 20px;
             font-size: 20px;
             cursor: pointer;
+            background-color: red;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 999px;
         }
 
         /* Updated content styles */
@@ -290,12 +294,17 @@
                         <th>Date</th>
                         <th>Coworking Name</th>
                         <th id="sort-city">Micromarket,City</th>
-                        <th>Total Seats</th>
+                        <!-- <th>Total Seats</th> -->
                         <th>Available Seats</th>
+                        <th>Contact Number</th>
+                        <th>Day Pass</th>
+                        <th>Meeting Rooms</th>
+                        <th>Private Cabin</th>
+                        <th>Dedicated Desk</th>
                         <th>Details</th>
-                        <th>Actions</th> <!-- New column for actions -->
-                        <th>Agreement Status</th> <!-- New Column -->
-                        <th>Delete</th>
+                        <!-- <th>Actions</th> 
+                        <th>Agreement Status</th> 
+                        <th>Delete</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -463,7 +472,7 @@
             });
 
             // Handle file upload form submission
-            uploadForm.addEventListener('submit', function (e) {
+            uploadForm.onsubmit = function (e) {
                 e.preventDefault();
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
@@ -487,7 +496,7 @@
                     }
                 })
                 .catch(error => console.error('Error uploading file:', error));
-            });
+            };
 
             // Function to close the modal when clicking outside
             window.onclick = function(event) {
@@ -549,6 +558,21 @@
                         }
                     });
 
+                    const getInventoryDetails = (type) => {
+                        const item = (space.inventory || []).find(i => i.type === type);
+                        if (!item) return 'N/A';
+
+                        // For room-based inventories
+                        if (item.room_details) {
+                            return item.room_details.map(room => 
+                                `${room.seating_capacity}-seater @ ₹${room.price}`
+                            ).join('<br>');
+                        }
+
+                        // For seat-based inventories
+                        return `${item.count} seats @ ₹${item.price_per_seat}`;
+                    };
+
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>
@@ -557,19 +581,24 @@
                         <td>${formattedDate || 'N/A'}</td>
                         <td>${space.coworking_name || 'N/A'}</td>
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
-                        <td>${space.total_seats || 'N/A'}</td>
                         <td>${space.current_vacancy || 'N/A'}</td>
+                        <td>${space.owner?.phone || 'N/A'}</td>
+                        <td>${getInventoryDetails('Day pass')}</td>
+                        <td>${getInventoryDetails('Meeting rooms')}</td>
+                        <td>${getInventoryDetails('Private cabin')}</td>
+                        <td>${getInventoryDetails('Dedicated desk')}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
-                        <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
-                        <td>${agreementStatus}</td>
-                        <td><button class="delete-btn" data-property-id="${space._id}">Delete</button></td>
                     `;
+                    // <td>${space.total_seats || 'N/A'}</td>
+                    // <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
+                        // <td>${agreementStatus}</td>
+                        // <td><button class="delete-btn" data-property-id="${space._id}">Delete</button></td>
                     // Add event listener for "Show Details" button
                     row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
-                    row.querySelector('.delete-btn').addEventListener('click', function () {
-                        const propertyId = this.dataset.propertyId;
-                        openDeleteModal(propertyId); // Open delete modal
-                    });
+                    // row.querySelector('.delete-btn').addEventListener('click', function () {
+                    //     const propertyId = this.dataset.propertyId;
+                    //     openDeleteModal(propertyId); // Open delete modal
+                    // });
                     tableBody.appendChild(row);
                 });
             }
@@ -717,20 +746,20 @@ function displayCoworkingModal(space) {
             // Determine pricing label based on inventory type
         let priceLabel = 'Contact for pricing';
         if (item.price_per_seat) {
-            if (item.type === 'Dedicated desk') {
-                priceLabel = `₹${item.price_per_seat} /seat/month`;
-            } else if (item.type === 'Day pass') {
-                priceLabel = `₹${item.price_per_seat} /seat/day`;
-            } else if (item.type === 'Virtual office') {
-                priceLabel = `₹${item.price_per_seat} /year`;
-            } else if (item.type === 'Serviced offices') {
-                priceLabel = `₹${item.price_per_seat} /seat/month`;
-            } else if (item.type === 'Meeting rooms') {
-                priceLabel = `₹${item.price_per_seat} /hour`;
-            } else if (item.type === 'Private cabin') {
-                priceLabel = `₹${item.price_per_seat} /seat/month`;
-            }
-        }
+    if (item.type === 'Dedicated desk') {
+        priceLabel = `₹${item.price_per_seat} /seat/month`;
+    } else if (item.type === 'Day pass') {
+        priceLabel = `₹${item.price_per_seat} /seat/day`;
+    } else if (item.type === 'Virtual office') {
+        priceLabel = `₹${item.price_per_seat} /year`;
+    } else if (item.type === 'Serviced offices') {
+        priceLabel = `₹${item.price_per_seat} /seat/month`;
+    } else if (item.type === 'Meeting rooms') {
+        priceLabel = `₹${item.price_per_seat} /hour`;
+    } else if (item.type === 'Private cabin') {
+        priceLabel = `₹${item.price_per_seat} /seat/month`;
+    }
+}
 
             // If room_details exist (new structure)
         if (item.room_details && Array.isArray(item.room_details)) {
@@ -761,7 +790,14 @@ function displayCoworkingModal(space) {
     const imagesHtml = propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('');
 
     modalContent.innerHTML = `
-        <h2>${space.coworking_name || 'N/A'}</h2>
+        <h2 style="display: flex; justify-content: space-between; align-items: center;">
+            ${space.coworking_name || 'N/A'}
+            ${
+                space.agreement_status === 'Completed'
+                ? `<span style="background-color: green; color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px;position:relative;right:50px;">Agreement Uploaded</span>`
+                : `<button class="upload-btn" data-property-id="${space._id}" style="margin-left:auto;position:relative;right:50px;">Upload Agreement</button>`
+            }
+        </h2>
 
         <h3>Owner Information</h3>
         <p><strong>Name:</strong> ${owner.name || 'N/A'}</p>
@@ -776,7 +812,6 @@ function displayCoworkingModal(space) {
         <p><strong>City:</strong> ${space.city}</p>
         <p><strong>Micromarket:</strong> ${space.micromarket}</p>
         <p><strong>Address:</strong> ${space.address}</p>
-        <p><strong>Total Seats:</strong> ${space.total_seats}</p>
         <p><strong>Available Seats:</strong> ${space.current_vacancy}</p>
 
         <h3>Description</h3>
@@ -806,9 +841,30 @@ function displayCoworkingModal(space) {
 
         <h3>Images</h3>
         ${imagesHtml}
+
+<h3>Upload Agreement / Delete Property</h3>
+<p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}</p>
+<button class="upload-btn" data-property-id="${space._id}">Upload</button>
+<button class="delete-btn" data-property-id="${space._id}">Delete</button>
     `;
 
     coworkingModal.classList.add('show');
+    const modalDeleteBtn = coworkingModal.querySelector('.delete-btn');
+    if (modalDeleteBtn) {
+        modalDeleteBtn.addEventListener('click', () => {
+            const propertyId = modalDeleteBtn.dataset.propertyId;
+            openDeleteModal(propertyId);
+        });
+    }
+
+    const modalUploadBtn = coworkingModal.querySelector('.upload-btn');
+    if (modalUploadBtn) {
+        modalUploadBtn.addEventListener('click', () => {
+            const propertyId = modalUploadBtn.dataset.propertyId;
+            propertyIdInput.value = propertyId;
+            uploadModal.classList.add('show');
+        });
+    }
 }
 
 
