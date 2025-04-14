@@ -1,11 +1,21 @@
 User-agent: *
-Allow: /*.js$
-Allow: /*.css$
-Allow: /*.jpg$
-Allow: /*.png$
-Allow: /*.jpeg$
+Allow: /*.js
+Allow: /*.css
+Allow: /*.jpg
+Allow: /*.png
+Allow: /*.jpeg
+
 Disallow: /operators/
 Disallow: /admin/
-
+Disallow: /login/
+Disallow: /user-data/
+Disallow: /search?
+Disallow: /config.php
+Disallow: /db.sql
+Disallow: /readme.html
+Disallow: /license.txt
+Disallow: /.env
+Disallow: /composer.lock
+Disallow: /package.json
 
 Sitemap: https://findurspace.tech/sitemap.xml

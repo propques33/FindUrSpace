@@ -1,63 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://findurspace.tech/</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/blog</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/list-your-space</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/operators/login</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/operators/inventory</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/operators/leads</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/operators/show_agreement</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/admin/leads_dashboard</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/admin/live_inventory</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://findurspace.tech/admin/listings</loc>
-    <lastmod>2025-01-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
+
+  <!-- Static Pages -->
+  <url><loc>https://findurspace.tech/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://findurspace.tech/blog</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://findurspace.tech/list-your-space</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://findurspace.tech/outerpage</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://findurspace.tech/thankyou</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://findurspace.tech/thank-you</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://findurspace.tech/terms-and-conditions</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://findurspace.tech/privacy-policy</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://findurspace.tech/cancellation-and-refund-policy</loc><changefreq>yearly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://findurspace.tech/faqs</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://findurspace.tech/press-room</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://findurspace.tech/verify-your-account</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- Managed Offices (City-wise) -->
+  <url><loc>https://findurspace.tech/managed-offices/ahmedabad</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/managed-offices/bangalore</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/managed-offices/hyderabad</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/managed-offices/indore</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/managed-offices/lucknow</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/managed-offices/mumbai</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Dynamic Coworking Listing Pages (pattern reference) -->
+  <url><loc>https://findurspace.tech/flexspace/</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+
+  <!-- Coworking Brand Pages -->
+  <url><loc>https://findurspace.tech/cubispace</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/workdesq</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://findurspace.tech/worqspot</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+
+  <!-- Blog Slugs (generic entry for dynamic pages) -->
+  <url><loc>https://findurspace.tech/blog/</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+
+  <!-- Operator Login Page -->
+  <url><loc>https://findurspace.tech/operators/login</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
 </urlset>
