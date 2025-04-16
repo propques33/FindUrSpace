@@ -454,7 +454,13 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
             <div class="left1">
                 <span>{{ inventoryType }}</span>
                 <div>
-                    <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
+                    <div class="price1">
+    ₹{% if inventoryType in ["Meeting rooms", "Private cabin"] %}
+        {{ total_price | int }}
+    {% else %}
+        {{ selected_inventory.price_per_seat | int }}
+    {% endif %}
+</div>
                 </div>
             </div>
             <div class="quantity1">
@@ -658,13 +664,13 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <div class="pass-card1">
             <div class="left1">
                 <span>{{ inventoryType }}</span>
-                <div>
-                    {% if inventoryType == "Day pass" %}
-                      <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
-                    {% else %}
-                      <div class="price1">₹{{ selected_inventory.price_per_seat | int }}</div>
-                    {% endif %}
-                </div>
+                <div class="price1">
+  ₹{% if inventoryType in ["Meeting rooms", "Private cabin"] %}
+      {{ total_price | int }}
+  {% else %}
+      {{ selected_inventory.price_per_seat | int }}
+  {% endif %}
+</div>
             </div>
             <div class="quantity1">
                 <button onclick="decreaseQuantity()">-</button>
@@ -1712,11 +1718,13 @@ document.addEventListener("DOMContentLoaded", function () {
     </script>
     <script>
 let passQuantity = 1;
-let pricePerSeat = {{ selected_inventory.price_per_seat | int }};
+let inventoryType = "{{ inventoryType }}";
+let pricePerSeat = inventoryType === "Meeting rooms" || inventoryType === "Private cabin"
+  ? {{ total_price | int }}
+  : {{ selected_inventory.price_per_seat | int }};
 let seatCount = {{ seat_count if seat_count else 1 }};
 let totalPrice = pricePerSeat;
 let selectedBundle = 0;
-let inventoryType = "{{ inventoryType }}"; 
 let appliedCoupon = null;
 let discountedTotal = null;
 
