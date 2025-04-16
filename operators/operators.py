@@ -8,6 +8,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as grequests
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
+from core.image_upload import process_and_upload_images
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Define blueprint for operators
@@ -213,37 +214,64 @@ def inventory():
 
     db = current_app.config['db']
     operator_phone = session['operator_phone']
-    role = session.get('role', 'owner')  # Default to 'owner' if role is missing
+    role = session.get('role', 'owner')  # Default to 'owner'
 
-    # Fetch inventory based on role
+    # Determine which field to query
     if role == 'owner':
         query_field = 'owner.phone'
     elif role == 'center_manager':
         query_field = 'center_manager.contact'
     else:
-        flash("Invalid role in session. Please log in again.", "error")
+        flash("Invalid session role. Please login again.", "error")
         return redirect(url_for('operators.operators_login'))
 
-    # Fetch coworking spaces for the operator
+    # Query spaces for this operator
     inventory_cursor = db.fillurdetails.find({query_field: operator_phone})
-
-    # Convert cursor to list and convert '_id' to string
     inventory = []
+
     for space in inventory_cursor:
+        # Convert ObjectId to string for URLs
         space['_id'] = str(space['_id'])
-        # Extract `center_manager` details safely
+
+        # Set workspace type explicitly if not present
+        workspace_type = space.get('workspace_type', '').strip()
+
+        # Center manager info
         center_manager = space.get('center_manager', {})
         space['center_manager_name'] = center_manager.get('name', 'N/A')
         space['center_manager_contact'] = center_manager.get('contact', 'N/A')
+
+        # Ensure required fields for both types
+        if workspace_type == "Managed Offices":
+            space.setdefault('furnishing_level', 'N/A')
+            space.setdefault('floors_offered', [])
+            space.setdefault('managed_office_amenities', [])
+            space.setdefault('total_building_area', 0)
+            space.setdefault('total_rental', 0)
+            space.setdefault('lockin_period', 'N/A')
+            space.setdefault('security_deposit', 0)
+            space.setdefault('lease_term', 'N/A')
+            space.setdefault('floorplate_area', 0)
+            space.setdefault('floors_occupied', 'N/A')
+            space.setdefault('rent_or_own', 'N/A')
+        else:
+            # Coworking fallback
+            space.setdefault('inventory', [])
+            space.setdefault('amenities', [])
+            space.setdefault('total_seats', 'N/A')
+            space.setdefault('current_vacancy', 'N/A')
+
+        # General defaults
+        space.setdefault('property_images', [])
+        space.setdefault('micromarket', '')
+        space.setdefault('city', '')
+        space.setdefault('address', '')
+        space.setdefault('space_description', '')
+        space.setdefault('office_timings', None)
+
         inventory.append(space)
 
-    # Pass operator's role and inventory to the template
-    return render_template(
-        'operators_inventory.html',
-        inventory=inventory,
-        role=role
-    )
-
+    return render_template('operators_inventory.html', inventory=inventory, role=role)
 
 @operators_bp.route('/add_space', methods=['GET', 'POST'])
 def add_space():
@@ -329,15 +357,13 @@ def edit_space(space_id):
 
     db = current_app.config['db']
     operator_phone = session['operator_phone']
-    role = session.get('role', 'owner')  # Get the role from the session
 
-    # Fetch the space data based on space_id and ensure it belongs to the logged-in operator
     space = db.fillurdetails.find_one({
-    '_id': ObjectId(space_id),
-    '$or': [
-        {'owner.phone': operator_phone},  # If logged-in user is the owner
-        {'center_manager.contact': operator_phone}  # If logged-in user is the center manager
-    ]
+        '_id': ObjectId(space_id),
+        '$or': [
+            {'owner.phone': operator_phone},
+            {'center_manager.contact': operator_phone}
+        ]
     })
 
     if not space:
@@ -346,111 +372,225 @@ def edit_space(space_id):
 
     if request.method == 'POST':
         try:
-            # Extract owner information
+            # Owner & Basic Info
             name = request.form.get('name')
             owner_phone = request.form.get('owner_phone')
             owner_email = request.form.get('owner_email')
             coworking_name = request.form.get('coworking_name')
 
-             # Extract center manager details
-            center_manager_name = request.form.getlist('center_manager_name[]')
-            center_manager_contact = request.form.getlist('center_manager_contact[]')
+            space_idx = request.form.getlist('space_indices[]')[0]
+            city = request.form.getlist('city[]')[0]
+            micromarket = request.form.getlist('micromarket[]')[0]
+            address = request.form.getlist('address[]')[0]
+            current_vacancy = 0
+            center_manager_name = request.form.getlist('center_manager_name[]')[0]
+            center_manager_contact = request.form.getlist('center_manager_contact[]')[0]
+            workspace_type = request.form.getlist('workspace_type[]')[0]
 
-            # Get where the user heard from us
+            # Distances
+            distance_data = {
+                'metro': float(request.form.getlist('distance_metro[]')[0] or 0),
+                'airport': float(request.form.getlist('distance_airport[]')[0] or 0),
+                'bus': float(request.form.getlist('distance_bus[]')[0] or 0),
+                'railway': float(request.form.getlist('distance_railway[]')[0] or 0)
+            }
+
+            # Combine existing and new property images
+            existing_property_images = space.get('property_images', [])
+            property_images = request.files.getlist(f'property_images_{space_idx}[]')
+            new_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name, category="property", space_id=space_idx)
+            combined_property_images = existing_property_images + new_image_links
+
+            # Other Fields
+            space_description = request.form.get(f'space_description_{space_idx}')
             hear_from = request.form.get('hear_from')
-
-            # Get list of space indices
-            space_indices = request.form.getlist('space_indices[]')
-
-            # Get lists of space data
-            cities = request.form.getlist('city[]')
-            micromarkets = request.form.getlist('micromarket[]')
-            total_seats_list = request.form.getlist('total_seats[]')
-            current_vacancies = request.form.getlist('current_vacancy[]')
-
-            # We can assume there is only one space in editing
-            idx = space_indices[0]
-            city = cities[0]
-            micromarket = micromarkets[0]
-            total_seats = total_seats_list[0]
-            current_vacancy = current_vacancies[0]
-
-            # Extract inventory data
-            inventory_types = request.form.getlist(f'inventory_type_1[]')
-            inventory_counts = request.form.getlist(f'inventory_count_1[]')
-            price_per_seats = request.form.getlist(f'price_per_seat_1[]')
+            workspace_tool = request.form.get('workspace_tool')
+            notification_preference = request.form.getlist('notification_preference')
 
             inventory = []
-            for i in range(len(inventory_types)):
-                inventory.append({
-                    'type': inventory_types[i],
-                    'count': int(inventory_counts[i]),
-                    'price_per_seat': float(price_per_seats[i])
-                })
+            if workspace_type == "Coworking Spaces":
+                inventory_types = request.form.getlist(f'inventory_type_{space_idx}[]')
+                inventory_counts = request.form.getlist(f'inventory_count_{space_idx}[]')
+                price_per_seats = request.form.getlist(f'price_per_seat_{space_idx}[]')
 
-            # Handle file uploads (Images for Layouts)
-            layout_images = request.files.getlist(f'layout_images_1[]')
-            existing_images = space.get('layout_images', [])
+                for inv_idx, inv_type in enumerate(inventory_types):
+                    opening_time = request.form.get(f'opening_time_{space_idx}_{inv_idx + 1}')
+                    closing_time = request.form.get(f'closing_time_{space_idx}_{inv_idx + 1}')
 
-            # Process new images if any
-            if layout_images and any(file.filename != '' for file in layout_images):
-                new_image_links = process_and_upload_images(layout_images, {'name': name}, coworking_name)
-                layout_image_links = existing_images + new_image_links
+                    # Inventory Images
+                    existing_inventory_images = []
+                    if inv_idx < len(space.get('inventory', [])):
+                        existing_inventory_images = space['inventory'][inv_idx].get('images', [])
+                    inventory_images = request.files.getlist(f'inventory_images_{space_idx}_{inv_idx + 1}[]')
+                    new_inventory_links = process_and_upload_images(inventory_images, {'name': name}, coworking_name, category="inventory", space_id=space_idx, inventory_id=inv_idx + 1)
+                    combined_inventory_images = existing_inventory_images + new_inventory_links
+
+                    if inv_type in ["Meeting rooms", "Private cabin"]:
+                        try:
+                            room_number = int(request.form.get(f'number_of_rooms_{space_idx}_{inv_idx + 1}') or 0)
+                        except:
+                            room_number = 0
+
+                        room_details = []
+                        for room_idx in range(1, room_number + 1):
+                            try:
+                                seating_capacity = int(request.form.get(f'seating_capacity_{space_idx}_{inv_idx + 1}_{room_idx}') or 0)
+                            except:
+                                seating_capacity = 0
+
+                            try:
+                                price = float(request.form.get(f'price_{space_idx}_{inv_idx + 1}_{room_idx}') or 0.0)
+                            except:
+                                price = 0.0
+
+                            room_images_field = f"{'meeting_room' if inv_type == 'Meeting rooms' else 'private_cabin'}_images_{space_idx}_{inv_idx + 1}_{room_idx}[]"
+                            try:
+                                existing_room_images = space['inventory'][inv_idx]['room_details'][room_idx - 1]['images']
+                            except:
+                                existing_room_images = []
+                            room_images = request.files.getlist(room_images_field)
+                            new_room_links = process_and_upload_images(room_images, {'name': name}, coworking_name, category=inv_type.lower().replace(" ", "_"), space_id=space_idx, inventory_id=inv_idx + 1, room_id=room_idx)
+                            combined_room_images = existing_room_images + new_room_links
+
+                            room_details.append({
+                                'room_number': room_idx,
+                                'seating_capacity': seating_capacity,
+                                'price': price,
+                                'images': combined_room_images
+                            })
+
+                        try:
+                            price_per_seat = float(price_per_seats[inv_idx])
+                        except (IndexError, ValueError):
+                            price_per_seat = 0.0
+                        inventory.append({
+                            'type': inv_type,
+                            'room_count': room_number,
+                            'price_per_seat': price_per_seat,
+                            'opening_time': opening_time,
+                            'closing_time': closing_time,
+                            'room_details': room_details,
+                            'images': combined_inventory_images
+                        })
+                    else:
+                        try:
+                            count = int(inventory_counts[inv_idx])
+                        except (IndexError, ValueError):
+                            count = 0
+
+                        try:
+                            price_per_seat = float(price_per_seats[inv_idx])
+                        except (IndexError, ValueError):
+                            price_per_seat = 0.0
+
+                        inventory.append({
+                            'type': inv_type,
+                            'count': count,
+                            'price_per_seat': price_per_seat,
+                            'images': combined_inventory_images
+                        })
+
+                amenities = request.form.getlist(f'amenities_{space_idx}[]')
+                open_from = request.form.get(f'open_from_{space_idx}')
+                open_to = request.form.get(f'open_to_{space_idx}')
+                opening_time = request.form.get(f'opening_time_{space_idx}')
+                closing_time = request.form.get(f'closing_time_{space_idx}')
+                office_timings = {
+                    'open_from': open_from,
+                    'open_to': open_to,
+                    'opening_time': opening_time,
+                    'closing_time': closing_time
+                }
+
+                managed_office_data = {}
             else:
-                layout_image_links = existing_images
+                rent_or_own = request.form.get(f'rent_or_own_{space_idx}')
+                total_building_area = int(request.form.get(f'total_building_area_{space_idx}') or 0)
+                floorplate_area = int(request.form.get(f'floorplate_area_{space_idx}') or 0)
+                min_inventory_unit = int(request.form.get(f'min_inventory_unit_{space_idx}') or 0)
+                total_rental = int(request.form.get(f'total_rental_{space_idx}') or 0)
+                security_deposit = int(request.form.get(f'security_deposit_{space_idx}') or 0)
+                lease_term = request.form.get(f'lease_term_{space_idx}')
+                space_type = request.form.get(f'space_type_{space_idx}')
+                total_floors = int(request.form.get(f'total_floors_{space_idx}') or 0)
+                floors_occupied = int(request.form.get(f'floors_occupied_{space_idx}') or 0)
+                lockin_period = request.form.get(f'lockin_period_{space_idx}') or 'No Lock-in Period'
+                furnishing_level = request.form.get(f'furnishing_level_{space_idx}') or 'N/A'
+                seating_capacity = request.form.get(f'seating_capacity_{space_idx}') or 'N/A'
+                managed_office_amenities = request.form.getlist(f'managed_amenities_{space_idx}[]')
+                floors_offered = request.form.getlist(f'offered_floors_{space_idx}[]')
 
-            # Prepare the updated data structure for MongoDB
-            updated_space_data = {
-                'owner': {
-                    'name': name,
-                    'phone': owner_phone,
-                    'email': owner_email
-                },
+                amenities = []
+                office_timings = {}
+
+                managed_office_data = {
+                    'rent_or_own': rent_or_own,
+                    'total_building_area': total_building_area,
+                    'floorplate_area': floorplate_area,
+                    'min_inventory_unit': min_inventory_unit,
+                    'total_rental': total_rental,
+                    'security_deposit': security_deposit,
+                    'lease_term': lease_term,
+                    'space_type': space_type,
+                    'total_floors': total_floors,
+                    'floors_occupied': floors_occupied,
+                    'lockin_period': lockin_period,
+                    'furnishing_level': furnishing_level,
+                    'seating_capacity': seating_capacity,
+                    'managed_office_amenities': managed_office_amenities,
+                    'floors_offered': floors_offered
+                }
+
+            # Recalculate vacancy (backend-safe)
+            if workspace_type == "Coworking Spaces":
+                    for item in inventory:
+                        if item['type'] in ['Dedicated desk', 'Private cabin']:
+                            current_vacancy += item.get('count', 0) if 'count' in item else 0
+
+            updated_data = {
+                'owner': {'name': name, 'phone': owner_phone, 'email': owner_email},
                 'coworking_name': coworking_name,
-                'city': cities[0] if cities else space.get('city'),
-                'micromarket': micromarkets[0] if micromarkets else space.get('micromarket'),
-                'total_seats': total_seats_list[0] if total_seats_list else space.get('total_seats'),
-                'current_vacancy': current_vacancies[0] if current_vacancies else space.get('current_vacancy'),
-                'center_manager': {
-                    'name': center_manager_name[0] if center_manager_name else space.get('center_manager', {}).get('name'),
-                    'contact': center_manager_contact[0] if center_manager_contact else space.get('center_manager', {}).get('contact')
-                },
-                'inventory': inventory,
-                'layout_images': layout_image_links,
-                'interactive_layout': space.get('interactive_layout', False),  # Preserve the existing value
+                'city': city,
+                'micromarket': micromarket,
+                'address': address,
+                'distance': distance_data,
+                'current_vacancy': current_vacancy,
+                'center_manager': {'name': center_manager_name, 'contact': center_manager_contact},
+                'property_images': combined_property_images,
+                'workspace_type': workspace_type,
                 'hear_from': hear_from,
+                'workspace_tool': workspace_tool,
+                'notification_preference': notification_preference,
+                'space_description': space_description,
+                'inventory': inventory,
+                'amenities': amenities,
+                'office_timings': office_timings,
                 'date': datetime.datetime.now()
             }
 
-            db.fillurdetails.update_one(
-                {'_id': ObjectId(space_id)},
-                {'$set': updated_space_data}
-            )
+            if managed_office_data:
+                updated_data.update(managed_office_data)
 
-            flash("Space updated successfully!")
+            db.fillurdetails.update_one({'_id': ObjectId(space_id)}, {'$set': updated_data})
+            flash("Space updated successfully.")
             return redirect(url_for('operators.inventory'))
 
         except Exception as e:
-            flash(f"An error occurred while updating the space: {str(e)}")
+            flash(f"An error occurred while updating: {str(e)}")
             return redirect(url_for('operators.inventory'))
-    else:
-        # GET request: Prepare the space data by converting ObjectId fields to strings
-        def convert_objectid_to_str(obj):
-            if isinstance(obj, dict):
-                for key, value in obj.items():
-                    if isinstance(value, ObjectId):
-                        obj[key] = str(value)
-                    elif isinstance(value, (dict, list)):
-                        obj[key] = convert_objectid_to_str(value)
-            elif isinstance(obj, list):
-                obj = [convert_objectid_to_str(item) for item in obj]
-            return obj
 
-        space = convert_objectid_to_str(space)
+    def convert_objectid(obj):
+        if isinstance(obj, dict):
+            return {k: convert_objectid(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_objectid(i) for i in obj]
+        elif isinstance(obj, ObjectId):
+            return str(obj)
+        return obj
 
-        # Render the FillUrDetails.html with pre-filled data
-        return render_template('FillUrDetails.html', space=space,role=session.get('role', 'owner'),context='edit_space')
-    
+    space = convert_objectid(space)
+    return render_template('FillUrDetails.html', space=space, role=session.get('role', 'owner'), context='edit_space')
+
 @operators_bp.route('/leads', methods=['GET'])
 def leads():
     if 'operator_phone' not in session:
@@ -764,3 +904,7 @@ def calendar_events():
         return "No upcoming events found."
     
     return render_template('calendar_events.html', events=events)
+
+
+
+

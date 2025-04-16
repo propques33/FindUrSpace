@@ -481,9 +481,6 @@ body {
     transition: transform 0.3s ease;
 }
 
-.card:hover {
-    transform: scale(1.02);
-}
 
 .card-header {
     background-color: #151d31;
@@ -789,6 +786,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     {% endwith %}
 
     <h1 class="text-center mb-4 head">{{ 'Edit Your Space' if space else 'List Your Space' }}</h1>
+           {% if not space %}
             <!-- "Where did you hear from us?" Section -->
             <div class="card">
                 <div class="card-header">
@@ -848,6 +846,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                     </div>
                 </div>
             </div>
+            {% endif %}
 
     <!-- Form: Owner Information and Coworking Space Details -->
     <form id="listSpaceForm" action="{{ url_for('core_bp.list_your_space') if not space else url_for('operators.edit_space', space_id=space['_id']) }}" method="post" enctype="multipart/form-data" data-parsley-validate>
@@ -938,16 +937,16 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <!-- Stage 2: Coworking Space Details -->
         <div id="spaceDetailsContainer">
             <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    {% if space %}
-                        // Edit mode: Pre-fill with existing data
-                        addSpaceDetails({{ space | tojson | safe }});
-                    {% else %}
-                        // Add/Normal mode: Initialize with one empty section
-                        addSpaceDetails();
-                    {% endif %}
-                });
-            </script>
+document.addEventListener('DOMContentLoaded', function () {
+    let spaceData = null;
+    {% if space %}
+        spaceData = {{ space | tojson | safe }};
+        console.log("Space Data Loaded:", spaceData);
+    {% endif %}
+    addSpaceDetails(spaceData);
+});
+</script>
+
         </div>
 
         <!-- Button to add more coworking spaces (Hide when editing) -->
@@ -978,10 +977,77 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 <!-- Bootstrap JS (for components like modals, if needed) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- <script>
+    var spaceData = null;
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if space %}
+            spaceData = {{ space | tojson | safe }};
+            console.log("Space Data Loaded:", spaceData);
+        {% endif %}
+        addSpaceDetails(spaceData);
+    });
+</script> -->
+
 <!-- JavaScript to handle dynamic form sections and Parsley validation -->
 <script>
-    let spaceCount = 0;
     
+    let spaceCount = 0;
+    const uploadedImages = {};  // Track images per space
+
+function handleImageSelection(event, spaceId) {
+    const input = event.target;
+    const files = Array.from(input.files);
+
+    // Initialize if not already
+    if (!uploadedImages[spaceId]) {
+        uploadedImages[spaceId] = [];
+    }
+
+    // Add new files to existing ones
+    uploadedImages[spaceId] = uploadedImages[spaceId].concat(files);
+
+    // Update preview
+    const previewContainer = document.getElementById(`propertyImagePreview_${spaceId}`);
+    previewContainer.innerHTML = '';
+
+    uploadedImages[spaceId].forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'preview-img-container';
+            imgDiv.innerHTML = `
+                <img src="${e.target.result}" class="preview-img">
+                <button type="button" class="delete-button" onclick="removeUploadedImage(${spaceId}, ${index})">&times;</button>
+            `;
+            previewContainer.appendChild(imgDiv);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Clear input so user can re-select same file if needed
+    input.value = '';
+
+    validateImageCount(spaceId);
+}
+
+function removeUploadedImage(spaceId, index) {
+    if (uploadedImages[spaceId]) {
+        uploadedImages[spaceId].splice(index, 1);
+        handleImageSelection({ target: { files: [] } }, spaceId);  // Re-render preview
+    }
+}
+
+    function validateImageCount(spaceId) {
+    const uploaded = uploadedImages[spaceId]?.length || 0;
+    const total = preloaded + uploaded;
+
+    const fileInput = document.getElementById(`property_images_input_${spaceId}`);
+
+    fileInput.setCustomValidity(total < 2 ? "Please upload at least 2 images in total." : "");
+    $('#listSpaceForm').parsley().validate();
+}
+
+
     function toggleWorkspaceTypeFields(spaceId) {
     const workspaceTypeDropdown = document.getElementById(`workspace_type_${spaceId}`);
     const coworkingFields = document.getElementById(`coworking_fields_${spaceId}`);
@@ -1000,6 +1066,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         amenitiesSection.style.display = "none";
         officeTimingsSection.style.display = "none"; // ✅ Fix: Hide Office Timings section
     }
+    
 }
     
 // Function to update space details based on the type of space selected
@@ -1048,9 +1115,36 @@ function updateSpaceDetails(spaceCount) {
     // Function to toggle fields based on workspace type selection
     // Function to toggle fields based on workspace type selectio
 
+    function removeSpaceDetails(button) {
+    const card = button.closest('.card');
+    if (card) {
+        card.remove();
+    }
+
+    // Renumber the remaining coworking space detail cards
+    const cards = document.querySelectorAll('#spaceDetailsContainer .card');
+    cards.forEach((card, index) => {
+        const headerSpan = card.querySelector('.card-header span');
+        if (headerSpan) {
+            headerSpan.textContent = `Stage 2: Coworking Space Details (${index + 1})`;
+        }
+    });
+}
+
+function calculateSecurityDeposit(spaceId) {
+    const months = parseInt(document.getElementById(`security_deposit_months_${spaceId}`).value) || 0;
+    const rental = parseFloat(document.getElementById(`total_rental_${spaceId}`).value) || 0;
+
+    const finalDeposit = months * rental;
+    document.getElementById(`final_security_deposit_${spaceId}`).value = finalDeposit;
+
+    console.log(`Security Deposit for space ${spaceId} is ₹${finalDeposit}`);
+}
+
     // Function to add a coworking space section
     function addSpaceDetails(spaceData = null) {
             // Prevent multiple sections in edit mode
+            console.log('Inside addSpaceDetails', spaceData); // 🐛 Debug line
         if (spaceData && spaceCount > 0) {
             return;
         }
@@ -1066,8 +1160,21 @@ function updateSpaceDetails(spaceCount) {
         const micromarket = spaceData ? spaceData['micromarket'] || '' : '';
         const total_seats = spaceData ? spaceData['total_seats'] || '' : '';
         const current_vacancy = spaceData ? spaceData['current_vacancy'] || '' : '';
-        const center_manager_name = spaceData ? spaceData['center_manager_name'] || '' : '';
-        const center_manager_contact = spaceData ? spaceData['center_manager_contact'] || '' : '';
+        const center_manager_name = spaceData?.center_manager?.name || '';
+        const center_manager_contact = spaceData?.center_manager?.contact || '';
+        const workspaceType = spaceData?.workspace_type || '';
+        const rent_or_own = spaceData?.rent_or_own || '';
+        const total_building_area = spaceData?.total_building_area || '';
+        const floorplate_area = spaceData?.floorplate_area || '';
+        const total_rental = spaceData?.total_rental || '';
+        const security_deposit = spaceData?.security_deposit || '';
+        const lease_term = spaceData?.lease_term || '';
+        const total_floors = spaceData?.total_floors || '';
+        const floors_occupied = spaceData?.floors_occupied || '';
+        const furnishing_level = spaceData?.furnishing_level || '';
+        const lockin_period = spaceData?.lockin_period || '';
+        const space_type = spaceData?.space_type || '';
+        const managed_amenities = spaceData?.managed_office_amenities || [];
 
         const inventoryList = spaceData ? spaceData['inventory'] || [] : [];
 
@@ -1101,7 +1208,7 @@ function updateSpaceDetails(spaceCount) {
                     <div class="mb-3 w-100">
                         <label for="address_${spaceCount}" class="form-label">Coworking Address *</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="address_${spaceCount}" name="address[]" placeholder="Enter Your Address Manually..." required
+                            <input type="text" class="form-control" id="address_${spaceCount}" name="address[]" placeholder="Enter Your Address Manually..." required value="${spaceData ? spaceData['address'] || '' : ''}"
                                 data-parsley-required-message="Please enter the coworking address." data-parsley-trigger="change" aria-label="Full Address">
                             <button type="button" class="btn current-location-btn" onclick="getCurrentLocation(${spaceCount})">
                                 <span class="pin-icon">📍</span> Use Current Location
@@ -1116,7 +1223,7 @@ function updateSpaceDetails(spaceCount) {
     <!-- Distance from Metro -->
     <div class="w-50">
         <label for="distance_metro_${spaceCount}" class="form-label">Distance from Nearest Metro (km) *</label>
-        <input type="number" class="form-control" id="distance_metro_${spaceCount}" name="distance_metro[]" placeholder="Enter distance in km" min="0" required
+        <input type="number" class="form-control" id="distance_metro_${spaceCount}" name="distance_metro[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.metro : ''}"
             data-parsley-required-message="Please enter the distance from the nearest metro station."
             data-parsley-type="number" step="0.1" data-parsley-trigger="change">
     </div>
@@ -1124,7 +1231,7 @@ function updateSpaceDetails(spaceCount) {
     <!-- Distance from Airport -->
     <div class="w-50">
         <label for="distance_airport_${spaceCount}" class="form-label">Distance from Nearest Airport (km) *</label>
-        <input type="number" class="form-control" id="distance_airport_${spaceCount}" name="distance_airport[]" placeholder="Enter distance in km" min="0" required
+        <input type="number" class="form-control" id="distance_airport_${spaceCount}" name="distance_airport[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.airport : ''}"
             data-parsley-required-message="Please enter the distance from the nearest airport."
             data-parsley-type="number" step="0.1" data-parsley-trigger="change">
     </div>
@@ -1134,7 +1241,7 @@ function updateSpaceDetails(spaceCount) {
     <!-- Distance from Bus Station -->
     <div class="w-50">
         <label for="distance_bus_${spaceCount}" class="form-label">Distance from Nearest Bus Station (km) *</label>
-        <input type="number" class="form-control" id="distance_bus_${spaceCount}" name="distance_bus[]" placeholder="Enter distance in km" min="0" required
+        <input type="number" class="form-control" id="distance_bus_${spaceCount}" name="distance_bus[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.bus : ''}"
             data-parsley-required-message="Please enter the distance from the nearest bus station."
             data-parsley-type="number" step="0.1" data-parsley-trigger="change">
     </div>
@@ -1142,7 +1249,7 @@ function updateSpaceDetails(spaceCount) {
     <!-- Distance from Railway Station -->
     <div class="w-50">
         <label for="distance_railway_${spaceCount}" class="form-label">Distance from Nearest Railway Station (km) *</label>
-        <input type="number" class="form-control" id="distance_railway_${spaceCount}" name="distance_railway[]" placeholder="Enter distance in km" min="0" required
+        <input type="number" class="form-control" id="distance_railway_${spaceCount}" name="distance_railway[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.railway : ''}"
             data-parsley-required-message="Please enter the distance from the nearest railway station."
             data-parsley-type="number" step="0.1" data-parsley-trigger="change">
     </div>
@@ -1153,13 +1260,13 @@ function updateSpaceDetails(spaceCount) {
 
                 <!-- Upload Layout or Property Images (Moved Below Address) -->
                 <!-- Upload Property Images (Min 5) -->
-                <h5>Upload Images of Your Property (Min 5)</h5>
+                <h5>Upload Outer Images of Your Property (Min 5)</h5>
                 <p class="file-format-note">Upload at least 5 images of your property (JPG, JPEG, PNG).</p>
                 <div class="mb-3">
-                    <input type="file" class="form-control" name="property_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
+                    <input type="file" id="property_images_input_${spaceCount}" class="form-control" name="property_images_${spaceCount}[]" accept="image/png, image/jpeg, image/jpg" multiple
                         required data-parsley-mincheck="5"
                         data-parsley-required-message="Please upload at least 5 images of your property."
-                        onchange="previewPropertyImages(event, ${spaceCount})">
+                        onchange="previewPropertyImages(event, ${spaceCount}); validateImageCount(${spaceCount}); handleImageSelection(event, ${spaceCount})">
                 </div>
                 <div id="propertyImagePreview_${spaceCount}" class="d-flex flex-wrap"></div>
                 <!-- End of Property Images Upload -->
@@ -1191,9 +1298,9 @@ function updateSpaceDetails(spaceCount) {
                             data-parsley-required-message="Please select the workspace type."
                             data-parsley-trigger="change" aria-label="Choose Workspace Type"
                             onchange="toggleWorkspaceTypeFields(${spaceCount})">
-                            <option value="" disabled selected>Choose Workspace Type</option>
-                            <option value="Coworking Spaces">Coworking Spaces</option>
-                            <option value="Managed Offices">Managed Offices</option>
+                            <option value="" disabled ${!workspaceType ? 'selected' : ''}>Choose Workspace Type</option>
+                            <option value="Coworking Spaces" ${workspaceType === 'Coworking Spaces' ? 'selected' : ''}>Coworking Spaces</option>
+                            <option value="Managed Offices" ${workspaceType === 'Managed Offices' ? 'selected' : ''}>Managed Offices</option>
                         </select>
                     </div>
                 </div>
@@ -1201,12 +1308,6 @@ function updateSpaceDetails(spaceCount) {
                 <!-- Coworking Space Fields (Hidden by Default) -->
                 <div id="coworking_fields_${spaceCount}" style="display: none;">
                     <div class="form-group mb-3">
-                        <div class="mb-3 w-100">
-                            <input type="number" class="form-control" name="total_seats[]" placeholder="Total Seats" min="0" required
-                                data-parsley-required-message="Please enter the total number of seats."
-                                data-parsley-type="number" data-parsley-trigger="change"
-                                aria-label="Total Seats" onchange="updateCurrentVacancy(${spaceCount})">
-                        </div>
                         <div class="mb-3 w-100" id="current_vacancy_container_${spaceCount}" style="display: none;">
                             <input type="number" class="form-control" name="current_vacancy[]" placeholder="This value is automatically calculated" min="0" readonly
                                 value="0" id="current_vacancy_${spaceCount}" aria-label="Current Vacancy">
@@ -1230,7 +1331,7 @@ function updateSpaceDetails(spaceCount) {
                             <!-- Amenities Checkboxes (3 per row) -->
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Air Conditioning" id="air_conditioning_${spaceCount}"
-                                required data-parsley-mincheck="1" 
+                                required data-parsley-mincheck="1" ${spaceData?.amenities?.includes('Air Conditioning') ? 'checked' : ''} 
                                 data-parsley-required-message="Please select at least one amenity.">
                                 <label for="air_conditioning_${spaceCount}" class="form-check-label">
                                     Air Conditioning<span class="amenity-icon">🌬️</span> 
@@ -1238,27 +1339,27 @@ function updateSpaceDetails(spaceCount) {
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Car / Bike Parking" id="parking_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Car / Bike Parking') ? 'checked' : ''}>
                                 <label for="parking_${spaceCount}" class="form-check-label">
                                     Car / Bike Parking<span class="amenity-icon">🚗</span>
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Ergo Workstations" id="ergo_workstations_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Ergo Workstations') ? 'checked' : ''}>
                                 <label for="ergo_workstations_${spaceCount}" class="form-check-label">
                                     Ergo Workstations<span class="amenity-icon">🪑</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="High Speed WiFi" id="wifi_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity."  ${spaceData?.amenities?.includes('High Speed WiFi') ? 'checked' : ''}>
                                 <label for="wifi_${spaceCount}" class="form-check-label">
                                     High Speed WiFi<span class="amenity-icon">📶</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}" required data-parsley-mincheck="1" 
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}" required data-parsley-mincheck="1" ${spaceData?.amenities?.includes('Housekeeping') ? 'checked' : ''}
                 data-parsley-required-message="Please select at least one amenity.">
                                 <label for="housekeeping_${spaceCount}" class="form-check-label">
                                     Housekeeping<span class="amenity-icon">🧹</span> 
@@ -1266,53 +1367,53 @@ function updateSpaceDetails(spaceCount) {
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Lounge" id="lounge_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Lounge') ? 'checked' : ''}>
                                 <label for="lounge_${spaceCount}" class="form-check-label">
                                     Lounge<span class="amenity-icon">🍹</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Meeting Rooms" id="meeting_rooms_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Meeting Rooms') ? 'checked' : ''}>
                                 <label for="meeting_rooms_${spaceCount}" class="form-check-label">
                                     Meeting Rooms<span class="amenity-icon">🪑</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Pantry') ? 'checked' : ''}>
                                 <label for="pantry_${spaceCount}" class="form-check-label">
                                     Pantry<span class="amenity-icon">🥤</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Phone Booth" id="phone_booth_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Phone Booth') ? 'checked' : ''}>
                                 <label for="phone_booth_${spaceCount}" class="form-check-label">
                                     Phone Booth<span class="amenity-icon">📞</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Printer" id="printer_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
+                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Printer') ? 'checked' : ''}>
                                 <label for="printer_${spaceCount}" class="form-check-label">
                                     Printer<span class="amenity-icon">🖨️</span> 
                                 </label>
                             </div>
+
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Reception" id="reception_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
-                                <label for="reception_${spaceCount}" class="form-check-label">
-                                    Reception<span class="amenity-icon">👥</span> 
-                                </label>
-                            </div>
-                            <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Tea/Coffee" id="tea_coffee_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity.">
-                                <label for="tea_coffee_${spaceCount}" class="form-check-label">
-                                    Tea/Coffee<span class="amenity-icon">☕</span> 
-                                </label>
-                            </div>
+    <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Reception" id="reception_${spaceCount}"
+        ${spaceData?.amenities?.includes('Reception') ? 'checked' : ''} required data-parsley-mincheck="1"
+        data-parsley-required-message="Please select at least one amenity.">
+    <label for="reception_${spaceCount}" class="form-check-label">Reception<span class="amenity-icon">👥</span></label>
+</div>
+
+<div class="col-md-4-amen">
+    <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Tea/Coffee" id="tea_coffee_${spaceCount}"
+        ${spaceData?.amenities?.includes('Tea/Coffee') ? 'checked' : ''} required data-parsley-mincheck="1"
+        data-parsley-required-message="Please select at least one amenity.">
+    <label for="tea_coffee_${spaceCount}" class="form-check-label">Tea/Coffee<span class="amenity-icon">☕</span></label>
+</div>
                         </div>
                     </div>
 
@@ -1327,29 +1428,19 @@ function updateSpaceDetails(spaceCount) {
                                 <select class="form-select" id="open_from_${spaceCount}" name="open_from_${spaceCount}" required
                                     data-parsley-required-message="Please select the opening day."
                                     data-parsley-trigger="change">
-                                    <option value="" disabled selected>Select a day</option>
-                                    <option value="Monday">Monday</option>
-                                    <option value="Tuesday">Tuesday</option>
-                                    <option value="Wednesday">Wednesday</option>
-                                    <option value="Thursday">Thursday</option>
-                                    <option value="Friday">Friday</option>
-                                    <option value="Saturday">Saturday</option>
-                                    <option value="Sunday">Sunday</option>
+                                    <option value="" disabled ${!spaceData?.office_timings?.open_from ? 'selected' : ''}>Select a day</option>
+                                    ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                                        .map(day => `<option value="${day}" ${spaceData?.office_timings?.open_from === day ? 'selected' : ''}>${day}</option>`).join('')}
                                 </select>
                             </div>
                             <div class="w-50">
                                 <label for="open_to_${spaceCount}" class="form-label">Open To *</label>
-                                <select class="form-select" id="open_to_${spaceCount}" name="open_to_${spaceCount}" required
+                                 <select class="form-select" id="open_to_${spaceCount}" name="open_to_${spaceCount}" required
                                     data-parsley-required-message="Please select the closing day."
                                     data-parsley-trigger="change">
-                                    <option value="" disabled selected>Select a day</option>
-                                    <option value="Monday">Monday</option>
-                                    <option value="Tuesday">Tuesday</option>
-                                    <option value="Wednesday">Wednesday</option>
-                                    <option value="Thursday">Thursday</option>
-                                    <option value="Friday">Friday</option>
-                                    <option value="Saturday">Saturday</option>
-                                    <option value="Sunday">Sunday</option>
+                                   <option value="" disabled ${!spaceData?.office_timings?.open_to ? 'selected' : ''}>Select a day</option>
+                                    ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                                        .map(day => `<option value="${day}" ${spaceData?.office_timings?.open_to === day ? 'selected' : ''}>${day}</option>`).join('')}
                                 </select>
                             </div>
                         </div>
@@ -1360,11 +1451,13 @@ function updateSpaceDetails(spaceCount) {
                             <div class="w-50">
                                 <label for="opening_time_${spaceCount}" class="form-label">Opening Time *</label>
                                 <input type="time" class="form-control" id="opening_time_${spaceCount}" name="opening_time_${spaceCount}" required
+                                    value="${spaceData?.opening_time || ''}"
                                     data-parsley-required-message="Please enter the opening time." data-parsley-trigger="change">
                             </div>
                             <div class="w-50">
                                 <label for="closing_time_${spaceCount}" class="form-label">Closing Time *</label>
                                 <input type="time" class="form-control" id="closing_time_${spaceCount}" name="closing_time_${spaceCount}" required
+                                    value="${spaceData?.closing_time || ''}"
                                     data-parsley-required-message="Please enter the closing time." data-parsley-trigger="change">
                             </div>
                         </div>
@@ -1383,15 +1476,15 @@ function updateSpaceDetails(spaceCount) {
                             <select class="form-select" id="rent_or_own_${spaceCount}" name="rent_or_own_${spaceCount}" required
                                 data-parsley-required-message="Please select an option."
                                 data-parsley-trigger="change">
-                                <option value="" disabled selected>Select an option</option>
-                                <option value="Rent">Rent</option>
-                                <option value="Own">Own</option>
+                                <option value="" disabled ${!rent_or_own ? 'selected' : ''}>Select an option</option>
+                                <option value="Rent" ${rent_or_own === 'Rent' ? 'selected' : ''}>Rent</option>
+                                <option value="Own" ${rent_or_own === 'Own' ? 'selected' : ''}>Own</option>
                             </select>
                         </div>
 
                         <div class="w-50">
                             <label for="total_building_area_${spaceCount}" class="form-label"> Building Area in Carpet Area (sqft)</label>
-                            <input type="number" onchange="calculateMinInventoryUnit(${spaceCount})" class="form-control" id="total_building_area_${spaceCount}" name="total_building_area_${spaceCount}" 
+                            <input type="number" value="${total_building_area}" onchange="calculateMinInventoryUnit(${spaceCount})" class="form-control" id="total_building_area_${spaceCount}" name="total_building_area_${spaceCount}" 
                                 placeholder="Enter total building area" min="0" required
                                 data-parsley-required-message="Please enter the total building area."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
@@ -1403,15 +1496,15 @@ function updateSpaceDetails(spaceCount) {
                         <div class="w-50">
                             <label for="floorplate_area_${spaceCount}" class="form-label">Floorplate Area in Carpet Area (sqft)</label>
                             <input type="number" class="form-control" id="floorplate_area_${spaceCount}" name="floorplate_area_${spaceCount}" 
-                                placeholder="Enter floorplate area" min="0" required
+                                value="${floorplate_area}" placeholder="Enter floorplate area" min="0" required
                                 data-parsley-required-message="Please enter the floorplate area."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
                         </div>
 
                         <div class="w-50">
                             <label for="total_rental_${spaceCount}" class="form-label">Total Rental Expectation</label>
-                            <input type="number" class="form-control" id="total_rental_${spaceCount}" name="total_rental_${spaceCount}" 
-                                placeholder="Enter total rental expectation" min="0" required
+                            <input type="number" class="form-control" id="total_rental_${spaceCount}" name="total_rental_${spaceCount}" onchange="calculateMinInventoryUnit(${spaceCount}); calculateSecurityDeposit(${spaceCount})"
+                                value="${total_rental}" placeholder="Enter total rental expectation" min="0" required
                                 data-parsley-required-message="Please enter the total rental expectation."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
                         </div>
@@ -1420,11 +1513,18 @@ function updateSpaceDetails(spaceCount) {
                     <!-- Security Deposit & Lease Term -->
     <div class="form-group mb-3 d-flex gap-3">
         <div class="w-50">
-            <label for="security_deposit_${spaceCount}" class="form-label">Security Deposit (in INR)</label>
-            <input type="number" class="form-control" id="security_deposit_${spaceCount}" name="security_deposit_${spaceCount}" 
-                placeholder="Enter security deposit amount" min="0" required
-                data-parsley-required-message="Please enter the security deposit amount."
-                data-parsley-type="digits" data-parsley-trigger="change focusout">
+            <label class="form-label">Security Deposit (Months)</label>
+            <select class="form-select" id="security_deposit_months_${spaceCount}" name="security_deposit_months_${spaceCount}" required
+                onchange="calculateSecurityDeposit(${spaceCount})"
+                data-parsley-required-message="Please select security deposit in months.">
+                <option value="" disabled selected>Select months</option>
+                ${[...Array(12)].map((_, i) => {
+                    const month = i + 1;
+                    const calculated = total_rental > 0 && security_deposit ? Math.round(security_deposit / total_rental) : 0;
+                    return `<option value="${month}" ${month === calculated ? 'selected' : ''}>${month} month${month > 1 ? 's' : ''}</option>`;
+                }).join('')}
+            </select>
+            <input type="hidden" id="final_security_deposit_${spaceCount}" name="security_deposit_${spaceCount}" value="0">
         </div>
 
         <div class="w-50">
@@ -1433,7 +1533,10 @@ function updateSpaceDetails(spaceCount) {
                 data-parsley-required-message="Please select the lease term."
                 data-parsley-trigger="change">
                 <option value="" disabled selected>Select Lease Term</option>
-                ${[...Array(8).keys()].map(i => `<option value="${(i+1) * 11}">${(i+1) * 11} months</option>`).join('')}
+                ${[...Array(8).keys()].map(i => {
+                    const val = (i + 1) * 11;
+                    return `<option value="${val}" ${lease_term == val ? 'selected' : ''}>${val} months</option>`;
+                }).join('')}
             </select>
         </div>
     </div>
@@ -1442,7 +1545,7 @@ function updateSpaceDetails(spaceCount) {
                     <div class="form-group mb-3 d-flex gap-3" id="no">
                         <div class="w-50">
                             <label for="total_floors_${spaceCount}" class="form-label">Number of Floors</label>
-                            <input type="number" class="form-control" id="total_floors_${spaceCount}" name="total_floors_${spaceCount}"
+                            <input type="number" class="form-control" value="${total_floors}" id="total_floors_${spaceCount}" name="total_floors_${spaceCount}"
                                 placeholder="Enter total number of floors" min="0" required
                                 onchange="generateOfferedFloorsChecklist(${spaceCount})"
                                 data-parsley-required-message="Please enter the number of floors."
@@ -1452,7 +1555,7 @@ function updateSpaceDetails(spaceCount) {
 
                         <div class="w-50">
                             <label for="floors_occupied_${spaceCount}" class="form-label">Number of Floors Occupied</label>
-                            <input type="number" class="form-control" id="floors_occupied_${spaceCount}" name="floors_occupied_${spaceCount}"
+                            <input type="number" class="form-control" value="${floors_occupied}" id="floors_occupied_${spaceCount}" name="floors_occupied_${spaceCount}"
                                 placeholder="Enter number of occupied floors" min="0" required
                                 data-parsley-required-message="Please enter the number of floors occupied."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
@@ -1467,9 +1570,9 @@ function updateSpaceDetails(spaceCount) {
                                 data-parsley-required-message="Please select the furnishing level."
                                 data-parsley-trigger="change">
                                 <option value="" disabled selected>Select Furnishing Level</option>
-                                <option value="Bare shell">Bare shell</option>
-                                <option value="Warm shell">Warm shell</option>
-                                <option value="Ready to move in">Ready to move in</option>
+                                <option value="Bare shell" ${furnishing_level === 'Bare shell' ? 'selected' : ''}>Bare shell</option>
+                                <option value="Warm shell" ${furnishing_level === 'Warm shell' ? 'selected' : ''}>Warm shell</option>
+                                <option value="Ready to move in" ${furnishing_level === 'Ready to move in' ? 'selected' : ''}>Ready to move in</option>
                             </select>
                         </div>
                         <div class="w-50">
@@ -1477,14 +1580,18 @@ function updateSpaceDetails(spaceCount) {
                         <select class="form-select" id="lockin_period_${spaceCount}" name="lockin_period_${spaceCount}" required
                             data-parsley-required-message="Please select the lock-in period."
                             data-parsley-trigger="change">
-                            <option  selected>No Lock-in Period</option>
-                                    <option value="3 months">3 months</option>
-                                    <option value="6 months">6 months</option>
-                                    <option value="1 year">1 year</option>
-                                    <option value="2 years">2 years</option>
-                                    <option value="3 years">3 years</option>
-                                    <option value="4 years">4 years</option>
-                                    <option value="5 years">5 years</option>
+                            <option ${!lockin_period ? 'selected' : ''}>No Lock-in Period</option>
+                                    <option value="3 months" ${lockin_period === '3 months' ? 'selected' : ''}>3 months</option>
+                                    <option value="6 months" ${lockin_period === '6 months' ? 'selected' : ''}>6 months</option>
+                                    <option value="1 year" ${lockin_period === '1 year' ? 'selected' : ''}>1 year</option>
+                                    <option value="2 years" ${lockin_period === '2 years' ? 'selected' : ''}>2 years</option>
+                                    <option value="3 years" ${lockin_period === '3 years' ? 'selected' : ''}>3 years</option>
+                                    <option value="4 years" ${lockin_period === '4 years' ? 'selected' : ''}>4 years</option>
+                                    <option value="5 years" ${lockin_period === '5 years' ? 'selected' : ''}>5 years</option>
+                                    <option value="6 years" ${lockin_period === '6 years' ? 'selected' : ''}>6 years</option>
+                                    <option value="7 years" ${lockin_period === '7 years' ? 'selected' : ''}>7 years</option>
+                                    <option value="8 years" ${lockin_period === '8 years' ? 'selected' : ''}>8 years</option>
+                                    <option value="9 years" ${lockin_period === '9 years' ? 'selected' : ''}>9 years</option>
                         </select>
                         </div>
                     </div>
@@ -1498,9 +1605,9 @@ function updateSpaceDetails(spaceCount) {
                                 data-parsley-required-message="Please select the type of space."
                                 data-parsley-trigger="change" onchange="updateSpaceDetails(${spaceCount})">
                                 <option value="" disabled selected>Select Type of Space</option>
-                                <option value="economy">Economy</option>
-                                <option value="average">Average</option>
-                                <option value="spacious">Spacious</option>
+                                <option value="economy" ${space_type === 'economy' ? 'selected' : ''}>Economy</option>
+                                <option value="average" ${space_type === 'average' ? 'selected' : ''}>Average</option>
+                                <option value="spacious" ${space_type === 'spacious' ? 'selected' : ''}>Spacious</option>
                             </select>
                         </div>
                     </div>
@@ -1519,34 +1626,7 @@ function updateSpaceDetails(spaceCount) {
 <div id="managed_amenities_section_${spaceCount}" class="mb-3">
     <p class="file-format-note">Select Amenities Available in your Managed Office.</p>
     <div class="rowamen">
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Conference Room" id="conference_room_${spaceCount}">
-            <label for="conference_room_${spaceCount}" class="form-check-label">Conference Room</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Meeting Room" id="meeting_room_${spaceCount}">
-            <label for="meeting_room_${spaceCount}" class="form-check-label">Meeting Room</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Private Cabins" id="private_cabins_${spaceCount}">
-            <label for="private_cabins_${spaceCount}" class="form-check-label">Private Cabins</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Hot Desks" id="hot_desks_${spaceCount}">
-            <label for="hot_desks_${spaceCount}" class="form-check-label">Hot Desks</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Lounge Area" id="lounge_${spaceCount}">
-            <label for="lounge_${spaceCount}" class="form-check-label">Lounge Area</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Reception Area" id="reception_${spaceCount}">
-            <label for="reception_${spaceCount}" class="form-check-label">Reception Area</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="High-Speed WiFi" id="wifi_${spaceCount}">
-            <label for="wifi_${spaceCount}" class="form-check-label">High-Speed WiFi</label>
-        </div>
+        
         <div class="col-md-4-amen">
             <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="24x7 Security" id="security_${spaceCount}">
             <label for="security_${spaceCount}" class="form-check-label">24x7 Security</label>
@@ -1560,52 +1640,8 @@ function updateSpaceDetails(spaceCount) {
             <label for="parking_${spaceCount}" class="form-check-label">Car / Bike Parking</label>
         </div>
         <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Air Conditioning" id="air_conditioning_${spaceCount}">
-            <label for="air_conditioning_${spaceCount}" class="form-check-label">Air Conditioning</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}">
-            <label for="housekeeping_${spaceCount}" class="form-check-label">Housekeeping</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Printing / Scanning" id="printing_${spaceCount}">
-            <label for="printing_${spaceCount}" class="form-check-label">Printing / Scanning</label>
-        </div>
-        <div class="col-md-4-amen">
             <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Power Backup" id="power_backup_${spaceCount}">
             <label for="power_backup_${spaceCount}" class="form-check-label">Power Backup</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}">
-            <label for="pantry_${spaceCount}" class="form-check-label">Pantry</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Tea / Coffee" id="tea_coffee_${spaceCount}">
-            <label for="tea_coffee_${spaceCount}" class="form-check-label">Tea / Coffee</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Vending Machine" id="vending_machine_${spaceCount}">
-            <label for="vending_machine_${spaceCount}" class="form-check-label">Vending Machine</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Locker Storage" id="locker_${spaceCount}">
-            <label for="locker_${spaceCount}" class="form-check-label">Locker Storage</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Smoking Zone" id="smoking_zone_${spaceCount}">
-            <label for="smoking_zone_${spaceCount}" class="form-check-label">Smoking Zone</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Recreation Area" id="recreation_area_${spaceCount}">
-            <label for="recreation_area_${spaceCount}" class="form-check-label">Recreation Area</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Gym & Fitness" id="gym_${spaceCount}">
-            <label for="gym_${spaceCount}" class="form-check-label">Gym & Fitness</label>
-        </div>
-        <div class="col-md-4-amen">
-            <input type="checkbox" class="form-check-input" name="managed_amenities_${spaceCount}[]" value="Event Space" id="event_space_${spaceCount}">
-            <label for="event_space_${spaceCount}" class="form-check-label">Event Space</label>
         </div>
         
         <!-- New amenities below -->
@@ -1653,6 +1689,48 @@ function updateSpaceDetails(spaceCount) {
             </div>
         `;
         spaceDetailsContainer.appendChild(spaceCard);
+        document.querySelector(`[name="space_description_${spaceCount}"]`).value = spaceData?.space_description || '';
+if (spaceData?.office_timings) {
+    const openFromSelect = document.getElementById(`open_from_${spaceCount}`);
+    const openToSelect = document.getElementById(`open_to_${spaceCount}`);
+    const openingTimeInput = document.getElementById(`opening_time_${spaceCount}`);
+    const closingTimeInput = document.getElementById(`closing_time_${spaceCount}`);
+
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    // days.forEach(day => {
+    //     openFromSelect.add(new Option(day, day, false, spaceData.office_timings.open_from === day));
+    //     openToSelect.add(new Option(day, day, false, spaceData.office_timings.open_to === day));
+    // });
+
+    openingTimeInput.value = spaceData.office_timings.opening_time || '';
+    closingTimeInput.value = spaceData.office_timings.closing_time || '';
+
+    // ✅ Show section
+    const officeTimingsSection = document.getElementById(`office_timings_${spaceCount}`);
+    if (officeTimingsSection) {
+        officeTimingsSection.style.display = 'block';
+    }
+}
+
+
+        // 👇 Ensure fields show/hide correctly based on type
+        if (workspaceType) {
+            toggleWorkspaceTypeFields(spaceCount);
+
+            // Optional: pre-fill coworking-specific data
+            if (workspaceType === 'Coworking Spaces') {
+                if (total_seats) {
+                    document.querySelector(`[name="total_seats[]"]`).value = total_seats;
+                }
+                if (current_vacancy) {
+                    document.querySelector(`#current_vacancy_${spaceCount}`).value = current_vacancy;
+                    document.querySelector(`#current_vacancy_container_${spaceCount}`).style.display = 'block';
+                }
+            }
+
+            // Optional: pre-fill managed-office-specific data (similarly)
+        }
         // Populate the location dropdown
         populateLocationsDropdown(spaceCount, city, micromarket);
 
@@ -1665,46 +1743,23 @@ function updateSpaceDetails(spaceCount) {
             addInventory(spaceCount);
         }
 
+        // ✅ Prefill managed amenities
+if (workspaceType === "Managed Offices" && Array.isArray(managed_amenities)) {
+    managed_amenities.forEach(amenity => {
+        const checkboxId = amenity.toLowerCase()
+                                  .replace(/ /g, '_')
+                                  .replace(/\//g, '')
+                                  .replace(/__/g, '_')
+                                  .replace(/[()]/g, '')
+                                  + `_${spaceCount}`;
+        const checkbox = document.getElementById(checkboxId);
+        if (checkbox) checkbox.checked = true;
+    });
+}
 
-        // Display existing images if any
-        if (spaceData && spaceData['layout_images'] && spaceData['layout_images'].length > 0) {
-            const imagePreviewContainer = document.getElementById(`imagePreview_${spaceCount}`);
-            spaceData['layout_images'].forEach((imageUrl, index) => {
-                const imgContainer = document.createElement('div');
-                imgContainer.classList.add('preview-img-container');
-                imgContainer.innerHTML = `
-                    <img src="${imageUrl}" class="preview-img" data-bs-toggle="modal" data-bs-target="#existingImageModal_${spaceCount}_${index}" alt="Image Preview">
-                    <button type="button" class="delete-button" onclick="removeExistingImage(${spaceCount}, ${index})" title="Remove this image">&times;</button>
-                `;
-
-                // Append the image container to the preview
-                imagePreviewContainer.appendChild(imgContainer);
-
-                // Create the modal for magnification
-                const modal = document.createElement('div');
-                modal.classList.add('modal', 'fade');
-                modal.id = `existingImageModal_${spaceCount}_${index}`;
-                modal.setAttribute('tabindex', '-1');
-                modal.setAttribute('aria-labelledby', `existingImageModalLabel_${spaceCount}_${index}`);
-                modal.setAttribute('aria-hidden', 'true');
-                modal.innerHTML = `
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="existingImageModalLabel_${spaceCount}_${index}">Image Preview</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <img src="${imageUrl}" class="img-fluid" alt="Full Image">
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                // Append the modal to the body
-                document.body.appendChild(modal);
-            });
-        }
+if (workspaceType === "Managed Offices") {
+    calculateSecurityDeposit(spaceCount);
+}
 
         // Refresh Parsley to recognize new fields
         $('#listSpaceForm').parsley().refresh();
@@ -1738,6 +1793,7 @@ function updateSpaceDetails(spaceCount) {
         minUnitField.value = '';
     }
 }
+
 
 function generateOfferedFloorsChecklist(spaceId) {
     const totalFloors = parseInt(document.getElementById(`total_floors_${spaceId}`).value) || 0;
@@ -1954,13 +2010,28 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
     // Function to add an inventory item
     function addInventory(spaceId, inventoryData = null) {
         const inventoryContainer = document.getElementById(`inventoryContainer_${spaceId}`);
-
         const inventoryCount = inventoryContainer.childElementCount + 1;
 
         // Pre-fill values if inventoryData is provided
         const inventoryType = inventoryData ? inventoryData['type'] || '' : '';
-        const inventoryCountValue = inventoryData ? inventoryData['count'] || '' : '';
+        let inventoryCountValue = inventoryData ? inventoryData['count'] || '' : '';
+
+        // If it's a room-based inventory, fallback to room_count if count is missing
+        if ((inventoryType === 'Meeting rooms' || inventoryType === 'Private cabin') && !inventoryCountValue && inventoryData?.room_count) {
+            inventoryCountValue = inventoryData.room_count;
+        }
         const pricePerSeat = inventoryData ? inventoryData['price_per_seat'] || '' : '';
+        const roomCount = inventoryData?.room_count || 0;
+        const openingTime = inventoryData?.opening_time || '';
+        const closingTime = inventoryData?.closing_time || '';
+        const roomDetails = inventoryData?.room_details || [];
+
+        let placeholderText = "Number of Vacant Inventory";
+        if (inventoryType === "Day pass") {
+            placeholderText = "Number of Day Passes Listed";
+        } else if (inventoryType === "Meeting rooms") {
+            placeholderText = ""; // Will be hidden, no input needed
+        }
 
         const inventoryRow = document.createElement('div');
         inventoryRow.classList.add('border', 'p-3', 'mb-3', 'position-relative', 'inventory-item');
@@ -1980,7 +2051,7 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                         <option value="Virtual office" ${inventoryType === 'Virtual office' ? 'selected' : ''}>Virtual office</option>
                     </select>
                 </div>
-                <div class="mb-3 w-100">
+                <div class="mb-3 w-100" id="global_price_input_${spaceId}_${inventoryCount}" style="${inventoryType === 'Meeting rooms' || inventoryType === 'Private cabin' ? 'display:none;' : ''}">
                     <input type="number" class="form-control" id="priceInput_${spaceId}_${inventoryCount}" name="price_per_seat_${spaceId}[]" placeholder="Price per Seat" min="0" required
                         value="${pricePerSeat}"
                         data-parsley-required-message="Please enter the price per seat."
@@ -1988,18 +2059,27 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                         data-parsley-trigger="change" aria-label="Price per Seat">
                 </div>
             </div>
-            <div class="form-group mb-3">
-                <div class="mb-3 w-100">
-                    <input type="number" class="form-control" name="inventory_count_${spaceId}[]" placeholder="Number of Vacant Inventory" min="0" required
-                        value="${inventoryCountValue}"
-                        onchange="updateCurrentVacancy(${spaceId})"
-                        data-parsley-required-message="Please enter the number of vacant inventory."
-                        data-parsley-type="number"
-                        data-parsley-trigger="change" aria-label="Number of Vacant Inventory">
-                </div>
-                <!-- Placeholder div to maintain two per row layout -->
-                <div style="flex:1;"></div>
-            </div>
+            <div class="form-group mb-3" >
+  ${(inventoryType !== 'Meeting rooms') ? `
+    <div class="mb-3 w-100" id="inventory_count_container_${spaceId}_${inventoryCount}">
+      <input type="number" 
+        class="form-control" 
+        id="inventory_count_${spaceId}_${inventoryCount}"
+        name="inventory_count_${spaceId}[]" 
+        placeholder="${placeholderText}" 
+        min="0" 
+        required 
+        value="${inventoryCountValue}" 
+        onchange="updateCurrentVacancy(${spaceId})"
+        data-parsley-required-message="Please enter the number of vacant inventory."
+        data-parsley-type="number"
+        data-parsley-trigger="change" 
+        aria-label="Number of Vacant Inventory">
+    </div>
+  ` : ''}
+  <div style="flex:1;"></div>
+</div>
+
             <div id="additionalFields_${spaceId}_${inventoryCount}" class="mt-3 mb-2"></div>
             <!-- Meeting Room/Private Cabin Timings Section (Hidden by Default) -->
         <div id="meetingRoomTimings_${spaceId}_${inventoryCount}" class="meeting-room-timings" style="display: none;">
@@ -2019,8 +2099,8 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 </div>
             </div>
         </div>
-            <!-- Upload Inventory Images (Min 2 per Inventory Type) -->
-            <div id="inventoryImageSection_${spaceId}_${inventoryCount}" class="inventory-image-section">
+            ${(inventoryType !== 'Meeting rooms' && inventoryType !== 'Private cabin') ? `
+<div id="inventoryImageSection_${spaceId}_${inventoryCount}" class="inventory-image-section">
     <h6>Upload Images for this Inventory (Min 2)</h6>
     <p class="file-format-note">Upload at least 2 images (JPG, JPEG, PNG).</p>
     <div class="mb-3">
@@ -2031,43 +2111,72 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
     </div>
     <div id="inventoryImagePreview_${spaceId}_${inventoryCount}" class="d-flex flex-wrap"></div>
 </div>
+` : ''}
         `;
         inventoryContainer.appendChild(inventoryRow);
+
+        // Pre-fill inventory images if provided
+// if (inventoryData?.images?.length > 0) {
+//     const previewContainer = document.getElementById(`inventoryImagePreview_${spaceId}_${inventoryCount}`);
+//     inventoryData.images.forEach((imgUrl) => {
+//         const imgDiv = document.createElement('div');
+//         imgDiv.className = 'preview-img-container';
+//         imgDiv.innerHTML = `<img src="${imgUrl}" class="preview-img" alt="Inventory Image">`;
+//         previewContainer.appendChild(imgDiv);
+//     });
+// }
+
+        if (inventoryType === 'Meeting rooms' || inventoryType === 'Private cabin') {
+    document.getElementById(`meetingRoomTimings_${spaceId}_${inventoryCount}`).style.display = 'block';
+
+    document.getElementById(`opening_time_${spaceId}_${inventoryCount}`).value = openingTime;
+    document.getElementById(`closing_time_${spaceId}_${inventoryCount}`).value = closingTime;
+
+    generateRoomDetails(spaceId, inventoryCount, inventoryType, roomCount,inventoryData);
+
+    // Pre-fill roomDetails if available
+    roomDetails.forEach((room, index) => {
+        const i = index + 1;
+        const inputName = `seating_capacity_${spaceId}_${inventoryCount}_${i}`;
+        const input = document.querySelector(`input[name="${inputName}"]`);
+        if (input) input.value = room.seating_capacity;
+    });
+}
+
+if (inventoryType === 'Meeting rooms' || inventoryType === 'Private cabin') {
+    document.getElementById(`priceInput_${spaceId}_${inventoryCount}`).closest('.mb-3').style.display = 'none';
+}
 
         // Refresh Parsley to recognize new fields
         $('#listSpaceForm').parsley().refresh();
     }
 
     // Update current vacancy and validate against total seats
-    function updateCurrentVacancy(spaceId) {
-        const inventoryCounts = document.querySelectorAll(`#inventoryContainer_${spaceId} input[name^="inventory_count_${spaceId}"]`);
-        const totalSeatsField = document.querySelector(`input[name="total_seats[]"][aria-label="Total Seats"]`);
-        const currentVacancyField = document.getElementById(`current_vacancy_${spaceId}`);
-        const totalSeats = parseInt(totalSeatsField.value) || 0;
-        let totalVacancy = 0;
+    // Auto-calculate current vacancy based on specific inventory types
+function updateCurrentVacancy(spaceId) {
+    const inventoryItems = document.querySelectorAll(`#inventoryContainer_${spaceId} .inventory-item`);
+    const currentVacancyField = document.getElementById(`current_vacancy_${spaceId}`);
 
-        // Sum up all inventory counts
-        inventoryCounts.forEach(input => {
-            totalVacancy += parseInt(input.value) || 0;
-        });
+    let totalVacancy = 0;
 
-        // Update the current vacancy field
-        currentVacancyField.value = totalVacancy;
+    inventoryItems.forEach((item, idx) => {
+        const typeSelect = item.querySelector(`select[name="inventory_type_${spaceId}[]"]`);
+        const countInput = item.querySelector(`input[name="inventory_count_${spaceId}[]"]`);
 
-        // Validation: Ensure totalVacancy <= totalSeats
-        const errorContainer = document.getElementById(`vacancyError_${spaceId}`);
-        if (totalVacancy > totalSeats) {
-            // Show error if the current vacancy exceeds total seats
-            errorContainer.textContent = "Current vacancy cannot exceed total seats.";
-            currentVacancyField.setCustomValidity("Invalid current vacancy.");
-            // Show styled alert box
-            showAlert("Error: Current vacancy cannot exceed total seats.");
-        } else {
-            // Clear the error if validation passes
-            errorContainer.textContent = "";
-            currentVacancyField.setCustomValidity("");
+        if (!typeSelect || !countInput) return;
+
+        const type = typeSelect.value.trim();
+        const count = parseInt(countInput.value) || 0;
+
+        if (type === 'Dedicated desk' || type === 'Private cabin') {
+            totalVacancy += count;
         }
-    }
+    });
+
+    currentVacancyField.value = totalVacancy;
+}
+
+
 
     function showAlert(message) {
         // Create the alert box
@@ -2096,7 +2205,7 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
         });
     }
 
-function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms) {
+function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms,inventoryData = null) {
     const container = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
     const existingInputs = container.querySelectorAll('input');
 
@@ -2111,7 +2220,7 @@ function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms) {
     // Create label
     const numberOfRoomsLabel = document.createElement('label');
     numberOfRoomsLabel.setAttribute('for', `number_of_rooms_${spaceId}_${inventoryCount}`);
-    numberOfRoomsLabel.className = 'form-label fw-bold mt-3';
+    numberOfRoomsLabel.className = 'form-label fw-bold ';
     numberOfRoomsLabel.textContent = roomType === 'Meeting rooms' ? 'Number of Meeting Rooms *' : 'Number of Private Cabins *';
 
     // Recreate number input field
@@ -2154,6 +2263,7 @@ function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms) {
         const inputContainer = document.createElement('div');
         inputContainer.className = 'd-flex gap-3 mb-3 room-details wrap';
 
+        // Seating Capacity Input
         const seatingInput = document.createElement('input');
         seatingInput.type = 'number';
         seatingInput.className = 'form-control';
@@ -2164,26 +2274,50 @@ function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms) {
         seatingInput.setAttribute('data-parsley-required-message', 'Please enter seating capacity.');
         seatingInput.setAttribute('data-parsley-type', 'number');
 
-        // ✅ Restore value if it exists
-        if (preservedData[seatingInput.name]) {
-            seatingInput.value = preservedData[seatingInput.name];
+        // Price Input (New)
+        const priceInput = document.createElement('input');
+        priceInput.type = 'number';
+        priceInput.className = 'form-control';
+        priceInput.name = `price_${spaceId}_${inventoryCount}_${i}`;
+        priceInput.placeholder = `Price for Room ${i}`;
+        priceInput.min = '0';
+        priceInput.required = true;
+        priceInput.setAttribute('data-parsley-required-message', 'Please enter the price.');
+        priceInput.setAttribute('data-parsley-type', 'number');
+
+        // Prefill
+        if (inventoryData?.room_details?.[i - 1]) {
+            seatingInput.value = inventoryData.room_details[i - 1].seating_capacity || '';
+            priceInput.value = inventoryData.room_details[i - 1].price || '';
         }
 
         inputContainer.appendChild(seatingInput);
+        inputContainer.appendChild(priceInput);
         container.appendChild(inputContainer);
+
+        const previewId = `roomImagePreview_${spaceId}_${inventoryCount}_${i}`;
+        const fileInputName = `${roomType === 'Meeting rooms' ? 'meeting_room_images' : 'private_cabin_images'}_${spaceId}_${inventoryCount}_${i}[]`;
 
         const imageUploadContainer = document.createElement('div');
         imageUploadContainer.innerHTML = `
             <h6>Upload Images for ${roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin'} ${i} (Min 2)</h6>
             <div class="mb-3">
-                <input type="file" class="form-control" name="${roomType === 'Meeting rooms' ? 'meeting_room_images' : 'private_cabin_images'}_${spaceId}_${inventoryCount}_${i}[]" accept="image/png, image/jpeg, image/jpg" multiple
-                    required data-parsley-mincheck="2"
-                    data-parsley-required-message="Please upload at least 2 images."
-                    onchange="previewRoomImages(event, ${spaceId}, ${inventoryCount}, ${i}, '${roomType}')">
+                <input type="file" class="form-control" name="${fileInputName}" accept="image/png, image/jpeg, image/jpg" multiple
+                    required data-parsley-mincheck="2" onchange="previewRoomImages(event, ${spaceId}, ${inventoryCount}, ${i}, '${roomType}')">
             </div>
-            <div id="roomImagePreview_${spaceId}_${inventoryCount}_${i}" class="d-flex flex-wrap"></div>
+            <div id="${previewId}" class="d-flex flex-wrap"></div>
         `;
         container.appendChild(imageUploadContainer);
+        // Prefill image previews
+        // if (inventoryData?.room_details?.[i - 1]?.images?.length > 0) {
+        //     const previewContainer = document.getElementById(previewId);
+        //     inventoryData.room_details[i - 1].images.forEach((imgUrl) => {
+        //         const imgDiv = document.createElement('div');
+        //         imgDiv.className = 'preview-img-container';
+        //         imgDiv.innerHTML = `<img src="${imgUrl}" class="preview-img" alt="Room Image">`;
+        //         previewContainer.appendChild(imgDiv);
+        //     });
+        // }
     }
 
     $('#listSpaceForm').parsley().refresh();
@@ -2287,11 +2421,14 @@ function previewRoomImages(event, spaceId, inventoryId, roomId, roomType) {
     imagePreviewContainer.innerHTML = '';
     const files = event.target.files;
 
-    if (files.length < 2) {
-        alert("Please upload at least 2 images for this " + (roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin') + ".");
-        event.target.value = "";
-        return;
-    }
+    const preloadedCount = parseInt(document.getElementById(`preloaded_image_count_room_${spaceId}_${inventoryId}_${roomId}`)?.value || 0);
+const uploadedCount = files.length;
+
+if (uploadedCount + preloadedCount < 2) {
+    alert("Please upload at least 2 images for this " + (roomType === 'Meeting rooms' ? 'Meeting Room' : 'Private Cabin') + ".");
+    event.target.value = "";
+    return;
+}
 
     Array.from(files).forEach((file, index) => {
         const reader = new FileReader();
@@ -2306,166 +2443,142 @@ function previewRoomImages(event, spaceId, inventoryId, roomId, roomType) {
 }
     // Function to handle dynamic change for price input
     function handlePriceChange(selectElement, spaceId, inventoryCount) {
-        const selectedValue = selectElement.value;
-        const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
-        const inventoryCountInput = document.querySelector(`input[name="inventory_count_${spaceId}[]"]`);
-        const additionalFieldsContainer = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
-        const inventoryImageUpload = document.querySelector(`input[name="inventory_images_${spaceId}_${inventoryCount}[]"]`);
-        const inventoryImageSection = document.getElementById(`inventoryImageSection_${spaceId}_${inventoryCount}`);
-        const meetingRoomTimings = document.getElementById(`meetingRoomTimings_${spaceId}_${inventoryCount}`);
-        const timingsHeading = document.getElementById(`timingsHeading_${spaceId}_${inventoryCount}`);
+    const selectedValue = selectElement.value;
+    const priceInput = document.getElementById(`priceInput_${spaceId}_${inventoryCount}`);
+    const inventoryCountInput = document.getElementById(`inventory_count_${spaceId}_${inventoryCount}`);
+    const additionalFieldsContainer = document.getElementById(`additionalFields_${spaceId}_${inventoryCount}`);
+    const inventoryImageSection = document.getElementById(`inventoryImageSection_${spaceId}_${inventoryCount}`);
+    const meetingRoomTimings = document.getElementById(`meetingRoomTimings_${spaceId}_${inventoryCount}`);
+    const timingsHeading = document.getElementById(`timingsHeading_${spaceId}_${inventoryCount}`);
+    const priceInputWrapper = document.getElementById(`global_price_input_${spaceId}_${inventoryCount}`);
+    const inventoryCountWrapper = document.getElementById(`inventory_count_container_${spaceId}_${inventoryCount}`);
 
-        // Reset the additional fields container
+    // Reset
     additionalFieldsContainer.innerHTML = '';
-    // Hide fields initially
-    meetingRoomTimings.style.display = 'none';
-    inventoryImageSection.style.display = 'block'; // Show image section by default
-    inventoryCountInput.style.display = 'block'; // Show vacant inventory field by default
-        // Hide common inventory image upload section for Meeting Rooms or Private Cabin
-    // Hide common inventory image upload section for Meeting Rooms or Private Cabin
-    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
-        inventoryImageSection.style.display = 'none';
-        inventoryCountInput.style.display = 'block';
-        meetingRoomTimings.style.display = 'block'; // ✅ Show Timings Section
-        timingsHeading.textContent = selectedValue === 'Meeting rooms' ? 'Meeting Room Timings' : 'Private Cabin Timings';
-    } else {
-        inventoryImageSection.style.display = 'block';
-        inventoryCountInput.style.display = 'block';
-        meetingRoomTimings.style.display = 'none'; // ✅ Hide Timings Section
-    }
-    
-    // ✅ Hide the upload section for Meeting Rooms & Private Cabins
-    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
-        inventoryImageSection.style.display = 'none';
-    } else {
-        inventoryImageSection.style.display = 'block';
-    }
-    // Hide the "Number of Vacant Inventory" field
-    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
-        inventoryCountInput.style.display = 'block';
-    } else {
-        inventoryCountInput.style.display = 'block';
+    if (meetingRoomTimings) meetingRoomTimings.style.display = 'none';
+    if (inventoryImageSection) inventoryImageSection.style.display = 'block';
+    if (inventoryCountWrapper) inventoryCountWrapper.style.display = 'block';
+
+    if (inventoryCountInput) {
+        inventoryCountInput.disabled = false;
+        inventoryCountInput.required = true;
+        inventoryCountInput.value = inventoryCountInput.value || '';
     }
 
-        // Clear previous additional fields
-        additionalFieldsContainer.innerHTML = '';
-
-        priceInput.style.display = 'block';
-        inventoryCountInput.style.display = 'block';
-
-
-        // If Meeting Room or Private Cabin is selected
-    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
-        // Hide the number of vacant inventory and price per seat fields
-
-
-        inventoryCountInput.style.display = 'block';
-
-        // Add input for number of rooms/cabins
-        // Add input for number of rooms/cabins
-        let numberOfRoomsInput = document.getElementById(`number_of_rooms_${spaceId}_${inventoryCount}`);
-        if (!numberOfRoomsInput) {
-            // Add input for number of rooms/cabins
-        const numberOfRoomsInput = document.createElement('input');
-        numberOfRoomsInput.type = 'number';
-        numberOfRoomsInput.className = 'form-control mt-2';
-        numberOfRoomsInput.name = `number_of_rooms_${spaceId}_${inventoryCount}`;  // Add this line
-        numberOfRoomsInput.id = `number_of_rooms_${spaceId}_${inventoryCount}`; // Add an ID for better traceability
-        numberOfRoomsInput.placeholder = selectedValue === 'Meeting rooms' ? 'Number of Meeting Rooms' : 'Number of Private Cabins';
-        numberOfRoomsInput.min = '1';
-        numberOfRoomsInput.required = true;
-        numberOfRoomsInput.setAttribute('data-parsley-required-message', 'Please enter the number of rooms.');
-        numberOfRoomsInput.setAttribute('data-parsley-type', 'number');
-
-        additionalFieldsContainer.appendChild(numberOfRoomsInput);
-
-        // ✅ Fix: Prevent form submission on Enter and generate room details
-        numberOfRoomsInput.addEventListener('keypress', function(event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();  // Stop form submission
-
-                    // Trigger `generateRoomDetails()` when Enter is pressed
-                    const numberOfRooms = parseInt(numberOfRoomsInput.value) || 0;
-                    generateRoomDetails(spaceId, inventoryCount, selectedValue, numberOfRooms);
-
-                    // Refresh Parsley validation after changes
-                    $('#listSpaceForm').parsley().destroy();
-                    $('#listSpaceForm').parsley();
-                }
-            });
-            // Trigger `generateRoomDetails()` when the number of rooms changes
-            numberOfRoomsInput.addEventListener('input', function() {
-                const numberOfRooms = parseInt(numberOfRoomsInput.value) || 0;
-                generateRoomDetails(spaceId, inventoryCount, selectedValue, numberOfRooms);
-
-                // Refresh Parsley validation after changes
-                $('#listSpaceForm').parsley().destroy();
-                $('#listSpaceForm').parsley();
-            });
+    // Show/hide based on type
+    if (selectedValue === 'Meeting rooms') {
+        if (inventoryImageSection) inventoryImageSection.style.display = 'none';
+        if (inventoryCountWrapper) inventoryCountWrapper.style.display = 'none';
+        if (inventoryCountInput) {
+            inventoryCountInput.disabled = true;
+            inventoryCountInput.required = false;
+            inventoryCountInput.value = '';
         }
-        
-
+        if (meetingRoomTimings) {
+            meetingRoomTimings.style.display = 'block';
+            timingsHeading.textContent = 'Meeting Room Timings';
+        }
+    } else if (selectedValue === 'Private cabin') {
+        if (inventoryImageSection) inventoryImageSection.style.display = 'none';
+        if (inventoryCountWrapper) inventoryCountWrapper.style.display = 'block';
+        if (inventoryCountInput) {
+            inventoryCountInput.disabled = false;
+            inventoryCountInput.required = true;
+        }
+        if (meetingRoomTimings) {
+            meetingRoomTimings.style.display = 'block';
+            timingsHeading.textContent = 'Private Cabin Timings';
+        }
     } else {
-        // Show the number of vacant inventory and price per seat fields for other inventory types
-        priceInput.style.display = 'block';
-        inventoryCountInput.style.display = 'block';
+        if (inventoryImageSection) inventoryImageSection.style.display = 'block';
+        if (inventoryCountWrapper) inventoryCountWrapper.style.display = 'block';
+        if (inventoryCountInput) {
+            inventoryCountInput.disabled = false;
+            inventoryCountInput.required = true;
+            inventoryCountInput.placeholder = selectedValue === 'Day pass'
+                ? "Number of Day Passes Listed"
+                : "Number of Vacant Inventory";
+        }
+    }
 
+    // Price field visibility
+    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
+        if (priceInputWrapper) priceInputWrapper.style.display = 'none';
+        if (priceInput) {
+            priceInput.required = false;
+            priceInput.value = '';
+        }
+    } else {
+        if (priceInputWrapper) priceInputWrapper.style.display = 'block';
+        if (priceInput) {
+            priceInput.required = true;
+        }
+    }
+
+    // Placeholder for price
+    if (priceInput) {
         switch (selectedValue) {
             case 'Day pass':
                 priceInput.placeholder = "Price per Seat per Day";
                 priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat per day.');
-                priceInput.setAttribute('aria-label', 'Price per Seat per Day');
                 break;
             case 'Virtual office':
                 priceInput.placeholder = "Price per Year";
                 priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat per year.');
-                priceInput.setAttribute('aria-label', 'Price per Seat per Year');
                 break;
             case 'Dedicated desk':
+            case 'Private cabin':
                 priceInput.placeholder = "Price per Seat per Month";
                 priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat per month.');
-                priceInput.setAttribute('aria-label', 'Price per Seat per Month');
+                break;
+            case 'Meeting rooms':
+                priceInput.placeholder = "Price per Hour";
+                priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per hour.');
                 break;
             default:
                 priceInput.placeholder = "Price per Seat";
                 priceInput.setAttribute('data-parsley-required-message', 'Please enter the price per seat.');
-                priceInput.setAttribute('aria-label', 'Price per Seat');
         }
     }
 
-    // Set placeholders based on selection
-    switch (selectedValue) {
-        case 'Day pass':
-            priceInput.placeholder = "Price per Seat per Day";
-            break;
-        case 'Virtual office':
-            priceInput.placeholder = "Price per Year";
-            break;
-        case 'Dedicated desk':
-            priceInput.placeholder = "Price per Seat per Month";
-            break;
-        case 'Private cabin':
-            priceInput.placeholder = "Price per Seat per Month"; // ✅ Updated
-            break;
-        case 'Meeting rooms':
-            priceInput.placeholder = "Price per Hour"; // ✅ Updated
-            break;
-        default:
-            priceInput.placeholder = "Price per Seat";
+    // Generate Room Inputs
+    if (selectedValue === 'Meeting rooms' || selectedValue === 'Private cabin') {
+        let numberOfRoomsInput = document.getElementById(`number_of_rooms_${spaceId}_${inventoryCount}`);
+        if (!numberOfRoomsInput) {
+            numberOfRoomsInput = document.createElement('input');
+            numberOfRoomsInput.type = 'number';
+            numberOfRoomsInput.className = 'form-control';
+            numberOfRoomsInput.name = `number_of_rooms_${spaceId}_${inventoryCount}`;
+            numberOfRoomsInput.id = `number_of_rooms_${spaceId}_${inventoryCount}`;
+            numberOfRoomsInput.placeholder = selectedValue === 'Meeting rooms' ? 'Number of Meeting Rooms' : 'Number of Private Cabins';
+            numberOfRoomsInput.min = '1';
+            numberOfRoomsInput.required = true;
+            numberOfRoomsInput.setAttribute('data-parsley-required-message', 'Please enter the number of rooms.');
+            numberOfRoomsInput.setAttribute('data-parsley-type', 'number');
+
+            additionalFieldsContainer.appendChild(numberOfRoomsInput);
+
+            numberOfRoomsInput.addEventListener('input', () => {
+                const count = parseInt(numberOfRoomsInput.value) || 0;
+                generateRoomDetails(spaceId, inventoryCount, selectedValue, count);
+                $('#listSpaceForm').parsley().destroy();
+                $('#listSpaceForm').parsley();
+            });
+
+            numberOfRoomsInput.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const count = parseInt(numberOfRoomsInput.value) || 0;
+                    generateRoomDetails(spaceId, inventoryCount, selectedValue, count);
+                    $('#listSpaceForm').parsley().destroy();
+                    $('#listSpaceForm').parsley();
+                }
+            });
+        }
     }
 
-    // Refresh Parsley validation after changes
     $('#listSpaceForm').parsley().refresh();
-    }
-
-    // Function to remove a coworking space section
-    function removeSpaceDetails(button) {
-        const spaceCard = button.closest('.card');
-        spaceCard.remove();
-
-        // Refresh Parsley to exclude removed fields
-        $('#listSpaceForm').parsley().refresh();
-    }
+}
 
     // Function to remove an inventory item
     function removeInventory(button) {
@@ -3016,10 +3129,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-document.addEventListener('DOMContentLoaded', function () {
-    addSpaceDetails(); // Add one coworking space by default
-        $('#listSpaceForm').parsley();
-    });
+// document.addEventListener('DOMContentLoaded', function () {
+//     addSpaceDetails(); // Add one coworking space by default
+//         $('#listSpaceForm').parsley();
+//     });
 
     document.addEventListener("DOMContentLoaded", function() {
     const workspaceToolDropdown = document.getElementById("workspace_tool");
@@ -3111,7 +3224,14 @@ document.addEventListener('keydown', function(event) {
         return false;
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.setCustomValidity(""); // Clears any Parsley complaints
+  });
+});
 </script>
+
 <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

@@ -1308,13 +1308,10 @@ def list_your_space():
 
             # Get list of space indices
             space_indices = request.form.getlist('space_indices[]')
-
             # Get lists of space data
             cities = request.form.getlist('city[]')
             micromarkets = request.form.getlist('micromarket[]')
             addresses = request.form.getlist('address[]') 
-
-            total_seats_list = request.form.getlist('total_seats[]')
             current_vacancies = request.form.getlist('current_vacancy[]')
             center_manager_names = request.form.getlist('center_manager_name[]')
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
@@ -1345,8 +1342,9 @@ def list_your_space():
             print(f"Custom micromarkets: {custom_micromarkets}")
 
             # Process each space
-            for idx, city, micromarket,address, total_seats, current_vacancy,center_manager_name, center_manager_contact, workspace_type, metro_dist, airport_dist, bus_dist, railway_dist in zip(space_indices, cities, micromarkets,addresses, total_seats_list, current_vacancies,center_manager_names, center_manager_contacts, workspace_types,
+            for idx, city, micromarket,address,current_vacancy,center_manager_name, center_manager_contact, workspace_type, metro_dist, airport_dist, bus_dist, railway_dist in zip(space_indices, cities, micromarkets,addresses, current_vacancies,center_manager_names, center_manager_contacts, workspace_types,
                     distances_metro, distances_airport, distances_bus, distances_railway):
+                
                 idx_str = str(idx)  # Convert idx to string in case it's not
 
                 # Validate the address
@@ -1387,7 +1385,6 @@ def list_your_space():
                         # Get Inventory Images for the current inventory item
                         inventory_image_field = f'inventory_images_{idx}_{inv_idx + 1}[]'
                         inventory_images = request.files.getlist(inventory_image_field)
-
                         # Upload Inventory Images
                         inventory_image_links = process_and_upload_images(
                             inventory_images, 
@@ -1401,7 +1398,7 @@ def list_your_space():
                         #e Meeting Rooms and Private Cabins separately
                         room_details = []
                         if inv_type in ["Meeting rooms", "Private cabin"]:
-                            room_number = request.form.get(f'number_of_rooms_{idx}_{inv_idx + 1}')
+                            room_number = int(request.form.get(f'number_of_rooms_{idx}_{inv_idx + 1}') or 0)
                             try:
                                 room_number = int(room_number) if room_number else 0
                             except (ValueError, TypeError):
@@ -1427,7 +1424,7 @@ def list_your_space():
                                     seating_capacity = 0
                                 try:
                                     price = float(request.form.get(f'price_{idx}_{inv_idx + 1}_{room_idx}') or 0.0)
-                                except (ValueError, TypeError):
+                                except:
                                     price = 0.0
 
                                 # ✅ Correcting the room_images_field
@@ -1458,7 +1455,7 @@ def list_your_space():
                                     room_details.append({
                                         'room_number': room_idx,
                                         'seating_capacity': int(seating_capacity),
-                                        'price': float(price_per_seats[inv_idx] or 0.0),
+                                        'price': price,
                                         'images': room_image_links
                                     })
 
@@ -1467,17 +1464,26 @@ def list_your_space():
                             inventory.append({
                                 'type': inv_type,
                                 'room_count': room_number,
-                                'price_per_seat': float(price_per_seats[inv_idx] or 0.0),
                                 'opening_time': opening_time,
                                 'closing_time': closing_time,
                                 'room_details': room_details,
                                 'images': inventory_image_links
                             })
-                        else:
+                        elif inv_type in ["Day pass", "Dedicated desk", "Virtual office"]:
+                            try:
+                                count = int(inventory_counts[inv_idx] or 0)
+                            except (IndexError, ValueError):
+                                count = 0
+
+                            try:
+                                price_per_seat = float(price_per_seats[inv_idx] or 0.0)
+                            except (IndexError, ValueError):
+                                price_per_seat = 0.0
+
                             inventory.append({
                                 'type': inv_type,
-                                'count': int(inventory_counts[inv_idx] or 0),
-                                'price_per_seat': float(price_per_seats[inv_idx] or 0.0),
+                                'count': count,
+                                'price_per_seat': price_per_seat,
                                 'images': inventory_image_links
                             })
 
@@ -1529,10 +1535,7 @@ def list_your_space():
                     except (ValueError, TypeError):
                         floors_occupied = 0
 
-                    try:
-                        lockin_period = int(request.form.get(f'lockin_period_{idx}') or '0')
-                    except (ValueError, TypeError):
-                        lockin_period = 0
+                    lockin_period = request.form.get(f'lockin_period_{idx}', 'No Lock-in Period')
 
                     try:
                         security_deposit = int(request.form.get(f'security_deposit_{idx}') or '0')
@@ -1607,6 +1610,8 @@ def list_your_space():
                         'lockin_period': lockin_period,
                         'managed_office_amenities': managed_office_amenities
                     })
+
+                print("Final property_details inserting to DB:", property_details)
 
                 # Insert into MongoDB
                 db.fillurdetails.insert_one(property_details)
