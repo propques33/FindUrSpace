@@ -86,6 +86,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 
     <div id="couponOverlay" class="modal-overlay" style="display: none;"></div>
 
+    
 <!-- Navbar Section -->
 <nav class="navbar">
     <div class="navbar-container">
@@ -246,9 +247,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       </div>
     </div>
 
-    <!-- Coupon Section -->
-    {% if inventoryType in ["Day pass", "Meeting rooms"] %}
-<!-- Coupon Section -->
+
+    <!-- {% if inventoryType in ["Day pass", "Meeting rooms"] %}
+
 <div class="coupon-container">
   <div class="coupon-main">
     <img src="{{ url_for('static', filename='images/flat100.jpg') }}" alt="Coupon Flat100" />
@@ -261,7 +262,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     {% endif %}
   </div>
 </div>
-{% endif %}
+{% endif %} -->
 
     <!-- Image Gallery -->
     <!-- Image Gallery -->
@@ -323,93 +324,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <div class="container">
       <!-- Left Section (70%) -->
       <div class="left-section">
-        <h1>
-          {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
-            {{ inventoryType }}
-          {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
-              {{ seat_count }} Seater {{ inventoryType }}
-          {% endif %}
-        </h1>
-        <h5>SEATING OPTION</h5>
-        <div class="seating-option">
-          
-            {% if inventory_images %}
-              <img src="{{ inventory_images[0] }}" alt="Workspace Image" class="iminv"/>
-            {% elif property_images %}
-                <img src="{{ property_images[0] }}" alt="Property Image" class="iminv"/>
-            {% else %}
-                <img src="https://via.placeholder.com/800x400" alt="No Image Available" class="featured-image"/>
-            {% endif %}
-          <div class="seating-details">
-            <div class="seating-info">
-              <h2>
-                {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
-                    {{ inventoryType }}
-                {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
-                    {{ seat_count }} Seater {{ inventoryType }}
-                {% endif %}
-              </h2>
-              <p>
-                {% if inventoryType == "Day pass" %}
-                    Flexible workspace for a day with shared amenities.
-                {% elif inventoryType == "Dedicated desk" %}
-                    Personalized workstation with storage in a shared office.
-                {% elif inventoryType == "Meeting rooms" %}
-                    Private rooms for client meetings, brainstorming, or presentations.
-                {% elif inventoryType == "Private cabin" %}
-                    Exclusive enclosed space for teams or focused work sessions.
-                {% elif inventoryType == "Virtual office" %}
-                    Professional business address with mail handling and support services.
-                {% else %}
-                    Contact for more details on this workspace.
-                {% endif %}
-              </p>
-              <!-- <ul>
-                <li>
-                  <img src="./static/checked.png" alt="" id="checked" />
-                  Reserved desk, shared amenities
-                </li>
-              </ul> -->
-              <!-- <p>
-                <img src="../static/images/seat.png" alt="" id="seat" />
-                Seating: 
-                {% if inventoryType in ["Day pass", "Dedicated desk", "Virtual office"] %}
-                  {{ selected_inventory.count }} Seats
-                {% elif inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
-                  {% set seating_capacities = selected_inventory.room_details | map(attribute='seating_capacity') | list %}
-                  {{ seating_capacities | join(", ") }} Seater {{ inventoryType }}
-                {% else %}
-                  Contact for details
-                {% endif %}
-              </p> -->
-            </div>
-            <div>
-              <span class="price-range"
-                >{{ inventoryType }}<br />
-                {% if inventoryType == "Dedicated desk" %}
-                    ₹{{ selected_inventory.price_per_seat| int }} /seat/month
-                {% elif inventoryType == "Day pass" %}
-                    ₹{{ selected_inventory.price_per_seat| int }} /seat/day
-                {% elif inventoryType == "Meeting rooms" %}
-                    ₹{{ total_price|int }} /hour
-                {% elif inventoryType == "Private cabin" %}
-                    ₹{{ total_price|int }} /month
-                {% elif inventoryType == "Virtual office" %}
-                    ₹{{ selected_inventory.price_per_seat| int }} /year
-                {% else %}
-                    Contact for pricing
-                {% endif %}
-             </span>
-             {% if inventoryType not in ["Day pass", "Meeting rooms"] %}
-              <button class="quote-btn" onclick="openTourModal()">Get Quote →</button>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-        <p class="price-note">
-          *Prices mentioned above are starting prices &amp; subject to
-          availability
-        </p>
+        
         <!-- Right Section (30%) -->
       {% if inventoryType in ["Day pass", "Meeting rooms"] %}
 <div class="container1" id="snt">
@@ -544,6 +459,20 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       </div>
     </div>
 
+    <div class="advantage-box">
+                <div class="item">
+                  <i class="fas fa-tags"></i>Lowest Price Guaranteed
+                </div>
+                <div class="item">
+                  <i class="fas fa-clock-rotate-left"></i>Free Rescheduling
+                </div>
+                <div class="item">
+                  <i class="fas fa-calendar-xmark"></i>Free Cancellation
+                </div>
+                <div class="item">
+                  <i class="fas fa-bolt"></i>Instant Confirmations
+                </div>
+              </div>
 
 
         <h3 class="section-title " id="nm">About</h3>
@@ -716,7 +645,6 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 <div id="buyNowModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeBuyNowModal()">&times;</span>
-    <h3 class="modal-title" style="margin-top:10px;">Confirm Your Purchase</h3>
 
     <!-- Select Date -->
     <div class="modal-section">
@@ -732,49 +660,52 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         </select>
     </div>
 
+    <!-- Form Fields -->
+    <div class="modal-form" id="userDetailsFields">
+      <label for="fullNameBuy">Full Name</label>
+      <input type="text" id="fullNameBuy" value="{{ user_data.get('name', '') }}" placeholder="Your Name">
+
+      <label for="emailBuy">Email</label>
+      <input type="email" id="emailBuy" value="{{ user_data.get('email', '') }}" placeholder="Your Email">
+
+      <label for="companyBuy">Company</label>
+      <input type="text" id="companyBuy" value="{{ user_data.get('company', '') }}" placeholder="Your Company">
+    </div>
+
     <div class="modal-form">
-        <label for="fullNameBuy">Full Name</label>
-        <input type="text" id="fullNameBuy" value="{{ user_data.get('name', '') }}" placeholder="Your Name">
+      <label for="phoneBuy">Phone</label>
+      <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone" disabled readonly>
 
-        <label for="emailBuy">Email</label>
-        <input type="email" id="emailBuy" value="{{ user_data.get('email', '') }}" placeholder="Your Email">
-
-        <label for="phoneBuy">Phone</label>
-        <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone" disabled readonly>
-
-        <label for="companyBuy">Company</label>
-        <input type="text" id="companyBuy" value="{{ user_data.get('company', '') }}" placeholder="Your Company">
-
-        <label for="gstinBuy">GSTIN (Optional)</label>
-        <input type="text" id="gstinBuy" placeholder="Enter GSTIN (if applicable)">
+      <label for="gstinBuy">GSTIN (Optional)</label>
+      <input type="text" id="gstinBuy" placeholder="Enter GSTIN (if applicable)">
     </div>
 
     <div class="modal-info">
-  <div class="modal-row">
-    <span class="modal-label">Selected Inventory:</span>
-    <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
-  </div>
-  <div class="modal-row">
-    <span class="modal-label">Total Passes:</span>
-    <span class="modal-value" id="modalPassQuantity">1</span>
-  </div>
-  <div class="modal-row">
-    <span class="modal-label">Inventory Price:</span>
-    <span class="modal-value">₹<span id="modalInventoryPrice"></span></span>
-  </div>
-  <div class="modal-row">
-    <span class="modal-label">Net Payable (incl. 18% GST):</span>
-    <span class="modal-value">₹<span id="modalNetPayable"></span></span>
-  </div>
-  <div class="modal-row" id="discountRow" style="display: none;">
-    <span class="modal-label">Discount Applied:</span>
-    <span class="modal-value">- ₹<span id="modalDiscountAmount"></span></span>
-  </div>
-  <div class="modal-row" style="font-weight: bold;">
-    <span class="modal-label">Total Payable:</span>
-    <span class="modal-value">₹<span id="modalFinalAmount"></span></span>
-  </div>
-</div>
+      <div class="modal-row">
+        <span class="modal-label">Inventory:</span>
+        <span class="modal-value"><strong>{{ inventoryType }}</strong></span>
+      </div>
+      <div class="modal-row">
+        <span class="modal-label">Passes:</span>
+        <span class="modal-value" id="modalPassQuantity">1</span>
+      </div>
+      <div class="modal-row">
+        <span class="modal-label">Base Price:</span>
+        <span class="modal-value">₹<span id="modalInventoryPrice"></span></span>
+      </div>
+      <div class="modal-row">
+        <span class="modal-label">Net + GST:</span>
+        <span class="modal-value">₹<span id="modalNetPayable"></span></span>
+      </div>
+      <div class="modal-row" id="discountRow" style="display: none;">
+        <span class="modal-label">Discount:</span>
+        <span class="modal-value">- ₹<span id="modalDiscountAmount"></span></span>
+      </div>
+      <div class="modal-row" style="font-weight: bold;">
+        <span class="modal-label">Total:</span>
+        <span class="modal-value">₹<span id="modalFinalAmount"></span></span>
+      </div>
+    </div>
 
 
     <div class="modal-footer">
@@ -1165,6 +1096,38 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 {% else %}
     <div class="mt-5 text-muted">No upcoming events found.</div>
 {% endif %} -->
+   <div class="booking-bar-fixed">
+  <div class="booking-info-left">
+    <div>
+  <div class="booking-type">{{ inventoryType }}</div>
+  <div class="booking-unit">
+    ₹<span class="bottomPricePerUnit"></span>
+    <span class="booking-unit-label">
+      {% if inventoryType == "Meeting rooms" %}
+        /hour
+      {% else %}
+        /seat/day
+      {% endif %}
+    </span>
+  </div>
+</div>
+<div class="quantity1">
+                <button onclick="decreaseQuantity()">-</button>
+                <span id="passQuantity">1</span>
+                <button onclick="increaseQuantity()">+</button>
+</div>
+  </div>
+
+  <div class="booking-info-right">
+    <div class="cart-details">
+                <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
+                <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
+            </div>
+    <button class="booking-cta-btn" onclick="openBuyNowModal()">Book Now</button>
+  </div>
+</div>
+
+
 
   <footer>
         <div class="footer-container">
@@ -1313,6 +1276,10 @@ const popup = document.getElementById("unique-image-popup");
 
 
 
+
+document.addEventListener("DOMContentLoaded", function () {
+  updateBottomBar();
+});
 
 // Footer Copyright Year Update
 document.querySelector('.footer-bottom p').innerHTML = 
@@ -1825,7 +1792,8 @@ function applyCoupon() {
       const applyBtn = cart.querySelector("button");
       applyBtn.style.backgroundColor = "#00b300"; // Shiny green
       applyBtn.style.color = "#fff";
-      showCouponSuccessPopup(message);
+      // 🚫 Skip popup if silent mode (e.g., for FLAT100)
+      if (!silent) showCouponSuccessPopup(message);
     } else {
       msg.innerText = errorMessage || "Invalid or not applicable.";
 msg.style.color = "red";
@@ -1914,72 +1882,208 @@ document.querySelectorAll(".coupon-select").forEach(select => {
 
 }
 
+let shownDay200 = false;
+let shownDay500 = false;
+let shownMeet300 = false;
+let shownMeet500 = false;
 
 // Function to increase quantity
+// function increaseQuantity() {
+//     resetCoupon(); // 🔁 Reset coupon
+//     passQuantity++;
+//     totalPrice = passQuantity * pricePerSeat;
+//     updateCartSummary(); 
+//     document.querySelectorAll(".coupon-select").forEach(select => {
+//       updateCouponColors(select);
+//     });
+
+//     // Auto-select coupon (but suppress flat100 popup)
+//   if (inventoryType === "Day pass") {
+//     if (passQuantity === 5 && !shownDay200) {
+//       showCouponSuccessPopup("DAY200 coupon is now applicable!");
+//       shownDay200 = true;
+//     } else if (passQuantity === 10 && !shownDay500) {
+//       showCouponSuccessPopup("DAY500 coupon is now applicable!");
+//       shownDay500 = true;
+//     }
+//   }
+
+//     autoSelectCoupon();
+// }
+
 function increaseQuantity() {
-    resetCoupon(); // 🔁 Reset coupon
-    passQuantity++;
-    totalPrice = passQuantity * pricePerSeat;
-    updateCartSummary();
-    document.querySelectorAll(".coupon-select").forEach(select => {
-  updateCouponColors(select);
-});
+  passQuantity++;
+  totalPrice = passQuantity * pricePerSeat;
 
-}
-
-// Function to decrease quantity (minimum 1)
-function decreaseQuantity() {
-    if (passQuantity > 1) {
-        resetCoupon(); // 🔁 Reset coupon
-        passQuantity--;
-        totalPrice = passQuantity * pricePerSeat;
-        updateCartSummary();
-        document.querySelectorAll(".coupon-select").forEach(select => {
-  updateCouponColors(select);
-});
-
+  // ✅ Only show coupon popup at milestones
+  if (inventoryType === "Day pass") {
+    if (passQuantity === 5 && !shownDay200) {
+      showCouponSuccessPopup("DAY200 coupon is now applicable!");
+      shownDay200 = true;
+    } else if (passQuantity === 10 && !shownDay500) {
+      showCouponSuccessPopup("DAY500 coupon is now applicable!");
+      shownDay500 = true;
     }
+  } else if (inventoryType === "Meeting rooms") {
+    if (passQuantity === 5 && !shownMeet300) {
+      showCouponSuccessPopup("MEET300 coupon is now applicable!");
+      shownMeet300 = true;
+    } else if (passQuantity === 10 && !shownMeet500) {
+      showCouponSuccessPopup("MEET500 coupon is now applicable!");
+      shownMeet500 = true;
+    }
+  }
+
+  // ✅ Skip popup for FLAT100 — apply silently
+  autoSelectCoupon(); 
+  updateCartSummary();
+  updateBottomBar(); 
 }
+
+function decreaseQuantity() {
+  if (passQuantity > 1) {
+    passQuantity--;
+    totalPrice = passQuantity * pricePerSeat;
+
+    // ✅ Reset milestone flags if user drops below thresholds
+    if (inventoryType === "Day pass") {
+      if (passQuantity < 5) shownDay200 = false;
+      if (passQuantity < 10) shownDay500 = false;
+    } else if (inventoryType === "Meeting rooms") {
+      if (passQuantity < 5) shownMeet300 = false;
+      if (passQuantity < 10) shownMeet500 = false;
+    }
+
+    autoSelectCoupon();
+    updateCartSummary();
+    updateBottomBar();
+  }
+}
+
+function updateBottomBar() {
+  const basePrice = discountedTotal ?? totalPrice;
+
+  document.querySelectorAll(".bottomPassQuantity").forEach(el => el.innerText = passQuantity);
+  document.querySelectorAll(".bottomPricePerUnit").forEach(el => el.innerText = pricePerSeat);
+  document.querySelectorAll(".bottomTotalPrice").forEach(el => el.innerText = basePrice);
+}
+
+
+
+
+
+
+function autoSelectCoupon() {
+  let selected = null;
+
+  if (inventoryType === "Day pass") {
+    if (passQuantity >= 10) selected = "DAY500";
+    else if (passQuantity >= 5) selected = "DAY200";
+    else selected = "FLAT100";
+  } else if (inventoryType === "Meeting rooms") {
+    if (passQuantity >= 10) selected = "MEET500";
+    else if (passQuantity >= 5) selected = "MEET300";
+    else selected = "FLAT100";
+  }
+
+  // Apply selected coupon
+  document.querySelectorAll(".coupon-select").forEach(select => {
+    select.value = selected;
+  });
+
+  appliedCoupon = selected;
+
+  // 👇 Pass silent flag to avoid showing popup for FLAT100
+  applyCoupon(selected === "FLAT100");
+}
+
+
+
 
 // Function to add bundles
+// function addBundle(quantity) {
+//    resetCoupon(); // 🔁 Reset coupon
+//     let inventoryType = "{{ inventoryType }}";
+//     passQuantity = quantity;
+//     let calculatedTotal = 0;
+
+//     if (inventoryType === "Meeting rooms" || inventoryType === "Private cabin") {
+//         calculatedTotal = pricePerSeat * quantity ;
+//     } else {
+//         calculatedTotal = pricePerSeat * quantity;
+//     }
+
+//     totalPrice = calculatedTotal;
+
+
+//     let selectionText = (inventoryType === "Meeting rooms") ? "Meeting Room Hours: " : "Day Passes: ";
+
+//     document.querySelectorAll("#totalPasses").forEach(element => {
+//         element.innerText = selectionText + passQuantity;
+//     });
+
+//     document.querySelectorAll("#totalPrice").forEach(element => {
+//         element.innerText = "₹" + totalPrice;
+//     });
+
+//     document.querySelectorAll(".cart-summary").forEach(cart => {
+//         cart.style.display = "block";
+//     });
+
+//     document.querySelectorAll("#passQuantity").forEach(qty => {
+//         qty.innerText = passQuantity;
+//     });
+
+//     document.querySelectorAll(".coupon-select").forEach(select => {
+//   updateCouponColors(select);
+// });
+    
+// }
 function addBundle(quantity) {
-   resetCoupon(); // 🔁 Reset coupon
-    let inventoryType = "{{ inventoryType }}";
     passQuantity = quantity;
-    let calculatedTotal = 0;
+    totalPrice = pricePerSeat * quantity;
 
-    if (inventoryType === "Meeting rooms" || inventoryType === "Private cabin") {
-        calculatedTotal = pricePerSeat * quantity ;
-    } else {
-        calculatedTotal = pricePerSeat * quantity;
-    }
-
-    totalPrice = calculatedTotal;
-
-
-    let selectionText = (inventoryType === "Meeting rooms") ? "Meeting Room Hours: " : "Day Passes: ";
+    // Set in UI
+    document.querySelectorAll("#passQuantity").forEach(qty => qty.innerText = passQuantity);
 
     document.querySelectorAll("#totalPasses").forEach(element => {
-        element.innerText = selectionText + passQuantity;
+        element.innerText = (inventoryType === "Meeting rooms") ? `${passQuantity} Hour(s)` : `${passQuantity} Day(s)`;
     });
 
-    document.querySelectorAll("#totalPrice").forEach(element => {
-        element.innerText = "₹" + totalPrice;
+    document.querySelectorAll("#totalPrice").forEach(price => {
+        price.innerText = `₹${totalPrice}`;
     });
 
     document.querySelectorAll(".cart-summary").forEach(cart => {
         cart.style.display = "block";
     });
 
-    document.querySelectorAll("#passQuantity").forEach(qty => {
-        qty.innerText = passQuantity;
-    });
+    // Re-evaluate coupons
+    autoSelectCoupon();  // ✅ This is key — apply coupon based on new quantity
 
-    document.querySelectorAll(".coupon-select").forEach(select => {
-  updateCouponColors(select);
-});
-    
+    updateCartSummary(); // ✅ Ensure correct UI and prices
+
+    updateBottomBar();
+    // Optional: Trigger popup notification
+    if (inventoryType === "Day pass") {
+    if (passQuantity === 5 && !shownDay200) {
+        showCouponSuccessPopup("DAY200 coupon is now applicable!");
+        shownDay200 = true;
+    } else if (passQuantity === 10 && !shownDay500) {
+        showCouponSuccessPopup("DAY500 coupon is now applicable!");
+        shownDay500 = true;
+    }
+} else if (inventoryType === "Meeting rooms") {
+    if (passQuantity === 5 && !shownMeet300) {
+        showCouponSuccessPopup("MEET300 coupon is now applicable!");
+        shownMeet300 = true;
+    } else if (passQuantity === 10 && !shownMeet500) {
+        showCouponSuccessPopup("MEET500 coupon is now applicable!");
+        shownMeet500 = true;
+    }
 }
+}
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -2028,6 +2132,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <script>
 function openBuyNowModal() {
+  adjustBuyNowModalForLoggedInUser();
   // Auto-fill phone
     const verifiedPhone = sessionStorage.getItem("verifiedContact");
     
@@ -2870,6 +2975,35 @@ function showOtpMessage(message, type = "info") {
     msgDiv.style.display = "none";
   }, 5000);
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  updateCartSummary();
+  autoSelectCoupon(); // 👈 Call this to set the default coupon
+});
+
+function updateBottomBar() {
+  const basePrice = discountedTotal ?? totalPrice;
+
+  document.querySelectorAll(".bottomPassQuantity").forEach(el => el.innerText = passQuantity);
+  document.querySelectorAll(".bottomPricePerUnit").forEach(el => el.innerText = pricePerSeat);
+  document.querySelectorAll(".bottomTotalPrice").forEach(el => el.innerText = basePrice);
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("bottomPricePerUnit").innerText = pricePerSeat;
+  updateBottomBar(); // optional for initial total calculation
+});
+
+function adjustBuyNowModalForLoggedInUser() {
+  const userContact = "{{ user_data.get('contact', '') }}";
+  if (userContact) {
+    const userFields = document.getElementById("userDetailsFields");
+    if (userFields) userFields.style.display = "none";
+  }
+}
+
 
 </script>
 
