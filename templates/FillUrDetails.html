@@ -1271,21 +1271,15 @@ function calculateSecurityDeposit(spaceId) {
                 <div id="propertyImagePreview_${spaceCount}" class="d-flex flex-wrap"></div>
                 <!-- End of Property Images Upload -->
                 <!-- Center Manager Details -->
-                <h5 class="team">Who is in your Team?</h5>
+                <h5 class="team">Who is in your Team? (Optional)</h5>
                 <div class="form-group mb-3">
                     <div class="mb-3 w-100">
-                        <input type="text" class="form-control" name="center_manager_name[]" placeholder="Who manages this workspace?" required
-                            value="${center_manager_name}"
-                            data-parsley-required-message="Please enter the center manager name."
-                            data-parsley-trigger="change" aria-label="Center Manager Name">
+                        <input type="text" class="form-control" name="center_manager_name[]" placeholder="Who manages this workspace?"
+                            value="${center_manager_name}">
                     </div>
                     <div class="mb-3 w-100">
-                        <input type="tel" class="form-control" name="center_manager_contact[]" placeholder="Contact number" required
-                            value="${center_manager_contact}"
-                            data-parsley-required-message="Please enter the center manager contact."
-                            data-parsley-pattern="^[0-9]{10}$"
-                            data-parsley-pattern-message="Please enter a valid 10-digit phone number."
-                            data-parsley-trigger="change" aria-label="Center Manager Contact">
+                        <input type="tel" class="form-control" name="center_manager_contact[]" placeholder="Contact number"
+                            value="${center_manager_contact}">
                     </div>
                 </div>
                 <!-- About Space -->
@@ -1324,78 +1318,75 @@ function calculateSecurityDeposit(spaceId) {
                     <button type="button" class="btn btn-secondary mb-3" onclick="addInventory(${spaceCount})">+ Add Inventory</button>
 
                     <!-- Amenities Section (Visible only for Coworking Spaces) -->
-                    <h5 class="amen">Amenities</h5>
+                    <h5 class="amen">Amenities (Optional)</h5>
                     <div id="amenities_section_${spaceCount}" class="mb-3" style="display: none;">
                         <p class="file-format-note">Select Amenities Available in your Space.</p>
                         <div class="rowamen">
                             <!-- Amenities Checkboxes (3 per row) -->
                             <div class="col-md-4-amen">
                                 <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Air Conditioning" id="air_conditioning_${spaceCount}"
-                                required data-parsley-mincheck="1" ${spaceData?.amenities?.includes('Air Conditioning') ? 'checked' : ''} 
-                                data-parsley-required-message="Please select at least one amenity.">
+                                 ${spaceData?.amenities?.includes('Air Conditioning') ? 'checked' : ''} >
                                 <label for="air_conditioning_${spaceCount}" class="form-check-label">
                                     Air Conditioning<span class="amenity-icon">🌬️</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Car / Bike Parking" id="parking_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Car / Bike Parking') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Car / Bike Parking" id="parking_${spaceCount}"
+                                 ${spaceData?.amenities?.includes('Car / Bike Parking') ? 'checked' : ''}>
                                 <label for="parking_${spaceCount}" class="form-check-label">
                                     Car / Bike Parking<span class="amenity-icon">🚗</span>
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Ergo Workstations" id="ergo_workstations_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Ergo Workstations') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Ergo Workstations" id="ergo_workstations_${spaceCount}" 
+                                    ${spaceData?.amenities?.includes('Ergo Workstations') ? 'checked' : ''}>
                                 <label for="ergo_workstations_${spaceCount}" class="form-check-label">
                                     Ergo Workstations<span class="amenity-icon">🪑</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="High Speed WiFi" id="wifi_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity."  ${spaceData?.amenities?.includes('High Speed WiFi') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="High Speed WiFi" id="wifi_${spaceCount}" 
+                                ${spaceData?.amenities?.includes('High Speed WiFi') ? 'checked' : ''}>
                                 <label for="wifi_${spaceCount}" class="form-check-label">
                                     High Speed WiFi<span class="amenity-icon">📶</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}" required data-parsley-mincheck="1" ${spaceData?.amenities?.includes('Housekeeping') ? 'checked' : ''}
-                data-parsley-required-message="Please select at least one amenity.">
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Housekeeping" id="housekeeping_${spaceCount}"  ${spaceData?.amenities?.includes('Housekeeping') ? 'checked' : ''}>
                                 <label for="housekeeping_${spaceCount}" class="form-check-label">
                                     Housekeeping<span class="amenity-icon">🧹</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Lounge" id="lounge_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Lounge') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Lounge" id="lounge_${spaceCount}" ${spaceData?.amenities?.includes('Lounge') ? 'checked' : ''}>
                                 <label for="lounge_${spaceCount}" class="form-check-label">
                                     Lounge<span class="amenity-icon">🍹</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Meeting Rooms" id="meeting_rooms_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Meeting Rooms') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Meeting Rooms" id="meeting_rooms_${spaceCount}"
+                ${spaceData?.amenities?.includes('Meeting Rooms') ? 'checked' : ''}>
                                 <label for="meeting_rooms_${spaceCount}" class="form-check-label">
                                     Meeting Rooms<span class="amenity-icon">🪑</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Pantry') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Pantry" id="pantry_${spaceCount}"
+                ${spaceData?.amenities?.includes('Pantry') ? 'checked' : ''}>
                                 <label for="pantry_${spaceCount}" class="form-check-label">
                                     Pantry<span class="amenity-icon">🥤</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Phone Booth" id="phone_booth_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Phone Booth') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Phone Booth" id="phone_booth_${spaceCount}" 
+                 ${spaceData?.amenities?.includes('Phone Booth') ? 'checked' : ''}>
                                 <label for="phone_booth_${spaceCount}" class="form-check-label">
                                     Phone Booth<span class="amenity-icon">📞</span> 
                                 </label>
                             </div>
                             <div class="col-md-4-amen">
-                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Printer" id="printer_${spaceCount}" required data-parsley-mincheck="1" 
-                data-parsley-required-message="Please select at least one amenity." ${spaceData?.amenities?.includes('Printer') ? 'checked' : ''}>
+                                <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Printer" id="printer_${spaceCount}"
+                 ${spaceData?.amenities?.includes('Printer') ? 'checked' : ''}>
                                 <label for="printer_${spaceCount}" class="form-check-label">
                                     Printer<span class="amenity-icon">🖨️</span> 
                                 </label>
@@ -1403,15 +1394,13 @@ function calculateSecurityDeposit(spaceId) {
 
                             <div class="col-md-4-amen">
     <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Reception" id="reception_${spaceCount}"
-        ${spaceData?.amenities?.includes('Reception') ? 'checked' : ''} required data-parsley-mincheck="1"
-        data-parsley-required-message="Please select at least one amenity.">
+        ${spaceData?.amenities?.includes('Reception') ? 'checked' : ''} >
     <label for="reception_${spaceCount}" class="form-check-label">Reception<span class="amenity-icon">👥</span></label>
 </div>
 
 <div class="col-md-4-amen">
     <input type="checkbox" class="form-check-input" name="amenities_${spaceCount}[]" value="Tea/Coffee" id="tea_coffee_${spaceCount}"
-        ${spaceData?.amenities?.includes('Tea/Coffee') ? 'checked' : ''} required data-parsley-mincheck="1"
-        data-parsley-required-message="Please select at least one amenity.">
+        ${spaceData?.amenities?.includes('Tea/Coffee') ? 'checked' : ''} >
     <label for="tea_coffee_${spaceCount}" class="form-check-label">Tea/Coffee<span class="amenity-icon">☕</span></label>
 </div>
                         </div>
@@ -1622,7 +1611,7 @@ function calculateSecurityDeposit(spaceId) {
     <input type="hidden" id="min_inventory_unit_${spaceCount}" name="min_inventory_unit_${spaceCount}">
 </div>
                     <!-- Managed Office Amenities -->
-<h5 class="amen">Managed Office Amenities</h5>
+<h5 class="amen">Managed Office Amenities (Optional)</h5>
 <div id="managed_amenities_section_${spaceCount}" class="mb-3">
     <p class="file-format-note">Select Amenities Available in your Managed Office.</p>
     <div class="rowamen">
@@ -1678,13 +1667,11 @@ function calculateSecurityDeposit(spaceId) {
                 </div>
 
 
-                <!-- Common Section: Tell Us About Your Space -->
-                <h5 class="tell">Tell us about your space and why it's so great</h5>
+                <!-- Common Section: Tell Us About Your Space (Optional)-->
+                <h5 class="tell">Tell us about your space and why it's so great (Optional)</h5>
                 <div class="form-group mb-3">
                     <textarea class="form-control" name="space_description_${spaceCount}" rows="4"
-                        placeholder="Describe your workspace, amenities, and why it's a great place to work" required
-                        data-parsley-required-message="Please describe your workspace."
-                        data-parsley-trigger="change" required></textarea>
+                        placeholder="Describe your workspace, amenities, and why it's a great place to work"></textarea>
                 </div>
             </div>
         `;
@@ -1964,13 +1951,13 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
         micromarketDropdown.disabled = false;
 
         // Handle "Other" selection
-        micromarketDropdown.addEventListener('change', function () {
-            if (micromarketDropdown.value === "Other") {
-                showCustomInput('micromarket', spaceId);
-            } else {
-                hideCustomInput('micromarket', spaceId);
-            }
-        });
+        micromarketDropdown.onchange = function () {
+    if (this.value === "Other") {
+        showCustomInput('micromarket', spaceId);
+    } else {
+        hideCustomInput('micromarket', spaceId);
+    }
+};
         return; 
     }
 
@@ -2279,11 +2266,16 @@ function generateRoomDetails(spaceId, inventoryCount, roomType, numberOfRooms,in
         priceInput.type = 'number';
         priceInput.className = 'form-control';
         priceInput.name = `price_${spaceId}_${inventoryCount}_${i}`;
-        priceInput.placeholder = `Price for Room ${i}`;
         priceInput.min = '0';
         priceInput.required = true;
         priceInput.setAttribute('data-parsley-required-message', 'Please enter the price.');
         priceInput.setAttribute('data-parsley-type', 'number');
+
+        if (roomType === 'Meeting rooms') {
+            priceInput.placeholder = `Price per Hour for Meeting Room ${i}`;
+        } else {
+            priceInput.placeholder = `Price per Cabin for Cabin ${i}`;
+        }
 
         // Prefill
         if (inventoryData?.room_details?.[i - 1]) {
@@ -2779,13 +2771,14 @@ function fetchLocations() {
         });
 
         locationDropdown.addEventListener('change', function () {
-            if (locationDropdown.value === "Other") {
-                showCustomInput('location', spaceCount);
-            } else {
-                closeDropdown(`location_${spaceCount}`);
-                fetchMicromarkets(); // Fetch micromarkets when location changes
-            }
-        });
+    if (locationDropdown.value === "Other") {
+        showCustomInput('location', spaceCount);
+        populateMicromarketDropdown(spaceCount, "Other");
+    } else {
+        hideCustomInput('location', spaceCount);
+        populateMicromarketDropdown(spaceCount, locationDropdown.value);
+    }
+});
     })
     .catch(error => {
         console.error('Error fetching locations:', error);
@@ -2793,61 +2786,61 @@ function fetchLocations() {
 }
 
 // Fetch unique micromarkets for the selected city
-function fetchMicromarkets() {
-    const cityDropdown = document.getElementById(`location_${spaceCount}`);
-    const selectedCity = cityDropdown.value; 
-    console.log('Fetching micromarkets for city:', selectedCity);
+// function fetchMicromarkets() {
+//     const cityDropdown = document.getElementById(`location_${spaceCount}`);
+//     const selectedCity = cityDropdown.value; 
+//     console.log('Fetching micromarkets for city:', selectedCity);
 
-    fetch(`/get_micromarkets?city=${selectedCity}`, {
-        method: 'GET'
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Micromarkets data:', data); // Debugging info
-        // Select the micromarket dropdown dynamically for the specific coworking space card
-        const micromarketDropdown = cityDropdown.closest('.form-group').querySelector('select[name="micromarket[]"]');
+//     fetch(`/get_micromarkets?city=${selectedCity}`, {
+//         method: 'GET'
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log('Micromarkets data:', data); // Debugging info
+//         // Select the micromarket dropdown dynamically for the specific coworking space card
+//         const micromarketDropdown = cityDropdown.closest('.form-group').querySelector('select[name="micromarket[]"]');
 
-        if (micromarketDropdown) {
-                // Clear and populate the micromarket dropdown
-                micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
+//         if (micromarketDropdown) {
+//                 // Clear and populate the micromarket dropdown
+//                 micromarketDropdown.innerHTML = '<option selected disabled>Select Micromarket</option>';
 
-                // Sort micromarkets and capitalize the first letter
-            const sortedMicromarkets = data.micromarkets
-                .map(micromarket => micromarket.charAt(0).toUpperCase() + micromarket.slice(1))
-                .sort();
+//                 // Sort micromarkets and capitalize the first letter
+//             const sortedMicromarkets = data.micromarkets
+//                 .map(micromarket => micromarket.charAt(0).toUpperCase() + micromarket.slice(1))
+//                 .sort();
 
-            sortedMicromarkets.forEach(function(micromarket) {
-                let option = document.createElement("option");
-                option.value = micromarket;
-                option.text = micromarket;
-                micromarketDropdown.appendChild(option);
-            });
+//             sortedMicromarkets.forEach(function(micromarket) {
+//                 let option = document.createElement("option");
+//                 option.value = micromarket;
+//                 option.text = micromarket;
+//                 micromarketDropdown.appendChild(option);
+//             });
 
-                // Add "Other" option
-                let otherOption = document.createElement("option");
-                otherOption.value = "Other";
-                otherOption.text = "Other";
-                micromarketDropdown.appendChild(otherOption);
+//                 // Add "Other" option
+//                 let otherOption = document.createElement("option");
+//                 otherOption.value = "Other";
+//                 otherOption.text = "Other";
+//                 micromarketDropdown.appendChild(otherOption);
 
-                // Ensure the dropdown is clickable
-                micromarketDropdown.disabled = false;
-                micromarketDropdown.addEventListener('focus', function () {
-                    micromarketDropdown.size = 5; // Expand the dropdown on focus
-                });
+//                 // Ensure the dropdown is clickable
+//                 micromarketDropdown.disabled = false;
+//                 micromarketDropdown.addEventListener('focus', function () {
+//                     micromarketDropdown.size = 5; // Expand the dropdown on focus
+//                 });
 
-                micromarketDropdown.addEventListener('change', function () {
-                if (micromarketDropdown.value === "Other") {
-                    showCustomInput('micromarket', spaceCount);
-                } else {
-                    micromarketDropdown.size = 1; // Close the dropdown on change
-                }
-            });
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching micromarkets:', error);
-        });
-}
+//                 micromarketDropdown.addEventListener('change', function () {
+//                 if (micromarketDropdown.value === "Other") {
+//                     showCustomInput('micromarket', spaceCount);
+//                 } else {
+//                     micromarketDropdown.size = 1; // Close the dropdown on change
+//                 }
+//             });
+//             }
+//         })
+//         .catch(error => {
+//             console.error('Error fetching micromarkets:', error);
+//         });
+// }
 
 // Function to get the user's current location
 function getCurrentLocation(spaceId) {
