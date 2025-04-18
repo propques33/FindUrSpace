@@ -133,6 +133,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <span class="close" onclick="closeSignUpModal()">&times;</span>
     <h3>Complete Your Sign Up</h3>
     <form id="signUpForm">
+
+      <input type="hidden" id="signUpCity" value="{{ property.city }}">
+
       <label for="signUpName">Full Name</label>
       <input type="text" id="signUpName" required />
 
@@ -2655,7 +2658,8 @@ document.getElementById("signUpForm").addEventListener("submit", function (e) {
     contact: "{{ contact }}",
     location: document.getElementById("signUpLocation").value,
     latitude: document.getElementById("signUpLatitude").value,
-    longitude: document.getElementById("signUpLongitude").value
+    longitude: document.getElementById("signUpLongitude").value,
+    city: document.getElementById("signUpCity").value  
   };
 
   fetch("/submit_signup", {

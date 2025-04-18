@@ -5,9 +5,11 @@ from core.email_handler import send_email_and_whatsapp_with_pdf1
 from bson import ObjectId  # Import ObjectId to handle MongoDB _id type conversion
 from bson.regex import Regex
 import threading
+import time
 import io
 import re
 import os
+import json
 import pandas as pd
 import requests
 from dotenv import load_dotenv
@@ -732,12 +734,93 @@ def submit_purchase():
 
         # Insert into MongoDB
         booking_collection.insert_one(booking)
+        
+        # ✅ Send WhatsApp if payment is successful
+        if data.get("status") == "Paid":
+            try:
+                coworking_data = db.properties.find_one(
+                    {"_id": ObjectId(data["property_id"])},
+                    {"coworking_name": 1}
+                )
+                coworking_name = coworking_data.get("coworking_name", "FindurSpace") if coworking_data else "FindurSpace"
 
+                send_payment_confirmation_whatsapp(
+                    contact=data["phone"],
+                    name=data["fullName"],
+                    amount=data["totalPrice"],
+                    domain="findurspace.tech",
+                    inventory=data["inventoryType"],
+                    coworking_name=coworking_name
+                )
+            except Exception as e:
+                print("❌ WhatsApp sending failed:", str(e))
         return jsonify({"success": True,"contact": data["phone"], "message": "Booking received successfully!"}), 200
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
+def send_reengagement_whatsapp(mobile, name, inventory, coupon, city):
+    import os, requests
+
+    api_key = os.getenv('CUNNEKT_API_KEY')
+    url = "https://app2.cunnekt.com/v1/sendnotification"
+
+    if len(mobile) == 10:
+        mobile = '91' + mobile
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "API-KEY": api_key
+    }
+
+    payload = {
+        "mobile": mobile,
+        "templateid": "662782963293240",  # re_engage_customer_booking
+        "overridebot": "yes",
+        "template": {
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": name},
+                        {"type": "text", "text": inventory.lower()},
+                        {"type": "text", "text": coupon}
+                    ]
+                },
+                {
+                    "type": "button",
+                    "sub_type": "url",
+                    "index": 0,
+                    "parameters": [
+                        {"type": "text", "text": city.lower()}
+                    ]
+                }
+            ]
+        }
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        print("✅ Re-engagement message sent:", response.status_code, response.text)
+    except Exception as e:
+        print("❌ Error sending re-engagement WhatsApp:", str(e))
+
+
+
+def schedule_reengagement(contact, name, inventory, coupon, city):
+    from flask import current_app
+
+    def delayed_check(app):
+        with app.app_context():
+            db = app.config['db']
+            time.sleep(5)  # Delay for 5 seconds
+            has_booking = db.booking.find_one({"phone": contact, "status": "Paid"})
+            if not has_booking:
+                send_reengagement_whatsapp(contact, name, inventory, coupon, city)
+
+    app = current_app._get_current_object()  # Get real app object
+    threading.Thread(target=delayed_check, args=(app,)).start()
 
 @core_bp.route('/verify_otp', methods=['POST'])
 def verify_otp():
@@ -961,7 +1044,48 @@ def submit_info():
         gsheet_thread = threading.Thread(target=handle_new_user_entry, args=(user_data,))
         gsheet_thread.start()
 
+        # ✅ WhatsApp message for new signup via Cunnekt
+        try:
+            send_signup_whatsapp(contact, name)
+        except Exception as e:
+            print("Failed to send WhatsApp message on sign up:", e)
+
         return jsonify({'status': 'success', 'user_id': session['user_id'], 'redirect': None})
+
+def send_signup_whatsapp(mobile, name):
+    api_key = os.getenv('CUNNEKT_API_KEY')  # Make sure it's set in .env
+    url = "https://app2.cunnekt.com/v1/sendnotification"
+
+    if len(mobile) == 10:
+        mobile = '91' + mobile
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "API-KEY": api_key
+    }
+
+    payload = {
+        "mobile": mobile,
+        "templateid": "630416469910175",  # Your template ID
+        "overridebot": "yes",
+        "template": {
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {
+                            "type": "text",
+                            "text": name  # Insert user name here
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    print("WhatsApp signup response:", response.status_code, response.text)
 
 @core_bp.route('/thankyou')
 def thankyou():
@@ -2073,22 +2197,41 @@ def update_inventory():
 @core_bp.route('/submit_signup', methods=['POST'])
 def submit_signup():
     db = current_app.config['db']
-    data = request.json
+    data = request.get_json()
 
-    contact = data.get('contact')
-    if not contact:
-        return jsonify({"success": False, "message": "Contact is missing"})
+    name = data.get("name")
+    company = data.get("company")
+    email = data.get("email")
+    contact = data.get("contact")
+    location = data.get("location", "")
+    latitude = data.get("latitude", "")
+    longitude = data.get("longitude", "")
+    city = data.get("city", "bangalore")
 
-    update_data = {
-        "name": data.get("name"),
-        "email": data.get("email"),
-        "company": data.get("company"),
-        "location": data.get("location"),
-        "latitude": data.get("latitude"),
-        "longitude": data.get("longitude"),
-    }
+    # ✅ Insert into DB
+    db.users.update_one(
+        {"contact": contact},
+        {"$set": {
+            "name": name,
+            "company": company,
+            "email": email,
+            "location": location,
+            "latitude": latitude,
+            "longitude": longitude
+        }},
+        upsert=True
+    )
 
-    result = db.users.update_one({"contact": contact}, {"$set": update_data}, upsert=True)
+    # ✅ Trigger WhatsApp via Cunnekt
+    try:
+        send_signup_whatsapp(contact, name)
+    except Exception as e:
+        print("WhatsApp message failed:", e)
+
+    try:
+        schedule_reengagement(contact, name, "Meeting Room", "Flat 100", city)
+    except Exception as e:
+        print("❌ Failed to schedule reengagement:", e)
 
     return jsonify({"success": True})
 
@@ -2426,6 +2569,45 @@ def save_user_contact():
         upsert=True
     )
     return jsonify(success=True)
+
+def send_payment_confirmation_whatsapp(contact, name, amount, domain, inventory, coworking_name):
+    api_key = os.getenv('CUNNEKT_API_KEY')  # Make sure it's set in your .env
+    url = "https://app2.cunnekt.com/v1/sendnotification"  # Same endpoint style as signup
+
+    if len(contact) == 10:
+        contact = '91' + contact
+
+    headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "API-KEY": api_key
+    }
+
+    payload = {
+        "mobile": contact,
+        "templateid": "664766732795706",  # Your payment confirmation template ID
+        "overridebot": "yes",
+        "template": {
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": name},
+                        {"type": "text", "text": f"INR {amount}"},
+                        {"type": "text", "text": domain},
+                        {"type": "text", "text": inventory},
+                        {"type": "text", "text": coworking_name}
+                    ]
+                }
+            ]
+        }
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        print("✅ WhatsApp sent:", response.status_code, response.text)
+    except Exception as e:
+        print("❌ WhatsApp sending failed:", str(e))
 
 @core_bp.route('/update_user_details', methods=['POST'])
 def update_user_details():
