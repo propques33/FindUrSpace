@@ -1132,14 +1132,62 @@ function updateSpaceDetails(spaceCount) {
 }
 
 function calculateSecurityDeposit(spaceId) {
-    const months = parseInt(document.getElementById(`security_deposit_months_${spaceId}`).value) || 0;
-    const rental = parseFloat(document.getElementById(`total_rental_${spaceId}`).value) || 0;
+    const type = document.getElementById(`property_input_type_${spaceId}`)?.value;
+    const months = parseInt(document.getElementById(`security_deposit_months_${spaceId}`)?.value) || 0;
+    const rental = parseFloat(document.getElementById(`total_rental_${spaceId}`)?.value) || 0;
 
-    const finalDeposit = months * rental;
-    document.getElementById(`final_security_deposit_${spaceId}`).value = finalDeposit;
+    let finalDeposit = 0;
 
-    console.log(`Security Deposit for space ${spaceId} is ₹${finalDeposit}`);
+    if (type === 'sqft') {
+        finalDeposit = months * rental;
+    } else if (type === 'seats') {
+    const seats = parseInt(document.getElementById(`seat_number_of_seats_${spaceId}`)?.value) || 0;
+    const rentalPerSeat = parseFloat(document.getElementById(`seat_total_rental_${spaceId}`)?.value) || 0;
+    const months = parseInt(document.getElementById(`seat_security_deposit_months_${spaceId}`)?.value) || 0;
+    const final = seats * rentalPerSeat * months;
+    document.getElementById(`seat_final_security_deposit_${spaceId}`).value = final;
 }
+
+    document.getElementById(`final_security_deposit_${spaceId}`).value = finalDeposit;
+}
+
+
+function toggleManagedOfficeInputMode(spaceId) {
+    const type = document.getElementById(`property_input_type_${spaceId}`).value;
+    
+    const sqftSection = document.getElementById(`sqft_input_section_${spaceId}`);
+    const seatSection = document.getElementById(`seats_input_section_${spaceId}`);
+    const typeOfSpaceField = document.getElementById(`space_type_${spaceId}`);
+    const furnishingLevelField = document.getElementById(`furnishing_level_${spaceId}`);
+    const rentalLabel = document.getElementById(`rental_label_${spaceId}`);
+    
+    if (type === 'sqft') {
+        sqftSection.style.display = 'block';
+        seatSection.style.display = 'none';
+        if (typeOfSpaceField) {
+            typeOfSpaceField.value = 'economy';
+            typeOfSpaceField.closest('.form-group').style.display = 'none';
+        }
+        if (furnishingLevelField) {
+            furnishingLevelField.closest('.form-group').style.display = '';
+        }
+        rentalLabel.textContent = 'Total Rental Expectation';
+    } else if (type === 'seats') {
+        sqftSection.style.display = 'none';
+        seatSection.style.display = 'block';
+        if (typeOfSpaceField) {
+            typeOfSpaceField.closest('.form-group').style.display = 'none';
+        }
+        if (furnishingLevelField) {
+            furnishingLevelField.value = 'Ready to move in';
+            furnishingLevelField.closest('.form-group').style.display = 'none';
+        }
+        rentalLabel.textContent = 'Rental Expectation per Seat';
+    }
+
+    calculateSecurityDeposit(spaceId);
+}
+
 
     // Function to add a coworking space section
     function addSpaceDetails(spaceData = null) {
@@ -1223,17 +1271,13 @@ function calculateSecurityDeposit(spaceId) {
     <!-- Distance from Metro -->
     <div class="w-50">
         <label for="distance_metro_${spaceCount}" class="form-label">Distance from Nearest Metro (km) *</label>
-        <input type="number" class="form-control" id="distance_metro_${spaceCount}" name="distance_metro[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.metro : ''}"
-            data-parsley-required-message="Please enter the distance from the nearest metro station."
-            data-parsley-type="number" step="0.1" data-parsley-trigger="change">
+        <input type="number" class="form-control" id="distance_metro_${spaceCount}" name="distance_metro[]" placeholder="Enter distance in km" min="0"  value="${spaceData && spaceData.distance ? spaceData.distance.metro : ''}">
     </div>
 
     <!-- Distance from Airport -->
     <div class="w-50">
         <label for="distance_airport_${spaceCount}" class="form-label">Distance from Nearest Airport (km) *</label>
-        <input type="number" class="form-control" id="distance_airport_${spaceCount}" name="distance_airport[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.airport : ''}"
-            data-parsley-required-message="Please enter the distance from the nearest airport."
-            data-parsley-type="number" step="0.1" data-parsley-trigger="change">
+        <input type="number" class="form-control" id="distance_airport_${spaceCount}" name="distance_airport[]" placeholder="Enter distance in km" min="0" value="${spaceData && spaceData.distance ? spaceData.distance.airport : ''}">
     </div>
 </div>
 
@@ -1241,17 +1285,13 @@ function calculateSecurityDeposit(spaceId) {
     <!-- Distance from Bus Station -->
     <div class="w-50">
         <label for="distance_bus_${spaceCount}" class="form-label">Distance from Nearest Bus Station (km) *</label>
-        <input type="number" class="form-control" id="distance_bus_${spaceCount}" name="distance_bus[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.bus : ''}"
-            data-parsley-required-message="Please enter the distance from the nearest bus station."
-            data-parsley-type="number" step="0.1" data-parsley-trigger="change">
+        <input type="number" class="form-control" id="distance_bus_${spaceCount}" name="distance_bus[]" placeholder="Enter distance in km" min="0" value="${spaceData && spaceData.distance ? spaceData.distance.bus : ''}">
     </div>
 
     <!-- Distance from Railway Station -->
     <div class="w-50">
         <label for="distance_railway_${spaceCount}" class="form-label">Distance from Nearest Railway Station (km) *</label>
-        <input type="number" class="form-control" id="distance_railway_${spaceCount}" name="distance_railway[]" placeholder="Enter distance in km" min="0" required value="${spaceData && spaceData.distance ? spaceData.distance.railway : ''}"
-            data-parsley-required-message="Please enter the distance from the nearest railway station."
-            data-parsley-type="number" step="0.1" data-parsley-trigger="change">
+        <input type="number" class="form-control" id="distance_railway_${spaceCount}" name="distance_railway[]" placeholder="Enter distance in km" min="0" value="${spaceData && spaceData.distance ? spaceData.distance.railway : ''}">
     </div>
 </div>
 
@@ -1457,6 +1497,16 @@ function calculateSecurityDeposit(spaceId) {
                 <div id="managed_office_fields_${spaceCount}" style="display: none;">
                     <h5>Managed Office Details</h5>
 
+                    <div class="form-group mb-3">
+                        <label class="form-label">How would you like to provide property details?</label>
+                        <select class="form-select" id="property_input_type_${spaceCount}" name="property_input_type_${spaceCount}" onchange="toggleManagedOfficeInputMode(${spaceCount})" required>
+                            <option value="" disabled selected>Select an option</option>
+                            <option value="sqft">In Square Feet</option>
+                            <option value="seats">In Number of Seats</option>
+                        </select>
+                    </div>
+
+                    <div id="sqft_input_section_${spaceCount}" style="display: none;">
                     <!-- First Row: Rent or Own & Total Building Area -->
                     <!-- Rent or Own & Total Building Area -->
                     <div class="form-group mb-3 d-flex gap-3 " id="no"> 
@@ -1569,18 +1619,9 @@ function calculateSecurityDeposit(spaceId) {
                         <select class="form-select" id="lockin_period_${spaceCount}" name="lockin_period_${spaceCount}" required
                             data-parsley-required-message="Please select the lock-in period."
                             data-parsley-trigger="change">
-                            <option ${!lockin_period ? 'selected' : ''}>No Lock-in Period</option>
-                                    <option value="3 months" ${lockin_period === '3 months' ? 'selected' : ''}>3 months</option>
-                                    <option value="6 months" ${lockin_period === '6 months' ? 'selected' : ''}>6 months</option>
-                                    <option value="1 year" ${lockin_period === '1 year' ? 'selected' : ''}>1 year</option>
-                                    <option value="2 years" ${lockin_period === '2 years' ? 'selected' : ''}>2 years</option>
-                                    <option value="3 years" ${lockin_period === '3 years' ? 'selected' : ''}>3 years</option>
-                                    <option value="4 years" ${lockin_period === '4 years' ? 'selected' : ''}>4 years</option>
-                                    <option value="5 years" ${lockin_period === '5 years' ? 'selected' : ''}>5 years</option>
-                                    <option value="6 years" ${lockin_period === '6 years' ? 'selected' : ''}>6 years</option>
-                                    <option value="7 years" ${lockin_period === '7 years' ? 'selected' : ''}>7 years</option>
-                                    <option value="8 years" ${lockin_period === '8 years' ? 'selected' : ''}>8 years</option>
-                                    <option value="9 years" ${lockin_period === '9 years' ? 'selected' : ''}>9 years</option>
+                            <option value="" disabled selected>Select Lock-in Period</option>
+                            ${[3, 6, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 108].map(month => 
+                                `<option value="${month} months">${month} months</option>`).join('')}
                         </select>
                         </div>
                     </div>
@@ -1610,6 +1651,104 @@ function calculateSecurityDeposit(spaceId) {
     <label for="min_inventory_unit_${spaceCount}" class="form-label">Min Inventory Unit</label>
     <input type="hidden" id="min_inventory_unit_${spaceCount}" name="min_inventory_unit_${spaceCount}">
 </div>
+</div>
+
+<div id="seats_input_section_${spaceCount}" style="display: none;">
+    <!-- Row 1: Rent or Own + Number of Seats -->
+    <div class="form-group mb-3 d-flex gap-3">
+        <div class="w-50">
+            <label for="seat_rent_or_own_${spaceCount}" class="form-label">Do you rent or own your space?</label>
+            <select class="form-select" id="seat_rent_or_own_${spaceCount}" name="seat_rent_or_own_${spaceCount}" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="Rent">Rent</option>
+                <option value="Own">Own</option>
+            </select>
+        </div>
+        <div class="w-50">
+            <label for="seat_number_of_seats_${spaceCount}" class="form-label">Total Number of Seats</label>
+            <input type="number" class="form-control" id="seat_number_of_seats_${spaceCount}" name="seat_number_of_seats_${spaceCount}" min="1" placeholder="Enter total number of seats" oninput="calculateSecurityDeposit(${spaceCount})" required>
+        </div>
+    </div>
+
+    <!-- Row 2: Rental Per Seat + Security Deposit Months -->
+    <div class="form-group mb-3 d-flex gap-3">
+        <div class="w-50">
+            <label for="seat_total_rental_${spaceCount}" class="form-label">Rental Expectation per Seat</label>
+            <input type="number" class="form-control" id="seat_total_rental_${spaceCount}" name="seat_total_rental_${spaceCount}" min="1" placeholder="Enter rental per seat" oninput="calculateSecurityDeposit(${spaceCount})" required>
+        </div>
+        <div class="w-50">
+            <label for="seat_security_deposit_months_${spaceCount}" class="form-label">Security Deposit (Months)</label>
+            <select class="form-select" id="seat_security_deposit_months_${spaceCount}" name="seat_security_deposit_months_${spaceCount}" onchange="calculateSecurityDeposit(${spaceCount})" required>
+                <option value="" disabled selected>Select months</option>
+                ${[...Array(12)].map((_, i) => `<option value="${i + 1}">${i + 1} months</option>`).join('')}
+            </select>
+        </div>
+    </div>
+
+    <!-- Row 3: Final Security Deposit -->
+    <div class="form-group mb-3" style="display: none;">
+        <label for="seat_final_security_deposit_${spaceCount}" class="form-label">Final Security Deposit</label>
+        <input type="text" class="form-control" id="seat_final_security_deposit_${spaceCount}" name="seat_final_security_deposit_${spaceCount}" readonly>
+    </div>
+
+    <!-- Row 4: Total Floors + Floors Occupied -->
+    <div class="form-group mb-3 d-flex gap-3">
+        <div class="w-50">
+            <label for="seat_total_floors_${spaceCount}" class="form-label">Number of Floors</label>
+            <input type="number" class="form-control" id="seat_total_floors_${spaceCount}" name="seat_total_floors_${spaceCount}" placeholder="Enter total number of floors" min="0" required onchange="generateOfferedFloorsChecklist(${spaceCount})">
+            <div id="seat_offered_floors_container_${spaceCount}" class="mt-2"></div>
+        </div>
+        <div class="w-50">
+            <label for="seat_floors_occupied_${spaceCount}" class="form-label">Number of Floors Occupied</label>
+            <input type="number" class="form-control" id="seat_floors_occupied_${spaceCount}" name="seat_floors_occupied_${spaceCount}" placeholder="Enter number of occupied floors" min="0" required>
+        </div>
+    </div>
+
+    <!-- Row 5: Furnishing Level + Lock-in Period -->
+    <div class="form-group mb-3 d-flex gap-3">
+        <div class="w-50">
+            <label for="seat_furnishing_level_${spaceCount}" class="form-label">Furnishing Level</label>
+            <select class="form-select" id="seat_furnishing_level_${spaceCount}" name="seat_furnishing_level_${spaceCount}" required>
+                <option value="Ready to move in" selected>Ready to move in</option>
+                <option value="Bare shell">Bare shell</option>
+                <option value="Warm shell">Warm shell</option>
+            </select>
+        </div>
+        <div class="w-50">
+            <label for="seat_lockin_period_${spaceCount}" class="form-label">Expected Lock-in Period (Months)</label>
+            <select class="form-select" id="seat_lockin_period_${spaceCount}" name="seat_lockin_period_${spaceCount}" required>
+                <option value="" disabled selected>Select Lock-in Period</option>
+                ${[3, 6, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 108].map(month =>
+                    `<option value="${month} months">${month} months</option>`).join('')}
+            </select>
+        </div>
+    </div>
+
+    <!-- Row 6: Lease Term -->
+<div class="form-group mb-3">
+  <label for="seat_lease_term_${spaceCount}" class="form-label">Lease Term</label>
+  <select class="form-select" id="seat_lease_term_${spaceCount}" name="seat_lease_term_${spaceCount}" required>
+    <option value="" disabled selected>Select Lease Term</option>
+    ${[...Array(8).keys()].map(i => {
+        const val = (i + 1) * 11;
+        return `<option value="${val}">${val} months</option>`;
+    }).join('')}
+  </select>
+</div>
+
+    <!-- Row 6: Type of Space -->
+    <div class="form-group mb-3">
+        <label for="seat_space_type_${spaceCount}" class="form-label">Type of Space</label>
+        <select class="form-select" id="seat_space_type_${spaceCount}" name="seat_space_type_${spaceCount}" required onchange="calculateMinInventoryUnit(${spaceCount})">
+            <option value="" disabled selected>Select Type of Space</option>
+            <option value="economy">Economy</option>
+            <option value="average">Average</option>
+            <option value="spacious">Spacious</option>
+        </select>
+    </div>
+</div>
+
+
                     <!-- Managed Office Amenities -->
 <h5 class="amen">Managed Office Amenities (Optional)</h5>
 <div id="managed_amenities_section_${spaceCount}" class="mb-3">
@@ -1783,8 +1922,26 @@ if (workspaceType === "Managed Offices") {
 
 
 function generateOfferedFloorsChecklist(spaceId) {
-    const totalFloors = parseInt(document.getElementById(`total_floors_${spaceId}`).value) || 0;
-    const container = document.getElementById(`offered_floors_container_${spaceId}`);
+    // Detect the current property input mode
+    const type = document.getElementById(`property_input_type_${spaceId}`)?.value;
+
+    // Get floor value and container as per mode
+    let totalFloors, container;
+    if (type === 'sqft') {
+        totalFloors = parseInt(document.getElementById(`total_floors_${spaceId}`)?.value) || 0;
+        container = document.getElementById(`offered_floors_container_${spaceId}`);
+    } else if (type === 'seats') {
+        totalFloors = parseInt(document.getElementById(`seat_total_floors_${spaceId}`)?.value) || 0;
+        container = document.getElementById(`seat_offered_floors_container_${spaceId}`);
+    } else {
+        // fallback, try both
+        totalFloors = parseInt(document.getElementById(`total_floors_${spaceId}`)?.value) 
+                   || parseInt(document.getElementById(`seat_total_floors_${spaceId}`)?.value) || 0;
+        container = document.getElementById(`offered_floors_container_${spaceId}`) 
+                 || document.getElementById(`seat_offered_floors_container_${spaceId}`);
+    }
+
+    if (!container) return;
     container.innerHTML = '';
 
     if (totalFloors > 0) {
@@ -1808,19 +1965,21 @@ function generateOfferedFloorsChecklist(spaceId) {
             checkbox.id = `offered_floor_${spaceId}_${i}`;
             checkbox.required = true;
 
-            const label = document.createElement('label');
-            label.className = 'form-check-label';
-            label.setAttribute('for', checkbox.id);
-            label.textContent = `Floor ${i}`;
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.className = 'form-check-label';
+            checkboxLabel.setAttribute('for', checkbox.id);
+            checkboxLabel.textContent = `Floor ${i}`;
 
             checkboxWrapper.appendChild(checkbox);
-            checkboxWrapper.appendChild(label);
+            checkboxWrapper.appendChild(checkboxLabel);
             checklist.appendChild(checkboxWrapper);
         }
 
         container.appendChild(checklist);
     }
 }
+
+
 
 
 
@@ -2047,7 +2206,7 @@ function populateMicromarketDropdown(spaceId, selectedCity, selectedMicromarket 
                 </div>
             </div>
             <div class="form-group mb-3" >
-  ${(inventoryType !== 'Meeting rooms') ? `
+  ${(inventoryType !== 'Meeting rooms' && inventoryType !== 'Private cabin') ? `
     <div class="mb-3 w-100" id="inventory_count_container_${spaceId}_${inventoryCount}">
       <input type="number" 
         class="form-control" 
@@ -2472,10 +2631,10 @@ if (uploadedCount + preloadedCount < 2) {
         }
     } else if (selectedValue === 'Private cabin') {
         if (inventoryImageSection) inventoryImageSection.style.display = 'none';
-        if (inventoryCountWrapper) inventoryCountWrapper.style.display = 'block';
+        if (inventoryCountWrapper) inventoryCountWrapper.style.display = 'none';
         if (inventoryCountInput) {
-            inventoryCountInput.disabled = false;
-            inventoryCountInput.required = true;
+            inventoryCountInput.disabled = true;
+            inventoryCountInput.required = false;
         }
         if (meetingRoomTimings) {
             meetingRoomTimings.style.display = 'block';

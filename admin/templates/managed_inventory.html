@@ -728,67 +728,65 @@ function displayCoworkingModal(space) {
         <h2>${space.coworking_name || 'N/A'}</h2>
 
         <h3>Owner</h3>
-        <p><strong>Name:</strong> ${space.owner?.name}</p>
-        <p><strong>Phone:</strong> ${space.owner?.phone}</p>
-        <p><strong>Email:</strong> ${space.owner?.email}</p>
+        <p><strong>Name:</strong> ${space.owner?.name || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${space.owner?.phone || 'N/A'}</p>
+        <p><strong>Email:</strong> ${space.owner?.email || 'N/A'}</p>
 
         <h3>Center Manager</h3>
-        <p><strong>Name:</strong> ${space.center_manager?.name}</p>
-        <p><strong>Contact:</strong> ${space.center_manager?.contact}</p>
+        <p><strong>Name:</strong> ${space.center_manager?.name || 'N/A'}</p>
+        <p><strong>Contact:</strong> ${space.center_manager?.contact || 'N/A'}</p>
 
         <h3>General</h3>
-        <p><strong>City:</strong> ${space.city}</p>
-        <p><strong>Micromarket:</strong> ${space.micromarket}</p>
-        <p><strong>Address:</strong> ${space.address}</p>
-        <p><strong>Date:</strong> ${new Date(space.date).toLocaleString()}</p>
+        <p><strong>City:</strong> ${space.city || 'N/A'}</p>
+        <p><strong>Micromarket:</strong> ${space.micromarket || 'N/A'}</p>
+        <p><strong>Address:</strong> ${space.address || 'N/A'}</p>
+        <p><strong>Date:</strong> ${space.date ? new Date(space.date).toLocaleString() : 'N/A'}</p>
 
-        <h3>Building</h3>
-        <p><strong>Floors Offered:</strong> ${space.floors_offered?.join(', ')}</p>
-        <p><strong>Total Building Area:</strong> ${space.total_building_area} sqft</p>
-        <p><strong>Total Floors:</strong> ${space.total_floors}</p>
-        <p><strong>Floorplate Area:</strong> ${space.floorplate_area}</p>
-        <p><strong>Floors Occupied:</strong> ${space.floors_occupied}</p>
-        <p><strong>Furnishing Level:</strong> ${space.furnishing_level}</p>
-        <p><strong>Rent or Own:</strong> ${space.rent_or_own}</p>
-        <p><strong>Space Type:</strong> ${space.space_type}</p>
+        <h3>Building Details</h3>
+        <p><strong>Floors Offered:</strong> ${(space.floors_offered || []).join(', ') || 'N/A'}</p>
+        <p><strong>Floors Occupied:</strong> ${space.floors_occupied || 'N/A'}</p>
+        <p><strong>Total Floors:</strong> ${space.total_floors || 'N/A'}</p>
+        <p><strong>Floorplate Area:</strong> ${space.floorplate_area || 'N/A'} sqft</p>
+        <p><strong>Total Building Area:</strong> ${space.total_building_area || 'N/A'} sqft</p>
+        <p><strong>Furnishing Level:</strong> ${space.furnishing_level || 'N/A'}</p>
+        <p><strong>Space Type:</strong> ${space.space_type || 'N/A'}</p>
+        <p><strong>Rent or Own:</strong> ${space.rent_or_own || 'N/A'}</p>
 
         <h3>Commercials</h3>
-        <p><strong>Min Inventory Unit:</strong> ${space.min_inventory_unit}</p>
-        <p><strong>Total Rental:</strong> ₹${space.total_rental?.toLocaleString()}</p>
-        <p><strong>Security Deposit:</strong> ₹${space.security_deposit?.toLocaleString()}</p>
-        <p><strong>Lease Term:</strong> ${space.lease_term} months</p>
-        <p><strong>Lock-in Period:</strong> ${space.lockin_period} months</p>
+        <p><strong>Min Inventory Unit:</strong> ${space.min_inventory_unit || 'N/A'}</p>
+        <p><strong>Total Rental:</strong> ₹${space.total_rental?.toLocaleString() || 'N/A'}</p>
+        <p><strong>Security Deposit:</strong> ₹${space.security_deposit?.toLocaleString() || 'N/A'}</p>
+        <p><strong>Lease Term:</strong> ${space.lease_term || 'N/A'}</p>
+        <p><strong>Lock-in Period:</strong> ${space.lockin_period || 'N/A'}</p>
 
-        <h3>Managed Office Amenities</h3>
-        <ul>${(space.managed_office_amenities || []).map(a => `<li>${a}</li>`).join('')}</ul>
+        <h3>Distance from Landmarks</h3>
+        <p><strong>Metro:</strong> ${space.distance?.metro || 'N/A'} km</p>
+        <p><strong>Airport:</strong> ${space.distance?.airport || 'N/A'} km</p>
+        <p><strong>Bus:</strong> ${space.distance?.bus || 'N/A'} km</p>
+        <p><strong>Railway:</strong> ${space.distance?.railway || 'N/A'} km</p>
 
-        <h3>Distances</h3>
-        <p><strong>Metro:</strong> ${space.distance?.metro} km</p>
-        <p><strong>Airport:</strong> ${space.distance?.airport} km</p>
-        <p><strong>Bus:</strong> ${space.distance?.bus} km</p>
-        <p><strong>Railway:</strong> ${space.distance?.railway} km</p>
+        <h3>Amenities</h3>
+        <ul>${(space.managed_office_amenities || []).map(item => `<li>${item}</li>`).join('') || '<li>No amenities listed</li>'}</ul>
 
         <h3>Description</h3>
         <p>${space.space_description || 'N/A'}</p>
 
         <h3>Images</h3>
-        ${(propertyImages).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
+        ${propertyImages.length > 0 
+            ? propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('') 
+            : 'No images available'}
 
-<h3>Upload Agreement / Delete Property</h3>
-<p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}</p>
-<button class="upload-btn" data-property-id="${space._id}">Upload</button>
-<button class="delete-btn" data-property-id="${space._id}">Delete</button>
+        <h3>Upload Agreement / Delete Property</h3>
+        <p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' 
+            ? '<span style="color:green">Completed</span>' 
+            : '<span style="color:red">Pending</span>'}</p>
+        <button class="upload-btn" data-property-id="${space._id}">Upload</button>
+        <button class="delete-btn" data-property-id="${space._id}">Delete</button>
     `;
 
     coworkingModal.classList.add('show');
-    const modalDeleteBtn = coworkingModal.querySelector('.delete-btn');
-    if (modalDeleteBtn) {
-        modalDeleteBtn.addEventListener('click', () => {
-            const propertyId = modalDeleteBtn.dataset.propertyId;
-            openDeleteModal(propertyId);
-        });
-    }
 
+    // Upload Button Logic
     const modalUploadBtn = coworkingModal.querySelector('.upload-btn');
     if (modalUploadBtn) {
         modalUploadBtn.addEventListener('click', () => {
@@ -797,7 +795,17 @@ function displayCoworkingModal(space) {
             uploadModal.classList.add('show');
         });
     }
+
+    // Delete Button Logic
+    const modalDeleteBtn = coworkingModal.querySelector('.delete-btn');
+    if (modalDeleteBtn) {
+        modalDeleteBtn.addEventListener('click', () => {
+            const propertyId = modalDeleteBtn.dataset.propertyId;
+            openDeleteModal(propertyId);
+        });
+    }
 }
+
 
 
 

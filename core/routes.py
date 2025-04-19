@@ -1617,65 +1617,88 @@ def list_your_space():
                     opening_time = request.form.get(f'opening_time_{idx}')
                     closing_time = request.form.get(f'closing_time_{idx}')
                 else:
-                    rent_or_own = request.form.get(f'rent_or_own_{idx}')
-                    print("Debug Info: total_building_area =", request.form.get(f'total_building_area_{idx}'))
-                    print("Debug Info: floorplate_area =", request.form.get(f'floorplate_area_{idx}'))
-                    print("Debug Info: min_inventory_unit =", request.form.get(f'min_inventory_unit_{idx}'))
-                    print("Debug Info: total_rental =", request.form.get(f'total_rental_{idx}'))
-                    print("Debug Info: total_floors =", request.form.get(f'total_floors_{idx}'))
-                    print("Debug Info: floors_occupied =", request.form.get(f'floors_occupied_{idx}'))
-                    print("Debug Info: lockin_period =", request.form.get(f'lockin_period_{idx}'))
+                    input_mode = request.form.get(f'property_input_type_{idx}')
+                    if input_mode == 'sqft':
+                        rent_or_own = request.form.get(f'rent_or_own_{idx}')
+                        total_building_area = int(request.form.get(f'total_building_area_{idx}') or 0)
+                        floorplate_area = int(request.form.get(f'floorplate_area_{idx}') or 0)
+                        min_inventory_unit = int(request.form.get(f'min_inventory_unit_{idx}') or 0)
+                        total_rental = int(request.form.get(f'total_rental_{idx}') or 0)
+                        security_deposit = int(request.form.get(f'security_deposit_{idx}') or 0)
+                        lease_term = request.form.get(f'lease_term_{idx}')
+                        total_floors = int(request.form.get(f'total_floors_{idx}') or 0)
+                        floors_occupied = int(request.form.get(f'floors_occupied_{idx}') or 0)
+                        furnishing_level = request.form.get(f'furnishing_level_{idx}') or 'N/A'
+                        floors_offered = request.form.getlist(f'offered_floors_{idx}[]')
+                        lockin_period = request.form.get(f'lockin_period_{idx}', 'No Lock-in Period')
+                        space_type = request.form.get(f'space_type_{idx}')
+                        managed_office_amenities = request.form.getlist(f'managed_amenities_{idx}[]')
+
+                    elif input_mode == 'seats':
+                        rent_or_own = request.form.get(f'seat_rent_or_own_{idx}')
+                        total_seats = int(request.form.get(f'seat_number_of_seats_{idx}') or 0)
+                        rental_per_seat = float(request.form.get(f'seat_total_rental_{idx}') or 0.0)
+                        security_deposit = int(request.form.get(f'seat_final_security_deposit_{idx}') or 0)
+                        lease_term = request.form.get(f'seat_lease_term_{idx}')
+                        total_floors = int(request.form.get(f'seat_total_floors_{idx}') or 0)
+                        floors_occupied = int(request.form.get(f'seat_floors_occupied_{idx}') or 0)
+                        furnishing_level = request.form.get(f'seat_furnishing_level_{idx}') or 'Ready to move in'
+                        lockin_period = request.form.get(f'seat_lockin_period_{idx}', 'No Lock-in Period')
+                        space_type = request.form.get(f'seat_space_type_{idx}')
+                        floors_offered = request.form.getlist(f'seat_offered_floors_{idx}[]')
+                        managed_office_amenities = request.form.getlist(f'managed_amenities_{idx}[]')
+
 
                     # Use a try-except block to catch any conversion errors
-                    try:
-                        total_building_area = int(request.form.get(f'total_building_area_{idx}') or '0')
-                    except (ValueError, TypeError):
-                        total_building_area = 0  # Default to 0 if conversion fails
+                    # try:
+                    #     total_building_area = int(request.form.get(f'total_building_area_{idx}') or '0')
+                    # except (ValueError, TypeError):
+                    #     total_building_area = 0  # Default to 0 if conversion fails
 
-                    try:
-                        floorplate_area = int(request.form.get(f'floorplate_area_{idx}') or 0)
-                    except (ValueError, TypeError):
-                        floorplate_area = 0  # Default to 0 if conversion fails
+                    # try:
+                    #     floorplate_area = int(request.form.get(f'floorplate_area_{idx}') or 0)
+                    # except (ValueError, TypeError):
+                    #     floorplate_area = 0  # Default to 0 if conversion fails
 
-                    try:
-                        min_inventory_unit = int(request.form.get(f'min_inventory_unit_{idx}') or 0)
-                    except (ValueError, TypeError):
-                        min_inventory_unit = 0  # Default to 0 if conversion fails
+                    # try:
+                    #     min_inventory_unit = int(request.form.get(f'min_inventory_unit_{idx}') or 0)
+                    # except (ValueError, TypeError):
+                    #     min_inventory_unit = 0  # Default to 0 if conversion fails
 
-                    try:
-                        total_rental = int(request.form.get(f'total_rental_{idx}') or 0)
-                    except (ValueError, TypeError):
-                        total_rental = 0  # Default to 0 if conversion fails
+                    # try:
+                    #     total_rental = int(request.form.get(f'total_rental_{idx}') or 0)
+                    # except (ValueError, TypeError):
+                    #     total_rental = 0  # Default to 0 if conversion fails
 
-                    space_type = request.form.get(f'space_type_{idx}')
+                    # space_type = request.form.get(f'space_type_{idx}')
 
-                    try:
-                        total_floors = int(request.form.get(f'total_floors_{idx}') or '0')
-                    except (ValueError, TypeError):
-                        total_floors = 0
+                    # try:
+                    #     total_floors = int(request.form.get(f'total_floors_{idx}') or '0')
+                    # except (ValueError, TypeError):
+                    #     total_floors = 0
 
-                    try:
-                        floors_occupied = int(request.form.get(f'floors_occupied_{idx}') or '0')
-                    except (ValueError, TypeError):
-                        floors_occupied = 0
+                    # try:
+                    #     floors_occupied = int(request.form.get(f'floors_occupied_{idx}') or '0')
+                    # except (ValueError, TypeError):
+                    #     floors_occupied = 0
 
-                    lockin_period = request.form.get(f'lockin_period_{idx}', 'No Lock-in Period')
+                    # lockin_period = request.form.get(f'lockin_period_{idx}', 'No Lock-in Period')
 
-                    try:
-                        security_deposit = int(request.form.get(f'security_deposit_{idx}') or '0')
-                    except (ValueError, TypeError):
-                        security_deposit = 0
+                    # try:
+                    #     security_deposit = int(request.form.get(f'security_deposit_{idx}') or '0')
+                    # except (ValueError, TypeError):
+                    #     security_deposit = 0
                     
-                    lease_term = request.form.get(f'lease_term_{idx}')
-                    seating_capacity = request.form.get(f'seating_capacity_{idx}') or 'N/A'
-                    furnishing_level = request.form.get(f'furnishing_level_{idx}') or 'N/A'
-                    managed_office_amenities = request.form.getlist(f'managed_amenities_{idx}[]')
+                    # lease_term = request.form.get(f'lease_term_{idx}')
+                    # seating_capacity = request.form.get(f'seating_capacity_{idx}') or 'N/A'
+                    # furnishing_level = request.form.get(f'furnishing_level_{idx}') or 'N/A'
+                    # managed_office_amenities = request.form.getlist(f'managed_amenities_{idx}[]')
 
                 # Get Space Description
                 space_description = request.form.get(f'space_description_{idx}')
 
-                # Get floors offered from checkbox inputs
-                floors_offered = request.form.getlist(f'offered_floors_{idx}[]')
+                # # Get floors offered from checkbox inputs
+                # floors_offered = request.form.getlist(f'offered_floors_{idx}[]')
 
                 # Create Document for MongoDB
                 property_details = {
@@ -1689,7 +1712,6 @@ def list_your_space():
                     'micromarket': micromarket,
                     'address': address, 
                     'distance': distance_data,
-                    'floors_offered': floors_offered,
                     'current_vacancy': int(current_vacancy or 0),
                     'center_manager': {
                         'name': center_manager_name,
@@ -1720,20 +1742,22 @@ def list_your_space():
                     # Add Managed Offices Details to Document
                     property_details.update({
                         'rent_or_own': rent_or_own,
-                        'total_building_area': total_building_area,
+                        'total_building_area': total_building_area if input_mode == 'sqft' else None,
                         'total_floors': total_floors,
-                        'floorplate_area': floorplate_area,
-                        'min_inventory_unit': min_inventory_unit,
-                        'total_rental': total_rental,
+                        'floorplate_area': floorplate_area if input_mode == 'sqft' else None,
+                        'min_inventory_unit': min_inventory_unit if input_mode == 'sqft' else None,
+                        'total_rental': total_rental if input_mode == 'sqft' else rental_per_seat,
                         'security_deposit': security_deposit,
                         'lease_term': lease_term,
                         'space_type': space_type,
                         'floors_occupied': floors_occupied,
-                        'seating_capacity': seating_capacity,
+                        'seating_capacity': total_seats if input_mode == 'seats' else None,
                         'furnishing_level': furnishing_level,
                         'lockin_period': lockin_period,
-                        'managed_office_amenities': managed_office_amenities
+                        'managed_office_amenities': managed_office_amenities,
+                        'floors_offered': floors_offered  # ✅ Added this line
                     })
+
 
                 print("Final property_details inserting to DB:", property_details)
 
