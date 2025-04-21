@@ -664,7 +664,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     </div>
 
     <!-- Form Fields -->
-    <div class="modal-form" id="userDetailsFields">
+    <div class="modal-form">
       <label for="fullNameBuy">Full Name</label>
       <input type="text" id="fullNameBuy" value="{{ user_data.get('name', '') }}" placeholder="Your Name">
 
@@ -673,9 +673,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 
       <label for="companyBuy">Company</label>
       <input type="text" id="companyBuy" value="{{ user_data.get('company', '') }}" placeholder="Your Company">
-    </div>
-
-    <div class="modal-form">
+    
       <label for="phoneBuy">Phone</label>
       <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone" disabled readonly>
 
@@ -2135,7 +2133,7 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 <script>
 function openBuyNowModal() {
-  adjustBuyNowModalForLoggedInUser();
+  // adjustBuyNowModalForLoggedInUser();
   // Auto-fill phone
     const verifiedPhone = sessionStorage.getItem("verifiedContact");
     
@@ -3000,13 +2998,7 @@ document.addEventListener("DOMContentLoaded", function () {
   updateBottomBar(); // optional for initial total calculation
 });
 
-function adjustBuyNowModalForLoggedInUser() {
-  const userContact = "{{ user_data.get('contact', '') }}";
-  if (userContact) {
-    const userFields = document.getElementById("userDetailsFields");
-    if (userFields) userFields.style.display = "none";
-  }
-}
+
 
 
 </script>
