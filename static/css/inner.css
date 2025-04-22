@@ -1145,7 +1145,7 @@ footer {
     text-align: center;
     position: sticky;
     top: 0;
-    z-index: 10;
+    z-index: 5;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1470,7 +1470,7 @@ footer {
     text-align:center;
     position:sticky;
     top:0;
-    z-index:10;
+    z-index:5;
     display: flex;
     justify-content: center;
     align-items: center;

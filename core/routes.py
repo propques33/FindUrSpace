@@ -2135,40 +2135,20 @@ def submit_booking_form():
         data = request.json
         # Extract form data
         coworking_name = data.get("coworking_name")
-        contact = data.get("contact")
+        # contact = data.get("contact")
         inventory = data.get("inventory")
 
-        # Validate required fields
-        if not all([coworking_name, contact, inventory]):
-            return jsonify({"success": False, "message": "Missing required fields"}), 400
+        
+        # Store in MongoDB as a new record
+        booking_data = {
+            "coworking_name": coworking_name,
+            "inventory": [inventory],  # Store as a list to allow multiple inventory types
+            "created_at": datetime.utcnow()
+        }
 
-        # Check if a record with the same contact exists
-        existing_record = db.users.find_one({"contact": contact})
+        db.users.insert_one(booking_data)
 
-        if existing_record:
-            # Update the existing record by appending inventory type
-            updated_inventory = existing_record.get("inventory", [])
-            if inventory not in updated_inventory:  # Avoid duplicate inventory types
-                updated_inventory.append(inventory)
-
-            db.users.update_one(
-                {"contact": contact},
-                {"$set": {"inventory": updated_inventory}}
-            )
-
-            return jsonify({"success": True, "message": "Inventory type added to existing booking!"}), 200
-        else:
-            # Store in MongoDB as a new record
-            booking_data = {
-                "coworking_name": coworking_name,
-                "contact": contact,
-                "inventory": [inventory],  # Store as a list to allow multiple inventory types
-                "created_at": datetime.utcnow()
-            }
-
-            db.users.insert_one(booking_data)
-
-            return jsonify({"success": True, "message": "Booking request submitted successfully!"}), 200
+        return jsonify({"success": True, "message": "Booking request submitted successfully!"}), 200
 
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500

@@ -1030,66 +1030,114 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    document.getElementById("bookNowForm").addEventListener("submit", function (e) {
-        e.preventDefault();
+    // document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+    //     e.preventDefault();
 
-        const contact = document.getElementById("contactNumber").value.trim();
-        const inventory = document.getElementById("inventoryType").value.trim();
-        const seating = document.getElementById("seatingSelect").value.trim();
+    //     // const contact = document.getElementById("contactNumber").value.trim();
+    //     const inventory = document.getElementById("inventoryType").value.trim();
+    //     const seating = document.getElementById("seatingSelect").value.trim();
 
-        if (!contact || !inventory || !selectedSpace.coworkingName) {
-            alert("Please fill all fields.");
-            return;
-        }
+    //     if (!inventory || !selectedSpace.coworkingName) {
+    //         alert("Please fill all fields.");
+    //         return;
+    //     }
 
-        // Submit to backend (MongoDB logic)
-        fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
-            .then(response => response.json())
-            .then(data => {
-                const endpoint = data.exists ? "/update_inventory" : "/submit_booking_form";
-                const payload = {
-                    coworking_name: selectedSpace.coworkingName,
-                    contact: contact,
-                    inventory: inventory,
-                    seating: seating || null
-                };
+    //     // Submit to backend (MongoDB logic)
+    //     fetch(`/check_existing_contact?contact=${encodeURIComponent(contact)}`)
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const endpoint = data.exists ? "/update_inventory" : "/submit_booking_form";
+    //             const payload = {
+    //                 coworking_name: selectedSpace.coworkingName,
+    //                 contact: contact,
+    //                 inventory: inventory,
+    //                 seating: seating || null
+    //             };
 
-                return fetch(endpoint, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    if (!selectedSpace.city || !selectedSpace.micromarket || !selectedSpace.coworkingName) {
-                        alert("Missing location information. Please try again.");
-                        return;
-                      }
+    //             return fetch(endpoint, {
+    //                 method: "POST",
+    //                 headers: { "Content-Type": "application/json" },
+    //                 body: JSON.stringify(payload)
+    //             });
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             if (data.success) {
+    //                 if (!selectedSpace.city || !selectedSpace.micromarket || !selectedSpace.coworkingName) {
+    //                     alert("Missing location information. Please try again.");
+    //                     return;
+    //                   }
                     
-                    // Construct new redirect URL with proper casing (no lowercase/slug format)
-                    let basePath = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}`;
-                    const sanitizedInventory = inventory.replace(/\s/g, '').toLowerCase();
-                    if (["daypass", "meetingrooms"].includes(sanitizedInventory)) {
-                        basePath = `/flexspace${basePath}`;
-                    }
+    //                 // Construct new redirect URL with proper casing (no lowercase/slug format)
+    //                 let basePath = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}`;
+    //                 const sanitizedInventory = inventory.replace(/\s/g, '').toLowerCase();
+    //                 if (["daypass", "meetingrooms"].includes(sanitizedInventory)) {
+    //                     basePath = `/flexspace${basePath}`;
+    //                 }
 
-                    let url = `${basePath}?inventoryType=${encodeURIComponent(sanitizedInventory)}&contact=${encodeURIComponent(contact)}`;
-                    if (seating) {
-                        url += `&seats=${encodeURIComponent(seating)}`;
-                    }
+    //                 let url = `${basePath}?inventoryType=${encodeURIComponent(sanitizedInventory)}&contact=${encodeURIComponent(contact)}`;
+    //                 if (seating) {
+    //                     url += `&seats=${encodeURIComponent(seating)}`;
+    //                 }
 
-                    window.location.href = url;
-                } else {
-                    alert(data.message || "Submission failed.");
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("An error occurred. Please try again.");
-            });
+    //                 window.location.href = url;
+    //             } else {
+    //                 alert(data.message || "Submission failed.");
+    //             }
+    //         })
+    //         .catch(error => {
+    //             console.error("Error:", error);
+    //             alert("An error occurred. Please try again.");
+    //         });
+    // });
+
+    document.getElementById("bookNowForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const inventory = document.getElementById("inventoryType").value.trim();
+    const seating = document.getElementById("seatingSelect").value.trim();
+
+    if (!inventory || !selectedSpace.coworkingName) {
+        alert("Please select inventory type.");
+        return;
+    }
+
+    const payload = {
+        coworking_name: selectedSpace.coworkingName,
+        inventory: inventory,
+        seating: seating || null
+    };
+
+    fetch("/submit_booking_form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let basePath = `/${selectedSpace.city}/${selectedSpace.micromarket}/${selectedSpace.coworkingName}`;
+            const sanitizedInventory = inventory.replace(/\s/g, '').toLowerCase();
+            if (["daypass", "meetingrooms"].includes(sanitizedInventory)) {
+                basePath = `/flexspace${basePath}`;
+            }
+
+            let url = `${basePath}?inventoryType=${encodeURIComponent(sanitizedInventory)}`;
+            if (seating) {
+                url += `&seats=${encodeURIComponent(seating)}`;
+            }
+
+            window.location.href = url;
+        } else {
+            alert(data.message || "Submission failed.");
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("An error occurred. Please try again.");
     });
+});
+
 
     document.getElementById("resendOtpBtn").addEventListener("click", async function () {
         if (this.disabled) return;
@@ -1117,101 +1165,101 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-async function initiateModalOtp() {
-    const contact = document.getElementById('contactNumber').value.trim();
+// async function initiateModalOtp() {
+//     const contact = document.getElementById('contactNumber').value.trim();
 
-    if (!/^\d{10}$/.test(contact)) {
-        alert("Please enter a valid 10-digit number.");
-        return;
-    }
+//     if (!/^\d{10}$/.test(contact)) {
+//         alert("Please enter a valid 10-digit number.");
+//         return;
+//     }
 
-    await OTPlessSdk(); // Load SDK
+//     await OTPlessSdk(); // Load SDK
 
-    const response = await OTPlessSignin.initiate({
-        channel: "PHONE",
-        phone: contact,
-        countryCode: "+91",
-        expiry: "60"
-    });
+//     const response = await OTPlessSignin.initiate({
+//         channel: "PHONE",
+//         phone: contact,
+//         countryCode: "+91",
+//         expiry: "60"
+//     });
 
-    if (response.success) {
-        document.getElementById("otpStep").style.display = "block";
-        showOtpMessage("OTP sent successfully.", "success");
-        startResendCountdown();
-    } else {
-        showOtpMessage("Failed to send OTP. Please try again.", "danger");
-    }
-}
+//     if (response.success) {
+//         document.getElementById("otpStep").style.display = "block";
+//         showOtpMessage("OTP sent successfully.", "success");
+//         startResendCountdown();
+//     } else {
+//         showOtpMessage("Failed to send OTP. Please try again.", "danger");
+//     }
+// }
 
-async function verifyModalOtp() {
-    const contact = document.getElementById('contactNumber').value.trim();
-    const otp = document.getElementById('otpInputModal').value.trim();
+// async function verifyModalOtp() {
+//     const contact = document.getElementById('contactNumber').value.trim();
+//     const otp = document.getElementById('otpInputModal').value.trim();
 
-    if (!/^\d{6}$/.test(otp)) {
-        alert("Enter a valid 6-digit OTP.");
-        return;
-    }
+//     if (!/^\d{6}$/.test(otp)) {
+//         alert("Enter a valid 6-digit OTP.");
+//         return;
+//     }
 
-    await OTPlessSdk(); // Load SDK
+//     await OTPlessSdk(); // Load SDK
 
-    const response = await OTPlessSignin.verify({
-        channel: "PHONE",
-        phone: contact,
-        otp: otp,
-        countryCode: "+91"
-    });
+//     const response = await OTPlessSignin.verify({
+//         channel: "PHONE",
+//         phone: contact,
+//         otp: otp,
+//         countryCode: "+91"
+//     });
 
-    if (response.success) {
-        showOtpMessage("OTP verified successfully!", "success");
-        document.getElementById("contactNumber").disabled = true;
-        document.getElementById("otpStep").style.display = "none";
-        document.getElementById("inventoryStep").style.display = "block";
+//     if (response.success) {
+//         showOtpMessage("OTP verified successfully!", "success");
+//         document.getElementById("contactNumber").disabled = true;
+//         document.getElementById("otpStep").style.display = "none";
+//         document.getElementById("inventoryStep").style.display = "block";
 
-        sessionStorage.setItem("otp_verified_modal", "true");
-        sessionStorage.setItem("user_contact_modal", contact);
-    } else {
-        showOtpMessage("OTP verification failed. Please check and try again.", "danger");
-    }
-}
+//         sessionStorage.setItem("otp_verified_modal", "true");
+//         sessionStorage.setItem("user_contact_modal", contact);
+//     } else {
+//         showOtpMessage("OTP verification failed. Please check and try again.", "danger");
+//     }
+// }
 
-function startResendCountdown() {
-    const resendBtn = document.getElementById("resendOtpBtn");
-    resendBtn.disabled = true;
-    resendBtn.innerText = `Resend OTP in 60 sec`;
-    countdown = 60;
+// function startResendCountdown() {
+//     const resendBtn = document.getElementById("resendOtpBtn");
+//     resendBtn.disabled = true;
+//     resendBtn.innerText = `Resend OTP in 60 sec`;
+//     countdown = 60;
 
-    resendTimer = setInterval(() => {
-        countdown--;
-        resendBtn.innerText = `Resend OTP in ${countdown} sec`;
-        if (countdown <= 0) {
-            clearInterval(resendTimer);
-            resendBtn.disabled = false;
-            resendBtn.innerText = "Resend OTP";
-        }
-    }, 1000);
-}
+//     resendTimer = setInterval(() => {
+//         countdown--;
+//         resendBtn.innerText = `Resend OTP in ${countdown} sec`;
+//         if (countdown <= 0) {
+//             clearInterval(resendTimer);
+//             resendBtn.disabled = false;
+//             resendBtn.innerText = "Resend OTP";
+//         }
+//     }, 1000);
+// }
 
-function showOtpMessage(text, type = "info") {
-    const msgDiv = document.getElementById("otpMessage");
+// function showOtpMessage(text, type = "info") {
+//     const msgDiv = document.getElementById("otpMessage");
 
-    // Set content and class
-    msgDiv.className = `alert alert-${type} mt-2`;
-    msgDiv.innerText = text;
-    msgDiv.style.display = "block";
-    msgDiv.style.opacity = 0;
+//     // Set content and class
+//     msgDiv.className = `alert alert-${type} mt-2`;
+//     msgDiv.innerText = text;
+//     msgDiv.style.display = "block";
+//     msgDiv.style.opacity = 0;
 
-    // Fade in effect
-    setTimeout(() => {
-        msgDiv.style.transition = "opacity 0.5s ease-in-out";
-        msgDiv.style.opacity = 1;
-    }, 50);
+//     // Fade in effect
+//     setTimeout(() => {
+//         msgDiv.style.transition = "opacity 0.5s ease-in-out";
+//         msgDiv.style.opacity = 1;
+//     }, 50);
 
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        msgDiv.style.opacity = 0;
-        setTimeout(() => {
-            msgDiv.style.display = "none";
-        }, 500); // Wait for fade-out to complete
-    }, 5000);
-}
+//     // Auto-hide after 5 seconds
+//     setTimeout(() => {
+//         msgDiv.style.opacity = 0;
+//         setTimeout(() => {
+//             msgDiv.style.display = "none";
+//         }, 500); // Wait for fade-out to complete
+//     }, 5000);
+// }
 
