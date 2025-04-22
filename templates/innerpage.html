@@ -103,7 +103,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 
         <!-- Navigation Links -->
         <!-- Navigation Links -->
-<div class="navbar-links" id="navbarMenu">
+<!-- <div class="navbar-links" id="navbarMenu">
   <ul class="nav-list">
     {% if is_user_complete %}
       <li class="nav-item">
@@ -124,7 +124,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       </li>
     {% endif %}
   </ul>
-</div>
+</div> -->
     </div>
 </nav>
 
@@ -137,16 +137,16 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       <input type="hidden" id="signUpCity" value="{{ property.city }}">
 
       <label for="signUpName">Full Name</label>
-      <input type="text" id="signUpName" required />
+      <input type="text" id="signUpName" placeholder="Enter your Name" required />
 
       <label for="signUpCompany">Company Name</label>
-      <input type="text" id="signUpCompany" />
+      <input type="text" id="signUpCompany" placeholder="Enter your Company Name"/>
 
       <label for="signUpEmail">Email</label>
-      <input type="email" id="signUpEmail" required />
+      <input type="email" id="signUpEmail" placeholder="Enter your Email" required />
 
       <label for="signUpContact">Contact Number</label>
-      <input type="text" id="signUpContact" value="{{ contact }}" disabled />
+      <input type="text" id="signUpContact" placeholder="Enter your contact number" />
 
       <input type="hidden" id="signUpLocation" />
       <input type="hidden" id="signUpLatitude" />
@@ -174,7 +174,8 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="bookNowModalLabel">Book Now</h5>
+              <h5 class="modal-title" id="bookNowModalLabel">Book Now</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="bookNowForm">
@@ -675,7 +676,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       <input type="text" id="companyBuy" value="{{ user_data.get('company', '') }}" placeholder="Your Company">
     
       <label for="phoneBuy">Phone</label>
-      <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone" disabled readonly>
+      <input type="text" id="phoneBuy" value="{{ user_data.get('contact', '') }}" placeholder="Your Phone" >
 
       <label for="gstinBuy">GSTIN (Optional)</label>
       <input type="text" id="gstinBuy" placeholder="Enter GSTIN (if applicable)">
@@ -2374,10 +2375,14 @@ let finalAmount = netPayable - discountAmount;
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        closeBuyNowModal();
-                        localStorage.setItem("showThankYou", "booking");
-                        window.location.reload();
-                    }
+                      closeBuyNowModal();
+                      localStorage.setItem("showThankYou", "booking");
+
+                      // Append contact to URL before reload
+                      const currentUrl = new URL(window.location.href);
+                      currentUrl.searchParams.set("contact", phone);
+                      window.location.href = currentUrl.toString();
+                  }
                 })
                 .catch(err => {
                     console.error("Booking DB Error:", err);
@@ -2469,25 +2474,37 @@ function closeThankYouModal() {
     document.getElementById("modalOverlay").style.display = "none"; // Hide overlay
 }
 
-function showThankYouModal(isBooking,contact) {
+function showThankYouModal(isBooking, contact) {
     document.getElementById("thankYouModal").style.display = "flex";
     document.getElementById("modalOverlay").style.display = "block";
+
     let seeDetailsBtn = document.getElementById("seeDetailsBtn");
 
     if (isBooking) {
-        // Booking case (Buy Now)
         document.getElementById("thankYouTitle").innerText = "Your Booking Has Been Received!";
         document.getElementById("thankYouMessage").innerText = "We will notify you once it's confirmed.";
-        document.getElementById("thankYouDetails").style.display = "none"; // Hide date & time section
+        document.getElementById("thankYouDetails").style.display = "none";
     } else {
-        // Tour scheduling case
         document.getElementById("thankYouTitle").innerText = "Visit Scheduled Successfully!";
         document.getElementById("thankYouMessage").innerText = "Your tour has been scheduled successfully.";
-        document.getElementById("thankYouDetails").style.display = "block"; // Show date section
-        document.getElementById("confirmedTimeContainer").style.display = "inline"; // Ensure time is shown
+        document.getElementById("thankYouDetails").style.display = "block";
+        document.getElementById("confirmedTimeContainer").style.display = "inline";
     }
 
-    // Set dynamic URL for "See Details" Button
+    // Fallback: get contact from hidden field if not passed directly
+    if (!contact) {
+        contact = document.getElementById("phoneBuy")?.value || 
+                  document.getElementById("userContact")?.value || "";
+    }
+
+    // Add contact to URL if not already present
+    const currentUrl = new URL(window.location.href);
+    if (!currentUrl.searchParams.get("contact") && contact) {
+        currentUrl.searchParams.set("contact", contact);
+        window.history.replaceState({}, '', currentUrl.toString());
+    }
+
+    // Set redirect for See Details button
     if (contact) {
         let userPanelUrl = `${getBaseUrl()}/user1?contact=${encodeURIComponent(contact)}`;
         seeDetailsBtn.setAttribute("onclick", `window.location.href='${userPanelUrl}'`);
@@ -2515,51 +2532,56 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-window.onload = function () {
-  let urlParams = new URLSearchParams(window.location.search);
-  let contact = urlParams.get("contact");
+// window.onload = function () {
+//   let urlParams = new URLSearchParams(window.location.search);
+//   let contact = urlParams.get("contact");
 
-  const sessionVerified = sessionStorage.getItem("otp_verified_modal") === "true";
-  const sessionContact = sessionStorage.getItem("user_contact_modal");
+//   if (!contact) {
+//     // Do nothing – don't show modal
+//     return;
+//   }
+  
+//   const sessionVerified = sessionStorage.getItem("otp_verified_modal") === "true";
+//   const sessionContact = sessionStorage.getItem("user_contact_modal");
 
-  // ✅ Reset session if contact in URL has changed
-  if (contact && sessionContact && contact !== sessionContact) {
-    sessionStorage.removeItem("otp_verified_modal");
-    sessionStorage.removeItem("user_contact_modal");
-    sessionStorage.removeItem("bookNowModalShown"); // So modal opens again
-  }
+//   // ✅ Reset session if contact in URL has changed
+//   if (contact && sessionContact && contact !== sessionContact) {
+//     sessionStorage.removeItem("otp_verified_modal");
+//     sessionStorage.removeItem("user_contact_modal");
+//     sessionStorage.removeItem("bookNowModalShown"); // So modal opens again
+//   }
 
-const isVerifiedFromServer = document.getElementById("isVerified").value === "true";
-  let isVerified =
-    (sessionVerified && sessionContact === contact) ||
-    (isVerifiedFromServer && sessionContact === contact);
+// const isVerifiedFromServer = document.getElementById("isVerified").value === "true";
+//   let isVerified =
+//     (sessionVerified && sessionContact === contact) ||
+//     (isVerifiedFromServer && sessionContact === contact);
 
-  if (!isVerified || !contact) {
-    if (!sessionStorage.getItem("bookNowModalShown")) {
-    setTimeout(() => {
-      // Pre-fill selectedSpace manually if modal opens on load
-      selectedSpace = {
-        coworkingName: "{{ property.coworking_name }}",
-        city: "{{ property.city }}",
-        micromarket: "{{ property.micromarket }}"
-      };
+//   if (!isVerified || !contact) {
+//     if (!sessionStorage.getItem("bookNowModalShown")) {
+//     setTimeout(() => {
+//       // Pre-fill selectedSpace manually if modal opens on load
+//       selectedSpace = {
+//         coworkingName: "{{ property.coworking_name }}",
+//         city: "{{ property.city }}",
+//         micromarket: "{{ property.micromarket }}"
+//       };
 
-      let modalElement = document.getElementById("bookNowModal");
-      let modalInstance = new bootstrap.Modal(modalElement); // ✅ Correct usage
-      modalInstance.show(); // ✅ Proper way to show the modal
-      document.getElementById("modalOverlay").style.display = "block"; // Optional if you're using custom overlay
-      sessionStorage.setItem("bookNowModalShown", "true");
+//       let modalElement = document.getElementById("bookNowModal");
+//       let modalInstance = new bootstrap.Modal(modalElement); // ✅ Correct usage
+//       modalInstance.show(); // ✅ Proper way to show the modal
+//       document.getElementById("modalOverlay").style.display = "block"; // Optional if you're using custom overlay
+//       sessionStorage.setItem("bookNowModalShown", "true");
 
-      // Clear all fields and enable contact input for fresh start
-        document.getElementById("contactNumber").value = contact || "";
-        document.getElementById("contactNumber").disabled = false;
-        document.getElementById("inventoryStep").style.display = "none";
-        document.getElementById("otpStep").style.display = "none";
-        document.querySelector(".verifybt1").style.display = "inline-block";
-    }, 300);
-  }
-}
-};
+//       // Clear all fields and enable contact input for fresh start
+//         document.getElementById("contactNumber").value = contact || "";
+//         document.getElementById("contactNumber").disabled = false;
+//         document.getElementById("inventoryStep").style.display = "none";
+//         document.getElementById("otpStep").style.display = "none";
+//         document.querySelector(".verifybt1").style.display = "inline-block";
+//     }, 300);
+//   }
+// }
+// };
 
 
 function submitContact() {
