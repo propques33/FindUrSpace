@@ -9,6 +9,22 @@
     <link rel="stylesheet" href="../static/css/style.css"></head>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
+    {% if blog['schemaMarkup'] %}
+    {% for schema in blog['schemaMarkup'] %}
+        <script type="application/ld+json">
+            {{ schema | safe }}
+        </script>
+        {% endfor %}
+    {% endif %}
+    {% if blog['canonicalUrl'] %}
+        <link rel="canonical" href="{{ blog['canonicalUrl'] }}">
+    {% endif %}
+    <meta property="og:title" content="{{ blog['metaTitle'] or blog['pageTitle'] }}">
+    <meta property="og:description" content="{{ blog['metaDescription'] }}">
+    <meta property="og:image" content="{{ blog['featuredImage'] }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+
     <style>
         body {
             font-family: 'Sentient', sans-serif; /* Add a fallback font */
@@ -487,6 +503,15 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
   });
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".content-section img").forEach(img => {
+      if (!img.alt || img.alt.trim() === "") {
+        img.alt = document.title + " - image";
+      }
+    });
+  });
+</script>
 
 </script>
 
