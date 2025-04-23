@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ blog['Title'] }}</title>
+    <title>{{ blog['metaTitle'] }}</title>
+    <meta name="description" content="{{ blog['metaDescription'] }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../static/css/style.css"></head>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
     <style>
         body {
@@ -105,23 +107,26 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     </nav>
 
     <!-- Blog Cover Image -->
-    {% if blog['Image'] and blog['Image'][0] %}
-        <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['url'] }}" 
-             alt="{{ blog['Title'] }}" 
-             class="imgsub">
+    <!-- {% if blog['Image'] and blog['Image'][0] %}
+    <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['url'] }}" 
+         alt="{{ blog['Title'] }}" 
+         class="imgsub">
+    {% endif %} -->
+    {% if blog['featuredImage'] %}
+    <img src="{{ blog['featuredImage'] }}" alt="{{ blog['pageTitle'] }}" class="imgsub">
     {% endif %}
 
     <!-- Blog Title and Meta -->
     <div class="subblog_cont">
-        <h1 class="subblog_head">{{ blog['Title'] }}</h1>
+        <h1 class="subblog_head">{{ blog['pageTitle'] }}</h1>
         <div class="time">
-            <span class="textdate" data-timestamp="{{ blog['Published'] }}"></span>
+            <span class="textdate" data-timestamp="{{ blog['updatedAt'] }}"></span>
         </div>        
         <div class="author">
             <div class="cont_write">
                 <img src="../static/images/logo.png" alt="userimg" class="authimg"></img>
                 <div class="authname">
-                    <div class="nam">Swithen Thomas</div>
+                    <div class="nam">Adarsh Mohan Dixit</div>
                     <div class="rol">Contributing Writer</div>
                 </div>
             </div>
@@ -138,7 +143,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                         onclick="handleLike()"
                         style="cursor: pointer;"
                     >&#9825;</span> <!-- Outlined heart -->
-                    <span id="like-count" data-slug="{{ blog['slug'] }}">0 likes</span>
+                    <span id="like-count" data-slug="{{ blog['urlSlug'] }}">0 likes</span>
                 </div>
             </div>
         </div>
@@ -146,7 +151,8 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 
     <!-- Blog Content -->
     <div class="content-section">
-        {% for block in blog['Content'] %}
+        {{ blog['contentBody'] | safe }}
+        <!-- {% for block in blog['Content'] %}
             {% if block['type'] == 'heading' %}
                 <h{{ block['level'] }} class="subyhead level-{{ block['level'] }}">
                     {% for child in block['children'] %}
@@ -218,16 +224,38 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
             {% elif block['type'] == 'image' %}
                 <img src="{{ block['image']['url'] }}" alt="{{ block['image']['alternativeText'] }}" class="content-image">
             {% endif %}
+        {% endfor %} -->
+    </div>
+    {% if blog['faqBlock'] %}
+<section class="faq-section" id="faq">
+    <h2 class="faq-title">Frequently Asked Questions</h2>
+    <p class="faq-subtitle">Answers to common questions about this blog and coworking space insights</p>
+    <div class="faq-container">
+        {% for faq in blog['faqBlock'] %}
+        <div class="faq-item">
+            <div class="faq-question">
+                <span>{{ faq.question }}</span>
+                <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+            <div class="faq-answer">
+                {{ faq.answer }}
+            </div>
+        </div>
         {% endfor %}
     </div>
+</section>
+{% endif %}
 
+
+
+    
     <!-- Static Author Section -->
     <div class="static-author-section">
         <hr class="separator1">
         <div class="author-details">
             <div class="author-header">
                 <span class="author-label">WRITTEN BY :</span>
-                <span class="author-name">Swithen Thomas</span>
+                <span class="author-name">Adarsh Mohan Dixit</span>
             </div>
             <div class="author-content">
                 
@@ -235,7 +263,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 
                 <div class="author-bio">
                     <p>
-                        Thomas specializes in helping coworking and shared office spaces attract more clients. By implementing tailored marketing strategies, he ensures spaces get noticed, gain consistent tenants, and increase profitability.With coworking spaces growing in number, standing out has become a challenge. Thomas leverages effective digital plans to help coworking spaces enhance visibility, secure long-term renters, and achieve sustained success.
+                        Adarsh excels in optimizing flexible workspaces to match evolving business needs. As a Flexible Workspace Specialist, he helps asset owners and operators design, structure, and monetize their spaces efficiently. With deep industry insight, he identifies high-demand formats—like hot desks, day passes, and private cabins—to improve occupancy and revenue. His strategies ensure that every square foot works harder, adapts faster, and delivers better ROI in the dynamic coworking landscape.
                     </p>
                 </div>
             </div>
@@ -249,17 +277,22 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <div class="other-blogs-grid">
             {% for blog in other_blogs %}
             <div class="other-blog-card">
-                <img 
-                    src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['formats']['thumbnail']['url'] }}" 
-                    alt="{{ blog['Title'] }}" 
-                    class="other-blog-image"
-                />
+                {% if blog['featuredImage'] %}
+                    <img 
+                        src="{{ blog['featuredImage'] }}" 
+                        alt="{{ blog['pageTitle'] }}" 
+                        class="other-blog-image"
+                    />
+                {% endif %}
                 <div class="other-blog-content">
                     <h3 class="other-blog-title">
                         <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}">
-                            {{ blog['Title'] }}
+                            {{ blog['pageTitle'] }}
                         </a>
                     </h3>
+                    {% if blog['metaDescription'] %}
+                        <p class="other-blog-description">{{ blog['metaDescription'][:120] }}...</p>
+                    {% endif %}
                     <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="read-more-button">
                         Read More
                     </a>
@@ -421,6 +454,42 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     });
 
     </script>
+
+    
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach(item => {
+      const question = item.querySelector('.faq-question');
+      const answer = item.querySelector('.faq-answer');
+      const icon = item.querySelector('.material-symbols-outlined');
+
+      question.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+
+        // Close all
+        faqItems.forEach(i => {
+          i.classList.remove('active');
+          i.querySelector('.faq-answer').style.maxHeight = null;
+          i.querySelector('.material-symbols-outlined').style.transform = "rotate(0deg)";
+        });
+
+        // Open current
+        if (!isActive) {
+          item.classList.add('active');
+          answer.style.maxHeight = answer.scrollHeight + "px";
+          icon.style.transform = "rotate(90deg)";
+        }
+      });
+    });
+  });
+</script>
+
+
+</script>
+
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>

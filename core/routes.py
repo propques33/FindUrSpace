@@ -1962,133 +1962,188 @@ def property_images(property_id):
         flash(f'Error fetching property images: {str(e)}', 'error')
         return redirect(url_for('core_bp.index'))
 
+# @core_bp.route('/blog')
+# def blog():
+#     try:
+#         api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?populate=*'
+#         api_key = os.getenv('STRAPI_API_KEY')
+#         if not api_key:
+#             return "API key not found in environment variables", 500
+        
+#         headers = {
+#             'Authorization': f'Bearer {api_key}',
+#         }
+#         # Get page and limit from query parameters
+#         page = int(request.args.get('page', 1))  # Default to page 1
+#         limit = 6  # Number of blogs per page
+#         start = (page - 1) * limit
+
+#         # Fetch paginated blogs from API
+#         response = requests.get(f"{api_url}&pagination[start]={start}&pagination[limit]={limit}", headers=headers)
+#         data = response.json()
+
+#         blogs = data.get('data', [])
+#         total_count = data.get('meta', {}).get('pagination', {}).get('total', 0)
+#         total_pages = -(-total_count // limit)  # Calculate total pages
+
+#          # Calculate read time for each blog
+#         reading_speed = 200  # Words per minute
+#         for blog in blogs:
+#             content_blocks = blog.get('Content', [])
+#             word_count = 0
+#             for block in content_blocks:
+#                 if block.get('type') in ['paragraph', 'heading', 'quote']:
+#                     for child in block.get('children', []):
+#                         word_count += len(child.get('text', '').split())
+#             blog['read_time'] = max(1, round(word_count / reading_speed))  # Add read time to blog
+
+
+#         return render_template(
+#             'blog.html', blogs=blogs, page=page, total_pages=total_pages
+#         )
+#     except Exception as e:
+#         return str(e)
+        
 @core_bp.route('/blog')
 def blog():
     try:
-        api_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?populate=*'
-        api_key = os.getenv('STRAPI_API_KEY')
-        if not api_key:
-            return "API key not found in environment variables", 500
-        
-        headers = {
-            'Authorization': f'Bearer {api_key}',
-        }
-        # Get page and limit from query parameters
-        page = int(request.args.get('page', 1))  # Default to page 1
-        limit = 6  # Number of blogs per page
-        start = (page - 1) * limit
+        # Get current page from query string
+        page = int(request.args.get('page', 1))
+        per_page = 6  # you can adjust this as needed
 
-        # Fetch paginated blogs from API
-        response = requests.get(f"{api_url}&pagination[start]={start}&pagination[limit]={limit}", headers=headers)
+        # Fetch blog data from new CMS endpoint
+        api_url = f'https://pq-backend-fus-pq-blogs-elbtf.ondigitalocean.app/api/blogs?page={page}&limit={per_page}'
+        response = requests.get(api_url)
+        if response.status_code != 200:
+            return f"Failed to fetch blog data: {response.status_code}", response.status_code
+
         data = response.json()
 
-        blogs = data.get('data', [])
-        total_count = data.get('meta', {}).get('pagination', {}).get('total', 0)
-        total_pages = -(-total_count // limit)  # Calculate total pages
+        all_blogs = data.get('pages', [])
+        
+        # ✅ Filter only blogs where publishOn == "Findurspace"
+        filtered_blogs = [blog for blog in all_blogs if blog.get('publishOn') == "Findurspace"]
 
-         # Calculate read time for each blog
-        reading_speed = 200  # Words per minute
-        for blog in blogs:
-            content_blocks = blog.get('Content', [])
-            word_count = 0
-            for block in content_blocks:
-                if block.get('type') in ['paragraph', 'heading', 'quote']:
-                    for child in block.get('children', []):
-                        word_count += len(child.get('text', '').split())
-            blog['read_time'] = max(1, round(word_count / reading_speed))  # Add read time to blog
+        total_pages = data.get('pagesCount', 1)
 
+        # Calculate read time
+        for blog in filtered_blogs:
+            content = blog.get("contentBody", "")
+            word_count = len(content.split())
+            blog["read_time"] = max(1, round(word_count / 200))
 
         return render_template(
-            'blog.html', blogs=blogs, page=page, total_pages=total_pages
+            'blog.html',
+            blogs=filtered_blogs,
+            page=page,
+            total_pages=total_pages
         )
     except Exception as e:
-        return str(e)
-        
-
+        return str(e), 500
 
 
 @core_bp.route('/blog/<slug>')
 def blog_detail(slug):
     try:
-        # Construct API URL
-        api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}&populate=*'
+        response = requests.get('https://pq-backend-fus-pq-blogs-elbtf.ondigitalocean.app/api/blogs')
+        blogs = response.json().get('pages', [])
         
-        # Fetch API key from environment
-        api_key = os.getenv('STRAPI_API_KEY')
-        if not api_key:
-            return "API key not found in environment variables", 500
-        
-        headers = {
-            'Authorization': f'Bearer {api_key}',
-        }
+        blog = next((b for b in blogs if b.get('urlSlug') == slug), None)
+        if not blog:
+            return "Blog not found", 404
 
-        # Fetch blog data
-        response = requests.get(api_url, headers=headers)
-        if response.status_code != 200:
-            return f"Failed to fetch blog post: {response.status_code}", response.status_code
-        
-        blog_post_data = response.json().get('data')
-        if not blog_post_data or len(blog_post_data) == 0:
-            return "Blog post not found", 404
+        read_time = max(1, round(len(blog['contentBody'].split()) / 200))
 
-        # Extract the first blog post
-        blog_post = blog_post_data[0]
+        other_blogs = [b for b in blogs if b['urlSlug'] != slug]
 
-        # Fetch other blogs
-        other_blogs_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?populate=*'
-        response_other = requests.get(other_blogs_url, headers=headers)
-        if response_other.status_code != 200:
-            return f"Failed to fetch other blogs: {response_other.status_code}", response_other.status_code
-
-        all_blogs = response_other.json().get('data', [])
-        other_blogs = [blog for blog in all_blogs if blog['slug'] != slug]
-
-        # Parse the content blocks for rendering
-        content_blocks = blog_post.get('Content', [])
-        parsed_content = []
-
-        for block in content_blocks:
-            if block['type'] == 'heading':
-                parsed_content.append({
-                    'type': 'heading',
-                    'level': block.get('level', 2),
-                    'text': block['children'][0].get('text', '') if block['children'] else ''
-                })
-            elif block['type'] == 'paragraph':
-                paragraph_content = []
-                for child in block.get('children', []):
-                    if child['type'] == 'text':
-                        paragraph_content.append({'type': 'text', 'text': child.get('text', '')})
-                    elif child['type'] == 'link':
-                        link_text = ''.join([link_child.get('text', '') for link_child in child.get('children', [])])
-                        paragraph_content.append({'type': 'link', 'url': child.get('url', ''), 'text': link_text})
-            elif block['type'] == 'image':
-                parsed_content.append({
-                    'type': 'image',
-                    'url': block.get('image', {}).get('url', ''),
-                    'alt': block.get('image', {}).get('alternativeText', ''),
-                    'caption': block.get('image', {}).get('caption', '')
-                })
-            elif block['type'] == 'list':
-                list_items = []
-                for item in block.get('children', []):
-                    list_items.append({
-                        'type': 'list-item',
-                        'text': ''.join([child.get('text', '') for child in item.get('children', [])])
-                    })
-                parsed_content.append({'type': 'list', 'format': block.get('format', 'unordered'), 'items': list_items})
-
-        # Pass parsed content to the template
-        read_time = max(1, round(sum(len(c.get('text', '').split()) for c in parsed_content if c.get('text')) / 200))
-        return render_template('blog_detail.html', blog=blog_post, content=parsed_content, read_time=read_time,other_blogs=other_blogs)
-
-
-    except requests.exceptions.RequestException as e:
-        return f"An error occurred while connecting to the API: {e}", 500
-    except KeyError as e:
-        return f"Unexpected response structure: Missing key {e}", 500
+        return render_template('blog_detail.html', blog=blog, read_time=read_time, other_blogs=other_blogs)
     except Exception as e:
-        return f"An unexpected error occurred: {e}", 500
+        return str(e), 500
+
+
+
+# @core_bp.route('/blog/<slug>')
+# def blog_detail(slug):
+#     try:
+#         # Construct API URL
+#         api_url = f'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?filters[slug][$eq]={slug}&populate=*'
+        
+#         # Fetch API key from environment
+#         api_key = os.getenv('STRAPI_API_KEY')
+#         if not api_key:
+#             return "API key not found in environment variables", 500
+        
+#         headers = {
+#             'Authorization': f'Bearer {api_key}',
+#         }
+
+#         # Fetch blog data
+#         response = requests.get(api_url, headers=headers)
+#         if response.status_code != 200:
+#             return f"Failed to fetch blog post: {response.status_code}", response.status_code
+        
+#         blog_post_data = response.json().get('data')
+#         if not blog_post_data or len(blog_post_data) == 0:
+#             return "Blog post not found", 404
+
+#         # Extract the first blog post
+#         blog_post = blog_post_data[0]
+
+#         # Fetch other blogs
+#         other_blogs_url = 'https://findurspace-blog-app-pemmb.ondigitalocean.app/api/blog-posts?populate=*'
+#         response_other = requests.get(other_blogs_url, headers=headers)
+#         if response_other.status_code != 200:
+#             return f"Failed to fetch other blogs: {response_other.status_code}", response_other.status_code
+
+#         all_blogs = response_other.json().get('data', [])
+#         other_blogs = [blog for blog in all_blogs if blog['slug'] != slug]
+
+#         # Parse the content blocks for rendering
+#         content_blocks = blog_post.get('Content', [])
+#         parsed_content = []
+
+#         for block in content_blocks:
+#             if block['type'] == 'heading':
+#                 parsed_content.append({
+#                     'type': 'heading',
+#                     'level': block.get('level', 2),
+#                     'text': block['children'][0].get('text', '') if block['children'] else ''
+#                 })
+#             elif block['type'] == 'paragraph':
+#                 paragraph_content = []
+#                 for child in block.get('children', []):
+#                     if child['type'] == 'text':
+#                         paragraph_content.append({'type': 'text', 'text': child.get('text', '')})
+#                     elif child['type'] == 'link':
+#                         link_text = ''.join([link_child.get('text', '') for link_child in child.get('children', [])])
+#                         paragraph_content.append({'type': 'link', 'url': child.get('url', ''), 'text': link_text})
+#             elif block['type'] == 'image':
+#                 parsed_content.append({
+#                     'type': 'image',
+#                     'url': block.get('image', {}).get('url', ''),
+#                     'alt': block.get('image', {}).get('alternativeText', ''),
+#                     'caption': block.get('image', {}).get('caption', '')
+#                 })
+#             elif block['type'] == 'list':
+#                 list_items = []
+#                 for item in block.get('children', []):
+#                     list_items.append({
+#                         'type': 'list-item',
+#                         'text': ''.join([child.get('text', '') for child in item.get('children', [])])
+#                     })
+#                 parsed_content.append({'type': 'list', 'format': block.get('format', 'unordered'), 'items': list_items})
+
+#         # Pass parsed content to the template
+#         read_time = max(1, round(sum(len(c.get('text', '').split()) for c in parsed_content if c.get('text')) / 200))
+#         return render_template('blog_detail.html', blog=blog_post, content=parsed_content, read_time=read_time,other_blogs=other_blogs)
+
+
+#     except requests.exceptions.RequestException as e:
+#         return f"An error occurred while connecting to the API: {e}", 500
+#     except KeyError as e:
+#         return f"Unexpected response structure: Missing key {e}", 500
+#     except Exception as e:
+#         return f"An unexpected error occurred: {e}", 500
     
 
 @core_bp.route('/blog/like/<slug>', methods=['GET', 'POST'])
@@ -2635,3 +2690,28 @@ def update_user_details():
     )
 
     return jsonify(success=True)
+
+BLOG_API_URL = "https://pq-backend-fus-pq-blogs-elbtf.ondigitalocean.app/api/blogs"
+
+@core_bp.route("/testblog")
+def blog_list():
+    try:
+        res = requests.get(BLOG_API_URL)
+        data = res.json()
+        blogs = data.get("pages", [])
+    except Exception as e:
+        blogs = []
+        print(f"Error fetching blogs: {e}")
+    return render_template("blog_list.html", blogs=blogs)
+
+@core_bp.route("/testblogdetail/<slug>")
+def blog_detail1(slug):
+    try:
+        res = requests.get(BLOG_API_URL)
+        data = res.json()
+        all_blogs = data.get("pages", [])
+        blog = next((b for b in all_blogs if b.get("urlSlug") == slug), None)
+    except Exception as e:
+        blog = None
+        print(f"Error fetching blog detail: {e}")
+    return render_template("blog_detail1.html", blog=blog)

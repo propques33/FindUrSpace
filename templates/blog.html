@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="../static/css/style.css"></head>
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
 
+    <title>{{ blogs[0].metaTitle if blogs else 'FindUrSpace Blog' }}</title>
+<meta name="description" content="{{ blogs[0].metaDescription if blogs else 'Explore coworking & office space insights' }}">
+<link rel="canonical" href="{{ blogs[0].canonicalUrl if blogs else request.url }}">
+
     <!-- Google Tag Manager -->
 <script>
 
@@ -112,33 +116,39 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <div class="blog_subcont">
             <!-- Loop through blogs and display them as cards -->
             {% for blog in blogs %}
-            <div class="subgrid">
-                    <!--Image-->
-                    <!-- Display Blog Image -->
-                    {% if blog['Image'] and blog['Image'][0] %}
-                    <img src="https://findurspace-blog-app-pemmb.ondigitalocean.app{{ blog['Image'][0]['formats']['thumbnail']['url'] }}" 
-                        alt="{{ blog['Title'] }}" 
-                        class="blogimg"
-                        data-url="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}">
-                    {% endif %}
-                    <div class="date">
-                        <span class="textdate" data-timestamp="{{ blog['Published'] }}">
-                            {{ blog['Published'] }}
-                        </span>
-                        <ul class="textdate">
-                            <!-- Display dynamically calculated read time -->
-                            <li>{{ blog.get('read_time', 'N/A') }} min to read</li>
-                        </ul>
-                    </div>
-                    <div class="horline"></div>
-                    <div class="bloghead"  data-url="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}">{{ blog['Title'] }}</div>
-                    <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="view"><span>View Details</span><span>&#8594;</span></a>
-            </div>
-            {% endfor %}
+<div class="subgrid">
+    <!-- Blog Image -->
+    {% if blog.featuredImage %}
+    <img src="{{ blog.featuredImage }}" 
+         alt="{{ blog.pageTitle }}" 
+         class="blogimg"
+         data-url="{{ url_for('core_bp.blog_detail', slug=blog['urlSlug']) }}">
+    {% endif %}
+
+    <!-- Date & Read Time -->
+    <div class="date">
+        <span class="textdate" data-timestamp="{{ blog.updatedAt }}">{{ blog.updatedAt }}</span>
+        <ul class="textdate">
+            <li>{{ blog.read_time }} min to read</li>
+        </ul>
+    </div>
+
+    <div class="horline"></div>
+
+    <!-- Title -->
+    <div class="bloghead" data-url="{{ url_for('core_bp.blog_detail', slug=blog['urlSlug']) }}">
+        {{ blog.pageTitle }}
+    </div>
+
+    <a href="{{ url_for('core_bp.blog_detail', slug=blog['urlSlug']) }}" class="view">
+        <span>View Details</span><span>&#8594;</span>
+    </a>
+</div>
+{% endfor %}
         </div>
     </div>
     <!-- Pagination Component -->
-<div class="pagination">
+<!-- <div class="pagination">
     <ul>
         {% if page > 1 %}
         <li><a href="{{ url_for('core_bp.blog', page=page-1) }}">&#8592; Previous</a></li>
@@ -152,7 +162,25 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <li><a href="{{ url_for('core_bp.blog', page=page+1) }}">Next &#8594;</a></li>
         {% endif %}
     </ul>
+</div> -->
+<div class="pagination">
+    <ul>
+        {% if page > 1 %}
+        <li><a href="{{ url_for('core_bp.blog', page=page-1) }}">&#8592; Previous</a></li>
+        {% endif %}
+
+        {% for p in range(1, total_pages + 1) %}
+        <li class="{{ 'active' if p == page else '' }}">
+            <a href="{{ url_for('core_bp.blog', page=p) }}">{{ p }}</a>
+        </li>
+        {% endfor %}
+
+        {% if page < total_pages %}
+        <li><a href="{{ url_for('core_bp.blog', page=page+1) }}">Next &#8594;</a></li>
+        {% endif %}
+    </ul>
 </div>
+
     <section class="human-bot-section">
         <div class="container">
             <div class="text-content">

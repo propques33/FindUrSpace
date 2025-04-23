@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>All Blogs</title></head>
+<body>
+  <h1>Latest Blogs</h1>
+  {% for blog in blogs %}
+    <div style="border:1px solid #ccc; padding:20px; margin:10px;">
+      <img src="{{ blog.featuredImage }}" width="300"><br>
+      <h2>{{ blog.pageTitle }}</h2>
+      <p>{{ blog.metaDescription }}</p>
+      <a href="{{ url_for('core_bp.blog_detail1', slug=blog.urlSlug) }}">Read More</a>
+    </div>
+  {% endfor %}
+</body>
+</html>
