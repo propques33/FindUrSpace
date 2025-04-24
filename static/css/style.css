@@ -2843,7 +2843,7 @@ a:hover {
 /* Base styles for the footer */
 footer {
     color: #333;
-    padding: 40px 0;
+    padding-top:40px;
     font-size: 14px;
     border-top: 1px solid #eee;
     background-color: #f9f9f9; /* Optional: Add background color */
@@ -2853,9 +2853,10 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 30px 20px;
+    padding: 0px 60px;
+    padding-bottom:40px;
+    padding-top:20px;
     flex-wrap: wrap; /* Enable wrapping for smaller screens */
     gap: 20px; /* Add some gap between sections */
 }
@@ -2863,7 +2864,6 @@ footer {
 .footer-section {
     flex: 1 1 23%; /* Ensures sections take up equal space */
     min-width: 200px; /* Set a minimum width to prevent too much shrinking */
-    margin-bottom: 30px;
     display:flex;
     flex-direction: column;
     justify-content: center;
@@ -2997,6 +2997,7 @@ footer {
         align-items: center;
         text-align: center;
         justify-content: center;
+        padding: 0px 20px;
     }
 
     .footer-section {
@@ -3326,3 +3327,132 @@ footer {
 .faq-item.active .material-symbols-outlined {
     transform: rotate(90deg);
 }
+
+.subfooter-links {
+  padding: 0px 60px;
+  background: #f9f9f9;
+  border-radius: 20px;
+  margin: 0px auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@media screen and (max-width: 576px) {
+    .subfooter-links {
+        padding:0px 10px;
+    }
+}
+
+.subfooter-block {
+  margin-bottom: 40px;
+}
+
+.subfooter-heading {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-bottom: 15px;
+  position: relative;
+  padding-left: 10px;
+}
+
+.subfooter-heading::before {
+  content: "";
+  width: 5px;
+  height: 100%;
+  background: #151d31;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 5px;
+}
+
+#ft{
+    margin-bottom:60px;
+}
+
+.subfooter-list {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px 25px;
+  padding-left: 10px;
+}
+
+/* For 1440px and below */
+@media (max-width: 1440px) {
+  .subfooter-list {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* For 1256px and below */
+@media (max-width: 1256px) {
+  .subfooter-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* For 1156px and below */
+@media (max-width: 1156px) {
+  .subfooter-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* For 968px and below */
+@media (max-width: 968px) {
+  .subfooter-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* For 756px and below */
+@media (max-width: 756px) {
+  .subfooter-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* For 576px and below */
+@media (max-width: 576px) {
+  .subfooter-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* For 480px and below */
+@media (max-width: 480px) {
+  .subfooter-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* For 376px and below */
+@media (max-width: 376px) {
+  .subfooter-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+#nv{
+    justify-content: center;
+}
+
+.subfooter-list a {
+  font-size: 14px;
+  color: #222;
+  text-decoration: none;
+  background: #f9f9f9;
+  padding: 6px 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.subfooter-list a:hover {
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  color: #007bff;
+}
+
+

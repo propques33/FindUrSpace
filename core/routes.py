@@ -2032,15 +2032,20 @@ def blog():
             word_count = len(content.split())
             blog["read_time"] = max(1, round(word_count / 200))
 
+        # 🔥 Fetch cities from DB
+        db = current_app.config['db']
+        cities = db.fillurdetails.distinct('city')
+        clean_cities = sorted(set(city.strip().title() for city in cities if city))  # Capitalized for UI
+
         return render_template(
             'blog.html',
             blogs=filtered_blogs,
             page=page,
-            total_pages=total_pages
+            total_pages=total_pages,
+            cities=clean_cities 
         )
     except Exception as e:
         return str(e), 500
-
 
 @core_bp.route('/blog/<slug>')
 def blog_detail(slug):
@@ -2054,13 +2059,20 @@ def blog_detail(slug):
 
         read_time = max(1, round(len(blog['contentBody'].split()) / 200))
 
-        other_blogs = [b for b in blogs if b['urlSlug'] != slug]
+        # Filter other blogs: not the current one and only if published on Findurspace
+        other_blogs = [
+            b for b in blogs
+            if b.get('urlSlug') != slug and b.get('publishOn') == "Findurspace"
+        ][:3]  # Limit to first 3
 
-        return render_template('blog_detail.html', blog=blog, read_time=read_time, other_blogs=other_blogs)
+        # 🔥 Fetch cities from DB
+        db = current_app.config['db']
+        cities = db.fillurdetails.distinct('city')
+        clean_cities = sorted(set(city.strip().title() for city in cities if city))  # Capitalized for UI
+
+        return render_template('blog_detail.html', blog=blog, read_time=read_time, other_blogs=other_blogs,cities=clean_cities)
     except Exception as e:
         return str(e), 500
-
-
 
 # @core_bp.route('/blog/<slug>')
 # def blog_detail(slug):
@@ -2691,27 +2703,4 @@ def update_user_details():
 
     return jsonify(success=True)
 
-BLOG_API_URL = "https://pq-backend-fus-pq-blogs-elbtf.ondigitalocean.app/api/blogs"
 
-@core_bp.route("/testblog")
-def blog_list():
-    try:
-        res = requests.get(BLOG_API_URL)
-        data = res.json()
-        blogs = data.get("pages", [])
-    except Exception as e:
-        blogs = []
-        print(f"Error fetching blogs: {e}")
-    return render_template("blog_list.html", blogs=blogs)
-
-@core_bp.route("/testblogdetail/<slug>")
-def blog_detail1(slug):
-    try:
-        res = requests.get(BLOG_API_URL)
-        data = res.json()
-        all_blogs = data.get("pages", [])
-        blog = next((b for b in all_blogs if b.get("urlSlug") == slug), None)
-    except Exception as e:
-        blog = None
-        print(f"Error fetching blog detail: {e}")
-    return render_template("blog_detail1.html", blog=blog)
