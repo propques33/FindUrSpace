@@ -430,9 +430,6 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
         <div class="progress-step">02</div>
         <div class="progress-step">03</div>
         <div class="progress-step">04</div>
-        <div class="progress-step">05</div>
-        <div class="progress-step">06</div>
-        <div class="progress-step">07</div>
       </div>
 
       <!-- Process Cards -->
@@ -461,23 +458,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
           <h3>Seal the Agreement</h3>
         </div>
 
-        <div class="step-card">
-          <i class="ri-pencil-ruler-2-line"></i>
-          <p>STEP 5</p>
-          <h3>Design Your Workspace</h3>
-        </div>
-
-        <div class="step-card">
-          <i class="ri-tools-line"></i>
-          <p>STEP 6</p>
-          <h3>Build & Set Up</h3>
-        </div>
-
-        <div class="step-card">
-          <i class="ri-rocket-line"></i>
-          <p>STEP 7</p>
-          <h3>Move In & Thrive</h3>
-        </div>
+        
       </div>
     </section>
 
@@ -772,21 +753,21 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
       <div class="brand-grid">
         <div class="brand-card">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmF8yZ6JPQAbOTbDbwkPcTp4Vc2UuO-9MfzA&s"
+            src="../static/images/cubi.svg"
             alt="Hubstains"
           />
           <a onclick="openPopup()">Explore 4 workspaces →</a>
         </div>
         <div class="brand-card">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQchMv_lCjIj2jV-F-8dtv0vHBgSLos24-UCA&s"
+            src="../static/images/summit.png"
             alt="COWRKS"
           />
           <a onclick="openPopup()">Explore 9 workspaces →</a>
         </div>
         <div class="brand-card">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTZHheslOzF5uUEBow7j_im7RyOkTJsIdIFOfMwcuYKkQEYn5HxeLMg32gTrrmrVT6aV7M&usqp=CAU"
+            src="../static/images/workjarAsset.png"
             alt="WeWork"
           />
           <a onclick="openPopup()">Explore 17 workspaces →</a>
@@ -794,18 +775,10 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
 
         <div class="brand-card">
           <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB9mQtoIr2SKJxK7kce5FIPZOk8t9TeShBXg&s"
+            src="../static/images/workviaalogo.png"
             alt="OYO"
           />
           <a onclick="openPopup()">Explore 14 workspaces →</a>
-        </div>
-
-        <div class="brand-card">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIHXXoo1eASHjiIv5cMl4hAPkadKCuE_Lvrw&s"
-            alt="Awfis"
-          />
-          <a onclick="openPopup()">Explore 13 workspaces →</a>
         </div>
       </div>
 
@@ -980,7 +953,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
             seats: document.getElementById("seats").value,
             location: "Ahmedabad", // Default location
           };
-
+          console.log(formData); 
           // Send data to Make webhook
           fetch("/api/contact", {
             method: "POST",
@@ -991,6 +964,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
           })
             .then((response) => {
               if (response.ok) {
+                console.log(formData); 
                 alert("Form submitted successfully!");
                 document.getElementById("contactForm").reset(); // Clear the form
               } else {
@@ -1017,6 +991,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
             location: "Ahmedabad", // Default location
         };
 
+        console.log(formData); // Log the form data to the console for debugging
         // Send data to Make webhook
         fetch("/api/contact", {
             method: "POST",
@@ -1024,9 +999,11 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(formData),
+            
         })
             .then((response) => {
                 if (response.ok) {
+                    console.log(formData); 
                     alert("Form submitted successfully! Footer");
                     document.getElementById("contactForm-footer").reset(); // Clear the form
                 } else {
@@ -1055,7 +1032,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
             seats: document.querySelector(".seats-hero").value,
             location: "Ahmedabad", // Default location
         };
-
+        console.log(formData); 
         // Send data to Make webhook
         fetch("/api/contact", {
             method: "POST",
@@ -1066,6 +1043,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
         })
             .then((response) => {
                 if (response.ok) {
+                    console.log(formData); 
                     alert("Form submitted successfully! Footer");
                     document.getElementById("contactForm-footer").reset(); // Clear the form
                 } else {
@@ -1089,7 +1067,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
       seats: document.querySelector(seatsSel).value,
       location: "Ahmedabad"
     };
-
+    console.log(formData); 
     fetch("/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1097,6 +1075,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
     })
     .then((response) => {
       if (response.ok) {
+        console.log(formData); 
         alert("Form submitted successfully!");
         document.querySelector(formSelector).reset();
         closePopup(); // Close if it’s popup form

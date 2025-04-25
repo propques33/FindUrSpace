@@ -2705,7 +2705,7 @@ def update_user_details():
     return jsonify(success=True)
 
 
-@api_bp.route('/api/contact', methods=['POST'])
+@core_bp.route('/api/contact', methods=['POST'])
 def send_to_salesmate():
     data = request.get_json()
 
@@ -2713,25 +2713,36 @@ def send_to_salesmate():
 
     headers = {
         "Content-Type": "application/json",
-        "x-linkname": "propquesservices.salesmate.io",
-        "accessToken": "39c4c1b0-e513-11ef-a130-b9ebcf59a1ef",
-        "sessionToken": "39c4c1b0-e513-11ef-a130-b9ebcf59a1ef"
+        "accessToken": "371ebbe0-ffd6-11ef-a2a5-8d32b66d7be2",
+        "x-linkname": "findurspace.salesmate.io"   # ✅ Use this token
     }
 
+    # Split full name into first and last name
+    full_name = data.get("name", "")
+    name_parts = full_name.strip().split()
+    first_name = name_parts[0] if len(name_parts) > 0 else ""
+    last_name = " ".join(name_parts[1:]) if len(name_parts) > 1 else "User"
+
+    # Prepare payload
     salesmate_payload = {
-        "name": data.get("name"),
+        "firstName": first_name,
+        "lastName": last_name,                    # ✅ Mandatory
+        "owner": 1,                               # ✅ Mandatory - Update this with valid owner ID from your Salesmate CRM
         "email": data.get("email"),
         "phone": data.get("phone"),
-        "textCustomField3": data.get("seats")
+        "billingCity": data.get("location"),
+        "textCustomField3": data.get("seats"),    # Number of Seats
+        "textCustomField15": "Website - Ahmedabad",  # Source
+        "tags": "Website Lead"
     }
 
     try:
         response = requests.post(
-            "https://propquesservices.salesmate.io/apis/contact/v4",
+            "https://findurspace.salesmate.io/apis/contact/v4",
             json=salesmate_payload,
             headers=headers
         )
-        print("Salesmate Response:", response.json())
+        print("Salesmate Response:", response.status_code, response.text)
         return jsonify(response.json()), response.status_code
 
     except requests.exceptions.RequestException as e:
