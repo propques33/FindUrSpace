@@ -1503,8 +1503,8 @@ const selected = new Date(selectedDate);
 today.setHours(0, 0, 0, 0);
 selected.setHours(0, 0, 0, 0);
 
-if (selected <= today) {
-  alert("Please select a date from tomorrow onward.");
+if (selected < today) {
+  alert("Please select a date from today onward.");
   return;
 }
 
@@ -2281,8 +2281,8 @@ function submitPurchase() {
     today.setHours(0, 0, 0, 0);
     selected.setHours(0, 0, 0, 0);
 
-    if (selected <= today) {
-      alert("Please select a date from tomorrow onward.");
+    if (selected < today) {
+      alert("Please select a date from today onward.");
       return;
     }
 
@@ -2601,7 +2601,7 @@ function submitContact() {
   // Step 2: Save contact in hidden field
   document.getElementById("userContact").value = contactInput;
 
-  // Step 3: Check if contact exists
+  // Step 3: Check if contact 
   fetch(`/check_existing_contact?contact=${contactInput}`)
     .then(response => response.json())
     .then(data => {

@@ -982,7 +982,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
           };
 
           // Send data to Make webhook
-          fetch("https://hook.eu2.make.com/m3jyrov1tnx1ckyo6ejbprxtbgchvxk8", {
+          fetch("/api/contact", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -1018,7 +1018,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
         };
 
         // Send data to Make webhook
-        fetch("https://hook.eu2.make.com/m3jyrov1tnx1ckyo6ejbprxtbgchvxk8", {
+        fetch("/api/contact", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -1057,7 +1057,7 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
         };
 
         // Send data to Make webhook
-        fetch("https://hook.eu2.make.com/m3jyrov1tnx1ckyo6ejbprxtbgchvxk8", {
+        fetch("/api/contact", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -1077,6 +1077,45 @@ src="https://www.facebook.com/tr?id=1102322410247129&ev=PageView
                 console.error("Error:", error);
             });
     });
+
+    function handleSalesmateFormSubmit(formSelector, nameSel, emailSel, phoneSel, seatsSel) {
+  document.querySelector(formSelector).addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const formData = {
+      name: document.querySelector(nameSel).value,
+      email: document.querySelector(emailSel).value,
+      phone: document.querySelector(phoneSel).value,
+      seats: document.querySelector(seatsSel).value,
+      location: "Ahmedabad"
+    };
+
+    fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    })
+    .then((response) => {
+      if (response.ok) {
+        alert("Form submitted successfully!");
+        document.querySelector(formSelector).reset();
+        closePopup(); // Close if it’s popup form
+      } else {
+        throw new Error("Submission failed");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert("Error submitting the form. Please try again.");
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  handleSalesmateFormSubmit("#contactForm", "#name", "#email", "#phone", "#seats");
+  handleSalesmateFormSubmit("#contactForm-footer", ".name-footer", ".email-footer", ".phone-footer", ".seats-footer");
+  handleSalesmateFormSubmit("#contactForm-hero", ".name-hero", ".email-hero", ".phone-hero", ".seats-hero");
+});
 
     </script>
     <script

@@ -76,6 +76,7 @@ def get_lowest_price(inventory):
 
 # Define the Blueprint for core routes
 core_bp = Blueprint('core_bp', __name__)
+api_bp = Blueprint('api', __name__)
 
 @core_bp.route('/send_otp', methods=['POST'])
 def send_otp():
@@ -2704,3 +2705,35 @@ def update_user_details():
     return jsonify(success=True)
 
 
+@api_bp.route('/api/contact', methods=['POST'])
+def send_to_salesmate():
+    data = request.get_json()
+
+    print("Payload Received:", data)
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-linkname": "propquesservices.salesmate.io",
+        "accessToken": "39c4c1b0-e513-11ef-a130-b9ebcf59a1ef",
+        "sessionToken": "39c4c1b0-e513-11ef-a130-b9ebcf59a1ef"
+    }
+
+    salesmate_payload = {
+        "name": data.get("name"),
+        "email": data.get("email"),
+        "phone": data.get("phone"),
+        "textCustomField3": data.get("seats")
+    }
+
+    try:
+        response = requests.post(
+            "https://propquesservices.salesmate.io/apis/contact/v4",
+            json=salesmate_payload,
+            headers=headers
+        )
+        print("Salesmate Response:", response.json())
+        return jsonify(response.json()), response.status_code
+
+    except requests.exceptions.RequestException as e:
+        print("Salesmate Error:", str(e))
+        return jsonify({"error": str(e)}), 500
