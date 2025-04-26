@@ -294,7 +294,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                     {% if blog['metaDescription'] %}
                         <p class="other-blog-description">{{ blog['metaDescription'][:120] }}...</p>
                     {% endif %}
-                    <a href="{{ url_for('core_bp.blog_detail', slug=blog['slug']) }}" class="read-more-button">
+                    <a href="{{ url_for('core_bp.blog_detail', slug=blog['urlSlug']) }}" class="read-more-button">
                         Read More
                     </a>
                 </div>
@@ -378,7 +378,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         </div>
       </footer>
 
-      <section class="subfooter-links" style="display:none;">
+      <section class="subfooter-links" >
   <div class="subfooter-block">
     <h4 class="subfooter-heading">Coworking Spaces by Location</h4>
     <div class="subfooter-list">

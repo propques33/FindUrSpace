@@ -2273,7 +2273,7 @@ text-decoration-line: none;
     height:auto;
     background-color: white;
     position: absolute;
-    top:60vh;
+    top:50vh;
     left:20%;
     border-radius: 5px;
     padding:50px;
@@ -2697,7 +2697,7 @@ a:hover {
     .subblog_cont {
         width: 95%;
         left:3%;
-        top:70vh;
+        top:50vh;
         padding: 30px;
         text-align: left; /* Ensure content remains left-aligned */
     }
