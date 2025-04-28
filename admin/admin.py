@@ -911,11 +911,33 @@ def managed_inventory():
         return redirect(url_for('admin.admin_login'))
     
     db = current_app.config['db']
-    # Fetch all city names and normalize to lowercase
+    
+    # Filter: workspace_type = 'Managed Offices' and total_building_area exists
+    spaces = list(db.fillurdetails.find({
+        "workspace_type": "Managed Offices",
+        "total_building_area": {"$ne": None}
+    }))
+    
+    # Get distinct cities from the filtered spaces
+    cities = list({space['city'] for space in spaces if 'city' in space and space['city']})
+    
+    # Get distinct micromarkets from the filtered spaces
+    micromarkets = list({space['micromarket'] for space in spaces if 'micromarket' in space and space['micromarket']})
+
+    return render_template('managed_inventory.html', cities=cities, micromarkets=micromarkets)
+
+
+@admin_bp.route('/managed_inventory_seats', methods=['GET'])
+def managed_inventory_seats():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+    
+    db = current_app.config['db']
     cities = db.fillurdetails.distinct('city')
     micromarkets = db.fillurdetails.distinct('micromarket')
     
-    return render_template('managed_inventory.html', cities=cities, micromarkets=micromarkets)
+    return render_template('managed_inventory_seats.html', cities=cities, micromarkets=micromarkets)
+
 
 @admin_bp.route('/get_micromarkets_live/<city>', methods=['GET'])
 def get_micromarkets_live(city):
@@ -931,6 +953,130 @@ def get_micromarkets_live(city):
         return jsonify({'status': 'error', 'message': 'No micromarkets found for the city'}), 404
 
     return jsonify(micromarkets)
+
+@admin_bp.route('/fetch_coworking_inventory', methods=['GET'])
+def fetch_coworking_inventory():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']  # Access the db instance from the current app context
+    fillurdetails_collection = db['fillurdetails']
+
+    # Get filter parameters
+    city = request.args.get('city')
+    micromarket = request.args.get('micromarket')
+    inventory_type = request.args.get('inventory_type')
+    price = request.args.get('price')
+    workspace_type = request.args.get('workspace_type')  # NEW 
+    building_area = request.args.get('building_area')
+    rental_range = request.args.get('rental_range')
+    seating_range = request.args.get('seating_range')
+    
+    filters = {}
+
+    if city:
+        filters['city'] = city
+    if micromarket:
+        filters['micromarket'] = micromarket
+    if inventory_type:
+        filters['inventory.type'] = inventory_type
+    if price:
+        try:
+            filters['price'] = {'$lte': int(price)}
+        except ValueError:
+            pass
+    if building_area:
+        try:
+            building_area = building_area.strip()
+            if building_area.endswith('+'):
+                min_val = int(building_area[:-1])  # Get all characters except '+'
+                filters['total_building_area'] = {'$gte': min_val}
+            else:
+                min_val, max_val = map(int, building_area.split('-'))
+                filters['total_building_area'] = {'$gte': min_val, '$lte': max_val}
+        except Exception as e:
+            print("Error parsing building_area filter:", building_area, e)
+
+    if rental_range:
+        if '+' in rental_range:
+            min_val = int(rental_range.replace('+', ''))
+            filters['total_rental'] = {'$gte': min_val}
+        else:
+            min_val, max_val = map(int, rental_range.split('-'))
+            filters['total_rental'] = {'$gte': min_val, '$lte': max_val}
+
+    if seating_range:
+        if '+' in seating_range:
+            min_val = int(seating_range.replace('+', ''))
+            filters['min_inventory_unit'] = {'$gte': min_val}
+        else:
+            min_val, max_val = map(int, seating_range.split('-'))
+            filters['min_inventory_unit'] = {'$gte': min_val, '$lte': max_val}
+    if workspace_type:
+        filters['workspace_type'] = workspace_type  # NEW LINE
+
+    # Fetch coworking space data
+    coworking_list = list(fillurdetails_collection.find(filters, {'layout_images': 0, 'interactive_layout': 0}).sort('date', -1))
+
+    # Include stringified `_id`
+    for coworking in coworking_list:
+        coworking['_id'] = str(coworking['_id'])
+        coworking['center_manager'] = coworking.get('center_manager', {'name': 'N/A', 'contact': 'N/A'})
+
+        # Determine agreement status
+        owner_phone = coworking.get('owner', {}).get('phone')
+        if owner_phone:
+            related_entries = list(fillurdetails_collection.find({'owner.phone': owner_phone}, {'uploaded_pdfs': 1}))
+            coworking['agreement_status'] = 'Completed' if any(entry.get('uploaded_pdfs') for entry in related_entries) else 'Pending'
+        else:
+            coworking['agreement_status'] = 'Pending'
+
+    return jsonify({
+        'spaces': coworking_list
+    })
+
+@admin_bp.route('/fetch_inventory_seats', methods=['GET'])
+def fetch_inventory_seats():
+    if 'admin' not in session:
+        return redirect(url_for('admin.admin_login'))
+
+    db = current_app.config['db']
+    fillurdetails_collection = db['fillurdetails']
+
+    # Get filter parameters
+    city = request.args.get('city')
+    micromarket = request.args.get('micromarket')
+    workspace_type = request.args.get('workspace_type')  # Should be "Managed Offices"
+
+    # Base mandatory filters for managed_inventory_seats
+    filters = {
+        "workspace_type": "Managed Offices",
+        "total_building_area": None  # ❗ Only where building area is null
+    }
+
+    # Optional dynamic filters
+    if city:
+        filters['city'] = city
+    if micromarket:
+        filters['micromarket'] = micromarket
+
+    # Fetch coworking spaces
+    coworking_list = list(fillurdetails_collection.find(filters, {'layout_images': 0, 'interactive_layout': 0}).sort('date', -1))
+
+    # Prepare data
+    for coworking in coworking_list:
+        coworking['_id'] = str(coworking['_id'])
+        coworking['center_manager'] = coworking.get('center_manager', {'name': 'N/A', 'contact': 'N/A'})
+
+        owner_phone = coworking.get('owner', {}).get('phone')
+        if owner_phone:
+            related_entries = list(fillurdetails_collection.find({'owner.phone': owner_phone}, {'uploaded_pdfs': 1}))
+            coworking['agreement_status'] = 'Completed' if any(entry.get('uploaded_pdfs') for entry in related_entries) else 'Pending'
+        else:
+            coworking['agreement_status'] = 'Pending'
+
+    return jsonify({'spaces': coworking_list})
+
 
 @admin_bp.route('/fetch_inventory', methods=['GET'])
 def fetch_inventory():
@@ -950,7 +1096,11 @@ def fetch_inventory():
     rental_range = request.args.get('rental_range')
     seating_range = request.args.get('seating_range')
     
-    filters = {}
+    # Base mandatory filters
+    filters = {
+        "workspace_type": "Managed Offices",
+        "total_building_area": {"$ne": None}
+    }
 
     if city:
         filters['city'] = city

@@ -273,7 +273,7 @@
         </select>
 
         <!-- Building Area Filter -->
-<select id="building-area" name="building_area">
+<select id="building-area" name="building_area" style="display: none;">
     <option value="">Building Area</option>
     <option value="0-2000">0–2000 sqft</option>
     <option value="2000-5000">2000–5000 sqft</option>
@@ -291,7 +291,7 @@
 </select>
 
 <!-- Seating Capacity Filter -->
-<select id="seating-range" name="seating_range" style="display: none;">
+<select id="seating-range" name="seating_range">
     <option value="">Seating Capacity</option>
     <option value="0-50">0–50</option>
     <option value="50-100">50–100</option>
@@ -310,12 +310,10 @@
                         <th id="sort-city">Micromarket,City</th>
                         <th>Contact</th>
                         <!-- <th>Total Seats</th> -->
-                        <th>Total Building Area (sqft)</th>
-                        <th>Rental Expectation</th>
-                        <th>Rental / sqft</th>
+                        <th>Number of Seats</th>
+                        <th>Rental Expectation/seat</th>
                         <th>Security Deposit</th>
                         <th>Furnishing Level</th>
-                        <th>Min Inventory Unit</th>
                         <th>Details</th>
                         <!-- <th>Actions</th> 
                         <th>Agreement Status</th> 
@@ -532,23 +530,21 @@
             let isAsc = true; // Track sorting order
             
             function fetchInventory() {
-                const workspaceType = 'Managed Offices';
-                const selectedCity = cityDropdown.value || ''; // Default to empty if no value
-                const selectedMicromarket = micromarketDropdown.value || '';
-                const buildingArea = document.getElementById('building-area').value;
-                const rentalRange = document.getElementById('rental-range').value;
-                const seatingRange = document.getElementById('seating-range').value;
+    const workspaceType = 'Managed Offices';
+    const selectedCity = cityDropdown.value || '';
+    const selectedMicromarket = micromarketDropdown.value || '';
 
-                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&workspace_type=${encodeURIComponent(workspaceType)}&building_area=${buildingArea}&rental_range=${rentalRange}&seating_range=${seatingRange}`;
+    let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&workspace_type=${encodeURIComponent(workspaceType)}`;
 
-                fetch(`/admin/fetch_inventory?${query}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        inventoryData = data.spaces; // Store the fetched data
-                        renderTable(inventoryData);
-                    })
-                    .catch(error => console.error('Error fetching inventory:', error));
-            }
+    fetch(`/admin/fetch_inventory_seats?${query}`)  // ❗ Notice: fetch_inventory_seats
+        .then(response => response.json())
+        .then(data => {
+            inventoryData = data.spaces;
+            renderTable(inventoryData);
+        })
+        .catch(error => console.error('Error fetching inventory:', error));
+}
+
 
             function renderTable(data) {
                 tableBody.innerHTML = '';  // Clear previous entries
@@ -564,9 +560,6 @@
                         ? '<span style="color: green;">Completed</span>'
                         : '<span style="color: red;">Pending</span>';
 
-                    const rentalPerSqft = space.total_building_area && space.total_rental
-                        ? (space.total_rental / space.total_building_area).toFixed(2)
-                        : 'N/A';
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -577,12 +570,10 @@
                         <td>${space.coworking_name || 'N/A'}</td>
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
                         <td>${space.owner?.phone || 'N/A'}</td>
-                        <td>${space.total_building_area || 'N/A'}</td>
+                        <td>${space.seating_capacity || 'N/A'}</td>
                         <td>₹${space.total_rental?.toLocaleString() || 'N/A'}</td>
-                        <td>₹${rentalPerSqft}</td> <!-- 🆕 Insert this line -->
                         <td>₹${space.security_deposit?.toLocaleString() || 'N/A'}</td>
                         <td>${space.furnishing_level || 'N/A'}</td>
-                        <td>${space.min_inventory_unit || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
                     `;
                     // <td>${space.total_seats || 'N/A'}</td>
@@ -748,21 +739,16 @@ function displayCoworkingModal(space) {
         <p><strong>Date:</strong> ${space.date ? new Date(space.date).toLocaleString() : 'N/A'}</p>
 
         <h3>Building Details</h3>
-        <p><strong>Floors Offered:</strong> ${(space.floors_offered || []).join(', ') || 'N/A'}</p>
-        <p><strong>Floors Occupied:</strong> ${space.floors_occupied || 'N/A'}</p>
-        <p><strong>Total Floors:</strong> ${space.total_floors || 'N/A'}</p>
-        <p><strong>Floorplate Area:</strong> ${space.floorplate_area || 'N/A'} sqft</p>
-        <p><strong>Total Building Area:</strong> ${space.total_building_area || 'N/A'} sqft</p>
-        <p><strong>Furnishing Level:</strong> ${space.furnishing_level || 'N/A'}</p>
-        <p><strong>Space Type:</strong> ${space.space_type || 'N/A'}</p>
-        <p><strong>Rent or Own:</strong> ${space.rent_or_own || 'N/A'}</p>
-
-        <h3>Commercials</h3>
-        <p><strong>Min Inventory Unit:</strong> ${space.min_inventory_unit || 'N/A'}</p>
-        <p><strong>Total Rental:</strong> ₹${space.total_rental?.toLocaleString() || 'N/A'}</p>
+        <p><strong>Rent/Own:</strong> ${space.rent_or_own || 'N/A'}</p>
+        <p><strong>Total Number of Seats:</strong> ${space.seating_capacity || 'N/A'}</p>
+        <p><strong>Rental Expn/Seat:</strong> ₹${space.total_rental?.toLocaleString() || 'N/A'}</p>
         <p><strong>Security Deposit:</strong> ₹${space.security_deposit?.toLocaleString() || 'N/A'}</p>
-        <p><strong>Lease Term:</strong> ${space.lease_term || 'N/A'}</p>
-        <p><strong>Lock-in Period:</strong> ${space.lockin_period || 'N/A'}</p>
+        <p><strong>Total Floors:</strong> ${space.total_floors || 'N/A'}</p>
+        <p><strong>Floors Occupied:</strong> ${space.floors_occupied || 'N/A'}</p>
+        <p><strong>Furnishing Level:</strong> ${space.furnishing_level || 'N/A'}</p>
+        <p><strong>Expected Lock-in Period (Months):</strong> ${space.lockin_period || 'N/A'}</p>
+        <p><strong>Lease Term (Months):</strong> ${space.lease_term || 'N/A'}</p>
+        <p><strong>Type of Space:</strong> ${space.space_type || 'N/A'}</p>
 
         <h3>Distance from Landmarks</h3>
         <p><strong>Metro:</strong> ${space.distance?.metro || 'N/A'} km</p>

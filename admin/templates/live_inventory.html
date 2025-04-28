@@ -524,7 +524,7 @@
 
                 let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&inventory_type=${encodeURIComponent(selectedInventoryType)}&workspace_type=${encodeURIComponent(workspaceType)}`;
 
-                fetch(`/admin/fetch_inventory?${query}`)
+                fetch(`/admin/fetch_coworking_inventory?${query}`)
                     .then(response => response.json())
                     .then(data => {
                         inventoryData = data.spaces; // Store the fetched data
