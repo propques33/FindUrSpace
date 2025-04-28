@@ -108,7 +108,7 @@ function loadFormStep() {
             </div>
             <div class="form-group mb-3">
                 <input type="checkbox" id="accept-terms" name="accept-terms" required checked disabled>
-                <label for="accept-terms">I accept the <a href="http://findurspace.tech/tc" target="_blank">terms and conditions *</a></label>
+                <label for="accept-terms">I accept the <a href="http://findurspace.tech/terms-and-conditions" target="_blank">terms and conditions *</a></label>
             </div>
             <input type="hidden" id="latitude" name="latitude">
             <input type="hidden" id="longitude" name="longitude">
