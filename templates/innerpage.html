@@ -311,15 +311,19 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
       <!-- Right Section (Price) -->
       <div class="price">{{ inventoryType }}<br/>
         <span>{% if inventoryType == "Dedicated desk" %}
-            ₹{{ selected_inventory.price_per_seat| int  }} /seat/month
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /seat/month
         {% elif inventoryType == "Day pass" %}
-            ₹{{ selected_inventory.price_per_seat| int  }} /seat/day
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
+ /seat/day
         {% elif inventoryType == "Meeting rooms" %}
-            ₹{{ total_price| int }} /hour
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
+ /hour
         {% elif inventoryType == "Private cabin" %}
-            ₹{{ total_price| int }} /seat/month
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
+ /seat/month
         {% elif inventoryType == "Virtual office" %}
-            ₹{{ selected_inventory.price_per_seat| int  }} /year
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
+ /year
         {% else %}
             Contact for pricing
         {% endif %}</span></div>
@@ -341,7 +345,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
             </div>
             <div class="cart-details">
                 <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
-                <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
+                <p><strong>Total Price:</strong> <span id="totalPrice">₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}</span></p>
             </div>
 
             {% if inventoryType in ["Day pass", "Meeting rooms"] %}
@@ -377,7 +381,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     ₹{% if inventoryType in ["Meeting rooms", "Private cabin"] %}
         {{ total_price | int }}
     {% else %}
-        {{ selected_inventory.price_per_seat | int }}
+        ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
     {% endif %}
 </div>
                 </div>
@@ -568,7 +572,8 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
             </div>
             <div class="cart-details">
                 <p><strong></strong> <span id="totalPasses">1</span></p>
-                <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
+                <p><strong>Total Price:</strong> <span id="totalPrice">₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
+</span></p>
             </div>
             {% if inventoryType in ["Day pass", "Meeting rooms"] %}
             <div class="coupon-section" style="margin-top: 10px;">
@@ -601,7 +606,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
   ₹{% if inventoryType in ["Meeting rooms", "Private cabin"] %}
       {{ total_price | int }}
   {% else %}
-      {{ selected_inventory.price_per_seat | int }}
+      ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
   {% endif %}
 </div>
             </div>
@@ -627,15 +632,15 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <p>Center Manager: {{ property.center_manager.name }}</p>
     <h4>
         {% if inventoryType == "Dedicated desk" %}
-            ₹{{ selected_inventory.price_per_seat| int }} /seat/month
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /seat/month
         {% elif inventoryType == "Day pass" %}
-            ₹{{ selected_inventory.price_per_seat| int }} /seat/day
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /seat/day
         {% elif inventoryType == "Meeting rooms" %}
-            ₹{{ total_price| int }} /hour
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /hour
         {% elif inventoryType == "Private cabin" %}
-            ₹{{ total_price| int }} /seat/month
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /seat/month
         {% elif inventoryType == "Virtual office" %}
-            ₹{{ selected_inventory.price_per_seat| int }} /year
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /year
         {% else %}
             Contact for pricing
         {% endif %}
@@ -1099,34 +1104,59 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <div class="mt-5 text-muted">No upcoming events found.</div>
 {% endif %} -->
    <div class="booking-bar-fixed">
-  <div class="booking-info-left">
-    <div>
-  <div class="booking-type">{{ inventoryType }}</div>
-  <div class="booking-unit">
-    ₹<span class="bottomPricePerUnit"></span>
-    <span class="booking-unit-label">
-      {% if inventoryType == "Meeting rooms" %}
-        /hour
-      {% else %}
-        /seat/day
-      {% endif %}
-    </span>
-  </div>
-</div>
-<div class="quantity1">
-                <button onclick="decreaseQuantity()">-</button>
-                <span id="passQuantity">1</span>
-                <button onclick="increaseQuantity()">+</button>
-</div>
-  </div>
+  {% if inventoryType in ["Meeting rooms", "Day pass"] %}
+    <div class="booking-info-left">
+      <div>
+        <div class="booking-type">{{ inventoryType }}</div>
+        <div class="booking-unit">
+          ₹<span class="bottomPricePerUnit">₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}</span>
+          <span class="booking-unit-label">
+            {% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
+              /hour
+            {% else %}
+              /seat/day
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      <div class="quantity1">
+        <button onclick="decreaseQuantity()">-</button>
+        <span id="passQuantity">1</span>
+        <button onclick="increaseQuantity()">+</button>
+      </div>
+    </div>
 
-  <div class="booking-info-right">
-    <div class="cart-details">
-                <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
-                <p><strong>Total Price:</strong> <span id="totalPrice">{{ selected_inventory.price_per_seat | int }}</span></p>
-            </div>
-    <button class="booking-cta-btn" onclick="openBuyNowModal()">Book Now</button>
-  </div>
+    <div class="booking-info-right">
+      <div class="cart-details">
+        <p><strong id="selectionLabel"></strong> <span id="totalPasses">1</span></p>
+        <p><strong>Total Price:</strong> 
+          <span id="totalPrice">₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}</span>
+        </p>
+      </div>
+      <button class="booking-cta-btn" onclick="openBuyNowModal()">Book Now</button>
+    </div>
+
+  {% elif inventoryType in ["Dedicated desk", "Private cabin"] %}
+    <div class="booking-info-left">
+      <div>
+        <div class="booking-type">{{ inventoryType }}</div>
+        <div class="booking-unit">
+          {% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}
+    ₹{{ total_price | int }}
+{% else %}
+    ₹{{ selected_inventory.price_per_seat | int }}
+{% endif %}
+          <span class="booking-unit-label">/seat/month</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-info-right">
+      <button class="booking-cta-btn" onclick="openTourModal()">Schedule a Visit</button>
+    </div>
+  {% endif %}
+</div>
+
 </div>
 
 
@@ -1690,7 +1720,8 @@ let passQuantity = 1;
 let inventoryType = "{{ inventoryType }}";
 let pricePerSeat = inventoryType === "Meeting rooms" || inventoryType === "Private cabin"
   ? {{ total_price | int }}
-  : {{ selected_inventory.price_per_seat | int }};
+  : {% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
+;
 let seatCount = {{ seat_count if seat_count else 1 }};
 let totalPrice = pricePerSeat;
 let selectedBundle = 0;

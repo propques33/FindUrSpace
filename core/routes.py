@@ -403,19 +403,21 @@ def innerpage(city, micromarket, coworking_name):
                             selected_room = room
                             inv_imgs = room.get('images', [])[:2] if room.get('images') else []
                             seat_count = int(seating)
+                            total_price = room.get('price', 0)
                             break
                 else:
                     selected_inventory = inventory
                     inv_imgs = inventory.get('images', [])[:2] if inventory.get('images') else []
                     seat_count = int(seating) if seating else inventory.get('count', 1)
+                    total_price = inventory.get('price_per_seat', 0)
                 break
 
     # Calculate total price only for relevant types
-    if inventory_type in ["Meeting rooms", "Private cabin"]:
-        if selected_room and 'price' in selected_room:
-            total_price = selected_room['price']
-        else:
-            total_price = selected_inventory.get('price_per_seat', 0)
+    # if inventory_type in ["Meeting rooms", "Private cabin"]:
+    #     if selected_room and 'price' in selected_room:
+    #         total_price = selected_room['price']
+    #     else:
+    #         total_price = selected_inventory.get('price_per_seat', 0)
 
     combined_images = inv_imgs + property_images
     seen = set()
@@ -483,7 +485,7 @@ def innerpage(city, micromarket, coworking_name):
             price_label = "/seat/day"
         elif inventory['type'] == "Dedicated desk":
             price_label = "/seat/month"
-        elif "Meeting Room" in inventory['type']:
+        elif "meeting room" in inventory['type'].lower():
             price_label = "/hour"
         elif inventory['type'] == "Virtual office":
             price_label = "/year"
@@ -505,6 +507,7 @@ def innerpage(city, micromarket, coworking_name):
             "review_count": review_count
         })
 
+        print("Other Inventory:", total_price, inventory['type'], inventory.get('price_per_seat', 0))
     return render_template(
         'innerpage.html',
         property=property_data,
