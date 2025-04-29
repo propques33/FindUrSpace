@@ -227,14 +227,46 @@ def send_email_and_whatsapp_with_pdf1(to_email, name, contact, properties):
         combined_pdf_buffer = BytesIO()
         output_pdf.write(combined_pdf_buffer)
         combined_pdf_buffer.seek(0)
+
+        base_url = "https://findurspace.tech" 
+
+        workspace_links = ""
+        for property_data in properties:
+            coworking_name = property_data.get('coworking_name', 'N/A').replace(' ', '%20')
+            city = property_data.get('city', 'N/A').replace(' ', '%20')
+            micromarket = property_data.get('micromarket', 'N/A').replace(' ', '%20')
+            inventory = property_data.get('inventory', [])
+
+            if inventory:
+                for item in inventory:
+                    inventory_type = item.get('type', '')
+                    if inventory_type in ["Day pass", "Dedicated desk", "Private cabin", "Meeting rooms"]:
+                        inventory_type_encoded = inventory_type.replace(' ', '%20')
+                        base_link = f"{base_url}/flexspace/{city}/{micromarket}/{coworking_name}?inventoryType={inventory_type_encoded}"
+
+                        if inventory_type in ["Private cabin", "Meeting rooms"] and item.get('room_details'):
+                            for room in item['room_details']:
+                                seating = room.get('seating_capacity')
+                                if seating:
+                                    workspace_links += f"<br><a href='{base_link}&seating={seating}'>{coworking_name} - {inventory_type} {seating} Seater</a>"
+                        else:
+                            workspace_links += f"<br><a href='{base_link}'>{coworking_name} - {inventory_type}</a>"
+
         greeting = f"Dear {name}" if name else "Hi"
+
+        # Compose email body with links
+        email_body = f"""
+        <strong>{greeting},</strong><br><br>
+        <strong>Please find attached the details of the properties you requested:</strong><br><br>
+        If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.<br><br>
+        <strong>Workspace Links:</strong><br>
+        {workspace_links}
+        """
         # Create email message and attach the combined PDF
         message = Message(subject='Your Property Data',
                           recipients=[to_email],
                           bcc=['enterprise.propques@gmail.com', 'buzz@propques.com', 'thomas@propques.com'],
-                          html=f"<strong>{greeting},</strong><br>"
-                               "<strong>Please find attached the details of the properties you requested:</strong><br><br>"
-                               "If you're interested in maximizing the benefits of the above properties at no cost, please reply to this email with 'Deal.' We will assign an account manager to coordinate with you.")
+                          html=email_body)
         message.attach("property_data.pdf", "application/pdf", combined_pdf_buffer.read())
 
         # Send the email
