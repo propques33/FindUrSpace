@@ -251,10 +251,57 @@
         .upload-btn:hover {
             background-color: darkgreen; /* Darker green on hover */
         }
+
+        #inventory-selection-modal select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+#inventory-selection-modal .send-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+#inventory-selection-modal .send-btn:hover {
+    background-color: #0056b3;
+}
+
     </style>
 </head>
 <body>
     {% include 'navigation.html' %}
+
+    <div id="inventory-selection-modal" class="modal1">
+        <button class="close-btn" onclick="closeInventoryModal()">&times;</button>
+        <h3>Select Inventory</h3>
+        <form id="inventory-selection-form">
+            <label for="inventory-type-select">Inventory Type:</label>
+            <select id="inventory-type-select" required>
+                <option value="">Select Inventory Type</option>
+            </select>
+
+            <div id="seating-capacity-div" style="display: none;">
+                <label for="seating-capacity-select">Seating Capacity:</label>
+                <select id="seating-capacity-select">
+                    <option value="">Select Seating Capacity</option>
+                </select>
+            </div>
+
+            <button type="submit" class="send-btn" style="margin-top: 15px;">Redirect</button>
+        </form>
+    </div>
+
 
     <div class="content">
         <h1>Live Inventory</h1>
@@ -302,6 +349,7 @@
                         <th>Private Cabin</th>
                         <th>Dedicated Desk</th>
                         <th>Details</th>
+                        <th>Redirect</th>
                         <!-- <th>Actions</th> 
                         <th>Agreement Status</th> 
                         <th>Delete</th> -->
@@ -403,6 +451,93 @@
             const deleteConfirmationInput = document.getElementById('delete-confirmation');
             const deletePropertyIdInput = document.getElementById('delete-property-id');
             const closeDeleteModalButton = deleteModal.querySelector('.close-btn');
+            const inventorySelectionModal = document.getElementById('inventory-selection-modal');
+            const inventoryTypeSelect = document.getElementById('inventory-type-select');
+            const seatingCapacityDiv = document.getElementById('seating-capacity-div');
+            const seatingCapacitySelect = document.getElementById('seating-capacity-select');
+            let selectedInventoryData = {};  // store clicked space
+
+            // Open Inventory Selection Modal
+            function openInventoryModal(space) {
+                selectedInventoryData = space; // Store space data
+
+                // Reset
+                inventoryTypeSelect.innerHTML = `<option value="">Select Inventory Type</option>`;
+                seatingCapacityDiv.style.display = 'none';
+                seatingCapacitySelect.innerHTML = `<option value="">Select Seating Capacity</option>`;
+
+                // Populate inventory types
+                const inventoryTypes = (space.inventory || []).map(item => item.type);
+                const uniqueTypes = [...new Set(inventoryTypes)];
+
+                uniqueTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.text = type;
+                    inventoryTypeSelect.appendChild(option);
+                });
+
+                inventorySelectionModal.classList.add('show');
+            }
+
+            // Close modal
+            function closeInventoryModal() {
+                inventorySelectionModal.classList.remove('show');
+            }
+
+            // When inventory type changes
+            inventoryTypeSelect.addEventListener('change', function () {
+                const selectedType = inventoryTypeSelect.value;
+
+                if (selectedType === 'Private cabin' || selectedType === 'Meeting rooms') {
+                    // Show seating capacity options
+                    seatingCapacityDiv.style.display = 'block';
+                    seatingCapacitySelect.innerHTML = `<option value="">Select Seating Capacity</option>`;
+
+                    const inventoryItem = (selectedInventoryData.inventory || []).find(item => item.type === selectedType);
+
+                    if (inventoryItem && inventoryItem.room_details) {
+                        inventoryItem.room_details.forEach((room, index) => {
+                            const option = document.createElement('option');
+                            option.value = room.seating_capacity;
+                            option.text = `Room ${room.room_number || (index + 1)} - ${room.seating_capacity} Seater`;
+                            seatingCapacitySelect.appendChild(option);
+                        });
+                    }
+                } else {
+                    seatingCapacityDiv.style.display = 'none';
+                }
+            });
+
+            // Handle form submit
+            document.getElementById('inventory-selection-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const inventoryType = inventoryTypeSelect.value;
+                const seatingCapacity = seatingCapacitySelect.value;
+
+                if (!inventoryType) {
+                    alert('Please select Inventory Type');
+                    return;
+                }
+
+                if ((inventoryType === 'Private cabin' || inventoryType === 'Meeting rooms') && !seatingCapacity) {
+                    alert('Please select Seating Capacity');
+                    return;
+                }
+
+                const city = encodeURIComponent(selectedInventoryData.city || '');
+                const micromarket = encodeURIComponent(selectedInventoryData.micromarket || '');
+                const coworking_name = encodeURIComponent(selectedInventoryData.coworking_name || '');
+
+                let redirectUrl = `/flexspace/${city}/${micromarket}/${coworking_name}?inventoryType=${encodeURIComponent(inventoryType)}`;
+
+                if (inventoryType === 'Private cabin' || inventoryType === 'Meeting rooms') {
+                    redirectUrl += `&seating=${encodeURIComponent(seatingCapacity.match(/\d+/)[0])}`;
+                }
+
+                window.location.href = redirectUrl;
+
+            });
 
             // Open delete modal function
             function openDeleteModal(propertyId) {
@@ -610,6 +745,10 @@
                         <td>${getInventoryDetails('Private cabin')}</td>
                         <td>${getInventoryDetails('Dedicated desk')}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
+                        <td>
+                            ${space.has_amenities ? `<button class="view-page-btn send-btn" data-space-id="${space._id}">View Page</button>` : ''}
+                        </td>
+
                     `;
                     // <td>${space.total_seats || 'N/A'}</td>
                     // <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
@@ -617,6 +756,10 @@
                         // <td><button class="delete-btn" data-property-id="${space._id}">Delete</button></td>
                     // Add event listener for "Show Details" button
                     row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
+                    const viewPageBtn = row.querySelector('.view-page-btn');
+                    if (viewPageBtn) {
+                        viewPageBtn.addEventListener('click', () => openInventoryModal(space));
+                    }
                     // row.querySelector('.delete-btn').addEventListener('click', function () {
                     //     const propertyId = this.dataset.propertyId;
                     //     openDeleteModal(propertyId); // Open delete modal
@@ -915,6 +1058,12 @@ function displayCoworkingModal(space) {
             // Initial fetch
             fetchInventory();
         });
+
+        function closeInventoryModal() {
+    const inventorySelectionModal = document.getElementById('inventory-selection-modal');
+    inventorySelectionModal.classList.remove('show');
+}
+
     </script>
 </body>
 </html>

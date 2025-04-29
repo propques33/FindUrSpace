@@ -21,6 +21,7 @@ body {
   display: flex;
   justify-content: space-between;
   position: relative;
+  column-gap: 20px;
 }
 .left-section {
   width: 70%;
@@ -42,7 +43,7 @@ body {
   overflow: hidden;
   position: sticky;
   right: 0;
-  top: 0;
+  top: 40px;
   border-radius: 10px;
 }
 h1,

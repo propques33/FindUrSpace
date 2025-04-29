@@ -1625,6 +1625,7 @@ def list_your_space():
                         floorplate_area = int(request.form.get(f'floorplate_area_{idx}') or 0)
                         min_inventory_unit = int(request.form.get(f'min_inventory_unit_{idx}') or 0)
                         total_rental = int(request.form.get(f'total_rental_{idx}') or 0)
+                        rental_per_sqft = float(request.form.get(f'total_rental_per_sqft_{idx}') or 0)
                         security_deposit = int(request.form.get(f'security_deposit_{idx}') or 0)
                         lease_term = request.form.get(f'lease_term_{idx}')
                         total_floors = int(request.form.get(f'total_floors_{idx}') or 0)
@@ -1748,6 +1749,7 @@ def list_your_space():
                         'floorplate_area': floorplate_area if input_mode == 'sqft' else None,
                         'min_inventory_unit': min_inventory_unit if input_mode == 'sqft' else None,
                         'total_rental': total_rental if input_mode == 'sqft' else rental_per_seat,
+                        'rental_per_sqft': rental_per_sqft if input_mode == 'sqft' else None,
                         'security_deposit': security_deposit,
                         'lease_term': lease_term,
                         'space_type': space_type,

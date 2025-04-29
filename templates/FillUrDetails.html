@@ -1522,7 +1522,7 @@ function toggleManagedOfficeInputMode(spaceId) {
                         </div>
 
                         <div class="w-50">
-                            <label for="total_building_area_${spaceCount}" class="form-label"> Building Area in Carpet Area (sqft)</label>
+                            <label for="total_building_area_${spaceCount}" class="form-label"> Building Area in Super Area (sqft)</label>
                             <input type="number" value="${total_building_area}" onchange="calculateMinInventoryUnit(${spaceCount})" class="form-control" id="total_building_area_${spaceCount}" name="total_building_area_${spaceCount}" 
                                 placeholder="Enter total building area" min="0" required
                                 data-parsley-required-message="Please enter the total building area."
@@ -1541,12 +1541,17 @@ function toggleManagedOfficeInputMode(spaceId) {
                         </div>
 
                         <div class="w-50">
-                            <label for="total_rental_${spaceCount}" class="form-label">Total Rental Expectation</label>
+                            <label for="total_rental_${spaceCount}" class="form-label">Rental Expectation for Super Area</label>
                             <input type="number" class="form-control" id="total_rental_${spaceCount}" name="total_rental_${spaceCount}" onchange="calculateMinInventoryUnit(${spaceCount}); calculateSecurityDeposit(${spaceCount})"
-                                value="${total_rental}" placeholder="Enter total rental expectation" min="0" required
+                                value="${total_rental}" placeholder="Enter total rental expectation/carpet area sqft" min="0" required
                                 data-parsley-required-message="Please enter the total rental expectation."
                                 data-parsley-type="digits" data-parsley-trigger="change focusout">
                         </div>
+                    </div>
+
+                    <div class="w-100 mb-3">
+                        <label for="total_rental_per_sqft_${spaceCount}" class="form-label">Rental Expectation for Carpet Area</label>
+                        <input type="number" class="form-control" id="total_rental_per_sqft_${spaceCount}" name="total_rental_per_sqft_${spaceCount}" placeholder="Enter rental expn/carpet area sqft" >
                     </div>
 
                     <!-- Security Deposit & Lease Term -->
@@ -1609,6 +1614,7 @@ function toggleManagedOfficeInputMode(spaceId) {
                                 data-parsley-required-message="Please select the furnishing level."
                                 data-parsley-trigger="change">
                                 <option value="" disabled selected>Select Furnishing Level</option>
+                                <option value="Built to Suit" ${furnishing_level === 'Built to Suit' ? 'selected' : ''}>Built to Suit</option>
                                 <option value="Bare shell" ${furnishing_level === 'Bare shell' ? 'selected' : ''}>Bare shell</option>
                                 <option value="Warm shell" ${furnishing_level === 'Warm shell' ? 'selected' : ''}>Warm shell</option>
                                 <option value="Ready to move in" ${furnishing_level === 'Ready to move in' ? 'selected' : ''}>Ready to move in</option>

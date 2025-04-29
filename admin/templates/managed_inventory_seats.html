@@ -560,6 +560,9 @@
                         ? '<span style="color: green;">Completed</span>'
                         : '<span style="color: red;">Pending</span>';
 
+                    const security_deposit_months = (space.security_deposit && space.total_rental)
+                        ? (space.security_deposit / space.total_rental).toFixed(1)
+                        : 'N/A';
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -572,7 +575,11 @@
                         <td>${space.owner?.phone || 'N/A'}</td>
                         <td>${space.seating_capacity || 'N/A'}</td>
                         <td>₹${space.total_rental?.toLocaleString() || 'N/A'}</td>
-                        <td>₹${space.security_deposit?.toLocaleString() || 'N/A'}</td>
+                        <td>
+                            ${space.security_deposit && space.total_rental
+                                ? `${Math.floor(space.security_deposit / space.total_rental)} months`
+                                : 'N/A'}
+                        </td>
                         <td>${space.furnishing_level || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>
                     `;

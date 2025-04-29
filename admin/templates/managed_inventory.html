@@ -311,8 +311,10 @@
                         <th>Contact</th>
                         <!-- <th>Total Seats</th> -->
                         <th>Total Building Area (sqft)</th>
-                        <th>Rental Expectation</th>
-                        <th>Rental / sqft</th>
+                        <th>Super Area Rental Expectation </th>
+                        <th>Rental / Super area sqft</th>
+                        <th>Carpet Area Rental Expectation </th>
+                        <th>Rental / Carpet area sqft</th>
                         <th>Security Deposit</th>
                         <th>Furnishing Level</th>
                         <th>Min Inventory Unit</th>
@@ -564,8 +566,19 @@
                         ? '<span style="color: green;">Completed</span>'
                         : '<span style="color: red;">Pending</span>';
 
-                    const rentalPerSqft = space.total_building_area && space.total_rental
+                    const superAreaRental = space.total_rental || 'N/A';
+                    const carpetAreaRental = space.rental_per_sqft || 'N/A';
+
+                    const rentalPerSuperSqft = (space.total_rental && space.total_building_area)
                         ? (space.total_rental / space.total_building_area).toFixed(2)
+                        : 'N/A';
+
+                    const rentalPerCarpetSqft = (space.total_rental && space.floorplate_area)
+                        ? (space.total_rental / space.floorplate_area).toFixed(2)
+                        : 'N/A';
+
+                    const security_deposit_months = (space.security_deposit && space.total_rental)
+                        ? (space.security_deposit / space.total_rental).toFixed(1)
                         : 'N/A';
 
                     const row = document.createElement('tr');
@@ -578,9 +591,15 @@
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
                         <td>${space.owner?.phone || 'N/A'}</td>
                         <td>${space.total_building_area || 'N/A'}</td>
-                        <td>₹${space.total_rental?.toLocaleString() || 'N/A'}</td>
-                        <td>₹${rentalPerSqft}</td> <!-- 🆕 Insert this line -->
-                        <td>₹${space.security_deposit?.toLocaleString() || 'N/A'}</td>
+                        <td>₹${superAreaRental.toLocaleString() || 'N/A'}</td>
+                        <td>₹${rentalPerSuperSqft}</td>
+                        <td>₹${carpetAreaRental.toLocaleString() || 'N/A'}</td>
+                        <td>₹${rentalPerCarpetSqft}</td>
+                        <td>
+                            ${space.security_deposit && space.total_rental
+                                ? `${Math.floor(space.security_deposit / space.total_rental)} months`
+                                : 'N/A'}
+                        </td>
                         <td>${space.furnishing_level || 'N/A'}</td>
                         <td>${space.min_inventory_unit || 'N/A'}</td>
                         <td><button class="show-details-btn">Show Details</button></td>

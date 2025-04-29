@@ -1023,7 +1023,6 @@ def fetch_coworking_inventory():
         coworking['_id'] = str(coworking['_id'])
         coworking['center_manager'] = coworking.get('center_manager', {'name': 'N/A', 'contact': 'N/A'})
 
-        # Determine agreement status
         owner_phone = coworking.get('owner', {}).get('phone')
         if owner_phone:
             related_entries = list(fillurdetails_collection.find({'owner.phone': owner_phone}, {'uploaded_pdfs': 1}))
@@ -1031,6 +1030,12 @@ def fetch_coworking_inventory():
         else:
             coworking['agreement_status'] = 'Pending'
 
+        # ✅ Directly check inside fillurdetails for amenities
+        if coworking.get('amenities'):
+            coworking['has_amenities'] = True
+        else:
+            coworking['has_amenities'] = False
+            
     return jsonify({
         'spaces': coworking_list
     })
