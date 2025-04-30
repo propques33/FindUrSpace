@@ -3315,3 +3315,22 @@ hr {
 }
 
 
+@media screen and (max-width: 450px) {
+  nav ul{
+    display: none;
+  }
+  
+  nav .logo{
+    text-align: center;
+    margin: 0 auto;
+  }
+
+
+  .space-section h2{
+    font-size: 30px;
+  }
+
+  .mission-box-remix{
+    width: 100%;
+  }
+}
