@@ -83,7 +83,6 @@ if __name__ == '__main__':
 
 @app.after_request
 def set_security_headers(response):
-    # CSP
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://ajax.googleapis.com https://cdnjs.cloudflare.com "
@@ -105,11 +104,11 @@ def set_security_headers(response):
         "geolocation=(), microphone=(), camera=(), fullscreen=(), payment=()"
     )
 
-    # Strict Transport Security – only enable if served over HTTPS
     if request.is_secure:
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
     return response
+
 
 
 
