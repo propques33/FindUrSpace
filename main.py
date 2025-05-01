@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, make_response
 import os
 import secrets
 from dotenv import load_dotenv
@@ -80,3 +80,20 @@ if __name__ == '__main__':
     # Use the PORT environment variable if available, default to 5000
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
+
+@app.after_request
+def set_csp(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://ajax.googleapis.com https://cdnjs.cloudflare.com "
+        "https://maps.googleapis.com https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://maps.googleapis.com; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self' https://maps.googleapis.com https://www.google-analytics.com "
+        "https://www.googletagmanager.com https://api.stripe.com; "
+        "frame-src https://js.stripe.com; "
+        "frame-ancestors 'none';"
+    )
+    return response
+
