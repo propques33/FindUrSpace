@@ -82,7 +82,8 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=port, debug=False)
 
 @app.after_request
-def set_csp(response):
+def set_security_headers(response):
+    # CSP
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' https://ajax.googleapis.com https://cdnjs.cloudflare.com "
@@ -95,5 +96,21 @@ def set_csp(response):
         "frame-src https://js.stripe.com; "
         "frame-ancestors 'none';"
     )
+
+    # Basic security headers
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = (
+        "geolocation=(), microphone=(), camera=(), fullscreen=(), payment=()"
+    )
+
+    # Strict Transport Security – only enable if served over HTTPS
+    if request.is_secure:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+
     return response
+
+
+
 
