@@ -47,19 +47,31 @@
     </form>
 
     <!-- Separate KPI Containers -->
-    <div class="kpi-container">
-        {% for kpi_fig in kpi_figures %}
-        <div class="individual-kpi">
-            {{ kpi_fig|safe }}
-        </div>
-        {% endfor %}
-    </div>
+    <!-- KPI Cards: Show only to full admins -->
+<div class="kpi-container">
+    {% for kpi_fig in kpi_figures %}
+        {% if session['admin'] != 'listing@gmail.com' %}
+            <!-- Full admin sees all KPIs -->
+            <div class="individual-kpi">
+                {{ kpi_fig|safe }}
+            </div>
+        {% elif session['admin'] == 'listing@gmail.com' and loop.last %}
+            <!-- listing@gmail.com sees only the last KPI (Live Inventory) -->
+            <div class="individual-kpi">
+                {{ kpi_fig|safe }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
 
     <!-- Opportunity Stage Bar Chart (full width) -->
-    <div class="chart-container">
-        <h2>Opportunity Stage Distribution</h2>
-        {{ stage_bar_fig|safe }}
-    </div>
+    <!-- Opportunity Stage Chart: Admin only -->
+{% if session['admin'] != 'listing@gmail.com' %}
+<div class="chart-container">
+    <h2>Opportunity Stage Distribution</h2>
+    {{ stage_bar_fig|safe }}
+</div>
+{% endif %}
 
     <!-- Live Inventory by City Bar Chart (full width) -->
     <div class="chart-container">

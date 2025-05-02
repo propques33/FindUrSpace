@@ -20,7 +20,8 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='te
 # Admin Credentials
 admin_credentials = {
     "project.propques@gmail.com": "Prop@11@@33",
-    "buzz@propques.com": "Prop@11@@33"
+    "buzz@propques.com": "Prop@11@@33",
+    "listing@gmail.com": "Prop@9044895" 
 }
 
 # Helper function to send the email and WhatsApp with app context
@@ -167,7 +168,8 @@ def admin_login():
 
         if email in admin_credentials and admin_credentials[email] == password:
             session['admin'] = email
-            return redirect(url_for('admin.leads_dashboard'))  # Redirect to Leads Dashboard after successful login
+            session['role'] = 'listing' if email == 'listing@gmail.com' else 'full'
+            return redirect(url_for('admin.leads_dashboard'))
         else:
             return render_template('admin_login.html', error='Invalid login credentials. Please try again.')
 
@@ -333,12 +335,133 @@ def view_leads():
     return render_template('view_leads.html', leads=leads, cities=cities, micromarkets=micromarkets)
 
 
+# @admin_bp.route('/leads_dashboard')
+# def leads_dashboard():
+#     if 'admin' not in session:
+#         return redirect(url_for('admin.admin_login'))
+
+#     db = current_app.config['db']
+#     is_listing_user = session.get('admin') == 'listing@gmail.com'
+
+#     # --- Get and parse dates ---
+#     start_date_str = request.args.get('start_date')
+#     end_date_str = request.args.get('end_date')
+
+#     lead_filter = {}
+#     property_filter = {}
+
+#     if start_date_str and end_date_str:
+#         try:
+#             start = datetime.strptime(start_date_str, '%Y-%m-%d')
+#             end = datetime.strptime(end_date_str, '%Y-%m-%d')
+#             # Filter leads and inventory using the 'date' field
+#             lead_filter['date'] = {'$gte': start, '$lte': end}
+#             property_filter['date'] = {'$gte': start, '$lte': end}
+#         except Exception as e:
+#             print("Date filter error:", e)
+
+#     # --- Fetch Live Inventory Count ---
+#     live_inventory_count = db.fillurdetails.count_documents(property_filter)
+
+#     # Fetch from the correct collection
+#     leads_data = db.properties.find(lead_filter)
+#     total_leads = db.properties.count_documents(lead_filter)
+#     live_inventory_count = db.fillurdetails.count_documents(property_filter)
+#     # Reset counts
+#     status_counts = {'open': 0, 'closed': 0, 'won': 0}
+#     stage_counts = {k: 0 for k in ['qualified', 'follow-up', 'visit done', 'negotiation', 'won', 'lost', 'unqualified']}
+
+#     for lead in leads_data:
+#         # Default logic: assume all are open unless marked otherwise
+#         status = lead.get('opportunity_status', 'open').lower()
+#         status_counts[status] = status_counts.get(status, 0) + 1
+
+#         stage = lead.get('opportunity_stage', 'visit done').lower()
+#         stage_counts[stage] = stage_counts.get(stage, 0) + 1
+
+#     # --- City-wise Inventory ---
+#     city_inventory = db.fillurdetails.aggregate([
+#         {"$match": property_filter},
+#         {"$group": {"_id": {"$toUpper": "$city"}, "count": {"$sum": 1}}}
+#     ])
+
+#     city_name_mapping = {"BANGALORE": "Bengaluru", "GURGAON": "Gurugram"}
+#     city_inventory_data = list(city_inventory)
+#     city_inventory_normalized = []
+
+#     for item in city_inventory_data:
+#         city = item['_id'].title()
+#         city = city_name_mapping.get(city.upper(), city)
+#         match = next((i for i in city_inventory_normalized if i['_id'] == city), None)
+#         if match:
+#             match['count'] += item['count']
+#         else:
+#             city_inventory_normalized.append({'_id': city, 'count': item['count']})
+
+#     # --- KPI Cards ---
+#     kpis = [
+#         {"label": "Total Leads", "value": total_leads, "color": "#17becf"},
+#         {"label": "Open Leads", "value": status_counts.get('open', 0), "color": "#1f77b4"},
+#         {"label": "Closed Leads", "value": status_counts.get('closed', 0), "color": "#ff7f0e"},
+#         {"label": "Won Leads", "value": status_counts.get('won', 0), "color": "#2ca02c"},
+#         {"label": "Live Inventory", "value": live_inventory_count, "color": "#e377c2"}
+#     ]
+
+#     kpi_figures = []
+#     for kpi in kpis:
+#         fig = go.Figure(go.Indicator(
+#             mode="number",
+#             value=kpi['value'],
+#             title={"text": kpi['label']},
+#             number={'font': {'size': 40, 'color': kpi['color']}}
+#         ))
+#         fig.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200)
+#         kpi_figures.append(fig.to_html(full_html=False))
+
+#     # --- Bar Chart: Stages ---
+#     stage_bar_fig = go.Figure(go.Bar(
+#         x=list(stage_counts.keys()),
+#         y=list(stage_counts.values()),
+#         marker_color='rgb(55, 83, 109)'
+#     ))
+#     stage_bar_fig.update_layout(
+#         title='Opportunity Stage Distribution',
+#         xaxis_title='Stage',
+#         yaxis_title='Count',
+#         width=1200,
+#         height=450
+#     )
+
+#     # --- Bar Chart: City Inventory ---
+#     city_names = [x['_id'] for x in city_inventory_normalized]
+#     city_counts = [x['count'] for x in city_inventory_normalized]
+#     city_bar_fig = go.Figure(go.Bar(
+#         x=city_names,
+#         y=city_counts,
+#         marker_color='rgb(26, 118, 255)'
+#     ))
+#     city_bar_fig.update_layout(
+#         title='Live Inventory by City',
+#         xaxis_title='City',
+#         yaxis_title='Count',
+#         width=1200,
+#         height=450
+#     )
+
+#     return render_template(
+#         'leads_dashboard.html',
+#         kpi_figures=kpi_figures,
+#         stage_bar_fig=stage_bar_fig.to_html(full_html=False),
+#         city_bar_fig=city_bar_fig.to_html(full_html=False)
+#     )
+
 @admin_bp.route('/leads_dashboard')
 def leads_dashboard():
     if 'admin' not in session:
         return redirect(url_for('admin.admin_login'))
 
     db = current_app.config['db']
+    is_listing_user = session.get('admin') == 'listing@gmail.com'
 
     # --- Get and parse dates ---
     start_date_str = request.args.get('start_date')
@@ -351,29 +474,70 @@ def leads_dashboard():
         try:
             start = datetime.strptime(start_date_str, '%Y-%m-%d')
             end = datetime.strptime(end_date_str, '%Y-%m-%d')
-            # Filter leads and inventory using the 'date' field
             lead_filter['date'] = {'$gte': start, '$lte': end}
             property_filter['date'] = {'$gte': start, '$lte': end}
         except Exception as e:
             print("Date filter error:", e)
 
-    # Fetch from the correct collection
-    leads_data = db.properties.find(lead_filter)
-    total_leads = db.properties.count_documents(lead_filter)
+    # --- Fetch Live Inventory Count ---
     live_inventory_count = db.fillurdetails.count_documents(property_filter)
-    # Reset counts
-    status_counts = {'open': 0, 'closed': 0, 'won': 0}
-    stage_counts = {k: 0 for k in ['qualified', 'follow-up', 'visit done', 'negotiation', 'won', 'lost', 'unqualified']}
 
-    for lead in leads_data:
-        # Default logic: assume all are open unless marked otherwise
-        status = lead.get('opportunity_status', 'open').lower()
-        status_counts[status] = status_counts.get(status, 0) + 1
+    # --- Prepare KPI Cards ---
+    kpis = []
 
-        stage = lead.get('opportunity_stage', 'visit done').lower()
-        stage_counts[stage] = stage_counts.get(stage, 0) + 1
+    if not is_listing_user:
+        leads_data = db.properties.find(lead_filter)
+        total_leads = db.properties.count_documents(lead_filter)
+        status_counts = {'open': 0, 'closed': 0, 'won': 0}
+        stage_counts = {k: 0 for k in ['qualified', 'follow-up', 'visit done', 'negotiation', 'won', 'lost', 'unqualified']}
 
-    # --- City-wise Inventory ---
+        for lead in leads_data:
+            status = lead.get('opportunity_status', 'open').lower()
+            stage = lead.get('opportunity_stage', 'visit done').lower()
+            status_counts[status] = status_counts.get(status, 0) + 1
+            stage_counts[stage] = stage_counts.get(stage, 0) + 1
+
+        kpis.extend([
+            {"label": "Total Leads", "value": total_leads, "color": "#17becf"},
+            {"label": "Open Leads", "value": status_counts.get('open', 0), "color": "#1f77b4"},
+            {"label": "Closed Leads", "value": status_counts.get('closed', 0), "color": "#ff7f0e"},
+            {"label": "Won Leads", "value": status_counts.get('won', 0), "color": "#2ca02c"},
+        ])
+
+    # Add inventory KPI (common to all)
+    kpis.append({"label": "Live Inventory", "value": live_inventory_count, "color": "#e377c2"})
+
+    # Generate KPI figures
+    kpi_figures = []
+    for kpi in kpis:
+        fig = go.Figure(go.Indicator(
+            mode="number",
+            value=kpi['value'],
+            title={"text": kpi['label']},
+            number={'font': {'size': 40, 'color': kpi['color']}}
+        ))
+        fig.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200)
+        kpi_figures.append(fig.to_html(full_html=False))
+
+    # --- Stage Chart (only for full admins) ---
+    if not is_listing_user:
+        stage_bar_fig = go.Figure(go.Bar(
+            x=list(stage_counts.keys()),
+            y=list(stage_counts.values()),
+            marker_color='rgb(55, 83, 109)'
+        ))
+        stage_bar_fig.update_layout(
+            title='Opportunity Stage Distribution',
+            xaxis_title='Stage',
+            yaxis_title='Count',
+            width=1200,
+            height=450
+        )
+        stage_chart = stage_bar_fig.to_html(full_html=False)
+    else:
+        stage_chart = ""  # Hide for listing user
+
+    # --- City Inventory Chart (visible to all) ---
     city_inventory = db.fillurdetails.aggregate([
         {"$match": property_filter},
         {"$group": {"_id": {"$toUpper": "$city"}, "count": {"$sum": 1}}}
@@ -392,41 +556,6 @@ def leads_dashboard():
         else:
             city_inventory_normalized.append({'_id': city, 'count': item['count']})
 
-    # --- KPI Cards ---
-    kpis = [
-        {"label": "Total Leads", "value": total_leads, "color": "#17becf"},
-        {"label": "Open Leads", "value": status_counts.get('open', 0), "color": "#1f77b4"},
-        {"label": "Closed Leads", "value": status_counts.get('closed', 0), "color": "#ff7f0e"},
-        {"label": "Won Leads", "value": status_counts.get('won', 0), "color": "#2ca02c"},
-        {"label": "Live Inventory", "value": live_inventory_count, "color": "#e377c2"}
-    ]
-
-    kpi_figures = []
-    for kpi in kpis:
-        fig = go.Figure(go.Indicator(
-            mode="number",
-            value=kpi['value'],
-            title={"text": kpi['label']},
-            number={'font': {'size': 40, 'color': kpi['color']}}
-        ))
-        fig.update_layout(margin=dict(l=10, r=10, t=30, b=10), height=200)
-        kpi_figures.append(fig.to_html(full_html=False))
-
-    # --- Bar Chart: Stages ---
-    stage_bar_fig = go.Figure(go.Bar(
-        x=list(stage_counts.keys()),
-        y=list(stage_counts.values()),
-        marker_color='rgb(55, 83, 109)'
-    ))
-    stage_bar_fig.update_layout(
-        title='Opportunity Stage Distribution',
-        xaxis_title='Stage',
-        yaxis_title='Count',
-        width=1200,
-        height=450
-    )
-
-    # --- Bar Chart: City Inventory ---
     city_names = [x['_id'] for x in city_inventory_normalized]
     city_counts = [x['count'] for x in city_inventory_normalized]
     city_bar_fig = go.Figure(go.Bar(
@@ -445,7 +574,7 @@ def leads_dashboard():
     return render_template(
         'leads_dashboard.html',
         kpi_figures=kpi_figures,
-        stage_bar_fig=stage_bar_fig.to_html(full_html=False),
+        stage_bar_fig=stage_chart,
         city_bar_fig=city_bar_fig.to_html(full_html=False)
     )
 
