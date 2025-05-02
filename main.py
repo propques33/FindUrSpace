@@ -81,33 +81,33 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
 
-# @app.after_request
-# def set_security_headers(response):
-#     response.headers['Content-Security-Policy'] = (
-#         "default-src 'self'; "
-#         "script-src 'self' 'unsafe-inline' https://ajax.googleapis.com https://cdnjs.cloudflare.com "
-#         "https://maps.googleapis.com https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com; "
-#         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://maps.googleapis.com; "
-#         "img-src 'self' data: https:; "
-#         "font-src 'self' https://fonts.gstatic.com; "
-#         "connect-src 'self' https://maps.googleapis.com https://www.google-analytics.com "
-#         "https://www.googletagmanager.com https://api.stripe.com; "
-#         "frame-src https://js.stripe.com; "
-#         "frame-ancestors 'none';"
-#     )
+@app.after_request
+def set_security_headers(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' https://ajax.googleapis.com https://cdnjs.cloudflare.com "
+        "https://maps.googleapis.com https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://maps.googleapis.com; "
+        "img-src 'self' data: https:; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self' https://maps.googleapis.com https://www.google-analytics.com "
+        "https://www.googletagmanager.com https://api.stripe.com; "
+        "frame-src https://js.stripe.com; "
+        "frame-ancestors 'none';"
+    )
 
-#     # Basic security headers
-#     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-#     response.headers['X-Content-Type-Options'] = 'nosniff'
-#     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-#     response.headers['Permissions-Policy'] = (
-#         "geolocation=(), microphone=(), camera=(), fullscreen=(), payment=()"
-#     )
+    # Basic security headers
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = (
+        "geolocation=(), microphone=(), camera=(), fullscreen=(), payment=()"
+    )
 
-#     if request.is_secure:
-#         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    if request.is_secure:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
 
-#     return response
+    return response
 
 
 
