@@ -1127,7 +1127,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 url += `&seats=${encodeURIComponent(seating)}`;
             }
 
-            window.location.href = url;
+            window.open(url, '_blank');
         } else {
             alert(data.message || "Submission failed.");
         }

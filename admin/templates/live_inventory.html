@@ -576,7 +576,8 @@ thead th {
                     redirectUrl += `&seating=${encodeURIComponent(seatingCapacity.match(/\d+/)[0])}`;
                 }
 
-                window.location.href = redirectUrl;
+                // ✅ USE THIS INSTEAD:
+                window.open(redirectUrl, '_blank');
 
             });
 

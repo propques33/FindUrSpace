@@ -320,7 +320,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
  /hour
         {% elif inventoryType == "Private cabin" %}
             ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
- /seat/month
+ /month
         {% elif inventoryType == "Virtual office" %}
             ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %}
  /year
@@ -638,7 +638,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         {% elif inventoryType == "Meeting rooms" %}
             ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /hour
         {% elif inventoryType == "Private cabin" %}
-            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /seat/month
+            ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /month
         {% elif inventoryType == "Virtual office" %}
             ₹{% if inventoryType == "Meeting rooms" or inventoryType == "Private cabin" %}{{ total_price | int }}{% else %}{{ selected_inventory.price_per_seat | int }}{% endif %} /year
         {% else %}
@@ -878,7 +878,14 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
           <!-- Price (Top Right) -->
           <div class="room-header">
             <p class="room-price">
-              ₹{{ inventory.price | int }} <span class="price-label">{{ inventory.price_label }}</span>
+              ₹{{ inventory.price | int }} 
+              <span class="price-label">
+              {% if inventory.type == "Private cabin" %}
+                /month
+              {% else %}
+                {{ inventory.price_label }}
+              {% endif %}
+            </span>
             </p>
             <div class="room-rating">
               ⭐ {{ inventory.star_rating }}
@@ -1146,7 +1153,14 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 {% else %}
     ₹{{ selected_inventory.price_per_seat | int }}
 {% endif %}
-          <span class="booking-unit-label">/seat/month</span>
+          <span class="booking-unit-label">
+            {% if inventoryType == "Private cabin" %}
+              /month
+            {% else %}
+              /seat/month
+            {% endif %}
+          </span>
+
         </div>
       </div>
     </div>

@@ -145,11 +145,126 @@
               </p>
               <p class="text-secondary">{{ space['address'] }}</p>
             </div>
+            <button class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editOwnerModal-{{ space._id }}">
+              <i class="fas fa-user-edit me-1"></i>Edit Info
+            </button>
+            <div class="modal fade" id="editOwnerModal-{{ space._id }}" tabindex="-1">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                  <form method="POST" action="{{ url_for('operators.edit_space', space_id=space._id) }}">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit Owner Info</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <input type="hidden" name="edit_type" value="basic_info">
+                      <div class="mb-2">
+                        <label class="form-label">Coworking Name</label>
+                        <input type="text" class="form-control" name="coworking_name" value="{{ space.coworking_name }}" required>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" class="form-control" name="name" value="{{ space.owner.name }}" required>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" name="owner_phone" value="{{ space.owner.phone }}" required>
+                      </div>
+                      <div class="mb-2">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="owner_email" value="{{ space.owner.email }}" required>
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary">Save Changes</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editLocationModal-{{ space['_id'] }}">
+              <i class="fas fa-map-marker-alt me-1"></i>Edit Location
+            </button>
+            <form method="POST" action="{{ url_for('operators.edit_space', space_id=space['_id']) }}">
+  <div class="modal fade" id="editLocationModal-{{ space['_id'] }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Location Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Hidden field to distinguish edit type -->
+          <input type="hidden" name="edit_type" value="location_info">
+
+          <!-- Prefill City & Micromarket -->
+          <div class="mb-3">
+            <label>City</label>
+            <select name="city" id="city-dropdown-{{ space._id }}" class="form-select" required></select>
+            <input type="text" name="custom_city" class="form-control mt-2 custom-city-input" placeholder="Enter city name" style="display:none;">
+          </div>
+
+          <!-- Micromarket Dropdown -->
+          <div class="mb-3">
+            <label>Micromarket</label>
+            <select name="micromarket" id="micromarket-dropdown-{{ space._id }}" class="form-select" required></select>
+            <input type="text" name="custom_micromarket" class="form-control mt-2 custom-micromarket-input" placeholder="Enter micromarket" style="display:none;">
+          </div>
+          <div class="mb-3">
+            <label>Coworking Address</label>
+            <textarea name="address" class="form-control" required>{{ space.address }}</textarea>
+          </div>
+
+          <h6 class="mt-4">Distance From Major Transport Hubs</h6>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label>Metro (km)</label>
+              <input type="number" step="0.1" name="metro" class="form-control" value="{{ space.distance.metro }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Airport (km)</label>
+              <input type="number" step="0.1" name="airport" class="form-control" value="{{ space.distance.airport }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Bus Station (km)</label>
+              <input type="number" step="0.1" name="bus" class="form-control" value="{{ space.distance.bus }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Railway Station (km)</label>
+              <input type="number" step="0.1" name="railway" class="form-control" value="{{ space.distance.railway }}">
+            </div>
+          </div>
+
+          <h6 class="mt-4">Who is in Your Team?</h6>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label>Center Manager Name</label>
+              <input type="text" name="center_manager_name" class="form-control" value="{{ space.center_manager.name }}">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label>Center Manager Contact</label>
+              <input type="text" name="center_manager_contact" class="form-control" value="{{ space.center_manager.contact }}">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<!-- Edit Inventory Button -->
+<!-- <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editInventoryModal-{{ space._id }}">
+  <i class="fas fa-boxes me-1"></i>Edit Inventory
+</button> -->
+
             <a
               href="{{ url_for('operators.edit_space', space_id=space['_id']) }}"
               class="btn btn-outline-primary btn-sm"
             >
-              <i class="fas fa-edit me-1"></i>Edit
+              <i class="fas fa-edit me-1"></i>Edit Inventory
             </a>
           </div>
 
@@ -464,5 +579,131 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+  document.querySelectorAll('select[name="city"]').forEach(select => {
+    select.addEventListener("change", function () {
+      this.nextElementSibling.style.display = this.value === "Other" ? "block" : "none";
+    });
+  });
+
+  document.querySelectorAll('select[name="micromarket"]').forEach(select => {
+    select.addEventListener("change", function () {
+      this.nextElementSibling.style.display = this.value === "Other" ? "block" : "none";
+    });
+  });
+</script>
+{% for space in inventory %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const spaceId = "{{ space._id }}";
+    const selectedCity = "{{ space.city }}";
+    const selectedMicromarket = "{{ space.micromarket }}";
+
+    const cityDropdown = document.getElementById("city-dropdown-" + spaceId);
+    const micromarketDropdown = document.getElementById("micromarket-dropdown-" + spaceId);
+
+    function populateMicromarkets(city) {
+      fetch(`/get_micromarkets?city=${city}`)
+        .then(res => res.json())
+        .then(data => {
+          micromarketDropdown.innerHTML = '<option disabled selected>Select Micromarket</option>';
+          data.micromarkets.forEach(market => {
+            const option = document.createElement("option");
+            option.value = market;
+            option.text = market.charAt(0).toUpperCase() + market.slice(1);
+            if (market === selectedMicromarket) option.selected = true;
+            micromarketDropdown.appendChild(option);
+          });
+
+          const otherOption = document.createElement("option");
+          otherOption.value = "Other";
+          otherOption.text = "Other";
+          micromarketDropdown.appendChild(otherOption);
+        });
+    }
+
+    // Initial load of city dropdown
+    fetch("/get_locations")
+      .then(res => res.json())
+      .then(data => {
+        data.locations.forEach(city => {
+          const option = document.createElement("option");
+          option.value = city;
+          option.text = city.charAt(0).toUpperCase() + city.slice(1);
+          if (city === selectedCity) option.selected = true;
+          cityDropdown.appendChild(option);
+        });
+
+        const otherOption = document.createElement("option");
+        otherOption.value = "Other";
+        otherOption.text = "Other";
+        cityDropdown.appendChild(otherOption);
+
+        // ✅ Populate micromarkets immediately after cities load
+        if (selectedCity !== "Other") {
+          populateMicromarkets(selectedCity);
+        }
+      });
+
+    cityDropdown.addEventListener("change", function () {
+      const selected = this.value;
+      const customInput = this.nextElementSibling;
+      if (selected === "Other") {
+        customInput.style.display = "block";
+        micromarketDropdown.innerHTML = '<option selected>Other</option>';
+        micromarketDropdown.nextElementSibling.style.display = "block";
+      } else {
+        customInput.style.display = "none";
+        populateMicromarkets(selected);
+        micromarketDropdown.nextElementSibling.style.display = "none";
+      }
+    });
+
+    micromarketDropdown.addEventListener("change", function () {
+      this.nextElementSibling.style.display = this.value === "Other" ? "block" : "none";
+    });
+  });
+</script>
+{% endfor %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('[id^="editInventoryModal-"]').forEach(modal => {
+    modal.addEventListener('show.bs.modal', () => {
+      const formContainer = modal.querySelector('[id^="inventory-form-"]');
+      const workspaceType = modal.querySelector('input[name="workspace_type"]').value;
+
+      if (workspaceType === "Coworking Spaces") {
+        formContainer.innerHTML = `
+          <div class="mb-3">
+            <label>Inventory Type</label>
+            <select name="inventory_type[]" class="form-select" required>
+              <option value="Day pass">Day pass</option>
+              <option value="Dedicated desk">Dedicated desk</option>
+              <option value="Private cabin">Private cabin</option>
+              <option value="Meeting rooms">Meeting rooms</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label>Seat Count</label>
+            <input type="number" name="inventory_count[]" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label>Price Per Seat</label>
+            <input type="number" name="price_per_seat[]" class="form-control" required>
+          </div>
+        `;
+      } else {
+        formContainer.innerHTML = `<p class="text-muted">Inventory editing is only available for Coworking Spaces.</p>`;
+      }
+    });
+  });
+});
+</script>
+
   </body>
 </html>
+
+
+
+

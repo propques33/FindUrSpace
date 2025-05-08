@@ -19,8 +19,8 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='te
 
 # Admin Credentials
 admin_credentials = {
-    "project.propques@gmail.com": "Prop@11@@33",
-    "buzz@propques.com": "Prop@11@@33",
+    "project.propques@gmail.com": "Prop@1122",
+    "buzz@propques.com": "Prop@1122",
     "listing@gmail.com": "Prop@9044895" 
 }
 
@@ -130,7 +130,8 @@ def send_selected_properties_live():
             'city': p.get('city', 'Unknown'),
             'micromarket': p.get('micromarket', 'Unknown'),
             'inventory': p.get('inventory', []),
-            'layout_images': p.get('layout_images', [])
+            'layout_images': p.get('layout_images', []),
+            'has_amenities': bool(p.get('amenities'))
         } for p in properties]
 
         print(f"Email: {email}, Mobile: {mobile}, Selected Properties: {selected_property_ids}")

@@ -230,8 +230,12 @@ def send_email_and_whatsapp_with_pdf1(to_email, name, contact, properties):
 
         base_url = "https://findurspace.tech" 
 
+        seen_links = set()
         workspace_links = ""
         for property_data in properties:
+            if not property_data.get('has_amenities'):
+                continue  # Skip link generation for properties without amenities
+
             coworking_name = property_data.get('coworking_name', 'N/A').replace(' ', '%20')
             city = property_data.get('city', 'N/A').replace(' ', '%20')
             micromarket = property_data.get('micromarket', 'N/A').replace(' ', '%20')
@@ -248,9 +252,16 @@ def send_email_and_whatsapp_with_pdf1(to_email, name, contact, properties):
                             for room in item['room_details']:
                                 seating = room.get('seating_capacity')
                                 if seating:
-                                    workspace_links += f"<br><a href='{base_link}&seating={seating}'>{coworking_name} - {inventory_type} {seating} Seater</a>"
+                                    full_link = f"{base_link}&seating={seating}"
+                                    label = f"{coworking_name} - {inventory_type} {seating} Seater"
+                                    if full_link not in seen_links:
+                                        workspace_links += f"<br><a href='{full_link}'>{label}</a>"
+                                        seen_links.add(full_link)
                         else:
-                            workspace_links += f"<br><a href='{base_link}'>{coworking_name} - {inventory_type}</a>"
+                            if base_link not in seen_links:
+                                label = f"{coworking_name} - {inventory_type}"
+                                workspace_links += f"<br><a href='{base_link}'>{label}</a>"
+                                seen_links.add(base_link)
 
         greeting = f"Dear {name}" if name else "Hi"
 

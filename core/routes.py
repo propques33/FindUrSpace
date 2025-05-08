@@ -396,7 +396,7 @@ def innerpage(city, micromarket, coworking_name):
     if inventory_type:
         for inventory in property_data.get('inventory', []):
             if inventory.get('type') == inventory_type:
-                if seating and 'room_details' in inventory:
+                if 'room_details' in inventory and seating:
                     for room in inventory['room_details']:
                         if str(room.get('seating_capacity')) == str(seating):
                             selected_inventory = inventory
@@ -494,10 +494,19 @@ def innerpage(city, micromarket, coworking_name):
         else:
             price_label = ""
             
+        # Determine price
+        room_price = 0
+        if inventory.get('room_details'):
+            for room in inventory['room_details']:
+                if room.get('price'):
+                    room_price = room['price']
+                    break
+        else:
+            room_price = inventory.get('price_per_seat', 0)
 
         other_inventories.append({
             "type": inventory['type'],
-            "price": inventory.get('price_per_seat', 0),
+            "price": room_price,
             "price_label": price_label,
             "first_image": first_image,
             "coworking_name": coworking_name,

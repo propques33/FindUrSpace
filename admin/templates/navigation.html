@@ -108,11 +108,11 @@
             <li><a href="{{ url_for('admin.managed_inventory') }}"><i class="fas fa-clipboard-list"></i><span>Sqft Wise Inventory</span></a></li>
             <li><a href="{{ url_for('admin.managed_inventory_seats') }}"><i class="fas fa-chair"></i><span>Seat Wise Inventory</span></a></li>
             <!-- <li><a href="{{ url_for('admin.listings') }}"><i class="fas fa-building"></i><span>Listings</span></a></li> -->
-             {% if session['role'] != 'listing' %}
+            {% if session['role'] != 'listing' %}
             <li><a href="{{ url_for('admin.admin_bookings') }}"><i class="fas fa-calendar-check"></i><span>Bookings</span></a></li>
+            <li><a href="{{ url_for('admin.admin_visits') }}"><i class="fas fa-calendar-alt"></i><span>Visits</span></a></li>
             <!-- Other restricted items -->
             {% endif %}
-            <!-- <li><a href="{{ url_for('admin.admin_visits') }}"><i class="fas fa-calendar-alt"></i><span>Visits</span></a></li> -->
             <li><a href="{{ url_for('admin.admin_logout') }}"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></li>
         </ul>
         <div class="toggle-btn" id="toggleBtn" onclick="toggleNavbar()">&#9776;</div>

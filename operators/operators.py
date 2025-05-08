@@ -372,6 +372,55 @@ def edit_space(space_id):
 
     if request.method == 'POST':
         try:
+            # ✅ Step 1: Light Update for Basic Owner Info Only
+            if request.form.get("edit_type") == "basic_info":
+                updated_info = {
+                    "coworking_name": request.form.get("coworking_name"),
+                    "owner.name": request.form.get("name"),
+                    "owner.phone": request.form.get("owner_phone"),
+                    "owner.email": request.form.get("owner_email"),
+                    "date": datetime.datetime.now()
+                }
+                db.fillurdetails.update_one({'_id': ObjectId(space_id)}, {'$set': updated_info})
+                flash("Owner info updated successfully.")
+                return redirect(url_for('operators.inventory'))
+
+            if request.form.get("edit_type") == "location_info":
+                city = request.form.get("city")
+                if city == "Other":
+                    city = to_camel_case(request.form.get("custom_city", "").strip())
+
+                micromarket = request.form.get("micromarket")
+                if micromarket == "Other":
+                    micromarket = to_camel_case(request.form.get("custom_micromarket", "").strip())
+
+                address = request.form.get("address")
+                distance = {
+                    "metro": float(request.form.get("metro") or 0),
+                    "airport": float(request.form.get("airport") or 0),
+                    "bus": float(request.form.get("bus") or 0),
+                    "railway": float(request.form.get("railway") or 0)
+                }
+
+                center_manager_name = request.form.get("center_manager_name")
+                center_manager_contact = request.form.get("center_manager_contact")
+
+                db.fillurdetails.update_one({'_id': ObjectId(space_id)}, {
+                    '$set': {
+                        'city': city,
+                        'micromarket': micromarket,
+                        'address': address,
+                        'distance': distance,
+                        'center_manager': {
+                            'name': center_manager_name,
+                            'contact': center_manager_contact
+                        },
+                        'date': datetime.datetime.now()
+                    }
+                })
+                flash("Location info updated successfully.")
+                return redirect(url_for('operators.inventory'))
+
             # Owner & Basic Info
             name = request.form.get('name')
             owner_phone = request.form.get('owner_phone')
@@ -398,8 +447,11 @@ def edit_space(space_id):
             # Combine existing and new property images
             existing_property_images = space.get('property_images', [])
             property_images = request.files.getlist(f'property_images_{space_idx}[]')
-            new_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name, category="property", space_id=space_idx)
-            combined_property_images = existing_property_images + new_image_links
+            if property_images and property_images[0].filename != '':
+                new_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name, category="property", space_id=space_idx)
+                combined_property_images = existing_property_images + new_image_links
+            else:
+                combined_property_images = existing_property_images
 
             # Other Fields
             space_description = request.form.get(f'space_description_{space_idx}')
@@ -422,8 +474,12 @@ def edit_space(space_id):
                     if inv_idx < len(space.get('inventory', [])):
                         existing_inventory_images = space['inventory'][inv_idx].get('images', [])
                     inventory_images = request.files.getlist(f'inventory_images_{space_idx}_{inv_idx + 1}[]')
-                    new_inventory_links = process_and_upload_images(inventory_images, {'name': name}, coworking_name, category="inventory", space_id=space_idx, inventory_id=inv_idx + 1)
-                    combined_inventory_images = existing_inventory_images + new_inventory_links
+                    if inventory_images and inventory_images[0].filename != '':
+                        new_inventory_links = process_and_upload_images(inventory_images, {'name': name}, coworking_name, category="inventory", space_id=space_idx, inventory_id=inv_idx + 1)
+                        combined_inventory_images = existing_inventory_images + new_inventory_links
+                    else:
+                        combined_inventory_images = existing_inventory_images
+
 
                     if inv_type in ["Meeting rooms", "Private cabin"]:
                         try:
@@ -449,8 +505,12 @@ def edit_space(space_id):
                             except:
                                 existing_room_images = []
                             room_images = request.files.getlist(room_images_field)
-                            new_room_links = process_and_upload_images(room_images, {'name': name}, coworking_name, category=inv_type.lower().replace(" ", "_"), space_id=space_idx, inventory_id=inv_idx + 1, room_id=room_idx)
-                            combined_room_images = existing_room_images + new_room_links
+                            if room_images and room_images[0].filename != '':
+                                new_room_links = process_and_upload_images(room_images, {'name': name}, coworking_name, category=inv_type.lower().replace(" ", "_"), space_id=space_idx, inventory_id=inv_idx + 1, room_id=room_idx)
+                                combined_room_images = existing_room_images + new_room_links
+                            else:
+                                combined_room_images = existing_room_images
+
 
                             room_details.append({
                                 'room_number': room_idx,
