@@ -9,6 +9,7 @@ from google.auth.transport import requests as grequests
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from core.image_upload import process_and_upload_images
+from flask_mail import Message
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 # Define blueprint for operators
@@ -379,9 +380,11 @@ def edit_space(space_id):
                     "owner.name": request.form.get("name"),
                     "owner.phone": request.form.get("owner_phone"),
                     "owner.email": request.form.get("owner_email"),
-                    "date": datetime.datetime.now()
+                    "date": datetime.datetime.now(),
+                    'status': 'Pending'  # 👈 Add this
                 }
                 db.fillurdetails.update_one({'_id': ObjectId(space_id)}, {'$set': updated_info})
+                send_resubmission_email(name, owner_email, coworking_name, city, micromarket)
                 flash("Owner info updated successfully.")
                 return redirect(url_for('operators.inventory'))
 
@@ -415,9 +418,11 @@ def edit_space(space_id):
                             'name': center_manager_name,
                             'contact': center_manager_contact
                         },
-                        'date': datetime.datetime.now()
+                        'date': datetime.datetime.now(),
+                        "status": "Pending",
                     }
                 })
+                send_resubmission_email(name, owner_email, coworking_name, city, micromarket)
                 flash("Location info updated successfully.")
                 return redirect(url_for('operators.inventory'))
 
@@ -625,13 +630,15 @@ def edit_space(space_id):
                 'inventory': inventory,
                 'amenities': amenities,
                 'office_timings': office_timings,
-                'date': datetime.datetime.now()
+                'date': datetime.datetime.now(),
+                "status": "Pending"
             }
 
             if managed_office_data:
                 updated_data.update(managed_office_data)
 
             db.fillurdetails.update_one({'_id': ObjectId(space_id)}, {'$set': updated_data})
+            send_resubmission_email(name, owner_email, coworking_name, city, micromarket)
             flash("Space updated successfully.")
             return redirect(url_for('operators.inventory'))
 
@@ -650,6 +657,42 @@ def edit_space(space_id):
 
     space = convert_objectid(space)
     return render_template('FillUrDetails.html', space=space, role=session.get('role', 'owner'), context='edit_space')
+
+def send_resubmission_email(owner_name, owner_email, coworking_name, city, micromarket):
+    try:
+        mail = current_app.extensions['mail']
+        now = datetime.datetime.now().strftime('%d %b %Y, %I:%M %p')
+        message = Message(
+            subject=f"Listing Resubmitted for Review – {coworking_name} | {city}",
+            recipients=[
+                "findurspace1@gmail.com",
+                "thomas@propques.com",
+                "buzz@propques.com",
+                "listings@findurspace.tech"
+            ],
+            html=f"""
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <img src="https://findurspace.blr1.digitaloceanspaces.com/findurspace/image-invert.png" alt="FindUrSpace Logo" width="150">
+
+                    <p>Hi {owner_name},</p>
+
+                    <p>The listing for <strong>{coworking_name}</strong> has been resubmitted by the operator after addressing the previously identified issues.</p>
+
+                    <p><strong>📄 Listing Details:</strong><br>
+                    Space Name: {coworking_name}<br>
+                    Location: {city}, {micromarket}<br>
+                    Resubmitted By: {owner_email}<br>
+                    Date of Resubmission: {now}
+                    </p>
+
+                    <p>Warm regards,<br><strong>Farhat</strong><br>FindUrSpace</p>
+                </div>
+            """
+        )
+        mail.send(message)
+        print(f"Resubmission email sent to {owner_email}")
+    except Exception as e:
+        print(f"Failed to send resubmission email: {e}")
 
 @operators_bp.route('/leads', methods=['GET'])
 def leads():

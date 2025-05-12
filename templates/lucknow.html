@@ -15,6 +15,17 @@
       href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
       rel="stylesheet"
     />
+
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16693055130"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-16693055130');
+</script>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-16693055130"></script>
 <script>
@@ -834,7 +845,7 @@ Either way, you’ll find a setup that fits your team perfectly.
           })
             .then((response) => {
               if (response.ok) {
-                alert("Form submitted successfully!");
+                window.location.href = "/managed-offices/lucknow/thankyou";
                 document.getElementById("contactForm").reset(); // Clear the form
               } else {
                 throw new Error("Form submission failed");
@@ -870,7 +881,7 @@ Either way, you’ll find a setup that fits your team perfectly.
         })
             .then((response) => {
                 if (response.ok) {
-                    alert("Form submitted successfully! Footer");
+                    window.location.href = "/managed-offices/lucknow/thankyou";
                     document.getElementById("contactForm-footer").reset(); // Clear the form
                 } else {
                     throw new Error("Form submission failed");
@@ -909,7 +920,7 @@ Either way, you’ll find a setup that fits your team perfectly.
         })
             .then((response) => {
                 if (response.ok) {
-                    alert("Form submitted successfully! Footer");
+                    window.location.href = "/managed-offices/lucknow/thankyou";
                     document.getElementById("contactForm-footer").reset(); // Clear the form
                 } else {
                     throw new Error("Form submission failed");

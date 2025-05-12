@@ -1104,6 +1104,30 @@ def send_signup_whatsapp(mobile, name):
 def thankyou():
     return render_template('thankyou.html')
 
+@core_bp.route('/managed-offices/ahmedabad/thankyou')
+def thankyou1():
+    return render_template('thankyou1.html')
+
+@core_bp.route('/managed-offices/bangalore/thankyou')
+def thankyou2():
+    return render_template('thankyou2.html')
+
+@core_bp.route('/managed-offices/hyderabad/thankyou')
+def thankyou3():
+    return render_template('thankyou3.html')
+
+@core_bp.route('/managed-offices/indore/thankyou')
+def thankyou4():
+    return render_template('thankyou4.html')
+
+@core_bp.route('/managed-offices/lucknow/thankyou')
+def thankyou5():
+    return render_template('thankyou5.html')
+
+@core_bp.route('/managed-offices/mumbai/thankyou')
+def thankyou6():
+    return render_template('thankyou6.html')
+
 # Route to handle user preferences submission (Your Preference form)
 @core_bp.route('/submit_preferences', methods=['POST'])
 def submit_preferences():
@@ -1464,7 +1488,7 @@ def list_your_space():
             custom_cities = request.form.getlist('location_custom_1[]')  # Custom city inputs
             custom_micromarkets = request.form.getlist('micromarket_custom_1[]')  # Custom micromarket inputs
 
-             # Validation: Ensure "Other" selections have corresponding custom inputs
+            # Validation: Ensure "Other" selections have corresponding custom inputs
             if "Other" in cities and len(custom_cities) < cities.count("Other"):
                 flash("Please provide custom city names for all 'Other' selections.", 'error')
                 return redirect(url_for('core_bp.list_your_space'))
@@ -1503,7 +1527,7 @@ def list_your_space():
                     'railway': float(railway_dist) if railway_dist else 0.0
                 }
 
-                 # Upload Property Images
+                # Upload Property Images
                 property_images = request.files.getlist(f'property_images_{idx}[]')
                 property_image_links = process_and_upload_images(property_images, {'name': name}, coworking_name,category="property",space_id=idx)
 
@@ -1737,7 +1761,8 @@ def list_your_space():
                     'workspace_tool': workspace_tool,
                     'notification_preference': notification_preference,
                     'space_description': space_description,
-                    'date': datetime.now()
+                    'date': datetime.now(),
+                    'status': "Pending"
                 }
 
                 # Add Workspace Type Specific Details
@@ -1781,7 +1806,7 @@ def list_your_space():
 
                 # try:
                 #     mail = current_app.extensions['mail']  # Get mail instance
-                #     auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
+                #     # auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
                 #     message = Message(
                 #         subject="Connect Your Google Calendar – Final Step!",
                 #         recipients=[owner_email],
@@ -1819,6 +1844,75 @@ def list_your_space():
                 #     print(f"Email sent to {owner_email}")
                 # except Exception as email_error:
                 #     print(f"Email sending failed: {email_error}")
+
+                try:
+                    mail = current_app.extensions['mail']  # Get mail instance
+                    username = owner_email  # Assuming email is used as username
+                    # auth_link = url_for('operators.calendar_auth', email=owner_email, _external=True)
+                    message = Message(
+                        subject="Your Coworking Space Listing Is Created – Pending Approval",
+                        recipients=[owner_email],
+                        html=f"""
+                            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                <img src="https://findurspace.blr1.digitaloceanspaces.com/findurspace/image-invert.png" alt="FindUrSpace Logo" width="150">
+                                
+                                <p>Hi {name},</p>
+
+                                <p>Great news! Your coworking space <strong>{coworking_name}</strong> has been successfully created on our platform and is now in the approval stage.</p>
+
+                                <p>Our team is reviewing the details to ensure everything meets our quality standards. Once approved, your listing will be live and visible to thousands of professionals actively looking for flexible workspaces like yours.</p>
+
+                                <h4>🔐 Operator Panel Access</h4>
+                                <ul>
+                                    <li><strong>Login URL:</strong> <a href="https://findurspace.tech/operators/login">Operator Panel Link</a></li>
+                                </ul>
+
+                                <p>Thank you for choosing <strong>FindUrSpace</strong> to grow your workspace visibility!</p>
+
+                                <p>Warm regards,<br><strong>Farhat</strong><br>FindUrSpace</p>
+                            </div>
+                        """
+                    )
+                    mail.send(message)
+                    print(f"Confirmation Email sent to {owner_email}")
+                except Exception as email_error:
+                    print(f"Email sending failed: {email_error}")
+
+                try:
+                    admin_recipients = ["thomas@propques.com", "buzz@propques.com", "listings@findurspace.tech","findurspace1@gmail.com"]
+                    # admin_recipients = ["pranjalshukla800@gmail.com"]
+                    submission_date = datetime.now().strftime("%d %b %Y, %I:%M %p")
+
+                    admin_message = Message(
+                        subject=f"New Listing Is Created – {coworking_name} | {city}",
+                        recipients=admin_recipients,
+                        html=f"""
+                            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                <img src="https://findurspace.blr1.digitaloceanspaces.com/findurspace/image-invert.png" alt="FindUrSpace Logo" width="150">
+                                
+                                <p>Hi Team,</p>
+
+                                <p>A new coworking space listing has just been submitted and is pending your approval.</p>
+
+                                <h4>📄 Listing Details:</h4>
+                                <ul>
+                                    <li><strong>Space Name:</strong> {coworking_name}</li>
+                                    <li><strong>Location:</strong> {city}, {micromarket}</li>
+                                    <li><strong>Submitted By:</strong> {owner_email}</li>
+                                    <li><strong>Date Submitted:</strong> {submission_date}</li>
+                                    <li><strong>Review & Approve Listing:</strong> <a href="https://findurspace.tech/admin/login">Admin Dashboard</a></li>
+                                </ul>
+
+                                <p>Warm regards,<br><strong>Farhat</strong><br>FindUrSpace</p>
+                            </div>
+                        """
+                    )
+
+                    mail.send(admin_message)
+                    print("Admin notification email sent.")
+
+                except Exception as admin_email_error:
+                    print(f"Admin email sending failed: {admin_email_error}")
 
             flash("Property details submitted successfully.", 'success')
             # return redirect(url_for('core_bp.verify_account', email=owner_email))
@@ -2033,13 +2127,10 @@ def blog():
             return f"Failed to fetch blog data: {response.status_code}", response.status_code
 
         data = response.json()
-
         all_blogs = data.get('pages', [])
         
         # ✅ Filter only blogs where publishOn == "Findurspace"
         filtered_blogs = [blog for blog in all_blogs if blog.get('publishOn') == "Findurspace"]
-
-        total_pages = data.get('pagesCount', 1)
 
         # Calculate read time
         for blog in filtered_blogs:
@@ -2047,6 +2138,12 @@ def blog():
             word_count = len(content.split())
             blog["read_time"] = max(1, round(word_count / 200))
 
+        # 📊 Manual pagination logic
+        total_pages = (len(filtered_blogs) + per_page - 1) // per_page
+        start = (page - 1) * per_page
+        end = start + per_page
+        paginated_blogs = filtered_blogs[start:end]
+        
         # 🔥 Fetch cities from DB
         db = current_app.config['db']
         cities = db.fillurdetails.distinct('city')

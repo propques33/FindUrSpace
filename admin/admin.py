@@ -11,6 +11,7 @@ from bson.errors import InvalidId
 import boto3
 from werkzeug.utils import secure_filename
 import os
+from flask_mail import Message
 from bson.objectid import ObjectId
 from .image_upload1 import process_and_upload_pdf
 
@@ -1034,6 +1035,140 @@ def live_inventory():
     micromarkets = db.fillurdetails.distinct('micromarket')
     
     return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
+
+@admin_bp.route('/update_status', methods=['POST'])
+def update_status():
+    if 'admin' not in session:
+        return jsonify({'status': 'unauthorized'}), 403
+
+    data = request.get_json()
+    property_id = data.get('property_id')
+    new_status = data.get('status')
+    message = data.get('message', '')  # optional
+
+    db = current_app.config['db']
+    space = db.fillurdetails.find_one({'_id': ObjectId(property_id)})
+
+    if not space:
+        return jsonify({'status': 'failed', 'message': 'Property not found'})
+    
+    update_result = db.fillurdetails.update_one(
+        {'_id': ObjectId(property_id)},
+        {'$set': {'status': new_status, 'admin_feedback': message}}
+    )
+
+
+    # ✅ Send email if status is Approved
+    if update_result.modified_count == 1 and new_status == "Approved":
+        try:
+            email = space.get('owner', {}).get('email')
+            coworking_name = space.get('coworking_name', 'Your Space')
+            operator_name = space.get('owner', {}).get('name', 'Partner')
+            city = space.get('city', 'your city')
+
+            # Generate panel link (customize as needed)
+            panel_link = "https://findurspace.tech/operators/login"
+
+            # Compose email content
+            subject = "Congrats - Your Listing Is Now Live on FindUrSpace"
+            body = f"""
+Hi {operator_name},
+
+Great news! Your coworking space listing – {coworking_name} – has been successfully reviewed and approved. It is now live on the platform and visible to users actively searching for workspaces in {city}.
+
+🔐 Login to Manage: {panel_link}
+
+Warm regards,  
+Farhat  
+FindUrSpace
+"""
+
+            recipients = list({email})  # remove duplicates
+            for email in recipients:
+                if email:
+                    send_admin_approval_email(operator_name, email, coworking_name)
+
+        except Exception as e:
+            print(f"Error sending approval email: {e}")
+
+        return jsonify({'status': 'success'})
+    
+    # ✅ Send email if status is Edit Required
+    elif update_result.modified_count == 1 and new_status == "Edit Required":
+        try:
+            email = space.get('owner', {}).get('email')
+            coworking_name = space.get('coworking_name', 'Your Space')
+            operator_name = space.get('owner', {}).get('name', 'Partner')
+
+            for email in [email]:
+                if email:
+                    send_edit_required_email(operator_name, email, coworking_name, message)
+        except Exception as e:
+            print(f"Error sending edit-required email: {e}")
+
+        return jsonify({'status': 'success'})
+    return jsonify({'status': 'failed'})
+
+def send_edit_required_email(owner_name, owner_email, coworking_name, feedback_message):
+    try:
+        mail = current_app.extensions['mail']
+        message = Message(
+            subject="Action Required: Your Listing Needs Revisions",
+            recipients=[owner_email],
+            html=f"""
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <img src="https://findurspace.blr1.digitaloceanspaces.com/findurspace/image-invert.png" alt="FindUrSpace Logo" width="150">
+
+                    <p>Hi {owner_name},</p>
+
+                    <p>Thank you for submitting your coworking space – <strong>{coworking_name}</strong> – for review.</p>
+
+                    <p>After evaluation, we are unable to approve the listing at this time due to the following reason(s):</p>
+
+                    <blockquote style="background-color: #fff3cd; padding: 10px; border-left: 4px solid #ffc107; font-style: italic;">
+                        {feedback_message}
+                    </blockquote>
+
+                    <p>🔄 Please update your listing accordingly via the Operator Panel below:</p>
+                    <p><a href="https://findurspace.tech/operators/login" style="color: #2b4eff;">Operator Panel Link</a></p>
+
+                    <p>Warm regards,<br><strong>Farhat</strong><br>FindUrSpace</p>
+                </div>
+            """
+        )
+        mail.send(message)
+        print(f"Edit-required email sent to {owner_email}")
+    except Exception as e:
+        print(f"Failed to send edit-required email: {e}")
+
+
+def send_admin_approval_email(owner_name, owner_email, coworking_name):
+    try:
+        mail = current_app.extensions['mail']
+        message = Message(
+            subject="Your Listing Has Been Approved – Welcome to FindUrSpace!",
+            recipients=[owner_email],
+            html=f"""
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <img src="https://findurspace.blr1.digitaloceanspaces.com/findurspace/image-invert.png" alt="FindUrSpace Logo" width="150">
+                    
+                    <p>Hi {owner_name},</p>
+
+                    <p>Your coworking space <strong>{coworking_name}</strong> has just been approved and is now <strong>live</strong> on FindUrSpace!</p>
+
+                    <p>Professionals searching for flexible offices can now discover and book your space.</p>
+
+                    <p><strong>Login to your Operator Panel</strong> to manage bookings, view inquiries, and update availability:</p>
+                    <p><a href="https://findurspace.tech/operators/login">Operator Dashboard</a></p>
+
+                    <p>Welcome aboard,<br><strong>Team FindUrSpace</strong></p>
+                </div>
+            """
+        )
+        mail.send(message)
+        print(f"Approval email sent to {owner_email}")
+    except Exception as e:
+        print(f"Failed to send approval email: {e}")
 
 @admin_bp.route('/managed_inventory', methods=['GET'])
 def managed_inventory():

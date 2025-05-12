@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coworking Live Inventory</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="icon" href="../../static/images/data-analytics.png" type="image/x-icon">
     <style>
         
         html, body {
@@ -56,14 +57,14 @@
     position: sticky;
     top: 0;
     background-color: #f2f2f2; /* or white, depending on your design */
-    z-index: 2;
+    z-index: 0;
 }
 
 thead th {
     position: sticky;
     top: 0;
     background-color: #f9fafb; /* very light gray for contrast */
-    z-index: 2;
+    z-index: 0;
     box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.15); /* deeper shadow */
 }
         /* Modal Styles */
@@ -297,9 +298,63 @@ thead th {
     background-color: #0056b3;
 }
 
+/* Status label styles */
+.status-label {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 13px;
+    display: inline-block;
+    text-transform: capitalize;
+}
+.status-label.pending {
+    background-color: #fdd;
+    color: #c00;
+}
+.status-label.approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+.status-label.edit-required {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Action buttons */
+.approve-btn {
+    background-color: green;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.edit-btn {
+    background-color: #ffc107;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+
     </style>
 </head>
 <body>
+    <!-- Modal for Edit Required Feedback -->
+<div id="edit-feedback-modal" class="modal1">
+    <button class="close-btn" onclick="closeEditFeedbackModal()">&times;</button>
+    <h3>Reason for Edit Required</h3>
+    <form id="edit-feedback-form">
+        <textarea id="edit-feedback-text" rows="4" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" placeholder="Describe what needs to be edited..." required></textarea>
+        <input type="hidden" id="edit-feedback-property-id">
+        <button type="submit" class="send-btn">Submit</button>
+    </form>
+</div>
+
     {% include 'navigation.html' %}
 
     <div id="inventory-selection-modal" class="modal1">
@@ -391,6 +446,8 @@ thead th {
                         <th>Dedicated Desk</th>
                         <th>Details</th>
                         <th>Redirect</th>
+                        <th>Status</th>
+                        <th>Action</th>
                         <!-- <th>Actions</th> 
                         <th>Agreement Status</th> 
                         <th>Delete</th> -->
@@ -486,6 +543,22 @@ thead th {
             const uploadForm = document.getElementById('upload-form');
             const fileInput = document.getElementById('file-input');
             const propertyIdInput = document.getElementById('property-id');
+            // Step 2: Edit Required Modal Elements
+            const editFeedbackModal = document.getElementById('edit-feedback-modal');
+            const editFeedbackForm = document.getElementById('edit-feedback-form');
+            const editFeedbackText = document.getElementById('edit-feedback-text');
+            const editFeedbackPropertyId = document.getElementById('edit-feedback-property-id');
+
+            function openEditFeedbackModal(propertyId) {
+                editFeedbackPropertyId.value = propertyId;
+                editFeedbackText.value = '';
+                editFeedbackModal.classList.add('show');
+            }
+
+            function closeEditFeedbackModal() {
+                editFeedbackModal.classList.remove('show');
+            }
+
             const closeUploadModalBtn = uploadModal.querySelector('.close-btn');
             const deleteModal = document.getElementById('delete-modal');
             const deleteForm = document.getElementById('delete-form');
@@ -792,7 +865,19 @@ thead th {
                         <td>
                             ${space.has_amenities ? `<button class="view-page-btn send-btn" data-space-id="${space._id}">View Page</button>` : ''}
                         </td>
-
+                        <td>
+                            <span class="status-label ${space.status?.toLowerCase().replace(/\s/g, '-') || 'pending'}">
+                                ${space.status || 'Pending'}
+                            </span>
+                        </td>
+                        <td>
+                            ${(space.status === 'Pending') ? `
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="approve-btn" data-id="${space._id}">Approve</button>
+                                    <button class="edit-btn" data-id="${space._id}">Edit Required</button>
+                                </div>
+                            ` : ''}
+                        </td>
                     `;
                     // <td>${space.total_seats || 'N/A'}</td>
                     // <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
@@ -811,6 +896,64 @@ thead th {
                     tableBody.appendChild(row);
                 });
             }
+
+            // ✅ Insert Step 2 code HERE
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('approve-btn')) {
+                    const id = e.target.dataset.id;
+                    fetch('/admin/update_status', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ property_id: id, status: 'Approved' })
+                    }).then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success') window.location.reload();
+                        else alert('Failed to update status.');
+                    });
+                }
+
+                // if (e.target.classList.contains('edit-btn')) {
+                //     const id = e.target.dataset.id;
+                //     const message = prompt('Enter feedback for Edit Required:');
+                //     if (!message) return;
+
+                //     fetch('/admin/update_status', {
+                //         method: 'POST',
+                //         headers: { 'Content-Type': 'application/json' },
+                //         body: JSON.stringify({ property_id: id, status: 'Edit Required', message: message })
+                //     }).then(res => res.json())
+                //     .then(data => {
+                //         if (data.status === 'success') fetchInventory();
+                //         else alert('Failed to update status.');
+                //     });
+                // }
+                if (e.target.classList.contains('edit-btn')) {
+                    const id = e.target.dataset.id;
+                    openEditFeedbackModal(id);  // ✅ Show modal instead of prompt
+                }
+            });
+
+            editFeedbackForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const propertyId = editFeedbackPropertyId.value;
+    const message = editFeedbackText.value.trim();
+    if (!message) return alert('Please enter feedback');
+
+    fetch('/admin/update_status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ property_id: propertyId, status: 'Edit Required', message: message })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            closeEditFeedbackModal();
+            window.location.reload();
+        } else {
+            alert('Failed to update status.');
+        }
+    });
+});
 
 
             // Event listeners for dropdowns
@@ -1051,6 +1194,12 @@ function displayCoworkingModal(space) {
         <h3>Images</h3>
         ${imagesHtml}
 
+        ${space.admin_feedback ? `
+    <h3 style="color:#c00;">Admin Feedback</h3>
+    <p style="background:#fff3f3; padding:10px; border-left:5px solid red; border-radius:5px;">
+        ${space.admin_feedback}
+    </p>
+` : ''}
 <h3>Upload Agreement / Delete Property</h3>
 <p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}</p>
 <button class="upload-btn" data-property-id="${space._id}">Upload</button>

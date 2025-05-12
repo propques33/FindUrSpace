@@ -37,6 +37,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </script>
 <!-- End Google Tag Manager -->
 
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16693055130"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'AW-16693055130');
+</script>
+
 <!-- Facebook Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -932,7 +942,7 @@ Either way, you’ll find a setup that fits your team perfectly.
             .then((response) => {
               if (response.ok) {
                 console.log(formData); 
-                alert("Form submitted successfully!");
+                window.location.href = "/managed-offices/ahmedabad/thankyou";
                 document.getElementById("contactForm").reset(); // Clear the form
               } else {
                 throw new Error("Form submission failed");
@@ -971,7 +981,7 @@ Either way, you’ll find a setup that fits your team perfectly.
             .then((response) => {
                 if (response.ok) {
                     console.log(formData); 
-                    alert("Form submitted successfully! Footer");
+                    window.location.href = "/managed-offices/ahmedabad/thankyou";
                     document.getElementById("contactForm-footer").reset(); // Clear the form
                 } else {
                     throw new Error("Form submission failed");
@@ -1011,7 +1021,7 @@ Either way, you’ll find a setup that fits your team perfectly.
             .then((response) => {
                 if (response.ok) {
                     console.log(formData); 
-                    alert("Form submitted successfully! Footer");
+                    window.location.href = "/managed-offices/ahmedabad/thankyou";
                     document.getElementById("contactForm-footer").reset(); // Clear the form
                 } else {
                     throw new Error("Form submission failed");
@@ -1043,7 +1053,7 @@ Either way, you’ll find a setup that fits your team perfectly.
     .then((response) => {
       if (response.ok) {
         console.log(formData); 
-        alert("Form submitted successfully!");
+        window.location.href = "/managed-offices/ahmedabad/thankyou";
         document.querySelector(formSelector).reset();
         closePopup(); // Close if it’s popup form
       } else {
