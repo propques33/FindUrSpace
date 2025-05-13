@@ -559,6 +559,9 @@ thead th {
                 editFeedbackModal.classList.remove('show');
             }
 
+            // 👇 This is what makes the inline `onclick="..."` work
+            window.closeEditFeedbackModal = closeEditFeedbackModal;
+
             const closeUploadModalBtn = uploadModal.querySelector('.close-btn');
             const deleteModal = document.getElementById('delete-modal');
             const deleteForm = document.getElementById('delete-form');
@@ -1257,6 +1260,11 @@ function displayCoworkingModal(space) {
     inventorySelectionModal.classList.remove('show');
 }
 
+function closeEditFeedbackModal() {
+    editFeedbackModal.classList.remove('show');
+}
+
+window.closeEditFeedbackModal = closeEditFeedbackModal;
     </script>
 </body>
 </html>

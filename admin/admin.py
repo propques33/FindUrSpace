@@ -22,7 +22,8 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='te
 admin_credentials = {
     "project.propques@gmail.com": "Prop@1122",
     "buzz@propques.com": "Prop@1122",
-    "listing@gmail.com": "Prop@9044895" 
+    "listing@gmail.com": "Prop@9044895",
+    "client@gmail.com": "client123"  # ✅ Add client 
 }
 
 # Helper function to send the email and WhatsApp with app context
@@ -170,7 +171,12 @@ def admin_login():
 
         if email in admin_credentials and admin_credentials[email] == password:
             session['admin'] = email
-            session['role'] = 'listing' if email == 'listing@gmail.com' else 'full'
+            if email == 'listing@gmail.com':
+                session['role'] = 'listing'
+            elif email == 'client@gmail.com':
+                session['role'] = 'client'  # ✅ Set client role
+            else:
+                session['role'] = 'full'
             return redirect(url_for('admin.leads_dashboard'))
         else:
             return render_template('admin_login.html', error='Invalid login credentials. Please try again.')
