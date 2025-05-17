@@ -21,8 +21,8 @@ admin_bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='te
 # Admin Credentials
 admin_credentials = {
     "project.propques@gmail.com": "Prop@1122",
-    "buzz@propques.com": "Prop@1122",
-    "listing@gmail.com": "Prop@9044895",
+    "buzz@propques.com": "Prop@112233",
+    "listing@gmail.com": "Prop@9044",
     "client@gmail.com": "client123"  # ✅ Add client 
 }
 
@@ -1195,7 +1195,7 @@ def managed_inventory():
     # Get distinct micromarkets from the filtered spaces
     micromarkets = list({space['micromarket'] for space in spaces if 'micromarket' in space and space['micromarket']})
 
-    return render_template('managed_inventory.html', cities=cities, micromarkets=micromarkets)
+    return render_template('managed_inventory.html', cities=cities, micromarkets=micromarkets, role=session.get('role'))
 
 
 @admin_bp.route('/managed_inventory_seats', methods=['GET'])
@@ -1207,7 +1207,7 @@ def managed_inventory_seats():
     cities = db.fillurdetails.distinct('city')
     micromarkets = db.fillurdetails.distinct('micromarket')
     
-    return render_template('managed_inventory_seats.html', cities=cities, micromarkets=micromarkets)
+    return render_template('managed_inventory_seats.html', cities=cities, micromarkets=micromarkets, role=session.get('role'))
 
 
 @admin_bp.route('/get_micromarkets_live/<city>', methods=['GET'])

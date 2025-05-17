@@ -344,7 +344,9 @@ thead th {
                         <th>Date</th>
                         <th>Building Name</th>
                         <th id="sort-city">Micromarket,City</th>
-                        <th>Contact</th>
+                        {% if role != 'client' %}
+                            <th>Contact</th>
+                        {% endif %}
                         <!-- <th>Total Seats</th> -->
                         <th>Number of Seats</th>
                         <th>Rental Expectation/seat</th>
@@ -610,7 +612,9 @@ thead th {
                         <td>${formattedDate || 'N/A'}</td>
                         <td>${space.coworking_name || 'N/A'}</td>
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
+                        {% if role != 'client' %}
                         <td>${space.owner?.phone || 'N/A'}</td>
+                        {% endif %}
                         <td>${space.seating_capacity || 'N/A'}</td>
                         <td>₹${space.total_rental?.toLocaleString() || 'N/A'}</td>
                         <td>
@@ -767,7 +771,7 @@ function displayCoworkingModal(space) {
 
     modalContent.innerHTML = `
         <h2>${space.coworking_name || 'N/A'}</h2>
-
+        {% if role != 'client' %}
         <h3>Owner</h3>
         <p><strong>Name:</strong> ${space.owner?.name || 'N/A'}</p>
         <p><strong>Phone:</strong> ${space.owner?.phone || 'N/A'}</p>
@@ -776,6 +780,7 @@ function displayCoworkingModal(space) {
         <h3>Center Manager</h3>
         <p><strong>Name:</strong> ${space.center_manager?.name || 'N/A'}</p>
         <p><strong>Contact:</strong> ${space.center_manager?.contact || 'N/A'}</p>
+        {% endif %}
 
         <h3>General</h3>
         <p><strong>City:</strong> ${space.city || 'N/A'}</p>
@@ -812,12 +817,14 @@ function displayCoworkingModal(space) {
             ? propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('') 
             : 'No images available'}
 
+        {% if role != 'client' %}
         <h3>Upload Agreement / Delete Property</h3>
         <p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' 
             ? '<span style="color:green">Completed</span>' 
             : '<span style="color:red">Pending</span>'}</p>
         <button class="upload-btn" data-property-id="${space._id}">Upload</button>
         <button class="delete-btn" data-property-id="${space._id}">Delete</button>
+        {% endif %}
     `;
 
     coworkingModal.classList.add('show');
