@@ -439,15 +439,19 @@ thead th {
                         <th id="sort-city">Micromarket,City</th>
                         <!-- <th>Total Seats</th> -->
                         <th>Available Seats</th>
-                        <th>Contact Number</th>
+                        {% if role != 'client' %}
+                            <th>Contact Number</th>
+                        {% endif %}
                         <th>Day Pass</th>
                         <th>Meeting Rooms</th>
                         <th>Private Cabin</th>
                         <th>Dedicated Desk</th>
                         <th>Details</th>
                         <th>Redirect</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        {% if role != 'client' %}
+                            <th>Status</th>
+                            <th>Action</th>
+                        {% endif %}
                         <!-- <th>Actions</th> 
                         <th>Agreement Status</th> 
                         <th>Delete</th> -->
@@ -601,6 +605,8 @@ thead th {
             function closeInventoryModal() {
                 inventorySelectionModal.classList.remove('show');
             }
+
+            
 
             // When inventory type changes
             inventoryTypeSelect.addEventListener('change', function () {
@@ -859,7 +865,9 @@ thead th {
                         <td>${space.coworking_name || 'N/A'}</td>
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
                         <td>${space.current_vacancy || 'N/A'}</td>
-                        <td>${space.owner?.phone || 'N/A'}</td>
+                        {% if role != 'client' %}
+                            <td>${space.owner?.phone || 'N/A'}</td>
+                        {% endif %}
                         <td>${getInventoryDetails('Day pass')}</td>
                         <td>${getInventoryDetails('Meeting rooms')}</td>
                         <td>${getInventoryDetails('Private cabin')}</td>
@@ -868,19 +876,21 @@ thead th {
                         <td>
                             ${space.has_amenities ? `<button class="view-page-btn send-btn" data-space-id="${space._id}">View Page</button>` : ''}
                         </td>
-                        <td>
-                            <span class="status-label ${space.status?.toLowerCase().replace(/\s/g, '-') || 'pending'}">
-                                ${space.status || 'Pending'}
-                            </span>
-                        </td>
-                        <td>
-                            ${(space.status === 'Pending') ? `
-                                <div style="display: flex; gap: 8px;">
-                                    <button class="approve-btn" data-id="${space._id}">Approve</button>
-                                    <button class="edit-btn" data-id="${space._id}">Edit Required</button>
-                                </div>
-                            ` : ''}
-                        </td>
+                        {% if role != 'client' %}
+                            <td>
+                                <span class="status-label ${space.status?.toLowerCase().replace(/\s/g, '-') || 'pending'}">
+                                    ${space.status || 'Pending'}
+                                </span>
+                            </td>
+                            <td>
+                                ${(space.status === 'Pending') ? `
+                                    <div style="display: flex; gap: 8px;">
+                                        <button class="approve-btn" data-id="${space._id}">Approve</button>
+                                        <button class="edit-btn" data-id="${space._id}">Edit Required</button>
+                                    </div>
+                                ` : ''}
+                            </td>
+                        {% endif %}
                     `;
                     // <td>${space.total_seats || 'N/A'}</td>
                     // <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
@@ -1084,6 +1094,9 @@ thead th {
 
 //     coworkingModal.classList.add('show');
 // }
+
+const userRole = "{{ role }}";
+
 function displayCoworkingModal(space) {
     const modalContent = document.querySelector('.modal-content');
 
@@ -1148,12 +1161,15 @@ function displayCoworkingModal(space) {
         <h2 style="display: flex; justify-content: space-between; align-items: center;">
             ${space.coworking_name || 'N/A'}
             ${
-                space.agreement_status === 'Completed'
-                ? `<span style="background-color: green; color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px;position:relative;right:50px;">Agreement Uploaded</span>`
-                : `<button class="upload-btn" data-property-id="${space._id}" style="margin-left:auto;position:relative;right:50px;">Upload Agreement</button>`
-            }
-        </h2>
+            (userRole !== 'client'
+                ? (space.agreement_status === 'Completed'
+                    ? `<span style="background-color: green; color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px;position:relative;right:50px;">Agreement Uploaded</span>`
+                    : `<button class="upload-btn" data-property-id="${space._id}" style="margin-left:auto;position:relative;right:50px;">Upload Agreement</button>`)
+                : '')
+        }
+            
 
+        {% if role != 'client' %}
         <h3>Owner Information</h3>
         <p><strong>Name:</strong> ${owner.name || 'N/A'}</p>
         <p><strong>Phone:</strong> ${owner.phone || 'N/A'}</p>
@@ -1162,6 +1178,7 @@ function displayCoworkingModal(space) {
         <h3>Center Manager</h3>
         <p><strong>Name:</strong> ${manager.name || 'N/A'}</p>
         <p><strong>Contact:</strong> ${manager.contact || 'N/A'}</p>
+        {% endif %}
 
         <h3>General Info</h3>
         <p><strong>City:</strong> ${space.city}</p>
@@ -1203,10 +1220,13 @@ function displayCoworkingModal(space) {
         ${space.admin_feedback}
     </p>
 ` : ''}
+{% if role != 'client' %}
 <h3>Upload Agreement / Delete Property</h3>
-<p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}</p>
+<p><strong>Agreement Status:</strong> {% if role != 'client' %}
+${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}{% endif %}</p>
 <button class="upload-btn" data-property-id="${space._id}">Upload</button>
 <button class="delete-btn" data-property-id="${space._id}">Delete</button>
+{% endif %}
     `;
 
     coworkingModal.classList.add('show');

@@ -1040,7 +1040,7 @@ def live_inventory():
     cities = db.fillurdetails.distinct('city')
     micromarkets = db.fillurdetails.distinct('micromarket')
     
-    return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets)
+    return render_template('live_inventory.html', cities=cities, micromarkets=micromarkets, role=session.get('role'))
 
 @admin_bp.route('/update_status', methods=['POST'])
 def update_status():
