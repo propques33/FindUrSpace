@@ -2117,11 +2117,11 @@ def property_images(property_id):
 def blog():
     try:
         # Get current page from query string
-        page = int(request.args.get('page', 1))
-        per_page = 6  # you can adjust this as needed
+        # page = int(request.args.get('page', 1))
+        # per_page = 6  # you can adjust this as needed
 
         # Fetch blog data from new CMS endpoint
-        api_url = f'https://pq-backend-fus-pq-blogs-elbtf.ondigitalocean.app/api/blogs?page={page}&limit={per_page}'
+        api_url = f'https://pq-backend-fus-pq-blogs-elbtf.ondigitalocean.app/api/blogs'
         response = requests.get(api_url)
         if response.status_code != 200:
             return f"Failed to fetch blog data: {response.status_code}", response.status_code
@@ -2132,6 +2132,9 @@ def blog():
         # ✅ Filter only blogs where publishOn == "Findurspace"
         filtered_blogs = [blog for blog in all_blogs if blog.get('publishOn') == "Findurspace"]
 
+        # ✅ Sort by date (descending)
+        filtered_blogs.sort(key=lambda x: x.get('updatedAt', ''), reverse=True)
+        
         # Calculate read time
         for blog in filtered_blogs:
             content = blog.get("contentBody", "")
@@ -2139,10 +2142,10 @@ def blog():
             blog["read_time"] = max(1, round(word_count / 200))
 
         # 📊 Manual pagination logic
-        total_pages = (len(filtered_blogs) + per_page - 1) // per_page
-        start = (page - 1) * per_page
-        end = start + per_page
-        paginated_blogs = filtered_blogs[start:end]
+        # total_pages = (len(filtered_blogs) + per_page - 1) // per_page
+        # start = (page - 1) * per_page
+        # end = start + per_page
+        # paginated_blogs = filtered_blogs[start:end]
         
         # 🔥 Fetch cities from DB
         db = current_app.config['db']
@@ -2152,8 +2155,8 @@ def blog():
         return render_template(
             'blog.html',
             blogs=filtered_blogs,
-            page=page,
-            total_pages=total_pages,
+            # page=page,
+            # total_pages=total_pages,
             cities=clean_cities 
         )
     except Exception as e:
