@@ -23,6 +23,7 @@ from datetime import datetime, timedelta
 from flask_mail import Message
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+import json
 
 
 # Function to handle Google Sheet updates in the background
@@ -2134,7 +2135,7 @@ def blog():
 
         # ✅ Sort by date (descending)
         filtered_blogs.sort(key=lambda x: x.get('updatedAt', ''), reverse=True)
-        
+
         # Calculate read time
         for blog in filtered_blogs:
             content = blog.get("contentBody", "")
@@ -2172,6 +2173,15 @@ def blog_detail(slug):
         if not blog:
             return "Blog not found", 404
 
+        # ✅ Convert schemaMarkup strings to Python dicts
+        import json
+        if blog.get('schemaMarkup'):
+            try:
+                blog['schemaMarkup'] = [json.loads(s) for s in blog['schemaMarkup'] if s.strip()]
+            except json.JSONDecodeError as err:
+                print("Error decoding schemaMarkup:", err)
+                blog['schemaMarkup'] = []
+                
         read_time = max(1, round(len(blog['contentBody'].split()) / 200))
 
         # Filter other blogs: not the current one and only if published on Findurspace

@@ -10,9 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
     {% if blog['schemaMarkup'] %}
-    {% for schema in blog['schemaMarkup'] %}
+        {% for schema in blog['schemaMarkup'] %}
         <script type="application/ld+json">
-            {{ schema | safe }}
+            {{ schema | tojson | safe }}
         </script>
         {% endfor %}
     {% endif %}
