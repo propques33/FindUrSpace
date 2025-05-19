@@ -43,6 +43,24 @@
 .heart-icon[data-liked="true"] {
     content: '\2665'; /* Filled heart */
 }
+
+.view-more-button {
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 2px solid #151d31;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    color:#151d31;
+}
+
+.view-more-button:hover {
+    background-color: #151d31;
+    color: #fff;
+    text-decoration: none;
+    border-color:#151d31;
+}
+
     </style>
     <!-- Facebook Pixel Code -->
 <script>
@@ -121,13 +139,13 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
     <div class="subblog_cont">
         <h1 class="subblog_head">{{ blog['pageTitle'] }}</h1>
         <div class="time">
-            <span class="textdate" data-timestamp="{{ blog['updatedAt'] }}"></span>
-        </div>        
+            <span class="textdate" data-timestamp="{{ blog['createdAt'] }}" id="created-date"></span>
+        </div>      
         <div class="author">
             <div class="cont_write">
                 <img src="../static/images/logo.png" alt="userimg" class="authimg"></img>
                 <div class="authname">
-                    <div class="nam">Adarsh Mohan Dixit</div>
+                    <div class="nam">Swithen Thomas</div>
                     <div class="rol">Contributing Writer</div>
                 </div>
             </div>
@@ -256,7 +274,7 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
         <div class="author-details">
             <div class="author-header">
                 <span class="author-label">WRITTEN BY :</span>
-                <span class="author-name">Adarsh Mohan Dixit</span>
+                <span class="author-name">Swithen Thomas</span>
             </div>
             <div class="author-content">
                 
@@ -264,8 +282,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 
                 <div class="author-bio">
                     <p>
-                        Adarsh excels in optimizing flexible workspaces to match evolving business needs. As a Flexible Workspace Specialist, he helps asset owners and operators design, structure, and monetize their spaces efficiently. With deep industry insight, he identifies high-demand formats—like hot desks, day passes, and private cabins—to improve occupancy and revenue. His strategies ensure that every square foot works harder, adapts faster, and delivers better ROI in the dynamic coworking landscape.
+                        Swithen Thomas brings a sharp strategic edge to brand positioning and growth marketing. With over a decade of experience in digital campaigns, storytelling, and brand architecture, he has helped scale early-stage startups and legacy businesses alike into recognizable, trust-driven brands.
                     </p>
+                    <p class="updated-date" data-timestamp="{{ blog['updatedAt'] }}" id="updated-date"></p>
                 </div>
             </div>
         </div>
@@ -301,6 +320,9 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
                 </div>
             </div>
             {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="/blog" class="btn btn-outline-primary view-more-button">View More Blogs</a>
         </div>
     </section>
     {% endif %}
@@ -565,6 +587,31 @@ src="https://www.facebook.com/tr?id=3647529905577467&ev=PageView
 </script>
 
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Format created and updated dates
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: '2-digit',
+            });
+        }
+
+        const createdDate = document.getElementById("created-date");
+        const updatedDate = document.getElementById("updated-date");
+
+        if (createdDate) {
+            createdDate.textContent = "Published on: " + formatDate(createdDate.dataset.timestamp);
+        }
+
+        if (updatedDate) {
+            updatedDate.textContent = "Last updated on: " + formatDate(updatedDate.dataset.timestamp);
+        }
+    });
+</script>
+
 
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MX8P4NN6"
