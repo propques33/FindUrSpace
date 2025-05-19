@@ -19,35 +19,6 @@
     {% if blog['canonicalUrl'] %}
         <link rel="canonical" href="{{ blog['canonicalUrl'] }}">
     {% endif %}
-    {% if blog %}
-    <script type="application/ld+json">
-    {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "{{ blog.pageTitle | escape }}",
-    "image": "{{ blog.featuredImage }}",
-    "author": {
-        "@type": "Person",
-        "name": "Adarsh Mohan Dixit"
-    },
-    "publisher": {
-        "@type": "Organization",
-        "name": "FindUrSpace",
-        "logo": {
-        "@type": "ImageObject",
-        "url": "https://findurspace.tech/static/images/logo.png"
-        }
-    },
-    "datePublished": "{{ blog.updatedAt[:10] }}",
-    "dateModified": "{{ blog.updatedAt[:10] }}",
-    "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "{{ request.url }}"
-    },
-    "description": "{{ blog.metaDescription | escape }}"
-    }
-    </script>
-    {% endif %}
 
     <meta property="og:title" content="{{ blog['metaTitle'] or blog['pageTitle'] }}">
     <meta property="og:description" content="{{ blog['metaDescription'] }}">

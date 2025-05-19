@@ -2175,13 +2175,30 @@ def blog_detail(slug):
 
         # ✅ Convert schemaMarkup strings to Python dicts
         import json
+        from datetime import datetime
+        # Convert schemaMarkup strings to Python dicts and patch them
         if blog.get('schemaMarkup'):
-            try:
-                blog['schemaMarkup'] = [json.loads(s) for s in blog['schemaMarkup'] if s.strip()]
-            except json.JSONDecodeError as err:
-                print("Error decoding schemaMarkup:", err)
-                blog['schemaMarkup'] = []
-                
+            parsed_schema = []
+            for s in blog['schemaMarkup']:
+                try:
+                    schema = json.loads(s)
+
+                    # Ensure proper ISO date with timezone (Z)
+                    for field in ['datePublished', 'dateModified']:
+                        if field in schema:
+                            dt = datetime.fromisoformat(schema[field])
+                            schema[field] = dt.isoformat() + 'Z' if 'Z' not in schema[field] else schema[field]
+
+                    # Add author URL if missing
+                    if schema.get('@type') == 'Article' and isinstance(schema.get('author'), dict):
+                        schema['author'].setdefault('url', 'https://www.findurspace.tech/about')
+
+                    parsed_schema.append(schema)
+                except json.JSONDecodeError as err:
+                    print("Error decoding schemaMarkup:", err)
+
+            blog['schemaMarkup'] = parsed_schema
+
         read_time = max(1, round(len(blog['contentBody'].split()) / 200))
 
         # Filter other blogs: not the current one and only if published on Findurspace
