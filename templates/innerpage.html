@@ -2313,12 +2313,208 @@ function generateTimeSlots() {
 // }
 
 // Function to handle purchase submission
+// function submitPurchase() {
+//     let fullName = document.getElementById("fullNameBuy").value;
+//     let email = document.getElementById("emailBuy").value;
+//     let phone = document.getElementById("phoneBuy").value;
+//     let company = document.getElementById("companyBuy").value;
+//     let gstin = document.getElementById("gstinBuy").value; // Capture GSTIN
+//     let selectedDate = document.getElementById("buyNowDate").value;
+//     let selectedTime = document.getElementById("timeSlotDropdown").value;
+//     let today = new Date();
+//     let selected = new Date(selectedDate);
+//     today.setHours(0, 0, 0, 0);
+//     selected.setHours(0, 0, 0, 0);
+
+//     if (selected < today) {
+//       alert("Please select a date from today onward.");
+//       return;
+//     }
+
+//     if (!fullName || !email || !phone || !selectedDate) {
+//         alert("Please fill in all required fields (Name, Email, Phone, Date).");
+//         return;
+//     }
+
+//     // Include selected time if inventory type is "Meeting rooms"
+//     let inventoryType = "{{ inventoryType }}";
+
+//     if (inventoryType === "Meeting rooms" && !selectedTime) {
+//         alert("Please select a time slot for your meeting room booking.");
+//         return;
+//     }
+//     let propertyId = "{{ property['_id'] }}";
+//     let basePrice = totalPrice;
+// let gstAmount = Math.round(basePrice * 0.18);
+// let netPayable = basePrice + gstAmount;
+
+// let discountAmount = 0;
+// if (appliedCoupon === "FLAT100") discountAmount = 100;
+// // Add more coupon logic if needed
+
+// let finalAmount = netPayable - discountAmount;
+
+
+//     // ✅ FIX: Capture latest quantity
+//     passQuantity = parseInt(document.getElementById("passQuantity").innerText);
+
+    
+//     // Step 1: Create Razorpay order
+//     fetch("/create_order", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//             amount: finalAmount,
+//             currency: "INR",
+//             receipt: "order_rcptid_" + new Date().getTime()
+//         })
+//     })
+//     .then(response => response.json())
+//     .then(orderData => {
+//         if (!orderData.success) {
+//             alert("Failed to create order. Try again later.");
+//             return;
+//         }
+
+//         // Step 2: Razorpay Checkout Options
+//         const options = {
+//             key: "{{ razorpay_key }}",
+//             amount: orderData.amount,
+//             currency: orderData.currency,
+//             name: "FindurSpace",
+//             description: "Workspace Booking",
+//             order_id: orderData.id,
+//             prefill: {
+//                 name: fullName,
+//                 email: email,
+//                 contact: phone
+//             },
+//             theme: {
+//                 color: "#3a86ff"
+//             },
+//             handler: function (response) {
+//                 // Step 3: On successful payment, store booking
+//                 const purchaseData = {
+//                     inventoryType: inventoryType,
+//                     quantity: passQuantity,
+//                     totalPrice: finalAmount,
+//                     coupon: appliedCoupon,
+//                     fullName: fullName,
+//                     email: email,
+//                     phone: phone,
+//                     company: company,
+//                     gstin: gstin || null,
+//                     date: selectedDate,
+//                     time: inventoryType === "Meeting rooms" ? selectedTime : null,
+//                     property_id: propertyId,
+//                     razorpay_payment_id: response.razorpay_payment_id,
+//                     razorpay_order_id: response.razorpay_order_id,
+//                     razorpay_signature: response.razorpay_signature,
+//                     status: "Paid"
+//                 };
+
+//                 fetch("/submit_purchase", {
+//                     method: "POST",
+//                     headers: { "Content-Type": "application/json" },
+//                     body: JSON.stringify(purchaseData)
+//                 })
+//                 .then(res => res.json())
+//                 .then(data => {
+//                     if (data.success) {
+//                       closeBuyNowModal();
+//                       localStorage.setItem("showThankYou", "booking");
+
+//                       // Append contact to URL before reload
+//                       const currentUrl = new URL(window.location.href);
+//                       currentUrl.searchParams.set("contact", phone);
+//                       window.location.href = currentUrl.toString();
+//                   }
+//                 })
+//                 .catch(err => {
+//                     console.error("Booking DB Error:", err);
+//                 });
+//             },
+//             modal: {
+//             // ✅ Handle modal close without payment
+//             ondismiss: function () {
+//               const cancelPayload = {
+//                 inventoryType,
+//                 quantity: passQuantity,
+//                 totalPrice: finalAmount,
+//                 fullName,
+//                 email,
+//                 phone,
+//                 company,
+//                 gstin: gstin || null,
+//                 date: selectedDate,
+//                 time: inventoryType === "Meeting Room" ? selectedTime : null,
+//                 property_id: propertyId,
+//                 status: "Exit"
+//               };
+
+//               fetch("/submit_purchase", {
+//                 method: "POST",
+//                 headers: { "Content-Type": "application/json" },
+//                 body: JSON.stringify(cancelPayload)
+//               })
+//               .then(() => {
+//                 console.log("Payment window closed. Booking info saved as exit.");
+//               })
+//               .catch(() => {
+//                 console.log("Failed to save cancelled booking.");
+//               });
+//               }
+//             }
+//         };
+
+//         const rzp = new Razorpay(options);
+        
+//         // ✅ Handle payment failure and store failed booking
+//       rzp.on('payment.failed', function (response) {
+//         const failedPayload = {
+//           inventoryType,
+//           quantity: passQuantity,
+//           totalPrice: finalAmount,
+//           fullName,
+//           email,
+//           phone,
+//           company,
+//           gstin: gstin || null,
+//           date: selectedDate,
+//           time: inventoryType === "Meeting Room" ? selectedTime : null,
+//           property_id: propertyId,
+//           razorpay_payment_id: response.error.metadata.payment_id,
+//           razorpay_order_id: response.error.metadata.order_id,
+//           status: "Failed"
+//         };
+
+//         fetch("/submit_purchase", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(failedPayload)
+//       })
+//       .then(() => {
+//         console.log("Payment failed or was cancelled.");
+//       })
+//       .catch(() => {
+//          console.log("Something went wrong after payment failure.");
+//       });
+//     });
+
+//         rzp.open();
+//     })
+//     .catch(error => {
+//         console.error("Razorpay Order Error:", error);
+//          console.log("Could not initiate payment. Please try again.");
+//     });
+// }
+
 function submitPurchase() {
     let fullName = document.getElementById("fullNameBuy").value;
     let email = document.getElementById("emailBuy").value;
     let phone = document.getElementById("phoneBuy").value;
     let company = document.getElementById("companyBuy").value;
-    let gstin = document.getElementById("gstinBuy").value; // Capture GSTIN
+    let gstin = document.getElementById("gstinBuy").value;
     let selectedDate = document.getElementById("buyNowDate").value;
     let selectedTime = document.getElementById("timeSlotDropdown").value;
     let today = new Date();
@@ -2327,8 +2523,8 @@ function submitPurchase() {
     selected.setHours(0, 0, 0, 0);
 
     if (selected < today) {
-      alert("Please select a date from today onward.");
-      return;
+        alert("Please select a date from today onward.");
+        return;
     }
 
     if (!fullName || !email || !phone || !selectedDate) {
@@ -2336,177 +2532,64 @@ function submitPurchase() {
         return;
     }
 
-    // Include selected time if inventory type is "Meeting rooms"
     let inventoryType = "{{ inventoryType }}";
-
     if (inventoryType === "Meeting rooms" && !selectedTime) {
         alert("Please select a time slot for your meeting room booking.");
         return;
     }
+
     let propertyId = "{{ property['_id'] }}";
     let basePrice = totalPrice;
-let gstAmount = Math.round(basePrice * 0.18);
-let netPayable = basePrice + gstAmount;
+    let gstAmount = Math.round(basePrice * 0.18);
+    let netPayable = basePrice + gstAmount;
 
-let discountAmount = 0;
-if (appliedCoupon === "FLAT100") discountAmount = 100;
-// Add more coupon logic if needed
+    let discountAmount = 0;
+    if (appliedCoupon === "FLAT100") discountAmount = 100;
+    let finalAmount = netPayable - discountAmount;
 
-let finalAmount = netPayable - discountAmount;
-
-
-    // ✅ FIX: Capture latest quantity
     passQuantity = parseInt(document.getElementById("passQuantity").innerText);
 
-    // Step 1: Create Razorpay order
-    fetch("/create_order", {
+    // Direct booking submission without Razorpay
+    const purchaseData = {
+        inventoryType: inventoryType,
+        quantity: passQuantity,
+        totalPrice: finalAmount,
+        coupon: appliedCoupon,
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        company: company,
+        gstin: gstin || null,
+        date: selectedDate,
+        time: inventoryType === "Meeting rooms" ? selectedTime : null,
+        property_id: propertyId,
+        status: "Booked"
+    };
+
+    fetch("/submit_purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            amount: finalAmount,
-            currency: "INR",
-            receipt: "order_rcptid_" + new Date().getTime()
-        })
+        body: JSON.stringify(purchaseData)
     })
-    .then(response => response.json())
-    .then(orderData => {
-        if (!orderData.success) {
-            alert("Failed to create order. Try again later.");
-            return;
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            closeBuyNowModal();
+            localStorage.setItem("showThankYou", "booking");
+
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set("contact", phone);
+            window.location.href = currentUrl.toString();
+        } else {
+            alert("Booking failed. Please try again.");
         }
-
-        // Step 2: Razorpay Checkout Options
-        const options = {
-            key: "{{ razorpay_key }}",
-            amount: orderData.amount,
-            currency: orderData.currency,
-            name: "FindurSpace",
-            description: "Workspace Booking",
-            order_id: orderData.id,
-            prefill: {
-                name: fullName,
-                email: email,
-                contact: phone
-            },
-            theme: {
-                color: "#3a86ff"
-            },
-            handler: function (response) {
-                // Step 3: On successful payment, store booking
-                const purchaseData = {
-                    inventoryType: inventoryType,
-                    quantity: passQuantity,
-                    totalPrice: finalAmount,
-                    coupon: appliedCoupon,
-                    fullName: fullName,
-                    email: email,
-                    phone: phone,
-                    company: company,
-                    gstin: gstin || null,
-                    date: selectedDate,
-                    time: inventoryType === "Meeting rooms" ? selectedTime : null,
-                    property_id: propertyId,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
-                    status: "Paid"
-                };
-
-                fetch("/submit_purchase", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(purchaseData)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                      closeBuyNowModal();
-                      localStorage.setItem("showThankYou", "booking");
-
-                      // Append contact to URL before reload
-                      const currentUrl = new URL(window.location.href);
-                      currentUrl.searchParams.set("contact", phone);
-                      window.location.href = currentUrl.toString();
-                  }
-                })
-                .catch(err => {
-                    console.error("Booking DB Error:", err);
-                });
-            },
-            modal: {
-            // ✅ Handle modal close without payment
-            ondismiss: function () {
-              const cancelPayload = {
-                inventoryType,
-                quantity: passQuantity,
-                totalPrice: finalAmount,
-                fullName,
-                email,
-                phone,
-                company,
-                gstin: gstin || null,
-                date: selectedDate,
-                time: inventoryType === "Meeting Room" ? selectedTime : null,
-                property_id: propertyId,
-                status: "Exit"
-              };
-
-              fetch("/submit_purchase", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(cancelPayload)
-              })
-              .then(() => {
-                console.log("Payment window closed. Booking info saved as exit.");
-              })
-              .catch(() => {
-                console.log("Failed to save cancelled booking.");
-              });
-              }
-            }
-        };
-
-        const rzp = new Razorpay(options);
-        
-        // ✅ Handle payment failure and store failed booking
-      rzp.on('payment.failed', function (response) {
-        const failedPayload = {
-          inventoryType,
-          quantity: passQuantity,
-          totalPrice: finalAmount,
-          fullName,
-          email,
-          phone,
-          company,
-          gstin: gstin || null,
-          date: selectedDate,
-          time: inventoryType === "Meeting Room" ? selectedTime : null,
-          property_id: propertyId,
-          razorpay_payment_id: response.error.metadata.payment_id,
-          razorpay_order_id: response.error.metadata.order_id,
-          status: "Failed"
-        };
-
-        fetch("/submit_purchase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(failedPayload)
-      })
-      .then(() => {
-        console.log("Payment failed or was cancelled.");
-      })
-      .catch(() => {
-         console.log("Something went wrong after payment failure.");
-      });
-    });
-
-        rzp.open();
     })
     .catch(error => {
-        console.error("Razorpay Order Error:", error);
-         console.log("Could not initiate payment. Please try again.");
+        console.error("Booking Error:", error);
+        alert("An error occurred. Please try again.");
     });
 }
+
 
 // Function to show Thank You Modal
 // function showThankYouModal() {
