@@ -21,13 +21,13 @@ app.config['SESSION_TYPE'] = 'filesystem'  # Stores session on server
 app.config['SESSION_PERMANENT'] = False  # Session expires after browser close
 app.config['SESSION_USE_SIGNER'] = True  # Signs session cookies for security
 # Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_SERVER'] = 'smtp.zoho.in'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'findurspace1@gmail.com'
+app.config['MAIL_USERNAME'] = 'sales@nextmovein.com'
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')  # Fetch from environment variable
-app.config['MAIL_DEFAULT_SENDER'] = 'findurspace1@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'sales@nextmovein.com'
 app.config['GOOGLE_CLIENT_ID'] = os.environ.get('GOOGLE_CLIENT_ID')
 app.config['GOOGLE_CLIENT_SECRET'] = os.environ.get('GOOGLE_CLIENT_SECRET')
 app.config['API_KEY'] = os.environ.get('API_KEY')

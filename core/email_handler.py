@@ -300,3 +300,144 @@ def send_email_and_whatsapp_with_pdf1(to_email, name, contact, properties):
         print(f"Failed to send email and WhatsApp: {e}")
         return False, str(e)
 
+def send_booking_confirmation_email(booking, user_email):
+    mail = current_app.extensions['mail'] if hasattr(current_app, 'extensions') and 'mail' in current_app.extensions else mail
+    first_name = booking.get('user_name', 'User').split(' ')[0]
+    workspace_name = booking.get('property_name') or booking.get('coworking_name', 'Workspace')
+    address = booking.get('address', booking.get('property_address', ''))
+    date = booking.get('date') or booking.get('created_at')
+    start_time = booking.get('start_time') or (booking.get('time_slots')[0] if booking.get('time_slots') else None)
+    end_time = booking.get('end_time') or (booking.get('time_slots')[-1] if booking.get('time_slots') and len(booking.get('time_slots')) > 1 else None)
+    amount = booking.get('total_amount')
+    booking_type = booking.get('booking_type', '').lower()
+    capacity = booking.get('selected_room', {}).get('room_capacity') if booking.get('selected_room') else None
+
+    # Format date as dd/mm/yyyy
+    formatted_date = date
+    try:
+        from datetime import datetime
+        if date and ("T" in str(date) or "-" in str(date) or "/" in str(date)):
+            if isinstance(date, str):
+                parsed_date = datetime.fromisoformat(date.replace('Z', '').replace('T', ' ').split(' ')[0])
+            else:
+                parsed_date = date
+            formatted_date = parsed_date.strftime('%d/%m/%Y')
+    except Exception as e:
+        formatted_date = date
+
+    booking_details = []
+    if address:
+        booking_details.append(f'<li>📍 <b>Location:</b> {address}</li>')
+    if formatted_date:
+        booking_details.append(f'<li>📅 <b>Date:</b> {formatted_date}</li>')
+    if start_time and end_time and start_time not in ['-', None, ''] and end_time not in ['-', None, '']:
+        booking_details.append(f'<li>🕘 <b>Time:</b> {start_time} – {end_time}</li>')
+    if capacity:
+        booking_details.append(f'<li>👥 <b>Capacity:</b> {capacity}</li>')
+    if amount:
+        booking_details.append(f'<li>💳 <b>Amount Paid:</b> ₹{amount}</li>')
+    details_html = '\n'.join(booking_details)
+
+    if booking_type == 'day pass':
+        subject = "Your Day Pass is Confirmed! ✅"
+        intro = f"Your day pass at <b>{workspace_name}</b> is confirmed!"
+    else:
+        subject = "Your Meeting Room is Booked 🗓️"
+        intro = f"Your meeting room at <b>{workspace_name}</b> is confirmed!"
+
+    body = f'''
+      <h2 style="color: #2563eb; font-size: 22px; margin-bottom: 10px; text-align: center;">Hi {first_name},</h2>
+      <p style="font-size: 16px; color: #22223b; margin-bottom: 16px; text-align: center;">{intro}</p>
+      <div style="background: #f8fafc; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+        <h3 style="color: #2563eb; font-size: 18px; margin-bottom: 12px; text-align: left;">Booking Details:</h3>
+        <ul style="list-style: none; padding: 0; font-size: 16px; color: #22223b; margin: 0;">
+          {details_html}
+        </ul>
+      </div>
+      <div style="background: #f6fafd; border-left: 4px solid #2563eb; padding: 16px 20px; margin: 32px 0 16px 0; border-radius: 8px; font-size: 15px; color: #1e293b;">
+        <span style="font-weight: 500; color: #2563eb;">Note:</span>
+        Your booking is <b>confirmed</b>.<br>
+        We look forward to hosting you!
+      </div>
+      <p style="font-size: 16px; color: #22223b; margin-bottom: 8px; text-align: center;">Thanks<br>Team NextMovein</p>
+    '''
+    html = body
+    message = Message(subject=subject, recipients=[user_email], html=html, sender="sales@nextmovein.com")
+    try:
+        mail.send(message)
+        print(f"[DEBUG] Confirmation email sent to {user_email}")
+        return True, None
+    except Exception as e:
+        print(f"[ERROR] Failed to send confirmation email: {e}")
+        return False, str(e)
+
+def send_booking_declined_email(booking, user_email):
+    mail = current_app.extensions['mail'] if hasattr(current_app, 'extensions') and 'mail' in current_app.extensions else mail
+    first_name = booking.get('user_name', 'User').split(' ')[0]
+    workspace_name = booking.get('property_name') or booking.get('coworking_name', 'Workspace')
+    address = booking.get('address', booking.get('property_address', ''))
+    date = booking.get('date') or booking.get('created_at')
+    start_time = booking.get('start_time') or (booking.get('time_slots')[0] if booking.get('time_slots') else None)
+    end_time = booking.get('end_time') or (booking.get('time_slots')[-1] if booking.get('time_slots') and len(booking.get('time_slots')) > 1 else None)
+    amount = booking.get('total_amount')
+    booking_type = booking.get('booking_type', '').lower()
+    capacity = booking.get('selected_room', {}).get('room_capacity') if booking.get('selected_room') else None
+
+    # Format date as dd/mm/yyyy
+    formatted_date = date
+    try:
+        from datetime import datetime
+        if date and ("T" in str(date) or "-" in str(date) or "/" in str(date)):
+            if isinstance(date, str):
+                parsed_date = datetime.fromisoformat(date.replace('Z', '').replace('T', ' ').split(' ')[0])
+            else:
+                parsed_date = date
+            formatted_date = parsed_date.strftime('%d/%m/%Y')
+    except Exception as e:
+        formatted_date = date
+
+    booking_details = []
+    if address:
+        booking_details.append(f'<li>📍 <b>Location:</b> {address}</li>')
+    if formatted_date:
+        booking_details.append(f'<li>📅 <b>Date:</b> {formatted_date}</li>')
+    if start_time and end_time and start_time not in ['-', None, ''] and end_time not in ['-', None, '']:
+        booking_details.append(f'<li>🕘 <b>Time:</b> {start_time} – {end_time}</li>')
+    if capacity:
+        booking_details.append(f'<li>👥 <b>Capacity:</b> {capacity}</li>')
+    if amount:
+        booking_details.append(f'<li>💳 <b>Amount:</b> ₹{amount}</li>')
+    details_html = '\n'.join(booking_details)
+
+    if booking_type == 'day pass':
+        subject = "Your Day Pass Booking Was Declined"
+        intro = f"Unfortunately, your day pass booking at <b>{workspace_name}</b> could not be confirmed."
+    else:
+        subject = "Your Meeting Room Booking Was Declined"
+        intro = f"Unfortunately, your meeting room booking at <b>{workspace_name}</b> could not be confirmed."
+
+    body = f'''
+      <h2 style="color: #dc2626; font-size: 22px; margin-bottom: 10px; text-align: center;">Hi {first_name},</h2>
+      <p style="font-size: 16px; color: #b91c1c; margin-bottom: 16px; text-align: center;">{intro}</p>
+      <div style="background: #fef2f2; border-radius: 12px; padding: 20px; margin-bottom: 24px; border: 1px solid #fecaca;">
+        <h3 style="color: #dc2626; font-size: 18px; margin-bottom: 12px; text-align: left;">Booking Details:</h3>
+        <ul style="list-style: none; padding: 0; font-size: 16px; color: #991b1b; margin: 0;">
+          {details_html}
+        </ul>
+      </div>
+      <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 16px 20px; margin: 32px 0 16px 0; border-radius: 8px; font-size: 15px; color: #991b1b;">
+        <span style="font-weight: 500; color: #dc2626;">Note:</span>
+        Your booking request was declined. If you have any questions or would like to try booking another workspace, please contact our support team.
+      </div>
+      <p style="font-size: 16px; color: #991b1b; margin-bottom: 8px; text-align: center;">Thanks<br>Team NextMovein</p>
+    '''
+    html = body
+    message = Message(subject=subject, recipients=[user_email], html=html, sender="sales@nextmovein.com")
+    try:
+        mail.send(message)
+        print(f"[DEBUG] Declined email sent to {user_email}")
+        return True, None
+    except Exception as e:
+        print(f"[ERROR] Failed to send declined email: {e}")
+        return False, str(e)
+

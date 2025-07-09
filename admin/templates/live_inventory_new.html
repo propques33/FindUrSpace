@@ -1,22 +1,3 @@
-{% macro format_datetime(dt) %}
-    {%- if dt -%}
-        {%- set dt_str = dt|string -%}
-        {%- set date_part = dt_str.split('T')[0] if 'T' in dt_str else dt_str[:10] -%}
-        {%- set time_part = dt_str.split('T')[1][:8] if 'T' in dt_str else dt_str[11:19] -%}
-        {%- set y = date_part[0:4] -%}
-        {%- set m = date_part[5:7] -%}
-        {%- set d = date_part[8:10] -%}
-        {%- set hour = time_part[0:2]|int -%}
-        {%- set minute = time_part[3:5] -%}
-        {%- set second = time_part[6:8] -%}
-        {%- set ampm = 'am' if hour < 12 else 'pm' -%}
-        {%- set hour12 = hour if hour == 0 or hour == 12 else hour % 12 -%}
-        {%- if hour12 == 0 -%}{% set hour12 = 12 %}{% endif %}
-        {{ d }}/{{ m }}/{{ y }}, {{ '%02d' % hour12 }}:{{ minute }}:{{ second }} {{ ampm }}
-    {%- else -%}
-        N/A
-    {%- endif -%}
-{% endmacro %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -802,7 +783,7 @@ thead th {
 
                 let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&inventory_type=${encodeURIComponent(selectedInventoryType)}&workspace_type=${encodeURIComponent(workspaceType)}`;
 
-                fetch(`/admin/fetch_coworking_inventory?${query}`)
+                fetch(`/admin/fetch_coworking_inventory_new?${query}`)
                     .then(response => response.json())
                     .then(data => {
                         inventoryData = data.spaces; // Store the fetched data
@@ -1205,7 +1186,6 @@ function displayCoworkingModal(space) {
         <p><strong>Micromarket:</strong> ${space.micromarket}</p>
         <p><strong>Address:</strong> ${space.address}</p>
         <p><strong>Available Seats:</strong> ${space.current_vacancy}</p>
-        <p><strong>Total Seats:</strong> ${space.total_seats || 'N/A'}</p>
 
         <h3>Description</h3>
         <p>${space.space_description || 'N/A'}</p>

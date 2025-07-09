@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta description="List your property effortlessly on Findurspace. Reach potential tenants quickly with our easy-to-use platform for commercial and residential spaces.">
     <link rel="canonical" href="https://findurspace.tech/list-your-space" />
-    <title>List Your Coworking Space – Join India’s Leading Workspace Platform</title>
+    <title>List Your Coworking Space – Join India's Leading Workspace Platform</title>
     <link rel="icon" href="../static/images/Asset 6.png" type="image/x-icon">
 
     <!-- Schema Markup for Organization -->
@@ -61,27 +61,27 @@
     }
 
     .add-space-button{
-        background-color: #151d31;
+        background-color: #187ccc;
         color:white;
         padding:8px 15px;
         font-weight: 700;
-        border:2px solid #151d31;
+        border:2px solid #187ccc;
     }
 
     .add-space-button:hover{
         background-color: white;
-        color:#151d31;
-        border:2px solid #151d31;
+        color:#187ccc;
+        border:2px solid #187ccc;
         padding:8px 15px;
         font-weight: 700;
     }
 
     .add-space-button:active{
-        background-color: #151d31;
+        background-color: #187ccc;
         color:white;
         padding:8px 15px;
         font-weight: 700;
-        border:2px solid #151d31;
+        border:2px solid #187ccc;
     }
 
     .submit-btn{
@@ -91,11 +91,11 @@
 
     .card {
         margin-bottom: 40px;
-        border:2px solid #151d31;
+        border:2px solid #187ccc;
         border-radius: 15px;
     }
     .card-header{
-        background-color: #151d31;
+        background-color: #187ccc;
         color:white;
         border-radius: 15px;
         font-weight: 600;
@@ -335,7 +335,7 @@
 
     /* Current Location Button Styling */
     .current-location-btn {
-        background-color: #151d31;
+        background-color: #187ccc;
         color: white;
         font-weight: bold;
         border: 2px solid white;
@@ -433,7 +433,7 @@
 }
 
 .head{
-    color:#151d31;
+    color:#187ccc;
     display: block;
     padding:6px 15px;
     font-weight: 700;
@@ -483,7 +483,7 @@ body {
 
 
 .card-header {
-    background-color: #151d31;
+    background-color: #187ccc;
     color: #fff;
     border-radius: 15px;
     font-weight: 700;
@@ -503,10 +503,10 @@ body {
 .centered-button {
     display: block;
     width:100%;
-    border:2px solid #151d31;
+    border:2px solid #187ccc;
     border-radius: 5px;
     font-size: 18px;
-    background-color: #151d31;
+    background-color: #187ccc;
     color: white;
     border: none;
     cursor: pointer;
@@ -515,8 +515,8 @@ body {
 
 .centered-button:hover {
     background-color: white;
-    color:#151d31;
-    border:2px solid #151d31;
+    color:#187ccc;
+    border:2px solid #187ccc;
     font-weight: 600;;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -547,7 +547,7 @@ label {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #151d31;
+    color: #187ccc;
     margin-bottom: 15px;
     font-weight: 700;
 }
@@ -1333,11 +1333,19 @@ function toggleManagedOfficeInputMode(spaceId) {
                         <select class="form-select" id="workspace_type_${spaceCount}" name="workspace_type[]" required
                             data-parsley-required-message="Please select the workspace type."
                             data-parsley-trigger="change" aria-label="Choose Workspace Type"
-                            onchange="toggleWorkspaceTypeFields(${spaceCount})">
+                            onchange="toggleWorkspaceTypeFields(${spaceCount}); toggleTotalSeatsField(${spaceCount});">
                             <option value="" disabled ${!workspaceType ? 'selected' : ''}>Choose Workspace Type</option>
                             <option value="Coworking Spaces" ${workspaceType === 'Coworking Spaces' ? 'selected' : ''}>Coworking Spaces</option>
                             <option value="Managed Offices" ${workspaceType === 'Managed Offices' ? 'selected' : ''}>Managed Offices</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Total Seats Field (only for Coworking Spaces) -->
+                <div class="form-group mb-3" id="total_seats_container_${spaceCount}" style="display:none;">
+                    <div class="mb-3 w-100">
+                        <label for="total_seats_${spaceCount}" class="form-label">Total Seats *</label>
+                        <input type="number" class="form-control" id="total_seats_${spaceCount}" name="total_seats[]" min="1" placeholder="Enter total seats" value="${total_seats}" required data-parsley-required-message="Please enter total seats." data-parsley-type="digits" data-parsley-trigger="change">
                     </div>
                 </div>
 
@@ -3457,6 +3465,30 @@ function getCurrentLocation(spaceId) {
         alert("Geolocation is not supported by this browser.");
     }
 }
+
+function toggleTotalSeatsField(spaceId) {
+    const workspaceTypeDropdown = document.getElementById(`workspace_type_${spaceId}`);
+    const totalSeatsContainer = document.getElementById(`total_seats_container_${spaceId}`);
+    if (workspaceTypeDropdown && totalSeatsContainer) {
+        if (workspaceTypeDropdown.value === "Coworking Spaces") {
+            totalSeatsContainer.style.display = "block";
+            document.getElementById(`total_seats_${spaceId}`).setAttribute('required', 'true');
+        } else {
+            totalSeatsContainer.style.display = "none";
+            document.getElementById(`total_seats_${spaceId}`).removeAttribute('required');
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    // ... existing code ...
+    // Show/hide total seats field on load (for edit mode)
+    setTimeout(() => {
+        for (let i = 1; i <= spaceCount; i++) {
+            toggleTotalSeatsField(i);
+        }
+    }, 0);
+});
 
 </script>
 <script>

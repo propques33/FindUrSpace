@@ -107,6 +107,7 @@
             <!-- <li><a href="{{ url_for('admin.listings') }}"><i class="fas fa-building"></i><span>Listings</span></a></li> -->
             <li><a href="{{ url_for('admin.leads_dashboard') }}"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
             <li><a href="{{ url_for('admin.live_inventory') }}"><i class="fas fa-clipboard-list"></i><span>Coworking Space Inventory</span></a></li>
+            <li><a href="{{ url_for('admin.live_inventory_new') }}"><i class="fas fa-clipboard-list"></i><span>Coworking Space Inventory New</span></a></li>
             <li><a href="{{ url_for('admin.managed_inventory') }}"><i class="fas fa-clipboard-list"></i><span>Sqft Wise Inventory</span></a></li>
             <li><a href="{{ url_for('admin.managed_inventory_seats') }}"><i class="fas fa-chair"></i><span>Seat Wise Inventory</span></a></li>
             {% if session['role'] != 'listing' and session['role'] != 'client' %}

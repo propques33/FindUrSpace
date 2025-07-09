@@ -1,32 +1,12 @@
-{% macro format_datetime(dt) %}
-    {%- if dt -%}
-        {%- set dt_str = dt|string -%}
-        {%- set date_part = dt_str.split('T')[0] if 'T' in dt_str else dt_str[:10] -%}
-        {%- set time_part = dt_str.split('T')[1][:8] if 'T' in dt_str else dt_str[11:19] -%}
-        {%- set y = date_part[0:4] -%}
-        {%- set m = date_part[5:7] -%}
-        {%- set d = date_part[8:10] -%}
-        {%- set hour = time_part[0:2]|int -%}
-        {%- set minute = time_part[3:5] -%}
-        {%- set second = time_part[6:8] -%}
-        {%- set ampm = 'am' if hour < 12 else 'pm' -%}
-        {%- set hour12 = hour if hour == 0 or hour == 12 else hour % 12 -%}
-        {%- if hour12 == 0 -%}{% set hour12 = 12 %}{% endif %}
-        {{ d }}/{{ m }}/{{ y }}, {{ '%02d' % hour12 }}:{{ minute }}:{{ second }} {{ ampm }}
-    {%- else -%}
-        N/A
-    {%- endif -%}
-{% endmacro %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coworking Live Inventory</title>
+    <title>Managed Office Sqft</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
     <link rel="icon" href="../../static/images/data-analytics.png" type="image/x-icon">
     <style>
-        
         html, body {
             margin: 0;
             padding: 0;
@@ -37,10 +17,6 @@
             flex-direction: column;
             font-family: Arial, sans-serif;
         }
-        #record-count:hover {
-    background-color: #d0e3f5;
-    cursor: default;
-}
         .content {
             flex: 1;
             overflow-y: auto;
@@ -291,135 +267,14 @@ thead th {
         .upload-btn:hover {
             background-color: darkgreen; /* Darker green on hover */
         }
-
-        #inventory-selection-modal select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-}
-
-#inventory-selection-modal .send-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-#inventory-selection-modal .send-btn:hover {
-    background-color: #0056b3;
-}
-
-/* Status label styles */
-.status-label {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 13px;
-    display: inline-block;
-    text-transform: capitalize;
-}
-.status-label.pending {
-    background-color: #fdd;
-    color: #c00;
-}
-.status-label.approved {
-    background-color: #d4edda;
-    color: #155724;
-}
-.status-label.edit-required {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-/* Action buttons */
-.approve-btn {
-    background-color: green;
-    color: white;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 13px;
-    cursor: pointer;
-}
-.edit-btn {
-    background-color: #ffc107;
-    color: white;
-    padding: 6px 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-
     </style>
 </head>
 <body>
-    <!-- Modal for Edit Required Feedback -->
-<div id="edit-feedback-modal" class="modal1">
-    <button class="close-btn" onclick="closeEditFeedbackModal()">&times;</button>
-    <h3>Reason for Edit Required</h3>
-    <form id="edit-feedback-form">
-        <textarea id="edit-feedback-text" rows="4" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;" placeholder="Describe what needs to be edited..." required></textarea>
-        <input type="hidden" id="edit-feedback-property-id">
-        <button type="submit" class="send-btn">Submit</button>
-    </form>
-</div>
-
     {% include 'navigation.html' %}
 
-    <div id="inventory-selection-modal" class="modal1">
-        <button class="close-btn" onclick="closeInventoryModal()">&times;</button>
-        <h3>Select Inventory</h3>
-        <form id="inventory-selection-form">
-            <label for="inventory-type-select">Inventory Type:</label>
-            <select id="inventory-type-select" required>
-                <option value="">Select Inventory Type</option>
-            </select>
-
-            <div id="seating-capacity-div" style="display: none;">
-                <label for="seating-capacity-select">Seating Capacity:</label>
-                <select id="seating-capacity-select">
-                    <option value="">Select Seating Capacity</option>
-                </select>
-            </div>
-
-            <button type="submit" class="send-btn" style="margin-top: 15px;">Redirect</button>
-        </form>
-    </div>
-
-
     <div class="content">
-        <h1>Coworking Live Inventory</h1>
-        <div id="record-count-container" style="
-    display: flex;
-    justify-content: flex-end;
-    margin-top: -10px;
-    margin-bottom: 10px;
-">
-    <div id="record-count" style="
-        background-color: #f0f4f8;
-        color: #333;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-    ">
-        <!-- JS will inject content here -->
-    </div>
-</div>
-
-
+        <h1>Managed Office Sqft</h1>
+        <p id="record-count" style="margin-top: -10px; font-weight: 500;"></p>
 
         <!-- Filter Form -->
     <form id="filter-form" method="GET">
@@ -434,18 +289,32 @@ thead th {
             <option value="">Select Micromarket</option>
         </select>
 
-        <!-- New Inventory Type Dropdown -->
-    <select id="inventory-type" name="inventory_type">
-        <option value="">Select Inventory Type</option>
-        <option value="Conference rooms">Conference rooms</option>
-        <option value="Coworking space">Coworking space</option>
-        <option value="Day pass">Day pass</option>
-        <option value="Dedicated desk">Dedicated desk</option>
-        <option value="Meeting rooms">Meeting rooms</option>
-        <option value="Private cabins">Private cabins</option>
-        <option value="Serviced offices">Serviced offices</option>
-        <option value="Virtual office">Virtual office</option>
-    </select>
+        <!-- Building Area Filter -->
+<select id="building-area" name="building_area">
+    <option value="">Building Area</option>
+    <option value="0-2000">0–2000 sqft</option>
+    <option value="2000-5000">2000–5000 sqft</option>
+    <option value="5000-10000">5000–10000 sqft</option>
+    <option value="10000-1000000">10000+ sqft</option>
+</select>
+
+<!-- Rental Expectation Filter -->
+<select id="rental-range" name="rental_range">
+    <option value="">Rental Expectation</option>
+    <option value="0-10000">0–10,000</option>
+    <option value="10000-30000">10,000–30,000</option>
+    <option value="30000-50000">30,000–50,000</option>
+    <option value="50000-50000000">50,000+</option>
+</select>
+
+<!-- Seating Capacity Filter -->
+<select id="seating-range" name="seating_range" style="display: none;">
+    <option value="">Seating Capacity</option>
+    <option value="0-50">0–50</option>
+    <option value="50-100">50–100</option>
+    <option value="100-200">100–200</option>
+    <option value="200-200000">200+</option>
+</select>
     </form>
 
         <div class="table-container">
@@ -454,23 +323,21 @@ thead th {
                     <tr>
                         <th>Select</th>
                         <th>Date</th>
-                        <th>Coworking Name</th>
+                        <th>Building Name</th>
                         <th id="sort-city">Micromarket,City</th>
-                        <th>Total Seats</th>
-                        <th>Available Seats</th>
                         {% if role != 'client' %}
-                            <th>Contact Number</th>
+                            <th>Contact</th>
                         {% endif %}
-                        <th>Day Pass</th>
-                        <th>Meeting Rooms</th>
-                        <th>Private Cabin</th>
-                        <th>Dedicated Desk</th>
+                        <!-- <th>Total Seats</th> -->
+                        <th>Total Building Area (sqft)</th>
+                        <th>Super Area Rental Expectation </th>
+                        <th>Rental / Super area sqft</th>
+                        <th>Carpet Area Rental Expectation </th>
+                        <th>Rental / Carpet area sqft</th>
+                        <th>Security Deposit</th>
+                        <th>Furnishing Level</th>
+                        <th>Min Inventory Unit</th>
                         <th>Details</th>
-                        <th>Redirect</th>
-                        {% if role != 'client' %}
-                            <th>Status</th>
-                            <th>Action</th>
-                        {% endif %}
                         <!-- <th>Actions</th> 
                         <th>Agreement Status</th> 
                         <th>Delete</th> -->
@@ -549,6 +416,7 @@ thead th {
 
     <script>
         let inventoryData = []; // Store the fetched data for sorting
+        const userRole = "{{ role }}";
 
         document.addEventListener('DOMContentLoaded', function () {
             const cityDropdown = document.getElementById('city');
@@ -566,121 +434,12 @@ thead th {
             const uploadForm = document.getElementById('upload-form');
             const fileInput = document.getElementById('file-input');
             const propertyIdInput = document.getElementById('property-id');
-            // Step 2: Edit Required Modal Elements
-            const editFeedbackModal = document.getElementById('edit-feedback-modal');
-            const editFeedbackForm = document.getElementById('edit-feedback-form');
-            const editFeedbackText = document.getElementById('edit-feedback-text');
-            const editFeedbackPropertyId = document.getElementById('edit-feedback-property-id');
-
-            function openEditFeedbackModal(propertyId) {
-                editFeedbackPropertyId.value = propertyId;
-                editFeedbackText.value = '';
-                editFeedbackModal.classList.add('show');
-            }
-
-            function closeEditFeedbackModal() {
-                editFeedbackModal.classList.remove('show');
-            }
-
-            // 👇 This is what makes the inline `onclick="..."` work
-            window.closeEditFeedbackModal = closeEditFeedbackModal;
-
             const closeUploadModalBtn = uploadModal.querySelector('.close-btn');
             const deleteModal = document.getElementById('delete-modal');
             const deleteForm = document.getElementById('delete-form');
             const deleteConfirmationInput = document.getElementById('delete-confirmation');
             const deletePropertyIdInput = document.getElementById('delete-property-id');
             const closeDeleteModalButton = deleteModal.querySelector('.close-btn');
-            const inventorySelectionModal = document.getElementById('inventory-selection-modal');
-            const inventoryTypeSelect = document.getElementById('inventory-type-select');
-            const seatingCapacityDiv = document.getElementById('seating-capacity-div');
-            const seatingCapacitySelect = document.getElementById('seating-capacity-select');
-            let selectedInventoryData = {};  // store clicked space
-
-            // Open Inventory Selection Modal
-            function openInventoryModal(space) {
-                selectedInventoryData = space; // Store space data
-
-                // Reset
-                inventoryTypeSelect.innerHTML = `<option value="">Select Inventory Type</option>`;
-                seatingCapacityDiv.style.display = 'none';
-                seatingCapacitySelect.innerHTML = `<option value="">Select Seating Capacity</option>`;
-
-                // Populate inventory types
-                const inventoryTypes = (space.inventory || []).map(item => item.type);
-                const uniqueTypes = [...new Set(inventoryTypes)];
-
-                uniqueTypes.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type;
-                    option.text = type;
-                    inventoryTypeSelect.appendChild(option);
-                });
-
-                inventorySelectionModal.classList.add('show');
-            }
-
-            // Close modal
-            function closeInventoryModal() {
-                inventorySelectionModal.classList.remove('show');
-            }
-
-            
-
-            // When inventory type changes
-            inventoryTypeSelect.addEventListener('change', function () {
-                const selectedType = inventoryTypeSelect.value;
-
-                if (selectedType === 'Private cabin' || selectedType === 'Meeting rooms') {
-                    // Show seating capacity options
-                    seatingCapacityDiv.style.display = 'block';
-                    seatingCapacitySelect.innerHTML = `<option value="">Select Seating Capacity</option>`;
-
-                    const inventoryItem = (selectedInventoryData.inventory || []).find(item => item.type === selectedType);
-
-                    if (inventoryItem && inventoryItem.room_details) {
-                        inventoryItem.room_details.forEach((room, index) => {
-                            const option = document.createElement('option');
-                            option.value = room.seating_capacity;
-                            option.text = `Room ${room.room_number || (index + 1)} - ${room.seating_capacity} Seater`;
-                            seatingCapacitySelect.appendChild(option);
-                        });
-                    }
-                } else {
-                    seatingCapacityDiv.style.display = 'none';
-                }
-            });
-
-            // Handle form submit
-            document.getElementById('inventory-selection-form').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const inventoryType = inventoryTypeSelect.value;
-                const seatingCapacity = seatingCapacitySelect.value;
-
-                if (!inventoryType) {
-                    alert('Please select Inventory Type');
-                    return;
-                }
-
-                if ((inventoryType === 'Private cabin' || inventoryType === 'Meeting rooms') && !seatingCapacity) {
-                    alert('Please select Seating Capacity');
-                    return;
-                }
-
-                const city = encodeURIComponent(selectedInventoryData.city || '');
-                const micromarket = encodeURIComponent(selectedInventoryData.micromarket || '');
-                const coworking_name = encodeURIComponent(selectedInventoryData.coworking_name || '');
-
-                let redirectUrl = `/flexspace/${city}/${micromarket}/${coworking_name}?inventoryType=${encodeURIComponent(inventoryType)}`;
-
-                if (inventoryType === 'Private cabin' || inventoryType === 'Meeting rooms') {
-                    redirectUrl += `&seating=${encodeURIComponent(seatingCapacity.match(/\d+/)[0])}`;
-                }
-
-                // ✅ USE THIS INSTEAD:
-                window.open(redirectUrl, '_blank');
-
-            });
 
             // Open delete modal function
             function openDeleteModal(propertyId) {
@@ -795,14 +554,16 @@ thead th {
             let isAsc = true; // Track sorting order
             
             function fetchInventory() {
-                const workspaceType = 'Coworking Spaces';
+                const workspaceType = 'Managed Offices';
                 const selectedCity = cityDropdown.value || ''; // Default to empty if no value
                 const selectedMicromarket = micromarketDropdown.value || '';
-                const selectedInventoryType = document.getElementById('inventory-type').value || '';
+                const buildingArea = document.getElementById('building-area').value;
+                const rentalRange = document.getElementById('rental-range').value;
+                const seatingRange = document.getElementById('seating-range').value;
 
-                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&inventory_type=${encodeURIComponent(selectedInventoryType)}&workspace_type=${encodeURIComponent(workspaceType)}`;
+                let query = `city=${encodeURIComponent(selectedCity)}&micromarket=${encodeURIComponent(selectedMicromarket)}&workspace_type=${encodeURIComponent(workspaceType)}&building_area=${buildingArea}&rental_range=${rentalRange}&seating_range=${seatingRange}`;
 
-                fetch(`/admin/fetch_coworking_inventory?${query}`)
+                fetch(`/admin/fetch_inventory?${query}`)
                     .then(response => response.json())
                     .then(data => {
                         inventoryData = data.spaces; // Store the fetched data
@@ -812,8 +573,7 @@ thead th {
             }
 
             function renderTable(data) {
-                document.getElementById('record-count').textContent = `${data.length} Record${data.length !== 1 ? 's' : ''} Found`;
-
+                document.getElementById('record-count').textContent = `${data.length} record(s) found`;
                 tableBody.innerHTML = '';  // Clear previous entries
 
                 data.forEach(space => {
@@ -827,53 +587,25 @@ thead th {
                         ? '<span style="color: green;">Completed</span>'
                         : '<span style="color: red;">Pending</span>';
 
-                    // Inventory details formatted
-                    let inventoryHTML = '';
-                    space.inventory?.forEach(item => {
-                        if (item.type === 'Private cabin' || item.type === 'Meeting rooms') {
-                            item.room_details?.forEach(room => {
-                                inventoryHTML += `<div>${item.type} - ${room.seating_capacity} seater @ ₹${room.price}</div>`;
-                            });
-                        } else {
-                            inventoryHTML += `<div>${item.type} - ${item.count} seats @ ₹${item.price_per_seat}</div>`;
-                        }
-                    });
+                    const superAreaRental = space.total_rental || 'N/A';
+                    const carpetAreaRental = space.rental_per_sqft || 'N/A';
 
-                    const getInventoryDetails = (type) => {
-    const item = (space.inventory || []).find(i => i.type === type);
-    if (!item) return 'N/A';
+                    const rentalPerSuperSqft = (space.total_rental && space.total_building_area)
+                        ? (space.total_rental / space.total_building_area).toFixed(2)
+                        : 'N/A';
 
-    // Label logic
-    let label = '';
-    switch (type) {
-        case 'Day pass':
-            label = '/seat/day';
-            break;
-        case 'Dedicated desk':
-        case 'Private cabin':
-        case 'Serviced offices':
-            label = '/seat/month';
-            break;
-        case 'Virtual office':
-            label = '/year';
-            break;
-        case 'Meeting rooms':
-            label = '/hour';
-            break;
-        default:
-            label = '';
-    }
+                    const rentalPerCarpetSqft = (space.total_rental && space.floorplate_area)
+                        ? (space.total_rental / space.floorplate_area).toFixed(2)
+                        : 'N/A';
 
-    // Room-based
-    if (item.room_details && Array.isArray(item.room_details)) {
-        return item.room_details.map(room =>
-            `${room.seating_capacity}-seater @ ₹${room.price} ${label}`
-        ).join('<br>');
-    }
+                    const security_deposit_months = (space.security_deposit && space.total_rental)
+                        ? (space.security_deposit / space.total_rental).toFixed(1)
+                        : 'N/A';
 
-    // Seat-based
-    return `${item.count} seats @ ₹${item.price_per_seat} ${label}`;
-};
+                    let contactCell = '';
+                    if (userRole !== 'client') {
+                        contactCell = `<td>${space.owner?.phone || 'N/A'}</td>`;
+                    }
 
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -883,34 +615,20 @@ thead th {
                         <td>${formattedDate || 'N/A'}</td>
                         <td>${space.coworking_name || 'N/A'}</td>
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
-                        <td>${space.total_seats !== undefined && space.total_seats !== null && space.total_seats !== '' ? space.total_seats : 'N/A'}</td>
-                        <td>${space.current_vacancy || 'N/A'}</td>
-                        {% if role != 'client' %}
-                            <td>${space.owner?.phone || 'N/A'}</td>
-                        {% endif %}
-                        <td>${getInventoryDetails('Day pass')}</td>
-                        <td>${getInventoryDetails('Meeting rooms')}</td>
-                        <td>${getInventoryDetails('Private cabin')}</td>
-                        <td>${getInventoryDetails('Dedicated desk')}</td>
-                        <td><button class="show-details-btn">Show Details</button></td>
+                        ${contactCell}
+                        <td>${space.total_building_area || 'N/A'}</td>
+                        <td>₹${superAreaRental.toLocaleString() || 'N/A'}</td>
+                        <td>₹${rentalPerSuperSqft}</td>
+                        <td>₹${carpetAreaRental.toLocaleString() || 'N/A'}</td>
+                        <td>₹${rentalPerCarpetSqft}</td>
                         <td>
-                            ${space.has_amenities ? `<button class="view-page-btn send-btn" data-space-id="${space._id}">View Page</button>` : ''}
+                            ${space.security_deposit && space.total_rental
+                                ? `${Math.floor(space.security_deposit / space.total_rental)} months`
+                                : 'N/A'}
                         </td>
-                        {% if role != 'client' %}
-                            <td>
-                                <span class="status-label ${space.status?.toLowerCase().replace(/\s/g, '-') || 'pending'}">
-                                    ${space.status || 'Pending'}
-                                </span>
-                            </td>
-                            <td>
-                                ${(space.status === 'Pending') ? `
-                                    <div style="display: flex; gap: 8px;">
-                                        <button class="approve-btn" data-id="${space._id}">Approve</button>
-                                        <button class="edit-btn" data-id="${space._id}">Edit Required</button>
-                                    </div>
-                                ` : ''}
-                            </td>
-                        {% endif %}
+                        <td>${space.furnishing_level || 'N/A'}</td>
+                        <td>${space.min_inventory_unit || 'N/A'}</td>
+                        <td><button class="show-details-btn">Show Details</button></td>
                     `;
                     // <td>${space.total_seats || 'N/A'}</td>
                     // <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
@@ -918,10 +636,6 @@ thead th {
                         // <td><button class="delete-btn" data-property-id="${space._id}">Delete</button></td>
                     // Add event listener for "Show Details" button
                     row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
-                    const viewPageBtn = row.querySelector('.view-page-btn');
-                    if (viewPageBtn) {
-                        viewPageBtn.addEventListener('click', () => openInventoryModal(space));
-                    }
                     // row.querySelector('.delete-btn').addEventListener('click', function () {
                     //     const propertyId = this.dataset.propertyId;
                     //     openDeleteModal(propertyId); // Open delete modal
@@ -929,64 +643,6 @@ thead th {
                     tableBody.appendChild(row);
                 });
             }
-
-            // ✅ Insert Step 2 code HERE
-            document.addEventListener('click', function (e) {
-                if (e.target.classList.contains('approve-btn')) {
-                    const id = e.target.dataset.id;
-                    fetch('/admin/update_status', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ property_id: id, status: 'Approved' })
-                    }).then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'success') window.location.reload();
-                        else alert('Failed to update status.');
-                    });
-                }
-
-                // if (e.target.classList.contains('edit-btn')) {
-                //     const id = e.target.dataset.id;
-                //     const message = prompt('Enter feedback for Edit Required:');
-                //     if (!message) return;
-
-                //     fetch('/admin/update_status', {
-                //         method: 'POST',
-                //         headers: { 'Content-Type': 'application/json' },
-                //         body: JSON.stringify({ property_id: id, status: 'Edit Required', message: message })
-                //     }).then(res => res.json())
-                //     .then(data => {
-                //         if (data.status === 'success') fetchInventory();
-                //         else alert('Failed to update status.');
-                //     });
-                // }
-                if (e.target.classList.contains('edit-btn')) {
-                    const id = e.target.dataset.id;
-                    openEditFeedbackModal(id);  // ✅ Show modal instead of prompt
-                }
-            });
-
-            editFeedbackForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    const propertyId = editFeedbackPropertyId.value;
-    const message = editFeedbackText.value.trim();
-    if (!message) return alert('Please enter feedback');
-
-    fetch('/admin/update_status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ property_id: propertyId, status: 'Edit Required', message: message })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === 'success') {
-            closeEditFeedbackModal();
-            window.location.reload();
-        } else {
-            alert('Failed to update status.');
-        }
-    });
-});
 
 
             // Event listeners for dropdowns
@@ -1114,151 +770,76 @@ thead th {
 
 //     coworkingModal.classList.add('show');
 // }
-
-const userRole = "{{ role }}";
-
 function displayCoworkingModal(space) {
     const modalContent = document.querySelector('.modal-content');
-
-    const owner = space.owner || {};
-    const manager = space.center_manager || {};
-    const distance = space.distance || {};
-    const timings = space.office_timings || {};
-    const amenities = space.amenities || [];
     const propertyImages = space.property_images || space.layout_images || [];
 
-    // Inventory Handling
-    let inventoryHtml = '';
-    if (space.inventory && Array.isArray(space.inventory)) {
-        inventoryHtml = space.inventory.map(item => {
-            // Determine pricing label based on inventory type
-        let priceLabel = 'Contact for pricing';
-        if (item.price_per_seat) {
-    if (item.type === 'Dedicated desk') {
-        priceLabel = `₹${item.price_per_seat} /seat/month`;
-    } else if (item.type === 'Day pass') {
-        priceLabel = `₹${item.price_per_seat} /seat/day`;
-    } else if (item.type === 'Virtual office') {
-        priceLabel = `₹${item.price_per_seat} /year`;
-    } else if (item.type === 'Serviced offices') {
-        priceLabel = `₹${item.price_per_seat} /seat/month`;
-    } else if (item.type === 'Meeting rooms') {
-        priceLabel = `₹${item.price_per_seat} /hour`;
-    } else if (item.type === 'Private cabin') {
-        priceLabel = `₹${item.price_per_seat} /seat/month`;
-    }
-}
-
-            // If room_details exist (new structure)
-        if (item.room_details && Array.isArray(item.room_details)) {
-            return `
-                <h4>${item.type} (${item.room_count || item.room_details.length} rooms)</h4>
-                ${item.room_details.map(room => `
-                    <div style="margin-bottom:10px;">
-                        <strong>Room ${room.room_number || ''}:</strong><br/>
-                        ${room.seating_capacity || 'N/A'}-seater @ ₹${room.price || item.price_per_seat} /hour<br/>
-                        ${(room.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
-                    </div>
-                `).join('')}
-            `;
-        } else {
-                // Old structure
-            return `
-                <div style="margin-bottom:10px;">
-                    <strong>${item.type}:</strong> ${item.count} seats<br/>
-                    <span>${priceLabel}</span><br/>
-                    ${(item.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
-                </div>
-            `;
-            }
-        }).join('');
-    }
-
-    // Property Images
-    const imagesHtml = propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('');
-
     modalContent.innerHTML = `
-        <h2 style="display: flex; justify-content: space-between; align-items: center;">
-            ${space.coworking_name || 'N/A'}
-            ${
-            (userRole !== 'client'
-                ? (space.agreement_status === 'Completed'
-                    ? `<span style="background-color: green; color: white; padding: 5px 10px; border-radius: 5px; font-size: 14px;position:relative;right:50px;">Agreement Uploaded</span>`
-                    : `<button class="upload-btn" data-property-id="${space._id}" style="margin-left:auto;position:relative;right:50px;">Upload Agreement</button>`)
-                : '')
-        }
-            
-
+        <h2>${space.coworking_name || 'N/A'}</h2>
         {% if role != 'client' %}
-        <h3>Owner Information</h3>
-        <p><strong>Name:</strong> ${owner.name || 'N/A'}</p>
-        <p><strong>Phone:</strong> ${owner.phone || 'N/A'}</p>
-        <p><strong>Email:</strong> ${owner.email || 'N/A'}</p>
+        <h3>Owner</h3>
+        <p><strong>Name:</strong> ${space.owner?.name || 'N/A'}</p>
+        <p><strong>Phone:</strong> ${space.owner?.phone || 'N/A'}</p>
+        <p><strong>Email:</strong> ${space.owner?.email || 'N/A'}</p>
 
         <h3>Center Manager</h3>
-        <p><strong>Name:</strong> ${manager.name || 'N/A'}</p>
-        <p><strong>Contact:</strong> ${manager.contact || 'N/A'}</p>
+        <p><strong>Name:</strong> ${space.center_manager?.name || 'N/A'}</p>
+        <p><strong>Contact:</strong> ${space.center_manager?.contact || 'N/A'}</p>
         {% endif %}
 
-        <h3>General Info</h3>
-        <p><strong>City:</strong> ${space.city}</p>
-        <p><strong>Micromarket:</strong> ${space.micromarket}</p>
-        <p><strong>Address:</strong> ${space.address}</p>
-        <p><strong>Available Seats:</strong> ${space.current_vacancy}</p>
-        <p><strong>Total Seats:</strong> ${space.total_seats || 'N/A'}</p>
+        <h3>General</h3>
+        <p><strong>City:</strong> ${space.city || 'N/A'}</p>
+        <p><strong>Micromarket:</strong> ${space.micromarket || 'N/A'}</p>
+        <p><strong>Address:</strong> ${space.address || 'N/A'}</p>
+        <p><strong>Date:</strong> ${space.date ? new Date(space.date).toLocaleString() : 'N/A'}</p>
+
+        <h3>Building Details</h3>
+        <p><strong>Floors Offered:</strong> ${(space.floors_offered || []).join(', ') || 'N/A'}</p>
+        <p><strong>Floors Occupied:</strong> ${space.floors_occupied || 'N/A'}</p>
+        <p><strong>Total Floors:</strong> ${space.total_floors || 'N/A'}</p>
+        <p><strong>Floorplate Area:</strong> ${space.floorplate_area || 'N/A'} sqft</p>
+        <p><strong>Total Building Area:</strong> ${space.total_building_area || 'N/A'} sqft</p>
+        <p><strong>Furnishing Level:</strong> ${space.furnishing_level || 'N/A'}</p>
+        <p><strong>Space Type:</strong> ${space.space_type || 'N/A'}</p>
+        <p><strong>Rent or Own:</strong> ${space.rent_or_own || 'N/A'}</p>
+
+        <h3>Commercials</h3>
+        <p><strong>Min Inventory Unit:</strong> ${space.min_inventory_unit || 'N/A'}</p>
+        <p><strong>Total Rental:</strong> ₹${space.total_rental?.toLocaleString() || 'N/A'}</p>
+        <p><strong>Security Deposit:</strong> ₹${space.security_deposit?.toLocaleString() || 'N/A'}</p>
+        <p><strong>Lease Term:</strong> ${space.lease_term || 'N/A'}</p>
+        <p><strong>Lock-in Period:</strong> ${space.lockin_period || 'N/A'}</p>
+
+        <h3>Distance from Landmarks</h3>
+        <p><strong>Metro:</strong> ${space.distance?.metro || 'N/A'} km</p>
+        <p><strong>Airport:</strong> ${space.distance?.airport || 'N/A'} km</p>
+        <p><strong>Bus:</strong> ${space.distance?.bus || 'N/A'} km</p>
+        <p><strong>Railway:</strong> ${space.distance?.railway || 'N/A'} km</p>
+
+        <h3>Amenities</h3>
+        <ul>${(space.managed_office_amenities || []).map(item => `<li>${item}</li>`).join('') || '<li>No amenities listed</li>'}</ul>
 
         <h3>Description</h3>
         <p>${space.space_description || 'N/A'}</p>
 
-        ${Object.keys(distance).length ? `
-        <h3>Distances (in km)</h3>
-        <p><strong>Metro:</strong> ${distance.metro || 'N/A'}</p>
-        <p><strong>Bus:</strong> ${distance.bus || 'N/A'}</p>
-        <p><strong>Railway:</strong> ${distance.railway || 'N/A'}</p>
-        <p><strong>Airport:</strong> ${distance.airport || 'N/A'}</p>
-        ` : ''}
-
-        ${Object.keys(timings).length ? `
-        <h3>Office Timings</h3>
-        <p><strong>Open Days:</strong> ${timings.open_from} to ${timings.open_to}</p>
-        <p><strong>Time:</strong> ${timings.opening_time} - ${timings.closing_time}</p>
-        ` : ''}
-
-        ${amenities.length ? `
-        <h3>Amenities</h3>
-        <ul>${amenities.map(a => `<li>${a}</li>`).join('')}</ul>
-        ` : ''}
-
-        <h3>Inventory</h3>
-        ${inventoryHtml}
-
         <h3>Images</h3>
-        ${imagesHtml}
+        ${propertyImages.length > 0 
+            ? propertyImages.map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('') 
+            : 'No images available'}
 
-        ${space.admin_feedback ? `
-    <h3 style="color:#c00;">Admin Feedback</h3>
-    <p style="background:#fff3f3; padding:10px; border-left:5px solid red; border-radius:5px;">
-        ${space.admin_feedback}
-    </p>
-` : ''}
-{% if role != 'client' %}
-<h3>Upload Agreement / Delete Property</h3>
-<p><strong>Agreement Status:</strong> {% if role != 'client' %}
-${space.agreement_status === 'Completed' ? '<span style="color:green">Completed</span>' : '<span style="color:red">Pending</span>'}{% endif %}</p>
-<button class="upload-btn" data-property-id="${space._id}">Upload</button>
-<button class="delete-btn" data-property-id="${space._id}">Delete</button>
-{% endif %}
+        {% if role != 'client' %}
+        <h3>Upload Agreement / Delete Property</h3>
+        <p><strong>Agreement Status:</strong> ${space.agreement_status === 'Completed' 
+            ? '<span style="color:green">Completed</span>' 
+            : '<span style="color:red">Pending</span>'}</p>
+        <button class="upload-btn" data-property-id="${space._id}">Upload</button>
+        <button class="delete-btn" data-property-id="${space._id}">Delete</button>
+        {% endif %}
     `;
 
     coworkingModal.classList.add('show');
-    const modalDeleteBtn = coworkingModal.querySelector('.delete-btn');
-    if (modalDeleteBtn) {
-        modalDeleteBtn.addEventListener('click', () => {
-            const propertyId = modalDeleteBtn.dataset.propertyId;
-            openDeleteModal(propertyId);
-        });
-    }
 
+    // Upload Button Logic
     const modalUploadBtn = coworkingModal.querySelector('.upload-btn');
     if (modalUploadBtn) {
         modalUploadBtn.addEventListener('click', () => {
@@ -1267,7 +848,17 @@ ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed<
             uploadModal.classList.add('show');
         });
     }
+
+    // Delete Button Logic
+    const modalDeleteBtn = coworkingModal.querySelector('.delete-btn');
+    if (modalDeleteBtn) {
+        modalDeleteBtn.addEventListener('click', () => {
+            const propertyId = modalDeleteBtn.dataset.propertyId;
+            openDeleteModal(propertyId);
+        });
+    }
 }
+
 
 
 
@@ -1290,22 +881,15 @@ ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed<
             sortCityButton.addEventListener('click', sortTableByCity);
 
             micromarketDropdown.addEventListener('change', fetchInventory);
-            inventoryTypeDropdown.addEventListener('change', fetchInventory); // Added for inventory type
+            document.getElementById('building-area').addEventListener('change', fetchInventory);
+            document.getElementById('rental-range').addEventListener('change', fetchInventory);
+            document.getElementById('seating-range').addEventListener('change', fetchInventory);
+
+           
 
             // Initial fetch
             fetchInventory();
         });
-
-        function closeInventoryModal() {
-    const inventorySelectionModal = document.getElementById('inventory-selection-modal');
-    inventorySelectionModal.classList.remove('show');
-}
-
-function closeEditFeedbackModal() {
-    editFeedbackModal.classList.remove('show');
-}
-
-window.closeEditFeedbackModal = closeEditFeedbackModal;
     </script>
 </body>
 </html>

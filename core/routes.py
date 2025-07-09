@@ -1478,6 +1478,7 @@ def list_your_space():
             center_manager_names = request.form.getlist('center_manager_name[]')
             center_manager_contacts = request.form.getlist('center_manager_contact[]')
             workspace_types = request.form.getlist('workspace_type[]')
+            total_seats_list = request.form.getlist('total_seats[]')
 
             # Distance Fields - Extracted Correctly
             distances_metro = request.form.getlist('distance_metro[]')
@@ -1799,6 +1800,13 @@ def list_your_space():
                         'floors_offered': floors_offered  # ✅ Added this line
                     })
 
+                total_seats = None
+                try:
+                    total_seats = int(total_seats_list[int(idx)-1]) if workspace_type == "Coworking Spaces" else None
+                except (IndexError, ValueError, TypeError):
+                    total_seats = None
+
+                property_details.update({'total_seats': total_seats if workspace_type == "Coworking Spaces" else None})
 
                 print("Final property_details inserting to DB:", property_details)
 
@@ -1814,11 +1822,11 @@ def list_your_space():
                 #         html=f"""
                 #             <p>Hi {name},</p>
 
-                #             <p>Welcome to <strong>Find Ur Space</strong> — we’re thrilled to have your workspace listed and ready to go!</p>
+                #             <p>Welcome to <strong>Find Ur Space</strong> — we're thrilled to have your workspace listed and ready to go!</p>
 
                 #             <p>Your office is now <strong>live</strong> and visible to thousands of professionals searching for flexible and productive spaces.</p>
 
-                #             <p>To make booking seamless and real-time, there’s just one small step left:</p>
+                #             <p>To make booking seamless and real-time, there's just one small step left:</p>
 
                 #             <p style="font-size: 18px;">
                 #                 👉 <a href="{auth_link}" style="color: #2b4eff; text-decoration: underline;"><strong>Connect Your Google Calendar Now</strong></a>
@@ -1836,7 +1844,7 @@ def list_your_space():
 
                 #             <p>Please verify your Gmail account to connect your calendar — takes less than 30 seconds.</p>
 
-                #             <p>If you have any questions or need help, we’re just an email away.</p>
+                #             <p>If you have any questions or need help, we're just an email away.</p>
 
                 #             <p style="margin-top: 30px;">Thanks,<br><strong>Team Find Ur Space</strong></p>
                 #         """

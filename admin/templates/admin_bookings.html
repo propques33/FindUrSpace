@@ -1,102 +1,294 @@
+{% macro format_datetime(dt) %}
+    {%- if dt -%}
+        {%- set dt_str = dt|string -%}
+        {%- set date_part = dt_str.split('T')[0] if 'T' in dt_str else dt_str[:10] -%}
+        {%- set time_part = dt_str.split('T')[1][:8] if 'T' in dt_str else dt_str[11:19] -%}
+        {%- set y = date_part[0:4] -%}
+        {%- set m = date_part[5:7] -%}
+        {%- set d = date_part[8:10] -%}
+        {%- set hour = time_part[0:2]|int -%}
+        {%- set minute = time_part[3:5] -%}
+        {%- set second = time_part[6:8] -%}
+        {%- set ampm = 'am' if hour < 12 else 'pm' -%}
+        {%- set hour12 = hour if hour == 0 or hour == 12 else hour % 12 -%}
+        {%- if hour12 == 0 -%}{% set hour12 = 12 %}{% endif %}
+        {{ d }}/{{ m }}/{{ y }}, {{ '%02d' % hour12 }}:{{ minute }}:{{ second }} {{ ampm }}
+    {%- else -%}
+        N/A
+    {%- endif -%}
+{% endmacro %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Bookings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="../../static/images/data-analytics.png" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .btn-container {
+        .modern-table-outer {
+            margin-left: 266px; /* 250px sidebar + 16px gap */
+            transition: margin-left 0.3s cubic-bezier(.4,0,.2,1);
+            padding: 32px 24px 24px 0;
+            background: #f7fafd;
+            min-height: 100vh;
+        }
+        .modern-table-outer.minimized {
+            margin-left: 76px; /* 60px sidebar + 16px gap */
+        }
+        .modern-table-container {
+            width: auto;
+            /* max-width will be set dynamically by JS */
+            overflow-x: auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+            border: 1.5px solid #e3e6ea;
+            margin-top: 24px;
+            padding: 0;
+        }
+        .modern-table {
+            min-width: 1800px;
+            width: max-content;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            font-size: 15.5px;
+            color: #222;
+
+        }
+        .modern-table th {
+            position: relative;
+            top: 0;
+            background: linear-gradient(90deg, #e3f0ff 0%, #f7fafd 100%);
+            color: #1a237e;
+            font-weight: 700;
+            font-size: 16.5px;
+            padding: 18px 14px;
+            border-bottom: 2.5px solid #b6c6e3;
+            z-index: 2;
+            text-align: left;
+            letter-spacing: 0.02em;
+        }
+        .modern-table td {
+            padding: 15px 14px;
+            font-size: 15.5px;
+            border-bottom: 1.5px solid #f0f0f0;
+            vertical-align: middle;
+            background: #fff;
+            max-width: 260px;
+            white-space: nowrap;
+        }
+        .modern-table tr:nth-child(even) td {
+            background: #f7fafd;
+        }
+        .modern-table tr:hover td {
+            background: #e3f0ff;
+            transition: background 0.2s;
+        }
+        .badge-status {
+            padding: 7px 18px;
+            border-radius: 20px;
+            font-size: 14.5px;
+            font-weight: 600;
+            display: inline-block;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        }
+        .badge-success { background: #e6f4ea; color: #1a7f37; }
+        .badge-danger { background: #fde8e8; color: #d32f2f; }
+        .badge-warning { background: #fff4e5; color: #b26a00; }
+        .badge-info { background: #e3f2fd; color: #1976d2; }
+        .show-details-btn {
+            background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 22px;
+            font-size: 15.5px;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+            transition: background 0.2s, box-shadow 0.2s;
             display: flex;
-            gap: 10px; /* Adds space between buttons */
-            justify-content: center; /* Center align buttons */
-        }
-        .table th, .table td {
-            vertical-align: middle; /* Align content in the center */
-            text-align: center;
-        }
-        .badge {
-            font-size: 14px;
-            padding: 6px 12px;
-        }
-        .bt{
-            display:flex;
-            flex-direction: row;
-            column-gap: 10px;   
-            justify-content: center;
             align-items: center;
-            padding-top: 10px;
+            gap: 7px;
+        }
+        .show-details-btn:hover {
+            background: linear-gradient(90deg, #1251a3 0%, #1976d2 100%);
+            box-shadow: 0 4px 16px rgba(25, 118, 210, 0.13);
+        }
+        .show-details-btn i {
+            font-size: 16px;
+        }
+        /* Modal styles */
+        #details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 480px;
+            max-width: 95vw;
+            height: 100vh;
+            background: #fff;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.18);
+            overflow-y: auto;
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.2s;
+            border-top-left-radius: 18px;
+            border-bottom-left-radius: 18px;
+            opacity: 0;
+        }
+        #details-modal.show {
+            display: block;
+            transform: translateX(0);
+            opacity: 1;
+        }
+        #details-modal .modal-content {
+            padding: 32px 28px 24px 28px;
+            position: relative;
+            min-height: 200px;
+        }
+        #details-modal .close {
+            position: absolute;
+            top: 18px;
+            right: 28px;
+            font-size: 28px;
+            color: #888;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .details-section {
+            margin-bottom: 28px;
+            background: #f7fafd;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 18px 18px 10px 18px;
+        }
+        .details-section h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 20px;
+            color: #1976d2;
+            font-weight: 700;
+            border-bottom: 1.5px solid #e3e6ea;
+            padding-bottom: 6px;
+        }
+        .details-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .details-section li {
+            margin-bottom: 8px;
+            font-size: 15.5px;
+            color: #222;
+        }
+        .details-label {
+            font-weight: 600;
+            color: #1a237e;
+            margin-right: 8px;
+        }
+        .details-value {
+            font-weight: 400;
+            color: #333;
+        }
+        .details-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 120px;
+        }
+        @media (max-width: 900px) {
+            .modern-table { min-width: 900px; }
+            #details-modal { width: 95vw; }
+            .modern-table-outer { margin-left: 0; padding: 8px 2px; }
         }
     </style>
 </head>
-<body>
+<body style="background:#f4f6fb;">
     {% include 'navigation.html' %}
-
-    <div class="container mt-5">
-        <h2>Bookings</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered">
+    <div class="modern-table-outer" id="modernTableOuter">
+        <h2 class="mt-2 mb-2" style="font-weight:700; color:#1a237e; letter-spacing:0.01em;">Bookings</h2>
+        <div class="modern-table-container">
+            <table class="modern-table">
                 <thead>
                     <tr>
-                        <th>Booking ID</th>
-                        <th>User Name</th>
-                        <th>Company</th>
-                        <th>Contact</th>
-                        <th>Inventory Type</th>
-                        <th>Quantity</th>
-                        <th>Total Price</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Coworking Name</th>
-                        <th>City</th>
-                        <th>Micromarket</th>
-                        <th>Owner Name</th>
-                        <th>Owner Contact</th>
-                        <th>Owner Email</th>
-                        <th>Center Manager Name</th>
-                        <th>Center Manager Contact</th>
-                        <th>Payment Status</th>
+                        <th style="min-width:160px;white-space:nowrap;">Booking ID</th>
+                        <th style="min-width:120px;white-space:nowrap;">Date</th>
+                        <th style="min-width:200px;white-space:nowrap;">User Email</th>
+                        <th style="min-width:160px;white-space:nowrap;">User Name</th>
+                        <th style="min-width:140px;white-space:nowrap;">Contact</th>
+                        <th style="min-width:140px;white-space:nowrap;">Booking Type</th>
+                        <th style="min-width:140px;white-space:nowrap;">Room Capacity</th>
+                        <th style="min-width:180px;white-space:nowrap;">Date Range</th>
+                        <th style="min-width:160px;white-space:nowrap;">Time</th>
+                        <th style="min-width:160px;white-space:nowrap;">Total Amount</th>
+                        <th style="min-width:200px;white-space:nowrap;">Property Name</th>
+                        <th style="min-width:160px;white-space:nowrap;">Micromarket</th>
+                        <th style="min-width:140px;white-space:nowrap;">City</th>
+                        <th style="min-width:160px;white-space:nowrap;">Booking Status</th>
+                        <th style="min-width:160px;white-space:nowrap;">Payment Status</th>
+                        <th style="min-width:160px;white-space:nowrap;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for booking in bookings %}
                     <tr>
-                        <td>{{ booking._id }}</td>
-                        <td>{{ booking.fullName }}</td>
-                        <td>{{ booking.company }}</td>
-                        <td>{{ booking.phone }}</td>
-                        <td>{{ booking.inventoryType }}</td>
-                        <td>{{ booking.quantity }}</td>
-                        <td>₹{{ booking.totalPrice }}</td>
-                        <td>{{ booking.date }}</td>
-                        <td>{{ booking.time }}</td>
-                        <td>{{ booking.coworking_name }}</td>
-                        <td>{{ booking.city }}</td>
-                        <td>{{ booking.micromarket }}</td>
-                        <td>{{ booking.owner_name }}</td>
-                        <td>{{ booking.owner_phone }}</td>
-                        <td>{{ booking.owner_email }}</td>
-                        <td>{{ booking.center_manager_name }}</td>
-                        <td>{{ booking.center_manager_contact }}</td>
-                        <td id="status-{{ booking._id }}">
-                            {% set status = booking.status.lower() %}
-                            <span class="badge 
-                                {% if status == 'paid' %}
-                                    bg-primary
-                                {% elif status == 'failed' %}
-                                    bg-danger
+                        <td style="white-space:nowrap;">{{ booking.booking_id }}</td>
+                        <td style="white-space:nowrap;">
+                            {{ format_datetime(booking.created_at) }}
+                        </td>
+                        <td style="white-space:nowrap;">{{ booking.user_email }}</td>
+                        <td style="white-space:nowrap;">{{ booking.user_name }}</td>
+                        <td style="white-space:nowrap;">{{ booking.user_contact }}</td>
+                        <td style="white-space:nowrap;">{{ booking.booking_type }}</td>
+                        <td style="white-space:nowrap;">{% if booking.selected_room %}{{ booking.selected_room.room_capacity }}{% else %}N/A{% endif %}</td>
+                        <td style="white-space:nowrap;">
+                            {% if booking.date_range %}
+                                {% set start = booking.date_range.start_date[:10] %}
+                                {% set end = booking.date_range.end_date[:10] if booking.date_range.end_date else '' %}
+                                {% set start_fmt = start[8:10] ~ '/' ~ start[5:7] ~ '/' ~ start[0:4] %}
+                                {% set end_fmt = end[8:10] ~ '/' ~ end[5:7] ~ '/' ~ end[0:4] if end and end != start else '' %}
+                                {{ start_fmt }}{% if end_fmt %} - {{ end_fmt }}{% endif %}
+                            {% else %}N/A{% endif %}
+                        </td>
+                        <td style="white-space:nowrap;">
+                            {% if booking.time_slots and booking.time_slots|length > 0 %}
+                                {% if booking.time_slots|length == 1 %}
+                                    {{ booking.time_slots[0] }}
                                 {% else %}
-                                    bg-warning
-                                {% endif %}">
-                                {% if status == 'paid' %}
-                                    Paid
-                                {% elif status == 'failed' %}
-                                    Payment Failed
-                                {% else %}
-                                    Payment Pending
+                                    {{ booking.time_slots[0] }} - {{ booking.time_slots[-1] }}
                                 {% endif %}
+                            {% elif booking.start_time and booking.end_time %}
+                                {{ booking.start_time }} - {{ booking.end_time }}
+                            {% else %}N/A{% endif %}
+                        </td>
+                        <td style="white-space:nowrap;">₹{{ booking.total_amount }}</td>
+                        <td style="white-space:nowrap;">{{ booking.property_name or booking.coworking_name }}</td>
+                        <td style="white-space:nowrap;">{{ booking.micromarket }}</td>
+                        <td style="white-space:nowrap;">{{ booking.city }}</td>
+                        <td style="white-space:nowrap;">
+                            {% set status = booking.booking_status|lower %}
+                            <span class="badge-status {% if status in ['completed','approved','paid','success'] %}badge-success{% elif status in ['failed','declined','cancelled'] %}badge-danger{% elif status in ['pending','confirmation pending'] %}badge-warning{% else %}badge-info{% endif %}" style="white-space:nowrap;">
+                                {{ booking.booking_status|capitalize }}
                             </span>
+                        </td>
+                        <td style="white-space:nowrap;">
+                            {% set pstatus = booking.payment_status|lower %}
+                            <span class="badge-status {% if pstatus in ['completed','approved','paid','success'] %}badge-success{% elif pstatus in ['failed','declined','cancelled'] %}badge-danger{% elif pstatus in ['pending'] %}badge-warning{% else %}badge-info{% endif %}" style="white-space:nowrap;">
+                                {{ booking.payment_status|capitalize }}
+                            </span>
+                        </td>
+                        <td style="white-space:nowrap;">
+                            {% if booking.booking_status|lower == 'confirmation pending' %}
+                                <div style="display: flex; gap: 8px;">
+                                    <button class="approve-btn" data-booking-id="{{ booking._id }}" style="background: linear-gradient(90deg, #28a745 0%, #20c997 100%); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);">Approve</button>
+                                    <button class="decline-btn" data-booking-id="{{ booking._id }}" style="background: linear-gradient(90deg, #dc3545 0%, #c82333 100%); color: white; border: none; border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);">Decline</button>
+                                </div>
+                            {% else %}
+                                <span style="color: #666; font-style: italic;">No action needed</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -105,55 +297,164 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal1" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; max-width: 90vw; background: #fff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); padding: 24px; z-index: 10000;">
+        <div style="text-align: center;">
+            <h3 id="modal-title" style="margin-bottom: 16px; color: #1a237e; font-weight: 600;">Confirm Action</h3>
+            <p id="modal-message" style="margin-bottom: 20px; color: #666; line-height: 1.5;">Are you sure you want to perform this action?</p>
+            <div style="margin-bottom: 20px;">
+                <label for="confirm-text" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Type "confirm" to proceed:</label>
+                <input type="text" id="confirm-text" style="width: 100%; padding: 10px; border: 2px solid #e3e6ea; border-radius: 6px; font-size: 14px;" placeholder="Type 'confirm' here">
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button id="modal-confirm-btn" style="background: linear-gradient(90deg, #1976d2 0%, #42a5f5 100%); color: white; border: none; border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);">Confirm</button>
+                <button id="modal-cancel-btn" style="background: #f8f9fa; color: #666; border: 1px solid #e3e6ea; border-radius: 6px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;">Cancel</button>
+            </div>
+        </div>
+        <button class="close-btn" id="modal-close" style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: #888; cursor: pointer;">&times;</button>
+    </div>
+
     <script>
-        function updateBookingStatus(bookingId, status) {
-            fetch('/admin/update_booking_status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ booking_id: bookingId, status: status })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    let statusCell = document.getElementById(`status-${bookingId}`);
-                    let actionCell = document.getElementById(`action-${bookingId}`);
+    let currentAction = null;
+    let currentBookingId = null;
 
-                    statusCell.innerHTML = `<span class="badge ${status === 'approved' ? 'bg-success' : 'bg-danger'}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
-                    
-                    // Remove Approve/Decline buttons and show "Pay Now" if approved
-                    if (status === 'approved') {
-                        actionCell.innerHTML = `<button class="btn btn-primary btn-sm" onclick="updatePaymentStatus('${bookingId}')">Pay Now</button>`;
-                    } else {
-                        actionCell.innerHTML = ''; // Remove buttons if declined
-                    }
-                } else {
-                    alert("Failed to update status.");
-                }
-            })
-            .catch(error => console.error('Error:', error));
+    function openConfirmationModal(action, bookingId) {
+        currentAction = action;
+        currentBookingId = bookingId;
+        
+        const modal = document.getElementById('confirmation-modal');
+        const title = document.getElementById('modal-title');
+        const message = document.getElementById('modal-message');
+        
+        if (action === 'approve') {
+            title.textContent = 'Confirm Approve';
+            message.textContent = 'Are you sure you want to approve this booking? This will change the status to "Approved".';
+        } else {
+            title.textContent = 'Confirm Decline';
+            message.textContent = 'Are you sure you want to decline this booking? This will change the status to "Declined".';
         }
+        
+        document.getElementById('confirm-text').value = '';
+        modal.style.display = 'block';
+    }
 
-        function updatePaymentStatus(bookingId) {
-            fetch('/admin/update_payment_status', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ booking_id: bookingId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    let statusCell = document.getElementById(`status-${bookingId}`);
-                    let actionCell = document.getElementById(`action-${bookingId}`);
+    function closeConfirmationModal() {
+        document.getElementById('confirmation-modal').style.display = 'none';
+        currentAction = null;
+        currentBookingId = null;
+    }
 
-                    statusCell.innerHTML = `<span class="badge bg-primary">Paid</span>`;
-                    actionCell.innerHTML = `<span class="badge bg-primary">Paid</span>`;
+    function updateBookingStatus(bookingId, newStatus) {
+        fetch('/admin/update_booking_status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ booking_id: bookingId, status: newStatus })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Update the status badge in the table
+                const row = document.querySelector(`[data-booking-id="${bookingId}"]`).closest('tr');
+                const statusCell = row.querySelector('td:nth-last-child(3)'); // Booking Status column
+                const actionsCell = row.querySelector('td:last-child');
+                
+                // Update status badge
+                let badgeClass = 'badge-info';
+                if (newStatus === 'booking confirmed') badgeClass = 'badge-success';
+                else if (newStatus === 'booking declined') badgeClass = 'badge-danger';
+                
+                // Capitalize each word for display
+                const displayStatus = newStatus.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                statusCell.innerHTML = `<span class="badge-status ${badgeClass}" style="white-space:nowrap;">${displayStatus}</span>`;
+                
+                // Update actions cell
+                actionsCell.innerHTML = '<span style="color: #666; font-style: italic;">No action needed</span>';
+                
+                closeConfirmationModal();
+                showNotification(`Booking ${newStatus} successfully!`, 'success');
+            } else {
+                showNotification('Failed to update booking status.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('An error occurred while updating the status.', 'error');
+        });
+    }
 
-                } else {
-                    alert("Failed to update payment status.");
-                }
-            })
-            .catch(error => console.error('Error:', error));
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 6px; 
+            color: white; font-weight: 600; z-index: 10001; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background: ${type === 'success' ? 'linear-gradient(90deg, #28a745 0%, #20c997 100%)' : 'linear-gradient(90deg, #dc3545 0%, #c82333 100%)'};
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Approve/Decline button listeners
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('approve-btn')) {
+                const bookingId = e.target.getAttribute('data-booking-id');
+                openConfirmationModal('approve', bookingId);
+            } else if (e.target.classList.contains('decline-btn')) {
+                const bookingId = e.target.getAttribute('data-booking-id');
+                openConfirmationModal('decline', bookingId);
+            }
+        });
+
+        // Modal confirm button
+        document.getElementById('modal-confirm-btn').addEventListener('click', function() {
+            const confirmText = document.getElementById('confirm-text').value.trim();
+            if (confirmText.toLowerCase() === 'confirm') {
+                const newStatus = currentAction === 'approve' ? 'booking confirmed' : 'booking declined';
+                updateBookingStatus(currentBookingId, newStatus);
+            } else {
+                showNotification('Please type "confirm" to proceed.', 'error');
+            }
+        });
+
+        // Modal cancel and close buttons
+        document.getElementById('modal-cancel-btn').addEventListener('click', closeConfirmationModal);
+        document.getElementById('modal-close').addEventListener('click', closeConfirmationModal);
+
+        // Close modal on outside click
+        document.getElementById('confirmation-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeConfirmationModal();
+            }
+        });
+    });
+
+    // Adjust table margin-left based on sidebar state
+    function adjustTableMargin() {
+        const outer = document.getElementById('modernTableOuter');
+        const navbar = document.getElementById('navbar');
+        const tableContainer = document.querySelector('.modern-table-container');
+        if (navbar && navbar.classList.contains('minimized')) {
+            outer.classList.add('minimized');
+            if (tableContainer) tableContainer.style.maxWidth = 'calc(100vw - 76px)';
+        } else {
+            outer.classList.remove('minimized');
+            if (tableContainer) tableContainer.style.maxWidth = 'calc(100vw - 266px)';
         }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        adjustTableMargin();
+        const toggleBtn = document.getElementById('toggleBtn');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                setTimeout(adjustTableMargin, 350);
+            });
+        }
+    });
     </script>
 </body>
 </html>
