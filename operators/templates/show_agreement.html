@@ -113,20 +113,32 @@
     <div class="container">
         <h1 class="header">Operator Agreement</h1>
 
-        {% if uploaded_pdfs %}
+        {% if signed_pdf_url %}
             <div class="pdf-preview-container">
                 <div class="pdf-header">
-                    <span class="title">PDF Preview</span>
-                    <a href="{{ uploaded_pdfs[0] }}" class="download-btn" download>Download PDF</a>
+                    <span class="title">Signed Agreement</span>
+                    <a href="{{ signed_pdf_url }}" class="download-btn" download>Download Signed PDF</a>
                 </div>
-                <iframe src="{{ uploaded_pdfs[0] }}" id="pdfViewer"></iframe>
+                <iframe src="{{ signed_pdf_url }}" id="pdfViewer"></iframe>
             </div>
-
             <div class="btn-container">
                 <a href="{{ url_for('operators.inventory') }}" class="btn btn-primary">Back to Inventory</a>
             </div>
         {% else %}
-            <p class="no-agreement-message">No agreement has been uploaded yet. Please contact support for assistance.</p>
+            <div class="pdf-preview-container">
+                <div class="pdf-header">
+                    <span class="title">Download & Sign Agreement</span>
+                    <a href="{{ url_for('static', filename='Findurspace AGGREGATOR AGREEMENT.pdf') }}" class="download-btn" download>Download Agreement PDF</a>
+                </div>
+                <iframe src="{{ url_for('static', filename='Findurspace AGGREGATOR AGREEMENT.pdf') }}" id="pdfViewer"></iframe>
+            </div>
+            <form action="{{ url_for('operators.upload_signed_agreement') }}" method="post" enctype="multipart/form-data" class="mt-4">
+                <div class="mb-3">
+                    <label for="signed_pdf" class="form-label">Upload Signed Agreement (PDF only):</label>
+                    <input type="file" class="form-control" id="signed_pdf" name="signed_pdf" accept="application/pdf" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload Agreement</button>
+            </form>
         {% endif %}
     </div>
 </body>

@@ -422,7 +422,7 @@ thead th {
 
 
         <!-- Filter Form -->
-    <form id="filter-form" method="GET">
+    <form id="filter-form" method="GET" style="display: flex; align-items: center; gap: 16px;">
         <select id="city" name="city">
             <option value="">Select City</option>
             {% for city in cities %}
@@ -446,6 +446,15 @@ thead th {
         <option value="Serviced offices">Serviced offices</option>
         <option value="Virtual office">Virtual office</option>
     </select>
+    <div style="margin-left:auto;">
+        <label for="sort-select" style="font-weight:600; margin-right:6px;">Sort by:</label>
+        <select id="sort-select" style="padding:4px 8px;">
+            <option value="">Default</option>
+            <option value="vacancy">Vacancy %</option>
+            <option value="total_seats">Total Seats</option>
+            <option value="available_seats">Available Seats</option>
+        </select>
+    </div>
     </form>
 
         <div class="table-container">
@@ -458,6 +467,7 @@ thead th {
                         <th id="sort-city">Micromarket,City</th>
                         <th>Total Seats</th>
                         <th>Available Seats</th>
+                        <th id="sort-vacancy">Vacancy %</th>
                         {% if role != 'client' %}
                             <th>Contact Number</th>
                         {% endif %}
@@ -885,6 +895,7 @@ thead th {
                         <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
                         <td>${space.total_seats !== undefined && space.total_seats !== null && space.total_seats !== '' ? space.total_seats : 'N/A'}</td>
                         <td>${space.current_vacancy || 'N/A'}</td>
+                        <td>${(space.total_seats && space.current_vacancy && !isNaN(space.total_seats) && !isNaN(space.current_vacancy) && Number(space.total_seats) > 0) ? ((Number(space.current_vacancy) / Number(space.total_seats)) * 100).toFixed(1) + '%' : 'N/A'}</td>
                         {% if role != 'client' %}
                             <td>${space.owner?.phone || 'N/A'}</td>
                         {% endif %}
@@ -1291,6 +1302,26 @@ ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed<
 
             micromarketDropdown.addEventListener('change', fetchInventory);
             inventoryTypeDropdown.addEventListener('change', fetchInventory); // Added for inventory type
+
+            const sortSelect = document.getElementById('sort-select');
+            sortSelect.addEventListener('change', function() {
+                let sortedData = inventoryData.slice();
+                if (sortSelect.value === 'vacancy') {
+                    sortedData.sort((a, b) => {
+                        const aVac = (a.total_seats && a.current_vacancy && !isNaN(a.total_seats) && !isNaN(a.current_vacancy) && Number(a.total_seats) > 0) ? (Number(a.current_vacancy) / Number(a.total_seats)) : -1;
+                        const bVac = (b.total_seats && b.current_vacancy && !isNaN(b.total_seats) && !isNaN(b.current_vacancy) && Number(b.total_seats) > 0) ? (Number(b.current_vacancy) / Number(b.total_seats)) : -1;
+                        if (aVac === -1 && bVac === -1) return 0;
+                        if (aVac === -1) return 1;
+                        if (bVac === -1) return -1;
+                        return bVac - aVac;
+                    });
+                } else if (sortSelect.value === 'total_seats') {
+                    sortedData.sort((a, b) => (Number(b.total_seats) || 0) - (Number(a.total_seats) || 0));
+                } else if (sortSelect.value === 'available_seats') {
+                    sortedData.sort((a, b) => (Number(b.current_vacancy) || 0) - (Number(a.current_vacancy) || 0));
+                }
+                renderTable(sortedData);
+            });
 
             // Initial fetch
             fetchInventory();

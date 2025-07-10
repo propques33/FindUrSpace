@@ -140,8 +140,7 @@
             <div>
               <div class="property-header">{{ space['coworking_name'] }}</div>
               <p class="mb-1 text-muted">
-                <i class="fas fa-map-marker-alt me-1"></i>{{
-                space['micromarket'] }}, {{ space['city'] }}
+                <i class="fas fa-map-marker-alt me-1"></i>{{ space['micromarket'] }}, {{ space['city'] }}
               </p>
               <p class="text-secondary">{{ space['address'] }}</p>
             </div>
@@ -266,6 +265,9 @@
             >
               <i class="fas fa-edit me-1"></i>Edit Inventory
             </a>
+            <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#availabilityModal-{{ space._id }}">
+              <i class="fas fa-toggle-on me-1"></i>Mark Availability
+            </button>
           </div>
 
           <!-- Center Manager -->
@@ -513,6 +515,7 @@
               </tr>
 
               {% if item.room_details %}
+              {% set item_idx = loop.index0 %}
               <tr>
                 <td colspan="4">
                   <div class="room-details">
@@ -573,6 +576,68 @@
           {% endif %}
 
           {% endif %}
+        </div>
+        <!-- Mark Availability Modal -->
+        <div class="modal fade" id="availabilityModal-{{ space._id }}" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Mark Availability for {{ space.coworking_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <form class="availability-form" data-space-id="{{ space._id }}">
+                <div class="modal-body">
+                  {% for item in space.inventory %}
+                  <div class="mb-3 p-3 border rounded">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <strong>{{ item.type }}</strong>
+                      <select name="status_{{ loop.index0 }}" class="form-select form-select-sm" style="width: 140px;">
+                        <option value="available" {% if item.status != 'unavailable' %}selected{% endif %}>Available</option>
+                        <option value="unavailable" {% if item.status == 'unavailable' %}selected{% endif %}>Unavailable</option>
+                      </select>
+                    </div>
+                    <div class="row mt-2">
+                      <div class="col-md-4">
+                        <label>Count</label>
+                        <input type="number" name="count_{{ loop.index0 }}" class="form-control form-control-sm" value="{{ item.count or '' }}">
+                      </div>
+                      <div class="col-md-4">
+                        <label>Price per Seat</label>
+                        <input type="number" name="price_{{ loop.index0 }}" class="form-control form-control-sm" value="{{ item.price_per_seat or '' }}">
+                      </div>
+                    </div>
+                    {% if item.room_details %}
+                    <div class="mt-3">
+                      <strong>Rooms:</strong>
+                      {% for room in item.room_details %}
+                      <div class="row align-items-center mb-2">
+                        <div class="col-md-2">Room {{ room.room_number }}</div>
+                        <div class="col-md-2">
+                          <input type="number" name="room_seating_{{ item_idx }}_{{ loop.index0 }}" class="form-control form-control-sm" value="{{ room.seating_capacity }}" placeholder="Seats">
+                        </div>
+                        <div class="col-md-2">
+                          <input type="number" name="room_price_{{ item_idx }}_{{ loop.index0 }}" class="form-control form-control-sm" value="{{ room.price }}" placeholder="Price">
+                        </div>
+                        <div class="col-md-3">
+                          <select name="room_status_{{ item_idx }}_{{ loop.index0 }}" class="form-select form-select-sm">
+                            <option value="available" {% if room.status != 'unavailable' %}selected{% endif %}>Available</option>
+                            <option value="unavailable" {% if room.status == 'unavailable' %}selected{% endif %}>Unavailable</option>
+                          </select>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success">Save Changes</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
         {% endfor %}
       </div>
@@ -697,6 +762,30 @@ document.addEventListener("DOMContentLoaded", () => {
         formContainer.innerHTML = `<p class="text-muted">Inventory editing is only available for Coworking Spaces.</p>`;
       }
     });
+  });
+});
+</script>
+
+<script>
+document.querySelectorAll('.availability-form').forEach(form => {
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const spaceId = this.dataset.spaceId;
+    const formData = new FormData(this);
+    fetch(`/operators/update_availability/${spaceId}`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status === 'success') {
+        alert('Availability updated!');
+        location.reload();
+      } else {
+        alert('Failed to update availability.');
+      }
+    })
+    .catch(() => alert('Error updating availability.'));
   });
 });
 </script>
