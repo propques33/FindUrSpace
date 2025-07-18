@@ -879,8 +879,8 @@ def sitemap():
 # Route to render index.html
 @core_bp.route('/')
 def index():
-    # Render the template with the dynamic city data
-    return render_template('index.html')
+    # Render the operator login template directly at the root URL
+    return render_template('operators_login.html')
 
 
 @core_bp.route('/user')
