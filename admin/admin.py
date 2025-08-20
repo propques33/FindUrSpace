@@ -1684,6 +1684,7 @@ def fetch_coworking_inventory_new():
 
     db = current_app.config['db']
     fillurdetails_collection = db['fillurdetails_new']
+    users_collection = db['users']  # Add users collection reference
 
     # Get filter parameters
     city = request.args.get('city')
@@ -1743,6 +1744,27 @@ def fetch_coworking_inventory_new():
     for coworking in coworking_list:
         coworking['_id'] = str(coworking['_id'])
         coworking['center_manager'] = coworking.get('center_manager', {'name': 'N/A', 'contact': 'N/A'})
+        
+        # Fetch user details using filled_by_user_email
+        filled_by_email = coworking.get('filled_by_user_email')
+        if filled_by_email:
+            user_data = users_collection.find_one({'email': filled_by_email})
+            if user_data:
+                coworking['filled_by_user_name'] = user_data.get('name', 'N/A')
+                coworking['filled_by_user_city'] = user_data.get('city', 'N/A')
+                coworking['filled_by_user_role'] = user_data.get('role', 'N/A')
+            else:
+                coworking['filled_by_user_name'] = 'User Not Found'
+                coworking['filled_by_user_city'] = 'N/A'
+                coworking['filled_by_user_role'] = 'N/A'
+        else:
+            coworking['filled_by_user_name'] = 'N/A'
+            coworking['filled_by_user_city'] = 'N/A'
+            coworking['filled_by_user_role'] = 'N/A'
+        
+        # Keep existing logic for filled_by_user_email display
+        coworking['filled_by_user_email'] = filled_by_email or 'N/A'
+        
         owner_phone = coworking.get('owner', {}).get('phone')
         if owner_phone:
             related_entries = list(fillurdetails_collection.find({'owner.phone': owner_phone}, {'uploaded_pdfs': 1}))

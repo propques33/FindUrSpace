@@ -340,6 +340,16 @@ thead th {
     cursor: pointer;
 }
 
+/* User info styling */
+.user-info {
+    font-size: 12px;
+    color: #666;
+    background-color: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 2px;
+}
 
     </style>
 </head>
@@ -448,6 +458,7 @@ thead th {
                         <th id="sort-vacancy">Vacancy %</th>
                         {% if role != 'client' %}
                             <th>Contact Number</th>
+                            <th>Filled By</th>
                         {% endif %}
                         <th>Day Pass</th>
                         <th>Meeting Rooms</th>
@@ -800,124 +811,163 @@ thead th {
             }
 
             function renderTable(data) {
-                document.getElementById('record-count').textContent = `${data.length} Record${data.length !== 1 ? 's' : ''} Found`;
+    document.getElementById('record-count').textContent = `${data.length} Record${data.length !== 1 ? 's' : ''} Found`;
 
-                tableBody.innerHTML = '';  // Clear previous entries
+    tableBody.innerHTML = '';  // Clear previous entries
 
-                data.forEach(space => {
-                    const formattedDate = new Date(space.date).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric'
-                    });
+    data.forEach(space => {
+        const formattedDate = new Date(space.date).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
 
-                    const agreementStatus = space.agreement_status === 'Completed'
-                        ? '<span style="color: green;">Completed</span>'
-                        : '<span style="color: red;">Pending</span>';
+        const agreementStatus = space.agreement_status === 'Completed'
+            ? '<span style="color: green;">Completed</span>'
+            : '<span style="color: red;">Pending</span>';
 
-                    // Inventory details formatted
-                    let inventoryHTML = '';
-                    space.inventory?.forEach(item => {
-                        if (item.type === 'Private cabin' || item.type === 'Meeting rooms') {
-                            item.room_details?.forEach(room => {
-                                inventoryHTML += `<div>${item.type} - ${room.seating_capacity} seater @ ₹${room.price}</div>`;
-                            });
-                        } else {
-                            inventoryHTML += `<div>${item.type} - ${item.count} seats @ ₹${item.price_per_seat}</div>`;
-                        }
-                    });
+        // Calculate Available Seats as sum of dedicated desk and day pass counts
+        const calculateAvailableSeats = (inventory) => {
+            if (!inventory || !Array.isArray(inventory)) return 'N/A';
+            
+            let dedicatedDeskCount = 0;
+            let dayPassCount = 0;
+            
+            inventory.forEach(item => {
+                if (item.type === 'Dedicated desk' && item.count && !isNaN(item.count)) {
+                    dedicatedDeskCount += Number(item.count);
+                }
+                if (item.type === 'Day pass' && item.count && !isNaN(item.count)) {
+                    dayPassCount += Number(item.count);
+                }
+            });
+            
+            const totalAvailable = dedicatedDeskCount + dayPassCount;
+            return totalAvailable > 0 ? totalAvailable : 'N/A';
+        };
 
-                    const getInventoryDetails = (type) => {
-    const item = (space.inventory || []).find(i => i.type === type);
-    if (!item) return 'N/A';
-
-    // Label logic
-    let label = '';
-    switch (type) {
-        case 'Day pass':
-            label = '/seat/day';
-            break;
-        case 'Dedicated desk':
-        case 'Private cabin':
-        case 'Serviced offices':
-            label = '/seat/month';
-            break;
-        case 'Virtual office':
-            label = '/year';
-            break;
-        case 'Meeting rooms':
-            label = '/hour';
-            break;
-        default:
-            label = '';
-    }
-
-    // Room-based
-    if (item.room_details && Array.isArray(item.room_details)) {
-        return item.room_details.map(room =>
-            `${room.seating_capacity}-seater @ ₹${room.price} ${label}`
-        ).join('<br>');
-    }
-
-    // Seat-based
-    return `${item.count} seats @ ₹${item.price_per_seat} ${label}`;
-};
-
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>
-                            <input type="checkbox" class="select-property" data-property-id="${space._id || ''}">
-                        </td>
-                        <td>${formattedDate || 'N/A'}</td>
-                        <td>${space.coworking_name || 'N/A'}</td>
-                        <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
-                        <td>${space.total_seats !== undefined && space.total_seats !== null && space.total_seats !== '' ? space.total_seats : 'N/A'}</td>
-                        <td>${space.current_vacancy || 'N/A'}</td>
-                        <td>${(space.total_seats && space.current_vacancy && !isNaN(space.total_seats) && !isNaN(space.current_vacancy) && Number(space.total_seats) > 0) ? ((Number(space.current_vacancy) / Number(space.total_seats)) * 100).toFixed(1) + '%' : 'N/A'}</td>
-                        {% if role != 'client' %}
-                            <td>${space.owner?.phone || 'N/A'}</td>
-                        {% endif %}
-                        <td>${getInventoryDetails('Day pass')}</td>
-                        <td>${getInventoryDetails('Meeting rooms')}</td>
-                        <td>${getInventoryDetails('Private cabin')}</td>
-                        <td>${getInventoryDetails('Dedicated desk')}</td>
-                        <td><button class="show-details-btn">Show Details</button></td>
-                        <td>
-                            ${space.has_amenities ? `<button class="view-page-btn send-btn" data-space-id="${space._id}">View Page</button>` : ''}
-                        </td>
-                        {% if role != 'client' %}
-                            <td>
-                                <span class="status-label ${space.status?.toLowerCase().replace(/\s/g, '-') || 'pending'}">
-                                    ${space.status || 'Pending'}
-                                </span>
-                            </td>
-                            <td>
-                                ${(space.status === 'Pending') ? `
-                                    <div style="display: flex; gap: 8px;">
-                                        <button class="approve-btn" data-id="${space._id}">Approve</button>
-                                        <button class="edit-btn" data-id="${space._id}">Edit Required</button>
-                                    </div>
-                                ` : ''}
-                            </td>
-                        {% endif %}
-                    `;
-                    // <td>${space.total_seats || 'N/A'}</td>
-                    // <td><button class="upload-btn" data-property-id="${space._id}">Upload</button></td>
-                        // <td>${agreementStatus}</td>
-                        // <td><button class="delete-btn" data-property-id="${space._id}">Delete</button></td>
-                    // Add event listener for "Show Details" button
-                    row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
-                    const viewPageBtn = row.querySelector('.view-page-btn');
-                    if (viewPageBtn) {
-                        viewPageBtn.addEventListener('click', () => openInventoryModal(space));
-                    }
-                    // row.querySelector('.delete-btn').addEventListener('click', function () {
-                    //     const propertyId = this.dataset.propertyId;
-                    //     openDeleteModal(propertyId); // Open delete modal
-                    // });
-                    tableBody.appendChild(row);
-                });
+        // Calculate vacancy percentage
+        const calculateVacancyPercentage = (totalSeats, availableSeats) => {
+            if (totalSeats === 'N/A' || availableSeats === 'N/A' || 
+                !totalSeats || !availableSeats || 
+                isNaN(totalSeats) || isNaN(availableSeats) || 
+                Number(totalSeats) <= 0) {
+                return 'N/A';
             }
+            return ((Number(availableSeats) / Number(totalSeats)) * 100).toFixed(1) + '%';
+        };
+
+        const availableSeats = calculateAvailableSeats(space.inventory);
+        const totalSeats = space.total_seats !== undefined && space.total_seats !== null && space.total_seats !== '' ? space.total_seats : 'N/A';
+        const vacancyPercentage = calculateVacancyPercentage(totalSeats, availableSeats);
+
+        // Inventory details formatted
+        let inventoryHTML = '';
+        space.inventory?.forEach(item => {
+            if (item.type === 'Private cabin' || item.type === 'Meeting rooms') {
+                item.room_details?.forEach(room => {
+                    inventoryHTML += `<div>${item.type} - ${room.seating_capacity} seater @ ₹${room.price}</div>`;
+                });
+            } else {
+                inventoryHTML += `<div>${item.type} - ${item.count} seats @ ₹${item.price_per_seat}</div>`;
+            }
+        });
+
+        const getInventoryDetails = (type) => {
+            const item = (space.inventory || []).find(i => i.type === type);
+            if (!item) return 'N/A';
+
+            // Label logic
+            let label = '';
+            switch (type) {
+                case 'Day pass':
+                    label = '/seat/day';
+                    break;
+                case 'Dedicated desk':
+                case 'Private cabin':
+                case 'Serviced offices':
+                    label = '/seat/month';
+                    break;
+                case 'Virtual office':
+                    label = '/year';
+                    break;
+                case 'Meeting rooms':
+                    label = '/hour';
+                    break;
+                default:
+                    label = '';
+            }
+
+            // Room-based
+            if (item.room_details && Array.isArray(item.room_details)) {
+                return item.room_details.map(room =>
+                    `${room.seating_capacity}-seater @ ₹${room.price} ${label}`
+                ).join('<br>');
+            }
+
+            // Seat-based
+            return `${item.count} seats @ ₹${item.price_per_seat} ${label}`;
+        };
+
+        // Create user info display
+        const userInfoDisplay = space.filled_by_user_email !== 'N/A' ? 
+            `<div class="user-info">
+                <strong>Email:</strong> ${space.filled_by_user_email}<br>
+                <strong>Name:</strong> ${space.filled_by_user_name}<br>
+                <strong>City:</strong> ${space.filled_by_user_city}<br>
+                <strong>Role:</strong> ${space.filled_by_user_role}
+            </div>` : 'N/A';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" class="select-property" data-property-id="${space._id || ''}">
+            </td>
+            <td>${formattedDate || 'N/A'}</td>
+            <td>${space.coworking_name || 'N/A'}</td>
+            <td>${space.micromarket || 'N/A'}, ${space.city || 'N/A'}</td>
+            <td>${totalSeats}</td>
+            <td>${availableSeats}</td>
+            <td>${vacancyPercentage}</td>
+            {% if role != 'client' %}
+                <td>${space.owner?.phone || 'N/A'}</td>
+                <td>${userInfoDisplay}</td>
+            {% endif %}
+            <td>${getInventoryDetails('Day pass')}</td>
+            <td>${getInventoryDetails('Meeting rooms') || getInventoryDetails('Meeting room')}</td>
+            <td>${getInventoryDetails('Private cabin')}</td>
+            <td>${getInventoryDetails('Dedicated desk')}</td>
+            <td><button class="show-details-btn">Show Details</button></td>
+            <td>
+                ${space.has_amenities ? `<button class="view-page-btn send-btn" data-space-id="${space._id}">View Page</button>` : ''}
+            </td>
+            {% if role != 'client' %}
+                <td>
+                    <span class="status-label ${space.status?.toLowerCase().replace(/\s/g, '-') || 'pending'}">
+                        ${space.status || 'Pending'}
+                    </span>
+                </td>
+                <td>
+                    ${(space.status === 'Pending' || space.status === 'Verification Pending') ? `
+                        <div style="display: flex; gap: 8px;">
+                            <button class="approve-btn" data-id="${space._id}">Approve</button>
+                            <button class="edit-btn" data-id="${space._id}">Edit Required</button>
+                        </div>
+                    ` : ''}
+                </td>
+            {% endif %}
+        `;
+        
+        // Add event listener for "Show Details" button
+        row.querySelector('.show-details-btn').addEventListener('click', () => displayCoworkingModal(space));
+        const viewPageBtn = row.querySelector('.view-page-btn');
+        if (viewPageBtn) {
+            viewPageBtn.addEventListener('click', () => openInventoryModal(space));
+        }
+        
+        tableBody.appendChild(row);
+    });
+}
 
             // ✅ Insert Step 2 code HERE
             document.addEventListener('click', function (e) {
@@ -934,21 +984,6 @@ thead th {
                     });
                 }
 
-                // if (e.target.classList.contains('edit-btn')) {
-                //     const id = e.target.dataset.id;
-                //     const message = prompt('Enter feedback for Edit Required:');
-                //     if (!message) return;
-
-                //     fetch('/admin/update_status', {
-                //         method: 'POST',
-                //         headers: { 'Content-Type': 'application/json' },
-                //         body: JSON.stringify({ property_id: id, status: 'Edit Required', message: message })
-                //     }).then(res => res.json())
-                //     .then(data => {
-                //         if (data.status === 'success') fetchInventory();
-                //         else alert('Failed to update status.');
-                //     });
-                // }
                 if (e.target.classList.contains('edit-btn')) {
                     const id = e.target.dataset.id;
                     openEditFeedbackModal(id);  // ✅ Show modal instead of prompt
@@ -1034,76 +1069,6 @@ thead th {
 
             closeModalButton.addEventListener('click', () => emailModal.classList.remove('show'));
 
-//             function displayCoworkingModal(space) {
-//     const modalContent = document.querySelector('.modal-content');
-//     modalContent.innerHTML = `
-//         <h2>${space.coworking_name || ''}</h2>
-
-//         <h3>Owner Information</h3>
-//         <p><strong>Name:</strong> ${space.owner?.name || 'N/A'}</p>
-//         <p><strong>Phone:</strong> ${space.owner?.phone || 'N/A'}</p>
-//         <p><strong>Email:</strong> ${space.owner?.email || 'N/A'}</p>
-
-//         <h3>Center Manager</h3>
-//         <p><strong>Name:</strong> ${space.center_manager?.name || 'N/A'}</p>
-//         <p><strong>Contact:</strong> ${space.center_manager?.contact || 'N/A'}</p>
-
-//         <h3>General Details</h3>
-//         <p><strong>City:</strong> ${space.city}</p>
-//         <p><strong>Micromarket:</strong> ${space.micromarket}</p>
-//         <p><strong>Address:</strong> ${space.address || 'N/A'}</p>
-//         <p><strong>Total Seats:</strong> ${space.total_seats}</p>
-//         <p><strong>Current Vacancy:</strong> ${space.current_vacancy}</p>
-//         <p><strong>Status:</strong> ${space.status || 'N/A'}</p>
-
-//         <h3>Space Description</h3>
-//         <p>${space.space_description || 'N/A'}</p>
-
-//         <h3>Distance from Key Locations (in km)</h3>
-//         <p><strong>Metro:</strong> ${space.distance?.metro || 'N/A'}</p>
-//         <p><strong>Bus:</strong> ${space.distance?.bus || 'N/A'}</p>
-//         <p><strong>Railway:</strong> ${space.distance?.railway || 'N/A'}</p>
-//         <p><strong>Airport:</strong> ${space.distance?.airport || 'N/A'}</p>
-
-//         <h3>Office Timings</h3>
-//         <p><strong>Open:</strong> ${space.office_timings?.open_from} to ${space.office_timings?.open_to}</p>
-//         <p><strong>Timings:</strong> ${space.office_timings?.opening_time} - ${space.office_timings?.closing_time}</p>
-
-//         <h3>Amenities</h3>
-//         <ul>
-//             ${(space.amenities || []).map(item => `<li>${item}</li>`).join('')}
-//         </ul>
-
-//         <h3>Inventory</h3>
-//         ${(space.inventory || []).map(item => {
-//             if (item.room_details) {
-//                 return `
-//                     <h4>${item.type} (${item.room_count} rooms)</h4>
-//                     ${item.room_details.map(room => `
-//                         <div style="margin-bottom:10px;">
-//                             <strong>Room ${room.room_number}:</strong><br/>
-//                             ${room.seating_capacity}-seater @ ₹${room.price}<br/>
-//                             ${(room.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
-//                         </div>
-//                     `).join('')}
-//                 `;
-//             } else {
-//                 return `
-//                     <div style="margin-bottom:10px;">
-//                         <strong>${item.type}:</strong> ${item.count} seats @ ₹${item.price_per_seat}<br/>
-//                         ${(item.images || []).map(img => `<img src="${img}" width="100" style="margin:5px;">`).join('')}
-//                     </div>
-//                 `;
-//             }
-//         }).join('')}
-
-//         <h3>Property Images</h3>
-//         ${(space.property_images || []).map(img => `<img src="${img}" width="120" style="margin:5px;">`).join('')}
-//     `;
-
-//     coworkingModal.classList.add('show');
-// }
-
 const userRole = "{{ role }}";
 
 function displayCoworkingModal(space) {
@@ -1131,7 +1096,7 @@ function displayCoworkingModal(space) {
         priceLabel = `₹${item.price_per_seat} /year`;
     } else if (item.type === 'Serviced offices') {
         priceLabel = `₹${item.price_per_seat} /seat/month`;
-    } else if (item.type === 'Meeting rooms') {
+    } else if (item.type === 'Meeting rooms' || item.type === 'Meeting room') {
         priceLabel = `₹${item.price_per_seat} /hour`;
     } else if (item.type === 'Private cabin') {
         priceLabel = `₹${item.price_per_seat} /seat/month`;
@@ -1176,9 +1141,15 @@ function displayCoworkingModal(space) {
                     : `<button class="upload-btn" data-property-id="${space._id}" style="margin-left:auto;position:relative;right:50px;">Upload Agreement</button>`)
                 : '')
         }
-            
+        </h2>
 
         {% if role != 'client' %}
+        <h3>Form Filled By</h3>
+        <p><strong>Email:</strong> ${space.filled_by_user_email || 'N/A'}</p>
+        <p><strong>Name:</strong> ${space.filled_by_user_name || 'N/A'}</p>
+        <p><strong>City:</strong> ${space.filled_by_user_city || 'N/A'}</p>
+        <p><strong>Role:</strong> ${space.filled_by_user_role || 'N/A'}</p>
+
         <h3>Owner Information</h3>
         <p><strong>Name:</strong> ${owner.name || 'N/A'}</p>
         <p><strong>Phone:</strong> ${owner.phone || 'N/A'}</p>
@@ -1192,18 +1163,19 @@ function displayCoworkingModal(space) {
         <h3>General Info</h3>
         <p><strong>City:</strong> ${space.city}</p>
         <p><strong>Micromarket:</strong> ${space.micromarket}</p>
-        <p><strong>Address:</strong> ${space.address}</p>
-        <p><strong>Available Seats:</strong> ${space.current_vacancy}</p>
+        <p><strong>Address:</strong> ${space.street || space.address || 'N/A'}</p>
+        <p><strong>Available Seats:</strong> ${space.current_vacancy || space.seating_capacity || space.total_seats || 'N/A'}</p>
+        <p><strong>Workspace Type:</strong> ${space.workspace_type || 'N/A'}</p>
 
         <h3>Description</h3>
         <p>${space.space_description || 'N/A'}</p>
 
-        ${Object.keys(distance).length ? `
+        ${(space.metro || space.bus || space.railway || space.airport) ? `
         <h3>Distances (in km)</h3>
-        <p><strong>Metro:</strong> ${distance.metro || 'N/A'}</p>
-        <p><strong>Bus:</strong> ${distance.bus || 'N/A'}</p>
-        <p><strong>Railway:</strong> ${distance.railway || 'N/A'}</p>
-        <p><strong>Airport:</strong> ${distance.airport || 'N/A'}</p>
+        <p><strong>Metro:</strong> ${space.metro || 'N/A'}</p>
+        <p><strong>Bus:</strong> ${space.bus || 'N/A'}</p>
+        <p><strong>Railway:</strong> ${space.railway || 'N/A'}</p>
+        <p><strong>Airport:</strong> ${space.airport || 'N/A'}</p>
         ` : ''}
 
         ${Object.keys(timings).length ? `
@@ -1280,25 +1252,57 @@ ${space.agreement_status === 'Completed' ? '<span style="color:green">Completed<
             micromarketDropdown.addEventListener('change', fetchInventory);
             inventoryTypeDropdown.addEventListener('change', fetchInventory); // Added for inventory type
 
-            const sortSelect = document.getElementById('sort-select');
-            sortSelect.addEventListener('change', function() {
-                let sortedData = inventoryData.slice();
-                if (sortSelect.value === 'vacancy') {
-                    sortedData.sort((a, b) => {
-                        const aVac = (a.total_seats && a.current_vacancy && !isNaN(a.total_seats) && !isNaN(a.current_vacancy) && Number(a.total_seats) > 0) ? (Number(a.current_vacancy) / Number(a.total_seats)) : -1;
-                        const bVac = (b.total_seats && b.current_vacancy && !isNaN(b.total_seats) && !isNaN(b.current_vacancy) && Number(b.total_seats) > 0) ? (Number(b.current_vacancy) / Number(b.total_seats)) : -1;
-                        if (aVac === -1 && bVac === -1) return 0;
-                        if (aVac === -1) return 1;
-                        if (bVac === -1) return -1;
-                        return bVac - aVac;
-                    });
-                } else if (sortSelect.value === 'total_seats') {
-                    sortedData.sort((a, b) => (Number(b.total_seats) || 0) - (Number(a.total_seats) || 0));
-                } else if (sortSelect.value === 'available_seats') {
-                    sortedData.sort((a, b) => (Number(b.current_vacancy) || 0) - (Number(a.current_vacancy) || 0));
-                }
-                renderTable(sortedData);
-            });
+            // Updated sorting logic - replace the existing sortSelect event listener
+const sortSelect = document.getElementById('sort-select');
+sortSelect.addEventListener('change', function() {
+    let sortedData = inventoryData.slice();
+    
+    // Helper function to calculate available seats
+    const calculateAvailableSeats = (inventory) => {
+        if (!inventory || !Array.isArray(inventory)) return 0;
+        
+        let dedicatedDeskCount = 0;
+        let dayPassCount = 0;
+        
+        inventory.forEach(item => {
+            if (item.type === 'Dedicated desk' && item.count && !isNaN(item.count)) {
+                dedicatedDeskCount += Number(item.count);
+            }
+            if (item.type === 'Day pass' && item.count && !isNaN(item.count)) {
+                dayPassCount += Number(item.count);
+            }
+        });
+        
+        return dedicatedDeskCount + dayPassCount;
+    };
+    
+    if (sortSelect.value === 'vacancy') {
+        sortedData.sort((a, b) => {
+            const aAvailableSeats = calculateAvailableSeats(a.inventory);
+            const bAvailableSeats = calculateAvailableSeats(b.inventory);
+            const aTotalSeats = Number(a.total_seats) || 0;
+            const bTotalSeats = Number(b.total_seats) || 0;
+            
+            // Calculate vacancy percentages
+            const aVac = (aTotalSeats > 0 && aAvailableSeats > 0) ? (aAvailableSeats / aTotalSeats) : -1;
+            const bVac = (bTotalSeats > 0 && bAvailableSeats > 0) ? (bAvailableSeats / bTotalSeats) : -1;
+            
+            if (aVac === -1 && bVac === -1) return 0;
+            if (aVac === -1) return 1;
+            if (bVac === -1) return -1;
+            return bVac - aVac; // Sort in descending order
+        });
+    } else if (sortSelect.value === 'total_seats') {
+        sortedData.sort((a, b) => (Number(b.total_seats) || 0) - (Number(a.total_seats) || 0));
+    } else if (sortSelect.value === 'available_seats') {
+        sortedData.sort((a, b) => {
+            const aAvailableSeats = calculateAvailableSeats(a.inventory);
+            const bAvailableSeats = calculateAvailableSeats(b.inventory);
+            return bAvailableSeats - aAvailableSeats; // Sort in descending order
+        });
+    }
+    renderTable(sortedData);
+});
 
             // Initial fetch
             fetchInventory();
